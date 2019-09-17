@@ -23,13 +23,20 @@ void PropertyWindow::createPropertyWin()
 	lv_obj_set_drag(propertyWin, true);
 	lv_obj_set_drag_dir(propertyWin, LV_DRAG_DIR_ALL);
 	lv_obj_set_protect(propertyWin, LV_PROTECT_NONE);
-
+	cwm = new CollapsableWindowManager(propertyWin);
 	createGlobalProps();
+	createBaseObjProps();
+}
+
+void PropertyWindow::createBaseObjProps()
+{
+	baseObjProps = new CollapsableWindow(propertyWin, "Base Object", false, 10,0,0, 0);
+	cwm->AddWindow(baseObjProps);
 }
 
 void PropertyWindow::createGlobalProps()
 {
-	globalProps = new CollapsableWindow(propertyWin, "Global", false, 0, 0, 400, 200);
+	globalProps = new CollapsableWindow(propertyWin, "Global", false, 10, 0, 400, 200);
 	lv_obj_t* win = globalProps->GetWindow();
 	lv_obj_t * th_roller = lv_roller_create(win, NULL);
 	lv_roller_set_options(th_roller, th_options, true);
@@ -51,6 +58,7 @@ void PropertyWindow::createGlobalProps()
 	
 	globalProps->AddObjectToWindow(th_roller);
 	globalProps->AddObjectToWindow(hue_roller);
+	cwm->AddWindow(globalProps);
 }
 
 #pragma region ThemeInit
