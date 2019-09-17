@@ -1,0 +1,114 @@
+#include "PropertyWindow.h"
+#include "UI.h"
+
+lv_theme_t *PropertyWindow::activeTheme;
+std::vector<lv_theme_t*> PropertyWindow::themes;
+
+PropertyWindow::PropertyWindow(SimWindow* simWindow, int screenWidth, int screenHeight) :
+	simWindow(simWindow),
+	screenX(screenWidth),
+	screenY(screenHeight)
+{
+	initializeThemes(0);
+	createPropertyWin();
+}
+
+void PropertyWindow::createPropertyWin()
+{
+	propertyWin = lv_win_create(lv_scr_act(), nullptr);
+	lv_obj_t* curScr = lv_scr_act();
+	lv_win_set_title(propertyWin, "Properties");
+	lv_obj_set_size(propertyWin, 400, screenY);
+	lv_obj_set_x(propertyWin, screenX-400);
+	lv_obj_set_drag(propertyWin, true);
+	lv_obj_set_drag_dir(propertyWin, LV_DRAG_DIR_ALL);
+	lv_obj_set_protect(propertyWin, LV_PROTECT_NONE);
+
+	createGlobalProps();
+}
+
+void PropertyWindow::createGlobalProps()
+{
+	globalProps = new CollapsableWindow(propertyWin, "Global", false, 0, 0, 400, 200);
+	lv_obj_t* win = globalProps->GetWindow();
+	lv_obj_t * th_roller = lv_roller_create(win, NULL);
+	lv_roller_set_options(th_roller, th_options, true);
+	lv_obj_set_event_cb(th_roller, theme_select_event_handler);
+
+	lv_obj_t * hue_roller = lv_roller_create(win, NULL);
+	lv_roller_set_options(hue_roller, "0\n30\n60\n90\n120\n150\n180\n210\n240\n270\n300\n330", true);
+	lv_obj_set_event_cb(hue_roller, hue_select_event_cb);
+
+	lv_obj_t* themeLabel = lv_label_create(win, nullptr);
+	lv_obj_t* hueLabel = lv_label_create(win, nullptr);
+	lv_label_set_text(themeLabel, "Theme:");
+	lv_label_set_text(hueLabel, "Hue:");
+	lv_obj_set_pos(themeLabel, 10, 50);
+	lv_obj_set_pos(hueLabel, 220, 50);
+	
+	lv_obj_set_pos(th_roller, 100, 20);
+	lv_obj_set_pos(hue_roller, 280, 20);
+	
+	globalProps->AddObjectToWindow(th_roller);
+	globalProps->AddObjectToWindow(hue_roller);
+}
+
+#pragma region ThemeInit
+void PropertyWindow::initializeThemes(uint16_t hue)
+{
+	themes.clear();
+#if LV_USE_THEME_NIGHT
+	themes.push_back(lv_theme_night_init(hue, NULL));
+#endif
+
+#if LV_USE_THEME_MATERIAL
+	themes.push_back(lv_theme_material_init(hue, NULL));
+#endif
+
+#if LV_USE_THEME_ALIEN
+	themes.push_back(lv_theme_alien_init(hue, NULL));
+#endif
+
+#if LV_USE_THEME_ZEN
+	themes.push_back(lv_theme_zen_init(hue, NULL));
+#endif
+
+#if LV_USE_THEME_NEMO
+	themes.push_back(lv_theme_nemo_init(hue, NULL));
+#endif
+
+#if LV_USE_THEME_MONO
+	themes.push_back(lv_theme_mono_init(hue, NULL));
+#endif
+
+#if LV_USE_THEME_DEFAULT
+	themes.push_back(lv_theme_default_init(hue, NULL));
+#endif
+}
+#pragma endregion
+
+void PropertyWindow::theme_select_event_handler(lv_obj_t * roller, lv_event_t event)
+{
+	if (event == LV_EVENT_VALUE_CHANGED) {
+		// lv_coord_t hres = lv_disp_get_hor_res(NULL);
+		// lv_coord_t vres = lv_disp_get_ver_res(NULL);
+
+		uint16_t opt = lv_roller_get_selected(roller);
+		activeTheme = themes[opt];
+		lv_theme_set_current(activeTheme);
+	}
+}
+
+void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)
+{
+
+	if (event == LV_EVENT_VALUE_CHANGED) {
+		uint16_t hue = lv_roller_get_selected(roller) * 30;
+
+		initializeThemes(hue);
+
+		lv_theme_set_current(activeTheme);
+
+		// lv_page_focus(sb, roller, LV_ANIM_ON);
+	}
+}
