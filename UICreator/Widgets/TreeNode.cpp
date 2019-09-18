@@ -1,8 +1,9 @@
 #include "TreeNode.h"
 
-TreeNode::TreeNode(std::string name, lv_obj_t* object) :
+TreeNode::TreeNode(std::string name, lv_obj_t* object, bool protect) :
 	name(name),
 	object(object),
+	protectedNode(protect),
 	expanded(false),
 	selected(false)
 {

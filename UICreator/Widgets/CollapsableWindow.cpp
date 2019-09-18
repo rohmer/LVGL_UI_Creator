@@ -63,13 +63,13 @@ void CollapsableWindow::createObjects(lv_obj_t *parent)
 	{
 		lv_label_set_text(collapseBtnLbl, LV_SYMBOL_DOWN);
 	}
-	lv_obj_set_pos(window, x, y + lv_obj_get_height(collapseBtn));
+	lv_cont_set_layout(window, LV_LAYOUT_OFF);
+	lv_cont_set_fit(window, LV_FIT_TIGHT);
+	lv_obj_set_pos(window, x, y+25);
 
 	lv_obj_set_style(window, &lv_style_transp);
 	cbStruct *userData=new cbStruct();
 	userData->cw = this;
-	lv_cont_set_layout(window, LV_LAYOUT_OFF);
-	lv_cont_set_fit(window, LV_FIT_TIGHT);
 	lv_obj_set_user_data(collapseBtn, userData);
 	lv_obj_set_event_cb(collapseBtn, collapseClicked);
 }
@@ -80,7 +80,7 @@ void CollapsableWindow::SetPos(int x, int y)
 	this->y = y;
 	lv_obj_set_pos(winTitle,x + 25, 7+y);
 	lv_obj_set_pos(collapseBtn, x + 5, 7+y);
-	lv_obj_set_pos(window, x, y + lv_obj_get_height(collapseBtn));
+	lv_obj_set_pos(window, x, y + 25);
 }
 
 void CollapsableWindow::SetVerticalPos(int y)
@@ -88,7 +88,7 @@ void CollapsableWindow::SetVerticalPos(int y)
 	this->y = y;
 	lv_obj_set_pos(winTitle, this->x + 25, 7 + y);
 	lv_obj_set_pos(collapseBtn, this->x + 5, 7 + y);
-	lv_obj_set_pos(window, this->x, y + lv_obj_get_height(collapseBtn));
+	lv_obj_set_pos(window, this->x, y + 25);
 
 }
 
@@ -139,20 +139,7 @@ int CollapsableWindow::GetCurrentHeight()
 	std::vector<lv_obj_t*> children = ObjectTools::GetChildren(window);
 	lv_area_t area;
 	lv_obj_get_coords(window, &area);
-	return (abs(area.y2 - area.y1));
-	int y1 = area.y1;
-	int y2 = y1;
-	for(std::vector<lv_obj_t*>::iterator it=children.begin();
-		it!=children.end();
-		++it)
-	{
-		lv_obj_get_coords(window, &area);
-		if (area.y2 > y2)
-			y2 = area.y2;
-	}
-
-	return y2 - y1;
-	
+	return (abs(area.y2 - area.y1));	
 }
 
 lv_obj_t* CollapsableWindow::GetWindow()
@@ -163,6 +150,7 @@ lv_obj_t* CollapsableWindow::GetWindow()
 void CollapsableWindow::AddObjectToWindow(lv_obj_t* obj)
 {
 	lv_obj_set_parent(obj, window);
+	lv_obj_set_y(obj,lv_obj_get_y(obj) + 10);
 }
 
 lv_obj_t* CollapsableWindow::GetCollapseButton()
