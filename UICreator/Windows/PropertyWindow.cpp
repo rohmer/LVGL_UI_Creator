@@ -120,7 +120,7 @@ void PropertyWindow::objSelectCB(TreeNode *node)
 		try
 		{
 			uidata = std::any_cast<uiObjData *>(node->GetNodeData());
-		} catch(std::bad_any_cast &e)
+		} catch(std::bad_any_cast)
 		{	
 		}
 		if(uidata==nullptr)

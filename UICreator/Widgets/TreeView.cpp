@@ -184,6 +184,19 @@ std::vector<TreeNode*> TreeView::getAllNodes()
 	return retVal;
 }
 
+std::vector<TreeNode*> TreeView::GetChildren(TreeNode *treeNode)
+{
+    std::vector<TreeNode*> retVal;
+    for (std::vector<TreeNode*>::iterator it = treeNode->children.begin();
+        it != treeNode->children.end();
+        ++it)
+    {
+        std::vector<TreeNode*> children = getAllNodes(*it);
+        retVal.insert(retVal.end(), children.begin(), children.end());
+    }
+    return retVal;
+}
+
 std::vector<TreeNode*> TreeView::GetAllNodes()
 {
 	std::vector<TreeNode*> retVal;
@@ -384,6 +397,8 @@ void TreeView::createObjects()
 
 void TreeView::deleteButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
+    if (ev != LV_EVENT_CLICKED)
+        return;
 	TreeView *tv = (TreeView*)lv_obj_get_user_data(obj);
 	// First we process any call back to clean up data
 	if(tv->deleteCallbackFunc!=nullptr)
@@ -393,9 +408,13 @@ void TreeView::deleteButtonCB(lv_obj_t * obj, lv_event_t ev)
 
 	TreeNode *tNode = tv->GetSelectedObject();
 	// Then delete the node
-	if (tNode->parent == nullptr)
-		return;
-	tNode->parent->DeleteNode(tNode);
+    TreeNode *parent = tNode->parent;    
+    if (parent == nullptr)
+        return;
+    parent->RemoveChild(tNode);
+    delete(tNode);
+    tv->createObjects();
+    lv_obj_invalidate(tv->treeContainer);
 }
 
 void TreeView::AddSelectCallback(tv_select_callback cbMethod)

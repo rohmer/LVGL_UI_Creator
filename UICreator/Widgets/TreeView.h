@@ -32,7 +32,8 @@ public:
 	void AddSelectCallback(tv_select_callback cbMethod);
 	TreeNode *GetSelectedObject();
 	void AddDeleteCallback(tv_select_callback cbMethod);
-	
+    std::vector<TreeNode*> GetChildren(TreeNode *treeNode);
+
 private:
 	unsigned int curID = 1;
 	std::string title;

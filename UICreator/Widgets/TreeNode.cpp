@@ -10,6 +10,33 @@ TreeNode::TreeNode(std::string name, lv_obj_t* object, bool protect) :
 {
 }
 
+TreeNode::~TreeNode()
+{
+    for (int i = 0; i < lvObjects.size(); ++i)
+    {
+        if (lvObjects[i] != nullptr)
+            lv_obj_del(lvObjects[i]);
+    }
+    lvObjects.clear();
+    for (std::vector<TreeNode*>::iterator it = children.begin();
+        it != children.end();
+        it++)
+    {
+        if ((*it) != nullptr)
+            delete(*it);
+    }
+}
+
+void TreeNode::RemoveChild(TreeNode *node)
+{
+    int idx = -1;
+    for (int i = 0; i < children.size(); i++)
+        if (children[i] == node)
+            idx = i;
+    if (idx != -1)
+        children.erase(children.begin() + idx);
+}
+
 bool TreeNode::operator==(const TreeNode &other)
 {
 	if (other.id == id && other.name == name)
@@ -41,28 +68,6 @@ void TreeNode::setPosition(int x, int y)
 {
 	this->x = x;
 	this->y = y;
-}
-
-void TreeNode::DeleteNode(TreeNode* node)
-{
-	if (node == nullptr)
-		return;
-	// Delete and associated lv_objects
-	for (int i=0; i<lvObjects.size(); ++i)
-	{
-		if(lvObjects[i]!=nullptr)
-			lv_obj_del_async(lvObjects[i]);
-	}
-	int nodeIdx = -1;
-	for(int i=0; i<children.size(); i++)
-	{
-		if (children[i] == node)
-			nodeIdx = i;
-	}
-	if(nodeIdx!=-1)
-	{
-		children.erase(children.begin() + nodeIdx);
-	}
 }
 
 lv_obj_t *TreeNode::GetObject()

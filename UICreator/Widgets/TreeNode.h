@@ -7,7 +7,7 @@
 class TreeNode
 {
 public:	
-
+    ~TreeNode();
 	bool operator==(const TreeNode &other);
 	lv_obj_t *GetObject();
 	unsigned int GetID();
@@ -17,8 +17,8 @@ public:
 	bool GetSelected();
 	void SetNodeData(std::any nodeData);
 	std::any GetNodeData();
-	void DeleteNode(TreeNode *node);
-	
+    void RemoveChild(TreeNode *node);
+
 protected:
 	friend class TreeView;
 	void setID(unsigned int tnid);
