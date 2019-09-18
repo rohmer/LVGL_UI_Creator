@@ -1,18 +1,22 @@
 #pragma once
+#include <any>
 #include <string>
 #include <vector>
 #include "lvgl.h"
 
-class TreeNode 
+class TreeNode
 {
 public:	
 
-	bool operator=(const TreeNode &other);
+	bool operator==(const TreeNode &other);
 	lv_obj_t *GetObject();
 	unsigned int GetID();
 	std::string GetName();
 	unsigned int GetLevel();	
 	std::vector<TreeNode*> GetChildren();
+	bool GetSelected();
+	void SetNodeData(std::any nodeData);
+	std::any GetNodeData();
 	
 protected:
 	friend class TreeView;
@@ -21,7 +25,7 @@ protected:
 	TreeNode(std::string name, lv_obj_t *object, bool protect=false);
 	void addChild(TreeNode *childNode);
 	std::vector<lv_obj_t*> lvObjects;
-	bool protectedNode;
+	
 private:
 	std::vector<TreeNode *> children;
 	unsigned int id;
@@ -32,4 +36,6 @@ private:
 	TreeNode* parent;
 	bool expanded = false;
 	bool selected = false;
+	bool protectedNode = false;
+	std::any nodeData;
 };

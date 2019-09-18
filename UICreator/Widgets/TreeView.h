@@ -8,6 +8,8 @@
 
 class TreeView 
 {
+	typedef void(*tv_select_callback)(TreeNode *nodeSelected);
+	
 public:
 	TreeView(unsigned int x,
 		unsigned int y, 
@@ -19,12 +21,16 @@ public:
 	~TreeView();
 	void SetDrawTree(bool drawTree);
 
-	unsigned int AddNode(std::string name, lv_obj_t* object, unsigned int parentID=0);
+	unsigned int AddNode(std::string name, lv_obj_t* object, 
+		unsigned int parentID=0, 
+		bool protect=false);
 	unsigned int GetNodeID(std::string name, lv_obj_t* object);
 	std::vector<TreeNode*> GetAllNodes();
 	unsigned int GetNodeLevel(TreeNode* node);
 	lv_obj_t* GetBaseObject();
-
+	TreeNode* FindNodeByID(unsigned int id);
+	void AddSelectCallback(tv_select_callback cbMethod);
+	
 private:
 	unsigned int curID = 1;
 	std::string title;
@@ -54,4 +60,5 @@ private:
 		TreeView *tv;
 	};
 	bool dTree = false;
+	tv_select_callback selectCallbackFunc = nullptr;
 };

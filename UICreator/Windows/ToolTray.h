@@ -2,14 +2,16 @@
 #include <string>
 #include <vector>
 #include "lvgl/lvgl.h"
+#include "../Widgets/TreeView.h"
 
 class ToolTray
 {
 public:
-	ToolTray(lv_obj_t *parent);
+	ToolTray(lv_obj_t *parent, TreeView *objectTree);
 	
 private:
 	lv_obj_t *toolWin;
+	TreeView *objTree;
 	void initializeToolMatrix();
 	void initializeWidgetButtons(lv_obj_t* parent);
 

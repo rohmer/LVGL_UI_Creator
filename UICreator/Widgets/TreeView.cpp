@@ -42,6 +42,7 @@ TreeView::TreeView(unsigned int x,
 		lv_obj_set_size(deleteButton, 35, 35);
 		lv_label_set_text(dbLabel, LV_SYMBOL_TRASH);
 		treeContPush = 40;
+		lv_obj_set_hidden(deleteButton, true);
 	}
 	treeContainer = lv_cont_create(window,nullptr);		
 	lv_obj_set_y(treeContainer, treeContPush);
@@ -113,9 +114,12 @@ unsigned int TreeView::findNode(TreeNode* node, std::string name, lv_obj_t* obje
 /*
 	parentID: the id of the parent in the tree, 0=top level node
 */
-unsigned int TreeView::AddNode(std::string name, lv_obj_t* object, unsigned int parentID)
+unsigned int TreeView::AddNode(std::string name, 
+	lv_obj_t* object, 
+	unsigned int parentID,
+	bool protect)
 {
-	TreeNode *tn = new TreeNode(name, object);
+	TreeNode *tn = new TreeNode(name, object, protect);
 	tn->setID(curID);
 	curID++;
 	if (parentID == 0)
@@ -188,6 +192,19 @@ std::vector<TreeNode*> TreeView::GetAllNodes()
 		retVal.insert(retVal.end(), children.begin(), children.end());
 	}
 	return retVal;
+}
+
+TreeNode* TreeView::FindNodeByID(unsigned int id)
+{
+	std::vector<TreeNode*> nodes = GetAllNodes();
+	for(std::vector<TreeNode*>::iterator it=nodes.begin();
+		it!=nodes.end();
+		++it)
+	{
+		if ((*it)->id == id)
+			return (*it);
+	}
+	return nullptr;
 }
 
 unsigned int TreeView::GetNodeLevel(TreeNode *node)
@@ -366,18 +383,32 @@ void TreeView::deleteButtonCB(lv_obj_t * obj, lv_event_t ev)
 
 }
 
+void TreeView::AddSelectCallback(tv_select_callback cbMethod)
+{
+	this->selectCallbackFunc = cbMethod;
+}
+
 void TreeView::labelButtonCB(lv_obj_t *obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
 	sExpButton *expBtn = (sExpButton*)lv_obj_get_user_data(obj);
 	if (expBtn->node->selected)
-	{
+	{	
 		expBtn->node->selected = false;
 		if (expBtn->tv->selNode != nullptr)
 			expBtn->tv->selNode->selected = false;
 		expBtn->node->selected = false;
 		expBtn->tv->selectedNode = expBtn->node->id;
+		if (expBtn->tv->selectCallbackFunc != nullptr)
+		{
+			// Call once for previous node
+			if(expBtn->tv->selNode!=nullptr)
+				expBtn->tv->selectCallbackFunc(expBtn->tv->selNode);
+			// Once for this node
+			expBtn->tv->selectCallbackFunc(expBtn->node);
+		}
+		
 		expBtn->tv->selNode = expBtn->node;		
 		lv_obj_set_hidden(expBtn->tv->deleteButton, true);
 	}
@@ -388,9 +419,18 @@ void TreeView::labelButtonCB(lv_obj_t *obj, lv_event_t ev)
 			expBtn->tv->selNode->selected = false;
 		expBtn->node->selected = true;
 		expBtn->tv->selectedNode = expBtn->node->id;
+		if (expBtn->tv->selectCallbackFunc != nullptr)
+		{
+			// Call once for previous node
+			if (expBtn->tv->selNode != nullptr)
+				expBtn->tv->selectCallbackFunc(expBtn->tv->selNode);
+			// Once for this node
+			expBtn->tv->selectCallbackFunc(expBtn->node);
+		}
 		expBtn->tv->selNode = expBtn->node;
 		expBtn->tv->createObjects();
-		lv_obj_set_hidden(expBtn->tv->deleteButton, false);
+		if(!expBtn->node->protectedNode)
+			lv_obj_set_hidden(expBtn->tv->deleteButton, false);
 	}
 	expBtn->tv->createObjects();
 }

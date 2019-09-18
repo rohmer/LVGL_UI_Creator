@@ -1,6 +1,7 @@
 #include "ToolTray.h"
 
-ToolTray::ToolTray(lv_obj_t *parent)
+ToolTray::ToolTray(lv_obj_t *parent, TreeView *objTree) :
+	objTree(objTree)
 {
 	toolWin= lv_win_create(parent, nullptr);
 	lv_win_set_title(toolWin, "Tool Tray");

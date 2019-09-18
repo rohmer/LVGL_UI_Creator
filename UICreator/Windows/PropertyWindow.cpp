@@ -13,6 +13,11 @@ PropertyWindow::PropertyWindow(SimWindow* simWindow, int screenWidth, int screen
 	createPropertyWin();
 }
 
+TreeView* PropertyWindow::GetObjectTree()
+{
+	return treeView;
+}
+
 void PropertyWindow::createPropertyWin()
 {
 	propertyWin = lv_win_create(lv_scr_act(), nullptr);
@@ -94,10 +99,31 @@ void PropertyWindow::createTreeView()
 	treeWin = new CollapsableWindow(propertyWin, "UI Objects", false, 10, 10, 400, 250);
 
 	treeView = new TreeView(0, 0, 385, 250, "UI Objects", false);
+	treeView->AddNode("Screen", lv_scr_act(), 0, true);
+	treeView->AddSelectCallback(objSelectCB);
+	
 	treeWin->AddObjectToWindow(treeView->GetBaseObject());
 	cwm->AddWindow(treeWin);
 }
 
+/**
+ * \brief Called when a node is selected or deselected from the node tree view
+ * \param node - The node that is changing state
+ */
+void PropertyWindow::objSelectCB(TreeNode *node)
+{
+	if (node->GetSelected())
+	{
+		// Set the node data to the node objects current style
+		node->SetNodeData(node->GetObject()->style_p);
+		lv_obj_set_style(node->GetObject(), &lv_style_plain);
+	}
+	else
+	{
+		// We are returning the node to its original style
+		lv_obj_set_style(node->GetObject(), std::any_cast<lv_style_t const *>(node->GetNodeData()));
+	}
+}
 #pragma region ThemeInit
 void PropertyWindow::initializeThemes(uint16_t hue)
 {

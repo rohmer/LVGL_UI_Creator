@@ -10,7 +10,8 @@
 class PropertyWindow
 {
 public:
-	PropertyWindow(SimWindow *simWindow, int scrWidth, int scrHeight);
+	PropertyWindow(SimWindow *simWindow, int screenWidth, int screenHeight);
+	TreeView *GetObjectTree();
 	
 private:
 	SimWindow *simWindow;
@@ -28,6 +29,8 @@ private:
 	void createGlobalProps();
 	void createBaseObjProps();
 	void createTreeView();
+	static void objSelectCB(TreeNode *node);
+	
 	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
 	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
 };

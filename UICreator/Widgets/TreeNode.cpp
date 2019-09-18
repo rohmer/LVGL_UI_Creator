@@ -5,15 +5,31 @@ TreeNode::TreeNode(std::string name, lv_obj_t* object, bool protect) :
 	object(object),
 	protectedNode(protect),
 	expanded(false),
-	selected(false)
+	selected(false),
+	nodeData(nullptr)
 {
 }
 
-bool TreeNode::operator=(const TreeNode &other)
+bool TreeNode::operator==(const TreeNode &other)
 {
 	if (other.id == id && other.name == name)
 		return true;
 	return false;
+}
+
+void TreeNode::SetNodeData(std::any nodeData)
+{
+	this->nodeData = nodeData;
+}
+
+std::any TreeNode::GetNodeData()
+{
+	return this->nodeData;
+}
+
+bool TreeNode::GetSelected()
+{
+	return selected;
 }
 
 void TreeNode::setID(unsigned int tnid)
