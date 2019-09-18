@@ -1,26 +1,52 @@
 #include "TreeView.h"
 
-TreeView::TreeView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, std::string title, lv_obj_t* parent) :
+TreeView::TreeView(unsigned int x, 
+	unsigned int y, 
+	unsigned int width, 
+	unsigned int height, 
+	std::string title, 
+	bool inWindow, 
+	lv_obj_t* parent) :
 	x(x),
 	y(y),
 	width(width),
 	height(height),
 	title(title)
 {
-	if (parent == nullptr)
-		window = lv_win_create(lv_scr_act(), nullptr);
-	else
-		window = lv_win_create(parent, nullptr);
-	lv_win_set_title(window, title.c_str());
-	lv_obj_set_size(window, width, height);
-	lv_obj_set_pos(window, x, y);
-	
-	deleteButton=lv_win_add_btn(window, LV_SYMBOL_TRASH);
-	lv_obj_set_event_cb(deleteButton, deleteButtonCB);
-	lv_obj_set_click(deleteButton, true);
-	lv_obj_set_hidden(deleteButton, true);
+	int treeContPush = 0;
+	if (inWindow)
+	{
+		if (parent == nullptr)
+			window = lv_win_create(lv_scr_act(), nullptr);
+		else
+			window = lv_win_create(parent, nullptr);
+		lv_win_set_title(window, title.c_str());
+		deleteButton = lv_win_add_btn(window, LV_SYMBOL_TRASH);
+		lv_obj_set_event_cb(deleteButton, deleteButtonCB);
+		lv_obj_set_click(deleteButton, true);
+		lv_obj_set_hidden(deleteButton, true);
+		lv_obj_set_size(window, width, height);
+		lv_obj_set_pos(window, x, y);
+	} else
+	{
+		if (parent == nullptr)
+			window = lv_cont_create(lv_scr_act(), nullptr);
+		else
+			window = lv_cont_create(parent, nullptr);	
+		// We need to add a place for our buttons at top
+		lv_obj_set_size(window, width, height);
+		
+		deleteButton = lv_btn_create(window, nullptr);
+		lv_obj_set_pos(deleteButton, width - 40, 2);
+		lv_obj_t *dbLabel = lv_label_create(deleteButton, nullptr);
+		lv_obj_set_size(deleteButton, 35, 35);
+		lv_label_set_text(dbLabel, LV_SYMBOL_TRASH);
+		treeContPush = 40;
+	}
 	treeContainer = lv_cont_create(window,nullptr);		
-	lv_cont_set_fit(treeContainer, LV_FIT_FLOOD);
+	lv_obj_set_y(treeContainer, treeContPush);
+	lv_obj_set_size(treeContainer, width-5, height - treeContPush);
+//	lv_cont_set_fit(treeContainer, LV_FIT_FLOOD);
 }
 
 TreeView::~TreeView()
@@ -33,6 +59,11 @@ TreeView::~TreeView()
 		if (*it != nullptr)
 			delete(*it);
 	}
+}
+
+lv_obj_t* TreeView::GetBaseObject()
+{
+	return window;
 }
 
 unsigned int TreeView::GetNodeID(std::string name, lv_obj_t* object)

@@ -111,6 +111,9 @@
     <ClCompile Include="Widgets\CollapsableWindow.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\CollapsableWindowManager.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -184,6 +187,9 @@
     </ClInclude>
     <ClInclude Include="Windows\Themes.h">
       <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\CollapsableWindowManager.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

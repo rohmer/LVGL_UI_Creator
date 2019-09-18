@@ -18,10 +18,10 @@ protected:
 	friend class TreeView;
 	void setID(unsigned int tnid);
 	void setPosition(int x, int y);
-	TreeNode(std::string name, lv_obj_t *object);
+	TreeNode(std::string name, lv_obj_t *object, bool protect=false);
 	void addChild(TreeNode *childNode);
 	std::vector<lv_obj_t*> lvObjects;
-
+	bool protectedNode;
 private:
 	std::vector<TreeNode *> children;
 	unsigned int id;

@@ -23,13 +23,23 @@ void PropertyWindow::createPropertyWin()
 	lv_obj_set_drag(propertyWin, true);
 	lv_obj_set_drag_dir(propertyWin, LV_DRAG_DIR_ALL);
 	lv_obj_set_protect(propertyWin, LV_PROTECT_NONE);
-
+	cwm = new CollapsableWindowManager(propertyWin);
 	createGlobalProps();
+	createBaseObjProps();
+
+	// TreeView is the last property
+	createTreeView();
+}
+
+void PropertyWindow::createBaseObjProps()
+{
+	baseObjProps = new CollapsableWindow(propertyWin, "Base Object", false, 10,0,0, 0);
+	cwm->AddWindow(baseObjProps);
 }
 
 void PropertyWindow::createGlobalProps()
 {
-	globalProps = new CollapsableWindow(propertyWin, "Global", false, 0, 0, 400, 200);
+	globalProps = new CollapsableWindow(propertyWin, "Global", false, 10, 0, 400, 200);
 	lv_obj_t* win = globalProps->GetWindow();
 	lv_obj_t * th_roller = lv_roller_create(win, NULL);
 	lv_roller_set_options(th_roller, th_options, true);
@@ -43,14 +53,49 @@ void PropertyWindow::createGlobalProps()
 	lv_obj_t* hueLabel = lv_label_create(win, nullptr);
 	lv_label_set_text(themeLabel, "Theme:");
 	lv_label_set_text(hueLabel, "Hue:");
-	lv_obj_set_pos(themeLabel, 10, 50);
-	lv_obj_set_pos(hueLabel, 220, 50);
+	lv_obj_set_pos(themeLabel, 45, 60);
+	lv_obj_set_pos(hueLabel, 250, 60);
 	
 	lv_obj_set_pos(th_roller, 100, 20);
 	lv_obj_set_pos(hue_roller, 280, 20);
-	
+	globalProps->AddObjectToWindow(themeLabel);
+	globalProps->AddObjectToWindow(hueLabel);
 	globalProps->AddObjectToWindow(th_roller);
 	globalProps->AddObjectToWindow(hue_roller);
+	cwm->AddWindow(globalProps);
+}
+
+void PropertyWindow::theme_select_event_handler(lv_obj_t * roller, lv_event_t event)
+{
+	if (event == LV_EVENT_VALUE_CHANGED) {
+		// lv_coord_t hres = lv_disp_get_hor_res(NULL);
+		// lv_coord_t vres = lv_disp_get_ver_res(NULL);
+
+		uint16_t opt = lv_roller_get_selected(roller);
+		activeTheme = themes[opt];
+		lv_theme_set_current(activeTheme);
+	}
+}
+
+void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)
+{
+
+	if (event == LV_EVENT_VALUE_CHANGED) {
+		uint16_t hue = lv_roller_get_selected(roller) * 30;
+
+		initializeThemes(hue);
+
+		lv_theme_set_current(activeTheme);
+	}
+}
+
+void PropertyWindow::createTreeView()
+{
+	treeWin = new CollapsableWindow(propertyWin, "UI Objects", false, 10, 10, 400, 250);
+
+	treeView = new TreeView(0, 0, 385, 250, "UI Objects", false);
+	treeWin->AddObjectToWindow(treeView->GetBaseObject());
+	cwm->AddWindow(treeWin);
 }
 
 #pragma region ThemeInit
@@ -86,29 +131,3 @@ void PropertyWindow::initializeThemes(uint16_t hue)
 #endif
 }
 #pragma endregion
-
-void PropertyWindow::theme_select_event_handler(lv_obj_t * roller, lv_event_t event)
-{
-	if (event == LV_EVENT_VALUE_CHANGED) {
-		// lv_coord_t hres = lv_disp_get_hor_res(NULL);
-		// lv_coord_t vres = lv_disp_get_ver_res(NULL);
-
-		uint16_t opt = lv_roller_get_selected(roller);
-		activeTheme = themes[opt];
-		lv_theme_set_current(activeTheme);
-	}
-}
-
-void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)
-{
-
-	if (event == LV_EVENT_VALUE_CHANGED) {
-		uint16_t hue = lv_roller_get_selected(roller) * 30;
-
-		initializeThemes(hue);
-
-		lv_theme_set_current(activeTheme);
-
-		// lv_page_focus(sb, roller, LV_ANIM_ON);
-	}
-}

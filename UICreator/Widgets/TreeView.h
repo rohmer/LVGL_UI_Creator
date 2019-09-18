@@ -9,7 +9,13 @@
 class TreeView 
 {
 public:
-	TreeView(unsigned int x, unsigned int y, unsigned int width, unsigned int height, std::string title, lv_obj_t* parent=nullptr);	
+	TreeView(unsigned int x,
+		unsigned int y, 
+		unsigned int width, 
+		unsigned int height, 
+		std::string title,
+		bool inWindow=false,
+		lv_obj_t* parent=nullptr);	
 	~TreeView();
 	void SetDrawTree(bool drawTree);
 
@@ -17,6 +23,7 @@ public:
 	unsigned int GetNodeID(std::string name, lv_obj_t* object);
 	std::vector<TreeNode*> GetAllNodes();
 	unsigned int GetNodeLevel(TreeNode* node);
+	lv_obj_t* GetBaseObject();
 
 private:
 	unsigned int curID = 1;
