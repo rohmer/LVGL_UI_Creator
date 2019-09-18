@@ -6,7 +6,8 @@
 #include "../Widgets/CollapsableWindowManager.h"
 #include "../Widgets/CollapsableWindow.h"
 #include "../Widgets/TreeView.h"
-#include "Themes.h"
+#include "UIObjectData.h"
+
 class PropertyWindow
 {
 public:
@@ -30,6 +31,7 @@ private:
 	void createBaseObjProps();
 	void createTreeView();
 	static void objSelectCB(TreeNode *node);
+	static void deleteCB(TreeNode *node);
 	
 	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
 	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);

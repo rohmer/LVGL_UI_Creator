@@ -4,6 +4,10 @@
 #include "lvgl/lvgl.h"
 #include "../Widgets/TreeView.h"
 
+#pragma region Object Creation Includes
+#include "../ObjectCreation/Arc.h"
+#pragma endregion
+
 class ToolTray
 {
 public:
@@ -18,4 +22,11 @@ private:
 	static void create_obj_cb(lv_obj_t * obj, lv_event_t ev);
 	
 	std::vector<lv_obj_t*> widgetButtons;
+
+	struct sCB
+	{
+		ToolTray *toolTray;
+		int typeID;
+	};
+
 };

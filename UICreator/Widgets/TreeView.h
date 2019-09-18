@@ -27,9 +27,11 @@ public:
 	unsigned int GetNodeID(std::string name, lv_obj_t* object);
 	std::vector<TreeNode*> GetAllNodes();
 	unsigned int GetNodeLevel(TreeNode* node);
-	lv_obj_t* GetBaseObject();
-	TreeNode* FindNodeByID(unsigned int id);
+	lv_obj_t *GetBaseObject();
+	TreeNode *FindNodeByID(unsigned int id);
 	void AddSelectCallback(tv_select_callback cbMethod);
+	TreeNode *GetSelectedObject();
+	void AddDeleteCallback(tv_select_callback cbMethod);
 	
 private:
 	unsigned int curID = 1;
@@ -61,4 +63,5 @@ private:
 	};
 	bool dTree = false;
 	tv_select_callback selectCallbackFunc = nullptr;
+	tv_select_callback deleteCallbackFunc = nullptr;
 };

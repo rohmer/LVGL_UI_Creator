@@ -43,6 +43,12 @@
     <Filter Include="Header Files\Util">
       <UniqueIdentifier>{00db5d7b-1eae-4c19-88b2-42711e8ecce0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Editor\Object Creation">
+      <UniqueIdentifier>{fb6dd0d9-6934-4652-82a5-e45d2e9f3327}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\Object Creation">
+      <UniqueIdentifier>{3880a786-7331-4d37-8187-4ca4d462b5cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="custom_widget.c">
@@ -113,6 +119,12 @@
     </ClCompile>
     <ClCompile Include="Widgets\CollapsableWindowManager.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Arc.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVArc.cpp">
+      <Filter>Source Files\Serialization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +202,15 @@
     </ClInclude>
     <ClInclude Include="Widgets\CollapsableWindowManager.h">
       <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Arc.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVArc.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\UIObjectData.h">
+      <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

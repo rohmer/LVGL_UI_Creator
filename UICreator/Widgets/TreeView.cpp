@@ -22,6 +22,7 @@ TreeView::TreeView(unsigned int x,
 			window = lv_win_create(parent, nullptr);
 		lv_win_set_title(window, title.c_str());
 		deleteButton = lv_win_add_btn(window, LV_SYMBOL_TRASH);
+		lv_obj_set_user_data(deleteButton, (lv_obj_user_data_t)this);
 		lv_obj_set_event_cb(deleteButton, deleteButtonCB);
 		lv_obj_set_click(deleteButton, true);
 		lv_obj_set_hidden(deleteButton, true);
@@ -47,6 +48,9 @@ TreeView::TreeView(unsigned int x,
 	treeContainer = lv_cont_create(window,nullptr);		
 	lv_obj_set_y(treeContainer, treeContPush);
 	lv_obj_set_size(treeContainer, width-5, height - treeContPush);
+
+	lv_obj_set_user_data(deleteButton, (lv_obj_user_data_t)this);
+	lv_obj_set_event_cb(deleteButton, deleteButtonCB);
 //	lv_cont_set_fit(treeContainer, LV_FIT_FLOOD);
 }
 
@@ -380,12 +384,28 @@ void TreeView::createObjects()
 
 void TreeView::deleteButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
+	TreeView *tv = (TreeView*)lv_obj_get_user_data(obj);
+	// First we process any call back to clean up data
+	if(tv->deleteCallbackFunc!=nullptr)
+	{
+		tv->deleteCallbackFunc(tv->selNode);
+	}
 
+	TreeNode *tNode = tv->GetSelectedObject();
+	// Then delete the node
+	if (tNode->parent == nullptr)
+		return;
+	tNode->parent->DeleteNode(tNode);
 }
 
 void TreeView::AddSelectCallback(tv_select_callback cbMethod)
 {
 	this->selectCallbackFunc = cbMethod;
+}
+
+void TreeView::AddDeleteCallback(tv_select_callback cbMethod)
+{
+	this->deleteCallbackFunc = cbMethod;
 }
 
 void TreeView::labelButtonCB(lv_obj_t *obj, lv_event_t ev)
@@ -452,4 +472,9 @@ void TreeView::expandButtonCB(lv_obj_t * obj, lv_event_t ev)
 		lv_label_set_text(expBtn->label, LV_SYMBOL_DOWN);		
 		expBtn->tv->createObjects();
 	}
+}
+
+TreeNode* TreeView::GetSelectedObject()
+{
+	return selNode;
 }

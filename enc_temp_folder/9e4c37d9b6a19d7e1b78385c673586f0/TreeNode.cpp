@@ -48,7 +48,7 @@ void TreeNode::DeleteNode(TreeNode* node)
 	if (node == nullptr)
 		return;
 	// Delete and associated lv_objects
-	for (int i=0; i<lvObjects.size(); ++i)
+	for (int i=lvObjects.size()-1; i>=0; --i)
 	{
 		if(lvObjects[i]!=nullptr)
 			lv_obj_del_async(lvObjects[i]);

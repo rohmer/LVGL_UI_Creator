@@ -17,6 +17,7 @@ public:
 	bool GetSelected();
 	void SetNodeData(std::any nodeData);
 	std::any GetNodeData();
+	void DeleteNode(TreeNode *node);
 	
 protected:
 	friend class TreeView;

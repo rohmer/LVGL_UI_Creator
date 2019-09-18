@@ -1,8 +1,8 @@
 #include "ToolTray.h"
 
-ToolTray::ToolTray(lv_obj_t *parent, TreeView *objTree) :
-	objTree(objTree)
+ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree)
 {
+	objTree = objectTree;
 	toolWin= lv_win_create(parent, nullptr);
 	lv_win_set_title(toolWin, "Tool Tray");
 	lv_obj_set_size(toolWin, lv_obj_get_width_fit(parent) / 4, lv_obj_get_height_fit(parent));
@@ -51,7 +51,10 @@ void ToolTray::initializeWidgetButtons(lv_obj_t* parent)
 			xCtr = 0;
 			yCtr++;
 		}
-		lv_obj_set_user_data(button, (lv_obj_user_data_t)i);
+		sCB *callbackStruct = new sCB();
+		callbackStruct->toolTray = this;
+		callbackStruct->typeID = i;
+		lv_obj_set_user_data(button, (lv_obj_user_data_t)callbackStruct);
 		lv_obj_set_event_cb(button, create_obj_cb);
 		widgetButtons.push_back(button);
 	}
@@ -65,7 +68,31 @@ void ToolTray::initializeWidgetButtons(lv_obj_t* parent)
 #pragma region Callback
 void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 {
-	int objID = (int)lv_obj_get_user_data(obj);
+	if (ev == LV_EVENT_CLICKED)
+	{
+		sCB* callbackStruct = (sCB*)lv_obj_get_user_data(obj);
+		int objID = callbackStruct->typeID;
+		ToolTray *tt = callbackStruct->toolTray;
+		TreeView *tv = tt->objTree;
+		TreeNode *node = tv->GetSelectedObject();
+		lv_obj_t* parent;
+		if (node != nullptr)
+		{
+			parent = tv->GetSelectedObject()->GetObject();
+			if (parent == nullptr)
+				parent = tv->GetBaseObject();
+		} else
+		{
+			parent = tv->GetBaseObject();
+		}
+		switch(objID)
+		{
+		case 0:
+			Arc::Create(parent, tt->objTree, node);
+			break;
+		}
+	}
+	
 }
 
 #pragma endregion
