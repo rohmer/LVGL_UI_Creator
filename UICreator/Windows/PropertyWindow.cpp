@@ -103,7 +103,7 @@ void PropertyWindow::createTreeView()
 	treeView->AddSelectCallback(objSelectCB);
 	treeView->AddDeleteCallback(deleteCB);
 	
-	treeWin->AddObjectToWindow(treeView->GetBaseObject());
+	treeWin->AddObjectToWindow(treeView->GetTreeViewUI());
 	cwm->AddWindow(treeWin);
 }
 
@@ -113,7 +113,7 @@ void PropertyWindow::createTreeView()
  */
 void PropertyWindow::objSelectCB(TreeNode *node)
 {
-	if (node->GetSelected())
+	if (node->IsSelected())
 	{
 		// Set the node data to the node objects current style
 		uiObjData *uidata = nullptr;

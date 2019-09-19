@@ -74,16 +74,16 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		int objID = callbackStruct->typeID;
 		ToolTray *tt = callbackStruct->toolTray;
 		TreeView *tv = tt->objTree;
-		TreeNode *node = tv->GetSelectedObject();
+		TreeNode *node = tv->GetSelectedNode();
 		lv_obj_t* parent;
 		if (node != nullptr)
 		{
-			parent = tv->GetSelectedObject()->GetObject();
+			parent = tv->GetSelectedNode()->GetObject();
 			if (parent == nullptr)
-				parent = tv->GetBaseObject();
+				parent = tv->GetTreeViewUI();
 		} else
 		{
-			parent = tv->GetBaseObject();
+			parent = tv->GetTreeViewUI();
 		}
 		switch(objID)
 		{

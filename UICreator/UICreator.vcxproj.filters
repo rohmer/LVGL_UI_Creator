@@ -90,12 +90,6 @@
     <ClCompile Include="Serialization\Style.cpp">
       <Filter>Source Files\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Widgets\TreeNode.cpp">
-      <Filter>Source Files\Editor\Widgets</Filter>
-    </ClCompile>
-    <ClCompile Include="Widgets\TreeView.cpp">
-      <Filter>Source Files\Editor\Widgets</Filter>
-    </ClCompile>
     <ClCompile Include="Windows\ToolTray.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
     </ClCompile>
@@ -125,6 +119,12 @@
     </ClCompile>
     <ClCompile Include="Serialization\LVArc.cpp">
       <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\TreeNode.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\TreeView.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,12 +173,6 @@
     <ClInclude Include="Serialization\Style.h">
       <Filter>Header Files\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="Widgets\TreeNode.h">
-      <Filter>Header Files\Editor\Widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="Widgets\TreeView.h">
-      <Filter>Header Files\Editor\Widgets</Filter>
-    </ClInclude>
     <ClInclude Include="Windows\ToolTray.h">
       <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
@@ -211,6 +205,12 @@
     </ClInclude>
     <ClInclude Include="Windows\UIObjectData.h">
       <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\TreeNode.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\TreeView.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
