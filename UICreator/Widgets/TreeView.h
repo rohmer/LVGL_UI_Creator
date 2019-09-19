@@ -44,12 +44,20 @@ private:
 	
 	void createTreeViewContainer(bool inWin, lv_obj_t *parent);
 	void createUIObjects(TreeNode *node);
+	void placeUIObjects();
+	int placeUIObjects(TreeNode *node, int yCtr, bool shown);
 	
 	TreeNode *getNode(TreeNode* node, unsigned int nodeID);
 
 	std::vector<TreeNode*> getAllNodes();
 	std::vector<TreeNode*> getAllNodes(TreeNode *node);
-	
+
+	struct sButtonCB
+	{
+		TreeNode *node;
+		lv_obj_t *label;
+		TreeView *tv;
+	};
 	// Callbacks
 	static void deleteButtonCB(lv_obj_t * obj, lv_event_t ev);
 	static void expandButtonCB(lv_obj_t * obj, lv_event_t ev);

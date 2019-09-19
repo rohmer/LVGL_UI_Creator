@@ -25,7 +25,6 @@ private:
 	TreeNode(std::string name, TreeNode *parent, lv_obj_t *object, bool protect = false);
 	void addChild(TreeNode *childNode);
 	void removeChild(TreeNode *node);
-	std::vector<lv_obj_t*> lvObjects;
 	lv_obj_t *object, *buttonObj, *buttonLabel, *labelObj, *clickObj;
 	
 private:

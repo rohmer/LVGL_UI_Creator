@@ -61,6 +61,9 @@ unsigned int TreeView::AddNode(std::string name,
 	}
 
 	TreeNode *newNode = new TreeNode(name, parent, object, protect);
+	newNode->expanded = true;
+	newNode->id = curID;
+	curID++;
 	if (parent == nullptr)
 	{
 		topLevelNodes.push_back(newNode);
@@ -68,9 +71,10 @@ unsigned int TreeView::AddNode(std::string name,
 	{
 		parent->addChild(newNode);
 	}
+	newNode->level = newNode->GetLevel();
 	createUIObjects(newNode);
-
-	return 0;
+	placeUIObjects();
+	return newNode->id;
 }
 
 std::vector<TreeNode*> TreeView::getAllNodes(TreeNode* node)
@@ -185,16 +189,19 @@ void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 
 void TreeView::createUIObjects(TreeNode *node)
 {
+	sButtonCB *bcb = new sButtonCB();
+	bcb->node = node;
 	// All the objects are created with the click object as the parent
 	if (node->clickObj == nullptr)
 	{
 		node->clickObj = lv_obj_create(treeContainer, nullptr);
 		lv_obj_set_size(node->clickObj, width - 5, 17);
+		lv_obj_set_style(node->clickObj, &lv_style_transp);
 	}
 	if (node->buttonObj == nullptr)
 	{
-		node->buttonObj = lv_btn_create(node->clickObj, nullptr);
-		lv_obj_set_size(node->clickObj, 25, 15);
+		node->buttonObj = lv_btn_create(treeContainer, nullptr);
+		lv_obj_set_size(node->buttonObj, 25, 15);
 		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_REL, &lv_style_pretty_color);
 		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_INA, &lv_style_pretty_color);
 		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_PR, &lv_style_pretty_color);
@@ -204,6 +211,99 @@ void TreeView::createUIObjects(TreeNode *node)
 	if(node->buttonLabel==nullptr)
 	{
 		node->buttonLabel = lv_label_create(node->buttonObj, nullptr);
+		bcb->label = node->buttonLabel;
+	}
+	if(node->labelObj==nullptr)
+	{
+		node->labelObj = lv_label_create(treeContainer, nullptr);
+		lv_label_set_text(node->labelObj, node->name.c_str());
+		lv_label_set_style(node->labelObj, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
+	}
+	bcb->tv = this;
+	lv_obj_set_user_data(node->buttonObj, (lv_obj_user_data_t)bcb);
+	lv_obj_set_event_cb(node->buttonObj, expandButtonCB);
+}
+
+int TreeView::placeUIObjects(TreeNode* node, int yCtr, bool shown)
+{
+	node->setPosition(x + 5, yCtr * 17 - 1);
+	if(shown)
+	{
+		yCtr++;
+		lv_label_set_style(node->labelObj, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
+		lv_obj_set_style(node->buttonLabel, &lv_style_pretty_color);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_REL, &lv_style_pretty_color);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_INA, &lv_style_pretty_color);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_PR, &lv_style_pretty_color);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_PR, &lv_style_pretty_color);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_REL, &lv_style_pretty_color);
+	} else
+	{
+		lv_label_set_style(node->labelObj, LV_LABEL_STYLE_MAIN, &lv_style_transp);
+		lv_obj_set_style(node->buttonLabel, &lv_style_transp);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_REL, &lv_style_transp);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_INA, &lv_style_transp);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_PR, &lv_style_transp);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_PR, &lv_style_transp);
+		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_REL, &lv_style_transp);		
+	}
+	if (node->children.empty())
+	{
+		lv_label_set_text(node->buttonLabel, LV_SYMBOL_MINUS);
+	}
+	else
+	{
+		if (node->expanded)
+		{
+			lv_label_set_text(node->buttonLabel, LV_SYMBOL_DOWN);
+
+		}
+		else
+		{
+			lv_label_set_text(node->buttonLabel, LV_SYMBOL_RIGHT);
+		}
+		for (std::vector<TreeNode*>::iterator cit = node->children.begin();
+			cit != node->children.end();
+			++cit)
+		{
+			bool showChild = false;
+			if (shown&&node->expanded)
+				showChild = true;
+			yCtr = placeUIObjects(*cit, yCtr, showChild);
+		}
+	}
+	return yCtr;
+}
+
+void TreeView::placeUIObjects()
+{
+	int yCtr = 0;
+	for (std::vector<TreeNode*>::iterator it = topLevelNodes.begin();
+		it != topLevelNodes.end();
+		it++)
+	{
+		yCtr++;
+		(*it)->setPosition(x+5, yCtr * 17 - 1);
+		if((*it)->children.empty())
+		{
+			lv_label_set_text((*it)->buttonLabel, LV_SYMBOL_MINUS);
+		} else
+		{
+			if((*it)->expanded)
+			{
+				lv_label_set_text((*it)->buttonLabel, LV_SYMBOL_DOWN);
+				yCtr++;
+			} else
+			{
+				lv_label_set_text((*it)->buttonLabel, LV_SYMBOL_RIGHT);
+			}
+			for(std::vector<TreeNode*>::iterator cit=(*it)->children.begin();
+				cit!=(*it)->children.end();
+				++cit)
+			{
+				yCtr = placeUIObjects(*cit, yCtr, (*it)->expanded);
+			}
+		}
 	}
 }
 
@@ -224,6 +324,19 @@ void TreeView::expandButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
+	sButtonCB *buttonCB = (sButtonCB*)lv_obj_get_user_data(obj);
+	if (buttonCB->node->expanded)
+	{
+		buttonCB->node->expanded = false;
+		lv_label_set_text(buttonCB->label, LV_SYMBOL_RIGHT);
+		buttonCB->tv->placeUIObjects();
+	}
+	else
+	{
+		buttonCB->node->expanded = true;
+		lv_label_set_text(buttonCB->label, LV_SYMBOL_DOWN);
+		buttonCB->tv->placeUIObjects();
+	}
 }
 
 void TreeView::moveUpButtonCB(lv_obj_t * obj, lv_event_t ev)

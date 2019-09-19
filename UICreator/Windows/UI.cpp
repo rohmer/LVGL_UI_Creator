@@ -17,7 +17,7 @@ UI::UI()
 	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);
-	propertyWindow->GetObjectTree()->AddNode("Button", button, 1, false);
+	propertyWindow->GetObjectTree()->AddNode("Button", button, 0, false);
 }
 
 #pragma region ThemeInit

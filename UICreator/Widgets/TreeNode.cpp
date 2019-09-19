@@ -12,16 +12,10 @@ TreeNode::TreeNode(std::string name, TreeNode *parent, lv_obj_t* object, bool pr
 
 TreeNode::~TreeNode()
 {
-	for (int i = 0; i < lvObjects.size(); ++i)
-	{
-		if (lvObjects[i] != nullptr)
-			lv_obj_del(lvObjects[i]);
-	}
 	lv_obj_del_async(buttonObj);
 	lv_obj_del_async(labelObj);
 	lv_obj_del_async(clickObj);
 	
-	lvObjects.clear();
 	for (std::vector<TreeNode*>::iterator it = children.begin();
 		it != children.end();
 		it++)
@@ -100,6 +94,10 @@ void TreeNode::setPosition(int x, int y)
 	this->y = y;
 	if(clickObj!=nullptr)
 		lv_obj_set_pos(clickObj, x, y);
+	if (buttonObj != nullptr)
+		lv_obj_set_pos(buttonObj, x+ 4 + (level * 15), y);
+	if (labelObj != nullptr)
+		lv_obj_set_pos(labelObj, x + 30 + (level * 15), y);
 }
 
 lv_obj_t *TreeNode::GetObject()
@@ -128,6 +126,9 @@ unsigned int TreeNode::GetLevel()
 	unsigned int i = 0;
 	TreeNode *np = this;
 	while (np->parent != nullptr)
+	{
 		i++;
+		np = np->parent;
+	}
 	return i;
 }
