@@ -22,6 +22,11 @@ TreeView::TreeView(unsigned int x,
 			window = lv_win_create(parent, nullptr);
 		lv_win_set_title(window, title.c_str());
 		deleteButton = lv_win_add_btn(window, LV_SYMBOL_TRASH);
+		moveDownButton = lv_win_add_btn(window, LV_SYMBOL_UP);
+		copyButton = lv_win_add_btn(window, LV_SYMBOL_COPY);
+		pasteButton = lv_win_add_btn(window, LV_SYMBOL_FILE);
+		moveUpButton = lv_win_add_btn(window, LV_SYMBOL_UP);
+		
 		lv_obj_set_user_data(deleteButton, (lv_obj_user_data_t)this);
 		lv_obj_set_event_cb(deleteButton, deleteButtonCB);
 		lv_obj_set_click(deleteButton, true);
@@ -44,6 +49,33 @@ TreeView::TreeView(unsigned int x,
 		lv_label_set_text(dbLabel, LV_SYMBOL_TRASH);
 		treeContPush = 40;
 		lv_obj_set_hidden(deleteButton, true);
+		moveDownButton = lv_btn_create(window, nullptr);
+		lv_obj_set_pos(moveDownButton, width - 80, 2);
+		lv_obj_set_size(moveDownButton, 35, 35);
+		lv_obj_set_hidden(moveDownButton, true);
+		lv_obj_t *mdLbl = lv_label_create(moveDownButton, nullptr);
+		lv_label_set_text(mdLbl, LV_SYMBOL_DOWN);
+		copyButton = lv_btn_create(window, nullptr);
+		lv_obj_set_size(copyButton, 35, 35);
+		lv_obj_set_pos(copyButton, width - 120, 2);
+		lv_obj_set_hidden(copyButton, true);
+		lv_obj_t *cpLbl = lv_label_create(copyButton, nullptr);
+		lv_label_set_text(cpLbl, LV_SYMBOL_COPY);
+		pasteButton = lv_btn_create(window, nullptr);
+		lv_obj_set_size(pasteButton, 35, 35);
+		lv_obj_set_pos(pasteButton, width - 160, 2);
+		lv_obj_set_hidden(pasteButton, true);
+		lv_obj_t *pLbl= lv_label_create(pasteButton, nullptr);
+		lv_label_set_text(pLbl, LV_SYMBOL_FILE);
+		moveUpButton = lv_btn_create(window, nullptr);
+		lv_obj_set_size(moveUpButton, 35, 35);
+		lv_obj_set_pos(moveUpButton, width - 200, 2);
+		lv_obj_set_hidden(moveUpButton, true);
+		lv_obj_t *muLbl  = lv_label_create(moveUpButton, nullptr);
+		lv_label_set_text(muLbl, LV_SYMBOL_UP);
+		lv_obj_t *titleLabel = lv_label_create(window, nullptr);
+		lv_obj_set_pos(titleLabel, 5, 5);
+		lv_label_set_text(titleLabel, title.c_str());
 	}
 	treeContainer = lv_cont_create(window,nullptr);		
 	lv_obj_set_y(treeContainer, treeContPush);
@@ -239,21 +271,33 @@ void TreeView::drawNode(TreeNode *node)
 {
 	int level = node->GetLevel();
 
+	// Set the drop down button if it has children, or not
+	if(node->lvObjects.size()>=3)
+	{
+		lv_obj_t *buttonLabel = lv_obj_get_child(node->lvObjects[2],nullptr);
+		bool labelHasChild = true;
+		char *bTxt = lv_label_get_text(buttonLabel);
+		if (strcmp(lv_label_get_text(buttonLabel), LV_SYMBOL_MINUS) == 0)
+			labelHasChild = false;
+		if(node->children.empty() && labelHasChild)
+		{
+			lv_label_set_text(buttonLabel, LV_SYMBOL_MINUS);
+		}
+		if(!node->children.empty() && !labelHasChild)
+		{
+			lv_label_set_text(buttonLabel, LV_SYMBOL_RIGHT);
+		}
+	}
 	if (node->selected && node->lvObjects.size() >= 3)
 	{
 		lv_obj_t *selectionBar = node->lvObjects[0];
 		if (selectionBar != nullptr)
 		{
 			lv_obj_set_pos(selectionBar, 0, yCtr * 17 - 1);
-			lv_obj_set_style(selectionBar, &lv_style_plain);
+			selectionBar->style_p = &lv_style_pretty_color;
+			lv_obj_refresh_style(selectionBar);
 		}
-		static lv_style_t label_style;
-		lv_style_copy(&label_style, &lv_style_plain);
-		lv_color_t black = lv_color_make(0, 0, 0);
 		
-		label_style.text.color = black;
-		lv_obj_t* label = node->lvObjects[2];
-		lv_label_set_style(label, LV_LABEL_STYLE_MAIN, &label_style);
 		for (int i=0; i<node->lvObjects.size()-1; i++)
 			lv_obj_set_hidden(node->lvObjects[i], false);		
 		return;
@@ -266,14 +310,11 @@ void TreeView::drawNode(TreeNode *node)
 			if (selectionBar != nullptr)
 			{
 				lv_obj_set_pos(selectionBar, 0, yCtr * 17 - 1);
-				lv_obj_set_style(selectionBar, &lv_style_transp);				
+				selectionBar->style_p = &lv_style_transp;
+				lv_obj_refresh_style(selectionBar);
 			}
-			static lv_style_t label_style;
-			lv_style_copy(&label_style, &lv_style_plain);
-			lv_color_t black = lv_color_make(0, 0, 0);
-			label_style.text.color = black;
-			lv_obj_t* label = node->lvObjects[2];
-			lv_label_set_style(label, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
+			
+			//lv_label_set_style(label, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
 			for (std::vector<lv_obj_t*>::iterator it = node->lvObjects.begin();
 				it != node->lvObjects.end();
 				it++)
@@ -281,25 +322,33 @@ void TreeView::drawNode(TreeNode *node)
 			
 
 			return;
-		}
+		} 
 	}
 	lv_obj_t *selectionBar = lv_obj_create(treeContainer, nullptr);
 	lv_obj_set_size(selectionBar, width - 5, 17);	
 	lv_obj_set_pos(selectionBar, 0, yCtr * 17);	
-	lv_obj_set_style(selectionBar, &lv_style_transp);
+	if (node->selected)
+		lv_obj_set_style(selectionBar, &lv_style_pretty_color);
+	else
+		lv_obj_set_style(selectionBar, &lv_style_transp);
 	lv_obj_set_click(selectionBar, true);
 
 	lv_obj_t* label;	
 	label = lv_label_create(treeContainer, nullptr);
 	lv_obj_set_pos(label, 30+(level*15), yCtr*17);	
-	lv_label_set_text(label, node->name.c_str());	
+	lv_label_set_text(label, node->name.c_str());
+	lv_label_set_style(label, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
 	
 	lv_obj_t* expandButton;
 	expandButton = lv_btn_create(treeContainer, nullptr);
 	lv_btn_set_fit(expandButton, LV_FIT_NONE);
 	lv_obj_set_size(expandButton, 25, 15);
 	lv_obj_set_pos(expandButton, 4+(level*15), yCtr*17);
-
+	lv_btn_set_style(expandButton, LV_BTN_STYLE_REL, &lv_style_pretty_color);
+	lv_btn_set_style(expandButton, LV_BTN_STYLE_INA, &lv_style_pretty_color);
+	lv_btn_set_style(expandButton, LV_BTN_STYLE_PR, &lv_style_pretty_color);
+	lv_btn_set_style(expandButton, LV_BTN_STYLE_TGL_PR, &lv_style_pretty_color);
+	lv_btn_set_style(expandButton, LV_BTN_STYLE_TGL_REL, &lv_style_pretty_color);
 	lv_obj_t* btnLbl;
 	btnLbl = lv_label_create(expandButton, nullptr);
 	sExpButton *bObj = new sExpButton();
@@ -314,19 +363,22 @@ void TreeView::drawNode(TreeNode *node)
 
 	if (node->children.size() == 0)
 	{
-		lv_btn_set_toggle(btnLbl, false);
-	}
-	if (node->expanded)
-	{
-		lv_label_set_text(btnLbl, LV_SYMBOL_DOWN);
+		lv_label_set_text(btnLbl, LV_SYMBOL_MINUS);
 	}
 	else
 	{
-		lv_label_set_text(btnLbl, LV_SYMBOL_RIGHT);
+		if (node->expanded)
+		{
+			lv_label_set_text(btnLbl, LV_SYMBOL_DOWN);
+		}
+		else
+		{
+			lv_label_set_text(btnLbl, LV_SYMBOL_RIGHT);
+		}
 	}
 	node->lvObjects.push_back(selectionBar);
+	node->lvObjects.push_back(label);
 	node->lvObjects.push_back(expandButton);
-	node->lvObjects.push_back(label);	
 }
 
 void TreeView::createObjects(TreeNode *node)
@@ -450,6 +502,11 @@ void TreeView::labelButtonCB(lv_obj_t *obj, lv_event_t ev)
 		
 		expBtn->tv->selNode = expBtn->node;		
 		lv_obj_set_hidden(expBtn->tv->deleteButton, true);
+		lv_obj_set_hidden(expBtn->tv->moveUpButton, true);
+		lv_obj_set_hidden(expBtn->tv->moveDownButton, true);
+		lv_obj_set_hidden(expBtn->tv->copyButton, true);
+		lv_obj_set_hidden(expBtn->tv->pasteButton, true);
+
 	}
 	else
 	{
@@ -468,8 +525,22 @@ void TreeView::labelButtonCB(lv_obj_t *obj, lv_event_t ev)
 		}
 		expBtn->tv->selNode = expBtn->node;
 		expBtn->tv->createObjects();
-		if(!expBtn->node->protectedNode)
+		if (!expBtn->node->protectedNode)
+		{
 			lv_obj_set_hidden(expBtn->tv->deleteButton, false);
+			lv_obj_set_hidden(expBtn->tv->moveUpButton, false);
+			lv_obj_set_hidden(expBtn->tv->moveDownButton, false);
+			lv_obj_set_hidden(expBtn->tv->copyButton, false);
+			lv_obj_set_hidden(expBtn->tv->pasteButton, false);
+		} else
+		{
+			lv_obj_set_hidden(expBtn->tv->deleteButton, true);
+			lv_obj_set_hidden(expBtn->tv->moveUpButton, true);
+			lv_obj_set_hidden(expBtn->tv->moveDownButton, true);
+			lv_obj_set_hidden(expBtn->tv->copyButton, true);
+			lv_obj_set_hidden(expBtn->tv->pasteButton, true);
+		}
+
 	}
 	expBtn->tv->createObjects();
 }

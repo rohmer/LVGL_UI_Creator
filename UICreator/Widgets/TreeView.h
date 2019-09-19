@@ -39,7 +39,9 @@ private:
 	std::string title;
 	unsigned int x, y, width, height;
 	std::vector<TreeNode*> topLevelNodes;
-	lv_obj_t *window, *deleteButton, *treeContainer;
+	lv_obj_t *window, *deleteButton, *treeContainer,
+		*moveUpButton, *moveDownButton, *copyButton, *pasteButton;
+	TreeNode *copiedNode;
 	static void deleteButtonCB(lv_obj_t * obj, lv_event_t ev);
 	static void expandButtonCB(lv_obj_t * obj, lv_event_t ev);
 	static void labelButtonCB(lv_obj_t * obj, lv_event_t ev);
