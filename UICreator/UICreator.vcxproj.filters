@@ -126,6 +126,9 @@
     <ClCompile Include="Widgets\TreeView.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\MinimizableWindow.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -210,6 +213,9 @@
       <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\TreeView.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\MinimizableWindow.h">
       <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
   </ItemGroup>

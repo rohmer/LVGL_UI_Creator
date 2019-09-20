@@ -38,6 +38,7 @@
     <ClCompile Include="Utils\ObjectTools.cpp" />
     <ClCompile Include="Widgets\CollapsableWindow.cpp" />
     <ClCompile Include="Widgets\CollapsableWindowManager.cpp" />
+    <ClCompile Include="Widgets\MinimizableWindow.cpp" />
     <ClCompile Include="Widgets\TreeNode.cpp" />
     <ClCompile Include="Widgets\TreeView.cpp" />
     <ClCompile Include="Windows\UI.cpp" />
@@ -66,6 +67,7 @@
     <ClInclude Include="Utils\ObjectTools.h" />
     <ClInclude Include="Widgets\CollapsableWindow.h" />
     <ClInclude Include="Widgets\CollapsableWindowManager.h" />
+    <ClInclude Include="Widgets\MinimizableWindow.h" />
     <ClInclude Include="Widgets\TreeNode.h" />
     <ClInclude Include="Widgets\TreeView.h" />
     <ClInclude Include="Windows\Themes.h" />
