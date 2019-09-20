@@ -13,6 +13,11 @@ PropertyWindow::PropertyWindow(SimWindow* simWindow, int screenWidth, int screen
 	createPropertyWin();
 }
 
+TreeView* PropertyWindow::GetObjectTree()
+{
+	return treeView;
+}
+
 void PropertyWindow::createPropertyWin()
 {
 	propertyWin = lv_win_create(lv_scr_act(), nullptr);
@@ -94,8 +99,74 @@ void PropertyWindow::createTreeView()
 	treeWin = new CollapsableWindow(propertyWin, "UI Objects", false, 10, 10, 400, 250);
 
 	treeView = new TreeView(0, 0, 385, 250, "UI Objects", false);
-	treeWin->AddObjectToWindow(treeView->GetBaseObject());
+	treeView->AddNode("Screen", lv_scr_act(), 0, true);
+	treeView->AddSelectCallback(objSelectCB);
+	treeView->AddDeleteCallback(deleteCB);
+	
+	treeWin->AddObjectToWindow(treeView->GetTreeViewUI());
 	cwm->AddWindow(treeWin);
+}
+
+/**
+ * \brief Called when a node is selected or deselected from the node tree view
+ * \param node - The node that is changing state
+ */
+void PropertyWindow::objSelectCB(TreeNode *node)
+{
+	if (node->IsSelected())
+	{
+		// Set the node data to the node objects current style
+		uiObjData *uidata = nullptr;
+		try
+		{
+			uidata = std::any_cast<uiObjData *>(node->GetNodeData());
+		} catch(std::bad_any_cast)
+		{	
+		}
+		if(uidata==nullptr)
+		{
+			uidata = new uiObjData();
+		}
+		uidata->style = node->GetObject()->style_p;
+		node->SetNodeData(uidata);
+		lv_obj_set_style(node->GetObject(), &lv_style_plain);
+	}
+	else
+	{
+		// We are returning the node to its original style
+		uiObjData *uidata = std::any_cast<uiObjData *>(node->GetNodeData());
+		if(uidata==nullptr)
+		{
+			uidata = new uiObjData();
+			return;
+		}
+
+		lv_obj_set_style(node->GetObject(), uidata->style);
+	}
+}
+
+
+/**
+ * \brief Deletes the user data from the object (If any) to clean up memory
+ * \param node 
+ */
+void PropertyWindow::deleteCB(TreeNode* node)
+{
+	if(node==nullptr)
+	{
+		// This really should never happen
+		return;
+	}
+	uiObjData *uiData = (uiObjData*)lv_obj_get_user_data(node->GetObject());
+	if(uiData==nullptr)
+	{
+		return;
+	}
+	// Clean up any json
+	if(uiData->objectJSON!=nullptr)
+	{
+		delete(uiData->objectJSON);
+	}
 }
 
 #pragma region ThemeInit

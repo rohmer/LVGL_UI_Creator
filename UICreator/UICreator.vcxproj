@@ -26,8 +26,10 @@
     <ClCompile Include="loadproj.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mouse_cursor_icon.c" />
+    <ClCompile Include="ObjectCreation\Arc.cpp" />
     <ClCompile Include="saveproj.c" />
     <ClCompile Include="Serialization\JsonDoc.cpp" />
+    <ClCompile Include="Serialization\LVArc.cpp" />
     <ClCompile Include="Serialization\LVLabel.cpp" />
     <ClCompile Include="Serialization\LVObject.cpp" />
     <ClCompile Include="Serialization\Style.cpp" />
@@ -50,9 +52,11 @@
     <ClInclude Include="gencode.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="loadproj.h" />
+    <ClInclude Include="ObjectCreation\Arc.h" />
     <ClInclude Include="saveproj.h" />
     <ClInclude Include="Serialization\Area.h" />
     <ClInclude Include="Serialization\JsonDoc.h" />
+    <ClInclude Include="Serialization\LVArc.h" />
     <ClInclude Include="Serialization\LVLabel.h" />
     <ClInclude Include="Serialization\LVObject.h" />
     <ClInclude Include="Serialization\Realign.h" />
@@ -69,6 +73,7 @@
     <ClInclude Include="Windows\PropertyWindow.h" />
     <ClInclude Include="Windows\SimWindow.h" />
     <ClInclude Include="Windows\ToolTray.h" />
+    <ClInclude Include="Windows\UIObjectData.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">
@@ -173,6 +178,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

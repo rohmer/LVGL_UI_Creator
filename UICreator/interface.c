@@ -30,8 +30,8 @@ void lv_gui_designer()
     //toolbox_win_init(screen); 
     //setting_win_init(screen);
     //tft_win_init(screen);
-	auto simWindow = new SimWindow(320, 240);
-	auto tb = new ToolTray(screen);
+	//auto simWindow = new SimWindow(320, 240);
+	//auto tb = new ToolTray(screen);
 	//auto propertyWin = new PropertyWindow(simWindow);
 
 }

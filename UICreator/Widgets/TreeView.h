@@ -6,52 +6,69 @@
 
 #include "TreeNode.h"
 
-class TreeView 
+
+class TreeView
 {
+	typedef void(*tv_callback)(TreeNode *nodeSelected);
+
 public:
 	TreeView(unsigned int x,
-		unsigned int y, 
-		unsigned int width, 
-		unsigned int height, 
+		unsigned int y,
+		unsigned int width,
+		unsigned int height,
 		std::string title,
-		bool inWindow=false,
-		lv_obj_t* parent=nullptr);	
+		bool inWindow = false,
+		lv_obj_t* parent = nullptr);
 	~TreeView();
-	void SetDrawTree(bool drawTree);
 
-	unsigned int AddNode(std::string name, lv_obj_t* object, unsigned int parentID=0);
-	unsigned int GetNodeID(std::string name, lv_obj_t* object);
-	std::vector<TreeNode*> GetAllNodes();
-	unsigned int GetNodeLevel(TreeNode* node);
-	lv_obj_t* GetBaseObject();
+	unsigned int AddNode(std::string name, lv_obj_t* object,
+		unsigned int parentID = 0,
+		bool protect = false);
+	lv_obj_t *GetTreeViewUI();
+	TreeNode *GetSelectedNode();
+	
+	void AddSelectCallback(tv_callback cb);
+	void AddDeleteCallback(tv_callback cb);
 
+	
 private:
-	unsigned int curID = 1;
+	int x, y, width, height, yOffset, curID=0;
 	std::string title;
-	unsigned int x, y, width, height;
+	lv_obj_t *tvContainer;
+	TreeNode *selectedNode=nullptr;
+	TreeNode *copiedNode = nullptr;
+	
+	lv_obj_t *window, *deleteButton, *treeContainer,
+		*moveUpButton, *moveDownButton, *copyButton, *pasteButton, *selectionBar;
+
 	std::vector<TreeNode*> topLevelNodes;
-	lv_obj_t *window, *deleteButton, *treeContainer;
-	static void deleteButtonCB(lv_obj_t * obj, lv_event_t ev);
-	static void expandButtonCB(lv_obj_t * obj, lv_event_t ev);
-	static void labelButtonCB(lv_obj_t * obj, lv_event_t ev);
-	unsigned int findNode(TreeNode* node, std::string name, lv_obj_t* object);	
+	
+	void createTreeViewContainer(bool inWin, lv_obj_t *parent);
+	void createUIObjects(TreeNode *node);
+	void placeUIObjects();
+	int placeUIObjects(TreeNode *node, int yCtr, bool shown);
+	
 	TreeNode *getNode(TreeNode* node, unsigned int nodeID);
+
 	std::vector<TreeNode*> getAllNodes();
-	std::vector<TreeNode*> getAllNodes(TreeNode *node);	
-	int yCtr = 0;
-	void createObjects();
-	void createObjects(TreeNode *node);
+	std::vector<TreeNode*> getAllNodes(TreeNode *node);
 
-	void drawNode(TreeNode *tn);
-
-	std::map<std::string, lv_obj_t*> drawObjects;
-	int selectedNode = -1;
-	TreeNode *selNode = nullptr;
-	struct sExpButton
+	struct sButtonCB
 	{
 		TreeNode *node;
 		lv_obj_t *label;
 		TreeView *tv;
 	};
-	bool dTree = false;
+	// Callbacks
+	static void deleteButtonCB(lv_obj_t * obj, lv_event_t ev);
+	static void expandButtonCB(lv_obj_t * obj, lv_event_t ev);
+	static void clickObjCB(lv_obj_t * obj, lv_event_t ev);
+	static void moveUpButtonCB(lv_obj_t * obj, lv_event_t ev);
+	static void copyButtonCB(lv_obj_t * obj, lv_event_t ev);
+	static void pasteButtonCB(lv_obj_t * obj, lv_event_t ev);
+	static void moveDownButtonCB(lv_obj_t * obj, lv_event_t ev);
+
+	tv_callback selectCallbackFunc = nullptr;
+	tv_callback deleteCallbackFunc = nullptr;
+	std::vector<TreeNode *> displayedNodes;
 };

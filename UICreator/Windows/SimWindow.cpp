@@ -77,10 +77,6 @@ void SimWindow::createObjects()
 	lv_obj_set_size(drawSurface, width, height);
 	lv_obj_set_x(drawSurface,lv_obj_get_x(drawSurface) - 3);
 	lv_obj_set_y(drawSurface, lv_obj_get_y(drawSurface) - 6);
-
-	lv_obj_t* button = lv_btn_create(drawSurface, nullptr);
-	lv_obj_set_size(button, 50, 50);
-	lv_obj_set_pos(button, 50, 50);
 }
 
 void SimWindow::settings(lv_obj_t *obj, lv_event_t event)

@@ -102,7 +102,7 @@ typedef struct {
         glyph_id = glyph_id_start + glyph_id_ofs_list[search(unicode_list, rcp)]
     */
 
-    uint16_t * unicode_list;
+    const uint16_t * unicode_list;
 
     /** if(type == LV_FONT_FMT_TXT_CMAP_FORMAT0_...) it's `uint8_t *`
      * if(type == LV_FONT_FMT_TXT_CMAP_SPARSE_...)  it's `uint16_t *`
@@ -180,7 +180,7 @@ typedef struct {
     /*Number of cmap tables*/
     uint16_t cmap_num       :10;
 
-    /*Bit per pixel: 1, 2, 4 or 8*/
+    /*Bit per pixel: 1, 2, 3, 4*/
     uint16_t bpp            :3;
 
     /*Type of `kern_dsc`*/

@@ -11,7 +11,10 @@ class SimWindow
 {
 public:
 	SimWindow(int iWidth, int iHeight);
-
+	lv_obj_t* GetDrawSurface()
+	{
+		return drawSurface;
+	}
 private:
 	int width, height;
 	lv_obj_t *window, *settingsWindow, *drawSurface;
