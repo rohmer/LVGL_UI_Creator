@@ -105,6 +105,7 @@ std::vector<TreeNode*> TreeView::getAllNodes()
 	return retVal;
 }
 
+#pragma region Create TreeView
 void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 {
 	if(inWin)
@@ -117,7 +118,7 @@ void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 		deleteButton = lv_win_add_btn(window, LV_SYMBOL_TRASH);
 		moveDownButton = lv_win_add_btn(window, LV_SYMBOL_UP);
 		copyButton = lv_win_add_btn(window, LV_SYMBOL_COPY);
-		pasteButton = lv_win_add_btn(window, LV_SYMBOL_FILE);
+		pasteButton = lv_win_add_btn(window, LV_SYMBOL_PASTE);
 		moveUpButton = lv_win_add_btn(window, LV_SYMBOL_UP);
 		lv_obj_set_user_data(deleteButton, (lv_obj_user_data_t)this);
 		lv_obj_set_event_cb(deleteButton, deleteButtonCB);
@@ -140,7 +141,7 @@ void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 		lv_obj_set_pos(deleteButton, width - 40, 2);
 		lv_obj_t *dbLabel = lv_label_create(deleteButton, nullptr);
 		lv_obj_set_size(deleteButton, 35, 35);
-		lv_label_set_text(dbLabel, LV_SYMBOL_TRASH);
+		lv_label_set_text(dbLabel, LV_SYMBOL_BACKSPACE);
 		yOffset = 40;
 		lv_obj_set_hidden(deleteButton, true);
 		moveDownButton = lv_btn_create(window, nullptr);
@@ -160,7 +161,7 @@ void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 		lv_obj_set_pos(pasteButton, width - 160, 2);
 		lv_obj_set_hidden(pasteButton, true);
 		lv_obj_t *pLbl = lv_label_create(pasteButton, nullptr);
-		lv_label_set_text(pLbl, LV_SYMBOL_FILE);
+		lv_label_set_text(pLbl, LV_SYMBOL_PASTE);
 		moveUpButton = lv_btn_create(window, nullptr);
 		lv_obj_set_size(moveUpButton, 35, 35);
 		lv_obj_set_pos(moveUpButton, width - 200, 2);
@@ -186,17 +187,22 @@ void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 	lv_obj_set_user_data(pasteButton, (lv_obj_user_data_t)this);
 	lv_obj_set_event_cb(pasteButton, pasteButtonCB);
 }
+#pragma endregion
 
+#pragma region Create Node Objects
 void TreeView::createUIObjects(TreeNode *node)
 {
 	sButtonCB *bcb = new sButtonCB();
 	bcb->node = node;
+	bcb->tv = this;
 	// All the objects are created with the click object as the parent
 	if (node->clickObj == nullptr)
 	{
 		node->clickObj = lv_obj_create(treeContainer, nullptr);
-		lv_obj_set_size(node->clickObj, width - 5, 17);
+		lv_obj_set_size(node->clickObj, width - 5, 15);
 		lv_obj_set_style(node->clickObj, &lv_style_transp);
+		lv_obj_set_user_data(node->clickObj, (lv_obj_user_data_t)bcb);
+		lv_obj_set_event_cb(node->clickObj, clickObjCB);
 	}
 	if (node->buttonObj == nullptr)
 	{
@@ -211,6 +217,7 @@ void TreeView::createUIObjects(TreeNode *node)
 	if(node->buttonLabel==nullptr)
 	{
 		node->buttonLabel = lv_label_create(node->buttonObj, nullptr);
+		lv_obj_set_style(node->buttonLabel, &lv_style_pretty_color);
 		bcb->label = node->buttonLabel;
 	}
 	if(node->labelObj==nullptr)
@@ -219,33 +226,37 @@ void TreeView::createUIObjects(TreeNode *node)
 		lv_label_set_text(node->labelObj, node->name.c_str());
 		lv_label_set_style(node->labelObj, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
 	}
-	bcb->tv = this;
+
 	lv_obj_set_user_data(node->buttonObj, (lv_obj_user_data_t)bcb);
 	lv_obj_set_event_cb(node->buttonObj, expandButtonCB);
 }
+#pragma endregion
 
+#pragma region Place Node Objects
 int TreeView::placeUIObjects(TreeNode* node, int yCtr, bool shown)
 {
-	node->setPosition(x + 5, yCtr * 17 - 1);
+	if(node->labelObj==nullptr ||
+		node->clickObj==nullptr ||
+		node->buttonLabel==nullptr ||
+		node->buttonObj==nullptr)
+	{
+		createUIObjects(node);
+	}
+	node->setPosition(x + 5, yCtr * 17 + 3);
 	if(shown)
 	{
+		displayedNodes.push_back(node);
 		yCtr++;
-		lv_label_set_style(node->labelObj, LV_LABEL_STYLE_MAIN, &lv_style_pretty_color);
-		lv_obj_set_style(node->buttonLabel, &lv_style_pretty_color);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_REL, &lv_style_pretty_color);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_INA, &lv_style_pretty_color);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_PR, &lv_style_pretty_color);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_PR, &lv_style_pretty_color);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_REL, &lv_style_pretty_color);
+		lv_obj_set_hidden(node->labelObj, false);
+		lv_obj_set_hidden(node->clickObj, false);
+		lv_obj_set_hidden(node->buttonLabel, false);
+		lv_obj_set_hidden(node->buttonObj, false);
 	} else
-	{
-		lv_label_set_style(node->labelObj, LV_LABEL_STYLE_MAIN, &lv_style_transp);
-		lv_obj_set_style(node->buttonLabel, &lv_style_transp);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_REL, &lv_style_transp);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_INA, &lv_style_transp);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_PR, &lv_style_transp);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_PR, &lv_style_transp);
-		lv_btn_set_style(node->buttonObj, LV_BTN_STYLE_TGL_REL, &lv_style_transp);		
+	{	
+		lv_obj_set_hidden(node->labelObj, true);
+		lv_obj_set_hidden(node->clickObj, true);
+		lv_obj_set_hidden(node->buttonLabel, true);
+		lv_obj_set_hidden(node->buttonObj, true);
 	}
 	if (node->children.empty())
 	{
@@ -277,13 +288,15 @@ int TreeView::placeUIObjects(TreeNode* node, int yCtr, bool shown)
 
 void TreeView::placeUIObjects()
 {
-	int yCtr = 0;
+	int yCtr = -1;
+	displayedNodes.clear();
 	for (std::vector<TreeNode*>::iterator it = topLevelNodes.begin();
 		it != topLevelNodes.end();
 		it++)
 	{
+		displayedNodes.push_back(*it);
 		yCtr++;
-		(*it)->setPosition(x+5, yCtr * 17 - 1);
+		(*it)->setPosition(x+5, yCtr * 17 + 3);
 		if((*it)->children.empty())
 		{
 			lv_label_set_text((*it)->buttonLabel, LV_SYMBOL_MINUS);
@@ -306,18 +319,84 @@ void TreeView::placeUIObjects()
 		}
 	}
 }
+#pragma endregion
 
 #pragma region Callbacks
-void TreeView::deleteButtonCB(lv_obj_t * obj, lv_event_t ev)
+void TreeView::clickObjCB(lv_obj_t *obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
-}
-
-void TreeView::labelButtonCB(lv_obj_t *obj, lv_event_t ev)
-{
-	if (ev != LV_EVENT_CLICKED)
-		return;
+	sButtonCB* bcbData = (sButtonCB*)lv_obj_get_user_data(obj);
+	if(bcbData->node->selected)
+	{
+		bcbData->node->selected = false;
+		if (bcbData->tv->selectedNode != nullptr)
+		{
+			bcbData->tv->selectedNode->selected = false;
+		}
+		if (bcbData->tv->selectedNode->object != nullptr)
+		{
+			lv_obj_set_style(bcbData->tv->selectedNode->object,
+				bcbData->tv->selectedNode->objectStyle);
+		}
+		bcbData->tv->selectedNode = nullptr;
+		lv_obj_set_style(obj, &lv_style_transp);
+		lv_obj_set_hidden(bcbData->tv->deleteButton, true);
+		lv_obj_set_hidden(bcbData->tv->copyButton, true);
+		lv_obj_set_hidden(bcbData->tv->moveUpButton, true);
+		lv_obj_set_hidden(bcbData->tv->moveDownButton, true);
+	} else
+	{
+		bcbData->node->selected = true;
+		if (bcbData->node->object != nullptr)
+		{
+			bcbData->node->objectStyle = (lv_style_t*)lv_obj_get_style(bcbData->node->object);
+			lv_obj_set_style(bcbData->node->object, &lv_style_plain);
+		}
+		
+		if(bcbData->tv->selectedNode!=nullptr)
+		{
+			if (bcbData->tv->selectedNode->object != nullptr && 
+				bcbData->tv->selectedNode->objectStyle != nullptr)
+			{
+				lv_obj_set_style(bcbData->tv->selectedNode->object, bcbData->tv->selectedNode->objectStyle);
+			}
+			bcbData->tv->selectedNode->selected = false;
+			lv_obj_set_style(bcbData->tv->selectedNode->clickObj, &lv_style_transp);
+		}
+		bcbData->tv->selectedNode = bcbData->node;
+		lv_obj_set_style(obj, &lv_style_plain_color);
+		if(bcbData->tv->displayedNodes[0]==bcbData->node)
+		{
+			lv_obj_set_hidden(bcbData->tv->moveUpButton, true);
+		} else
+		{
+			if (!bcbData->node->protectedNode)
+			{
+				lv_obj_set_hidden(bcbData->tv->moveUpButton, false);
+			}
+		}
+		if(bcbData->tv->displayedNodes[bcbData->tv->displayedNodes.size()-1]==bcbData->node)
+		{
+			lv_obj_set_hidden(bcbData->tv->moveDownButton, true);
+		}
+		else
+		{
+			if (!bcbData->node->protectedNode)
+			{
+				lv_obj_set_hidden(bcbData->tv->moveDownButton, false);
+			}
+		}
+		if (!bcbData->node->protectedNode)
+		{
+			lv_obj_set_hidden(bcbData->tv->deleteButton, false);
+		}
+		lv_obj_set_hidden(bcbData->tv->copyButton, false);
+		if(bcbData->tv->copiedNode!=nullptr)
+		{
+			lv_obj_set_hidden(bcbData->tv->pasteButton, false);
+		}
+	}
 }
 
 void TreeView::expandButtonCB(lv_obj_t * obj, lv_event_t ev)
@@ -343,25 +422,175 @@ void TreeView::moveUpButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
+	TreeView* tv = (TreeView*)lv_obj_get_user_data(obj);
+	int nodeIdx = -1;
+	for (int i = 0; i < tv->displayedNodes.size(); i++)
+	{
+		if (tv->displayedNodes[i] == tv->selectedNode)
+		{
+			nodeIdx = i;
+			break;
+		}
+	}
+	if (nodeIdx == -1)
+		return;
+	TreeNode *thisNode = tv->displayedNodes[nodeIdx];
+	TreeNode *tradeNode = tv->displayedNodes[nodeIdx-1];
+	lv_obj_set_hidden(tv->moveDownButton, false);
+	if(tradeNode->parent==nullptr)
+	{
+		tv->topLevelNodes.insert(tv->topLevelNodes.begin(), thisNode);
+		thisNode->parent->removeChild(thisNode);
+		thisNode->parent = nullptr;
+		thisNode->level = thisNode->GetLevel();
+		tv->placeUIObjects();
+		return;
+	}
+	if(thisNode->parent==tradeNode->parent)
+	{
+		int mIdx = -1;
+		int tIdx = -1;
+		for(int i=0; i<thisNode->parent->children.size(); i++)
+		{
+			if (thisNode->parent->children[i] == thisNode)
+				mIdx = i;
+			if (thisNode->parent->children[i] == tradeNode)
+				tIdx = i;
+		}
+		if (mIdx == -1 || tIdx == -1)
+			return;
+		thisNode->parent->children[mIdx] = tradeNode;
+		thisNode->parent->children[tIdx] = thisNode;
+		tv->placeUIObjects();
+		return;
+	}
+
+	// We are changing parents
+	thisNode->parent->removeChild(thisNode);
+	thisNode->parent = tradeNode->parent;
+	tradeNode->parent->addChildFront(thisNode);
+	thisNode->level = thisNode->GetLevel();
+	tv->placeUIObjects();
+	
 }
 
 void TreeView::moveDownButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
+	TreeView* tv = (TreeView*)lv_obj_get_user_data(obj);
+	int nodeIdx = -1;
+	for (int i = 0; i < tv->displayedNodes.size(); i++)
+	{
+		if (tv->displayedNodes[i] == tv->selectedNode)
+		{
+			nodeIdx = i;
+			break;
+		}
+	}
+	if (nodeIdx == -1)
+		return;
+	lv_obj_set_hidden(tv->moveUpButton, false);
+	TreeNode *thisNode = tv->displayedNodes[nodeIdx];
+	TreeNode *tradeNode = tv->displayedNodes[nodeIdx + 1];
+	if (thisNode->parent == nullptr)
+	{
+		// We are a top level node
+		thisNode->parent = tradeNode;
+		int idx = -1;
+		for (int i = 0; i < tv->topLevelNodes.size(); i++)
+		{
+			if (tv->topLevelNodes[i] == thisNode)
+			{
+				idx = i;
+				break;
+			}
+		}
+		if (idx != -1)
+		{
+			tv->topLevelNodes.erase(tv->topLevelNodes.begin() + idx);
+		}
+		tradeNode->addChildFront(thisNode);
+		thisNode->level = thisNode->GetLevel();
+		tv->placeUIObjects();
+		return;
+	}
+
+
+	thisNode->parent->removeChild(thisNode);
+	tradeNode->addChildFront(thisNode);
+	thisNode->level = thisNode->GetLevel();
+	tv->placeUIObjects();
+}
+
+void TreeView::deleteButtonCB(lv_obj_t * obj, lv_event_t ev)
+{
+	if (ev != LV_EVENT_CLICKED)
+		return;
+	TreeView* tv = (TreeView*)lv_obj_get_user_data(obj);
+	if (tv->selectedNode == nullptr)
+		return;
+	if (tv->selectedNode->protectedNode)
+		return;
+	if(tv->selectedNode->parent==nullptr)
+	{
+		// It could be a top level node
+		int nodeIdx = -1;
+		for(int i=0; i<tv->topLevelNodes.size(); i++)
+		{
+			if (tv->topLevelNodes[i] == tv->selectedNode)
+			{
+				tv->topLevelNodes[i]->removeChild(tv->selectedNode);
+				break;
+			}
+		}
+	} else
+	{
+		tv->selectedNode->parent->removeChild(tv->selectedNode);
+	}
+	// Now delete the node itself
+	delete(tv->selectedNode);
+	tv->selectedNode = nullptr;
+	lv_obj_set_hidden(tv->deleteButton, true);
+	lv_obj_set_hidden(tv->moveUpButton, true);
+	lv_obj_set_hidden(tv->moveDownButton, true);
+	lv_obj_set_hidden(tv->copyButton, true);
+	lv_obj_set_hidden(tv->pasteButton, true);
 }
 
 void TreeView::copyButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
+	TreeView* tv=(TreeView*)lv_obj_get_user_data(obj);
+	if (tv->selectedNode == nullptr)
+		return;
+	tv->copiedNode = tv->selectedNode;
+	lv_obj_set_hidden(tv->pasteButton, false);
 }
 
 void TreeView::pasteButtonCB(lv_obj_t * obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
+	TreeView* tv = (TreeView*)lv_obj_get_user_data(obj);
+	if (tv->selectedNode == nullptr)
+		return;
+	if (tv->copiedNode == nullptr)
+	{
+		lv_obj_set_hidden(tv->pasteButton, true);
+		return;
+	}
+	TreeNode *tn = tv->copiedNode->DeepCopy();
+	tv->curID++;
+	tn->id = tv->curID;
+	tv->selectedNode->addChild(tn);
+	// Create the new nodes object
+	tv->createUIObjects(tn);
+	tn->level = tn->GetLevel();
+	tv->placeUIObjects();
 }
+
 void TreeView::AddSelectCallback(tv_callback cbMethod)
 {
 	this->selectCallbackFunc = cbMethod;

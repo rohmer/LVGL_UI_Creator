@@ -36,9 +36,10 @@ private:
 	std::string title;
 	lv_obj_t *tvContainer;
 	TreeNode *selectedNode=nullptr;
+	TreeNode *copiedNode = nullptr;
 	
 	lv_obj_t *window, *deleteButton, *treeContainer,
-		*moveUpButton, *moveDownButton, *copyButton, *pasteButton;
+		*moveUpButton, *moveDownButton, *copyButton, *pasteButton, *selectionBar;
 
 	std::vector<TreeNode*> topLevelNodes;
 	
@@ -61,7 +62,7 @@ private:
 	// Callbacks
 	static void deleteButtonCB(lv_obj_t * obj, lv_event_t ev);
 	static void expandButtonCB(lv_obj_t * obj, lv_event_t ev);
-	static void labelButtonCB(lv_obj_t * obj, lv_event_t ev);
+	static void clickObjCB(lv_obj_t * obj, lv_event_t ev);
 	static void moveUpButtonCB(lv_obj_t * obj, lv_event_t ev);
 	static void copyButtonCB(lv_obj_t * obj, lv_event_t ev);
 	static void pasteButtonCB(lv_obj_t * obj, lv_event_t ev);
@@ -69,4 +70,5 @@ private:
 
 	tv_callback selectCallbackFunc = nullptr;
 	tv_callback deleteCallbackFunc = nullptr;
+	std::vector<TreeNode *> displayedNodes;
 };

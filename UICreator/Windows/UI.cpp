@@ -17,7 +17,13 @@ UI::UI()
 	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);
-	propertyWindow->GetObjectTree()->AddNode("Button", button, 0, false);
+
+	//TODO: Remove the following addnodes
+	int buttonID=propertyWindow->GetObjectTree()->AddNode("Button", button, 0, false);
+	int l21 = propertyWindow->GetObjectTree()->AddNode("L2", nullptr, buttonID, false);
+	int l31 = propertyWindow->GetObjectTree()->AddNode("L3", nullptr, l21, false);
+	int l32 = propertyWindow->GetObjectTree()->AddNode("L3.1", nullptr, l21, false);
+
 }
 
 #pragma region ThemeInit

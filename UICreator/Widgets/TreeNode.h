@@ -24,6 +24,7 @@ private:
 	void setPosition(int x, int y);
 	TreeNode(std::string name, TreeNode *parent, lv_obj_t *object, bool protect = false);
 	void addChild(TreeNode *childNode);
+	void addChildFront(TreeNode *childNode);
 	void removeChild(TreeNode *node);
 	lv_obj_t *object, *buttonObj, *buttonLabel, *labelObj, *clickObj;
 	
@@ -37,5 +38,6 @@ private:
 	bool expanded = false;
 	bool selected = false;
 	bool protectedNode = false;
+	lv_style_t *objectStyle;
 	std::any nodeData;
 };

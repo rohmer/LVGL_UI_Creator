@@ -12,9 +12,13 @@ TreeNode::TreeNode(std::string name, TreeNode *parent, lv_obj_t* object, bool pr
 
 TreeNode::~TreeNode()
 {
-	lv_obj_del_async(buttonObj);
-	lv_obj_del_async(labelObj);
-	lv_obj_del_async(clickObj);
+	if (object != nullptr)
+	{
+		lv_obj_del(object);
+	}
+	lv_obj_del(buttonObj);
+	lv_obj_del(labelObj);
+	lv_obj_del(clickObj);
 	
 	for (std::vector<TreeNode*>::iterator it = children.begin();
 		it != children.end();
@@ -23,6 +27,21 @@ TreeNode::~TreeNode()
 		if ((*it) != nullptr)
 			delete(*it);
 	}
+}
+
+void TreeNode::removeChild(TreeNode *node)
+{
+	int nodeIdx = -1;
+	for(int i=0; i<children.size(); i++)
+	{
+		if (children[i] == node)
+		{
+			nodeIdx = i;
+			break;
+		}
+	}
+	if (nodeIdx != -1)
+		children.erase(children.begin() + nodeIdx);
 }
 
 TreeNode *TreeNode::DeepCopy()
@@ -38,19 +57,6 @@ TreeNode *TreeNode::DeepCopy()
 	}
 	
 	TreeNode *newNode = new TreeNode(name, parent, objCopy, protectedNode);
-	// Copy UI items
-	if(buttonObj!=nullptr)
-	{
-		newNode->buttonObj = lv_btn_create(this->GetObject()->par, buttonObj);
-	}
-	if(labelObj!=nullptr)
-	{
-		newNode->labelObj = lv_label_create(this->GetObject()->par, labelObj);
-	}
-	if(clickObj!=nullptr)
-	{
-		newNode->clickObj = lv_obj_create(this->GetObject()->par, clickObj);
-	}
 	
 	for (std::vector<TreeNode*>::iterator it = children.begin();
 		it != children.end();
@@ -58,6 +64,8 @@ TreeNode *TreeNode::DeepCopy()
 	{
 		newNode->addChild((*it)->DeepCopy());
 	}
+	newNode->selected = false;
+	newNode->level = level;
 	return newNode;
 }
 
@@ -113,6 +121,12 @@ unsigned int TreeNode::GetID()
 std::string TreeNode::GetName()
 {
 	return name;
+}
+
+void TreeNode::addChildFront(TreeNode* childNode)
+{
+	childNode->parent = this;
+	children.insert(children.begin(), childNode);
 }
 
 void TreeNode::addChild(TreeNode *node)
