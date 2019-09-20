@@ -65,7 +65,7 @@ TreeNode *TreeNode::DeepCopy()
 		newNode->addChild((*it)->DeepCopy());
 	}
 	newNode->selected = false;
-	newNode->level = level;
+	newNode->level = newNode->GetLevel();
 	return newNode;
 }
 
