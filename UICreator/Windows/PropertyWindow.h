@@ -5,6 +5,7 @@
 #include "SimWindow.h"
 #include "../Widgets/CollapsableWindowManager.h"
 #include "../Widgets/CollapsableWindow.h"
+#include "../Widgets/MinimizableWindow.h"
 #include "../Widgets/TreeView.h"
 #include "UIObjectData.h"
 
@@ -15,11 +16,12 @@ public:
 	TreeView *GetObjectTree();
 	
 private:
+	MinimizableWindow *minWin;
 	SimWindow *simWindow;
 	lv_obj_t* propertyWin;
 	int screenX, screenY;
 	bool globalExpanded;
-	CollapsableWindow *globalProps, *baseObjProps, *treeWin;
+	CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
 	CollapsableWindowManager *cwm;
 	TreeView *treeView;
 	static lv_theme_t *activeTheme;
@@ -29,6 +31,7 @@ private:
 	void createPropertyWin();
 	void createGlobalProps();
 	void createBaseObjProps();
+	void createObjProps();
 	void createTreeView();
 	static void objSelectCB(TreeNode *node);
 	static void deleteCB(TreeNode *node);

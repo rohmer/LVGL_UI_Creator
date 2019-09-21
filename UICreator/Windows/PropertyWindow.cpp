@@ -20,18 +20,15 @@ TreeView* PropertyWindow::GetObjectTree()
 
 void PropertyWindow::createPropertyWin()
 {
-	propertyWin = lv_win_create(lv_scr_act(), nullptr);
-	lv_obj_t* curScr = lv_scr_act();
-	lv_win_set_title(propertyWin, "Properties");
-	lv_obj_set_size(propertyWin, 400, screenY);
-	lv_obj_set_x(propertyWin, screenX-400);
+	minWin = new MinimizableWindow("Properties", screenX - 400, 0, 400, screenY, nullptr, false, screenX/2+40, 10);
+	propertyWin = minWin->GetWindowObj();
 	lv_obj_set_drag(propertyWin, true);
 	lv_obj_set_drag_dir(propertyWin, LV_DRAG_DIR_ALL);
 	lv_obj_set_protect(propertyWin, LV_PROTECT_NONE);
-	cwm = new CollapsableWindowManager(propertyWin);
+	cwm = new CollapsableWindowManager(propertyWin,10,5,30,true);
 	createGlobalProps();
 	createBaseObjProps();
-
+	createObjProps();
 	// TreeView is the last property
 	createTreeView();
 }
@@ -40,6 +37,12 @@ void PropertyWindow::createBaseObjProps()
 {
 	baseObjProps = new CollapsableWindow(propertyWin, "Base Object", false, 10,0,0, 0);
 	cwm->AddWindow(baseObjProps);
+}
+
+void PropertyWindow::createObjProps()
+{
+	objProps = new CollapsableWindow(propertyWin, "Object", false, 10, 0, 0, 0);
+	cwm->AddWindow(objProps);
 }
 
 void PropertyWindow::createGlobalProps()

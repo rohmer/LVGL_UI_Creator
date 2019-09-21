@@ -136,10 +136,8 @@ void CollapsableWindow::collapseClicked(lv_obj_t* obj, lv_event_t event)
 
 int CollapsableWindow::GetCurrentHeight()
 {
-	std::vector<lv_obj_t*> children = ObjectTools::GetChildren(window);
-	lv_area_t area;
-	lv_obj_get_coords(window, &area);
-	return (abs(area.y2 - area.y1));	
+	std::vector<lv_obj_t*> children = ObjectTools::GetChildren(window);	
+	return (lv_obj_get_height(window));	
 }
 
 lv_obj_t* CollapsableWindow::GetWindow()

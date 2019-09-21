@@ -46,6 +46,12 @@ MinimizableWindow::MinimizableWindow(std::string title,
 	lv_label_set_long_mode(minLabel, LV_LABEL_LONG_SROLL);
 	lv_label_set_text(minLabel, title.c_str());
 	lv_obj_set_hidden(iconObject, true);
+	lv_obj_set_top(iconObject, true);
+}
+
+lv_obj_t *MinimizableWindow::GetWindowObj()
+{
+	return windowObject;
 }
 
 void MinimizableWindow::closeCB(lv_obj_t * obj, lv_event_t ev)
@@ -73,4 +79,5 @@ void MinimizableWindow::minimizeCB(lv_obj_t * obj, lv_event_t ev)
 	MinimizableWindow *mw = (MinimizableWindow*)lv_obj_get_user_data(obj);
 	lv_obj_set_hidden(mw->windowObject, true);
 	lv_obj_set_hidden(mw->iconObject, false);
+	lv_obj_set_top(mw->iconObject, true);
 }

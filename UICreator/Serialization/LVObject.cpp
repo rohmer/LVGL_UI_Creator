@@ -6,8 +6,7 @@ namespace Serialization
 	{
 		json j;
 
-		j["coords"] = Area::ToJSON(object->coords);	
-		
+		j["coords"] = Area::ToJSON(object->coords);			
 		// We have to process children in JsonDoc
 		if (object->click == 1)
 			j["click"] = true;
