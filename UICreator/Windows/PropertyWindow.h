@@ -43,8 +43,14 @@ private:
 	lv_obj_t *styleDD;
 	lv_obj_t *hidden, *click, *top, *parentEvent, *opaScaleEnable, *opaScale;
 	lv_obj_t *drag, *dragDir, *dragThrow, *dragParent;
+	lv_obj_t *protNone, *protPos, *protFollow, *protParent, *protPressLost, *protClickFocus, *protChildChg;	
 #pragma endregion
 
+	struct sInp
+	{
+		std::string name;
+		PropertyWindow *pw;
+	};
 	std::map<std::string, json> styles;
 	
 	static void initializeThemes(uint16_t hue);
@@ -53,7 +59,8 @@ private:
 	void createBaseObjProps();
 	void createObjProps();
 	void createTreeView();
-
+	void updateGlobalProps();
+	
 	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt);
 	void initStyles();
 	
@@ -63,6 +70,6 @@ private:
 	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
 	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
 	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
-	
+	static void ddCB(lv_obj_t *obj, lv_event_t event);
 	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
 };

@@ -41,7 +41,7 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object)
 
 void PropertyWindow::createBaseObjProps()
 {
-	baseObjProps = new CollapsableWindow(propertyWin, "Base Object", false, 10,0,380,300);
+	baseObjProps = new CollapsableWindow(propertyWin, "Base Object", false, 10,0,380,350);
 	lv_obj_t *boCont = lv_cont_create(baseObjProps->GetWindow(), nullptr);
 	lv_cont_set_layout(boCont, LV_LAYOUT_COL_L);	
 	lv_cont_set_fit(boCont, LV_FIT_FILL);	
@@ -76,7 +76,11 @@ void PropertyWindow::createBaseObjProps()
 	}
 	lv_ddlist_set_options(styleDD, ss.str().c_str());
 	lv_ddlist_set_draw_arrow(styleDD, true);
-
+	sInp style;
+	style.name = "styledd";
+	style.pw = this;
+	lv_obj_set_user_data(styleDD, (lv_obj_user_data_t)&style);
+	lv_obj_set_event_cb(styleDD, ddCB);	
 	lv_obj_t *sLab = lv_label_create(styleCont, nullptr);
 	lv_label_set_text(sLab, "New Style");	
 	lv_obj_t *newSBtn = lv_btn_create(styleCont, nullptr);
@@ -95,22 +99,34 @@ void PropertyWindow::createBaseObjProps()
 
 	hidden = lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(hidden, "Hidden");
-	lv_obj_set_user_data(hidden, (lv_obj_user_data_t)this);
+	sInp hd;
+	hd.name = "hidden";
+	hd.pw = this;
+	lv_obj_set_user_data(hidden, (lv_obj_user_data_t)&hd);
 	lv_obj_set_event_cb(hidden, checkBoxCB);
 	
 	click = lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(click, "Click");
-	lv_obj_set_user_data(click, (lv_obj_user_data_t)this);
+	sInp cl;
+	cl.name = "click";
+	cl.pw = this;
+	lv_obj_set_user_data(click, (lv_obj_user_data_t)&cl);
 	lv_obj_set_event_cb(click, checkBoxCB);
 
 	top = lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(top, "Top");
-	lv_obj_set_user_data(top, (lv_obj_user_data_t)this);
+	sInp stop;
+	stop.name = "top";
+	stop.pw = this;
+	lv_obj_set_user_data(top, (lv_obj_user_data_t)&stop);
 	lv_obj_set_event_cb(top, checkBoxCB);
 
 	parentEvent= lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(parentEvent, "Parent event");
-	lv_obj_set_user_data(parentEvent, (lv_obj_user_data_t)this);
+	sInp parent;
+	parent.name = "parent";
+	parent.pw = this;
+	lv_obj_set_user_data(parentEvent, (lv_obj_user_data_t)&parent);
 	lv_obj_set_event_cb(parentEvent, checkBoxCB);
 
 	lv_obj_t *attrCont2 = lv_cont_create(boCont, nullptr);
@@ -118,10 +134,13 @@ void PropertyWindow::createBaseObjProps()
 	lv_cont_set_fit(attrCont2, LV_FIT_TIGHT);
 	lv_obj_set_style(attrCont2, &lv_style_transp);
 
-	opaScaleEnable= lv_cb_create(attrCont2, nullptr);
+	opaScaleEnable= lv_cb_create(attrCont2, nullptr);	
 	lv_cb_set_text(opaScaleEnable, "Opa Scale Enable");
-	lv_obj_set_user_data(opaScaleEnable, (lv_obj_user_data_t)this);
-	lv_obj_set_event_cb(opaScaleEnable, checkBoxCB);
+	sInp oe;
+	oe.name = "opaenab";
+	oe.pw = this;
+	lv_obj_set_user_data(opaScaleEnable, (lv_obj_user_data_t)&oe);
+	lv_obj_set_event_cb(opaScaleEnable, checkBoxCB);	
 
 	opaScale = createNumericEntry(attrCont2, "Opa Scale");
 #pragma endregion
@@ -134,25 +153,107 @@ void PropertyWindow::createBaseObjProps()
 
 	drag = lv_cb_create(dragCont, nullptr);
 	lv_cb_set_text(drag, "Drag");
-	lv_obj_set_user_data(drag, (lv_obj_user_data_t)this);
+	sInp sdrag;
+	sdrag.name = "drag";
+	sdrag.pw = this;
+	lv_obj_set_user_data(drag, (lv_obj_user_data_t)&sdrag);
 	lv_obj_set_event_cb(drag, checkBoxCB);
 
 	lv_obj_t *ddLab = lv_label_create(dragCont, nullptr);
-	lv_label_set_text(ddLab, "Dir");
-	
+	lv_label_set_text(ddLab, "   Dir");	
 	dragDir = lv_ddlist_create(dragCont, nullptr);
 	lv_ddlist_set_options(dragDir, "HOR\nVERT\nHOR&VERT");
 	lv_ddlist_set_draw_arrow(dragDir, true);
-
+	sInp sdir;
+	sdir.name = "dragdir";
+	sdir.pw = this;
+	lv_obj_set_user_data(dragDir, (lv_obj_user_data_t)&sdir);
+	lv_obj_set_event_cb(dragDir, ddCB);
+	
 	dragThrow = lv_cb_create(dragCont, nullptr);
-	lv_cb_set_text(dragThrow, "Throw");
-	lv_obj_set_user_data(dragThrow, (lv_obj_user_data_t)this);
+	lv_cb_set_text(dragThrow, "Throw");	
+	sInp dthrow;
+	dthrow.name = "dragthrow";
+	dthrow.pw = this;
+	lv_obj_set_user_data(dragThrow, (lv_obj_user_data_t)&dthrow);
 	lv_obj_set_event_cb(dragThrow, checkBoxCB);
 
 	dragParent = lv_cb_create(dragCont, nullptr);
 	lv_cb_set_text(dragParent, "Parent");
-	lv_obj_set_user_data(dragParent, (lv_obj_user_data_t)this);
+	sInp dpar;
+	dpar.name = "dragparent";
+	dpar.pw = this;
+	lv_obj_set_user_data(dragParent, (lv_obj_user_data_t)&dpar);
 	lv_obj_set_event_cb(dragParent, checkBoxCB);
+
+#pragma endregion
+
+#pragma region Protect
+	lv_obj_t *protCont = lv_cont_create(boCont, nullptr);
+	lv_obj_set_size(protCont, 360,90);
+	lv_cont_set_layout(protCont, LV_LAYOUT_COL_L);
+	lv_cont_set_fit(protCont, LV_FIT_NONE);
+	
+	lv_obj_t *protLab=lv_label_create(protCont, nullptr);
+	lv_label_set_text(protLab, "Protection");
+
+	lv_obj_t *row1 = lv_cont_create(protCont, nullptr);
+	lv_obj_set_style(row1, &lv_style_transp);
+	lv_cont_set_layout(row1, LV_LAYOUT_ROW_T);
+	lv_cont_set_fit(row1, LV_FIT_TIGHT);
+	protNone = lv_cb_create(row1, nullptr);
+	lv_cb_set_text(protNone, "None");
+	sInp pnone;
+	pnone.name = "protnone";
+	pnone.pw = this;
+	lv_obj_set_user_data(protNone, (lv_obj_user_data_t)&pnone);
+	lv_obj_set_event_cb(protNone, checkBoxCB);
+	protPos = lv_cb_create(row1, nullptr);
+	lv_cb_set_text(protPos, "Position");
+	sInp ppos;
+	ppos.name = "protpos";
+	ppos.pw = this;
+	lv_obj_set_user_data(protPos, (lv_obj_user_data_t)&ppos);
+	lv_obj_set_event_cb(protPos, checkBoxCB);
+	protFollow = lv_cb_create(row1, nullptr);
+	lv_cb_set_text(protFollow, "Follow");
+	lv_obj_set_user_data(protFollow, (lv_obj_user_data_t)this);
+	lv_obj_set_event_cb(protFollow, checkBoxCB);
+	protParent = lv_cb_create(row1, nullptr);
+	lv_cb_set_text(protParent, "Parent");
+	lv_obj_set_user_data(protParent, (lv_obj_user_data_t)this);
+	lv_obj_set_event_cb(protParent, checkBoxCB);
+	sInp ppar;
+	ppar.name = "protpar";
+	ppar.pw = this;
+	lv_obj_set_user_data(protParent, (lv_obj_user_data_t)&ppar);
+	lv_obj_set_event_cb(protParent, checkBoxCB);
+	lv_obj_t *row2 = lv_cont_create(protCont, nullptr);
+	lv_obj_set_style(row2, &lv_style_transp);
+	lv_cont_set_layout(row2, LV_LAYOUT_ROW_T);
+	lv_cont_set_fit(row2, LV_FIT_TIGHT);
+	protPressLost = lv_cb_create(row2, nullptr);
+	lv_cb_set_text(protPressLost, "Press lost");
+	sInp ploss;
+	ploss.name = "protpressloss";
+	ploss.pw = this;
+	lv_obj_set_user_data(protPressLost, (lv_obj_user_data_t)&ploss);
+	lv_obj_set_event_cb(protPressLost, checkBoxCB);
+	protClickFocus = lv_cb_create(row2, nullptr);
+	lv_cb_set_text(protClickFocus, "Click focus");
+	sInp pcf;
+	pcf.name = "protclickfocus";
+	pcf.pw = this;
+	lv_obj_set_user_data(protClickFocus, (lv_obj_user_data_t)&pcf);
+	lv_obj_set_event_cb(protClickFocus, checkBoxCB);
+	protChildChg = lv_cb_create(row2, nullptr);
+	lv_cb_set_text(protChildChg, "Child change");
+	sInp pcc;
+	pcc.name = "protchildchange";
+	pcc.pw = this;
+	lv_obj_set_user_data(protChildChg, (lv_obj_user_data_t)&pcc);
+	lv_obj_set_event_cb(protChildChg, checkBoxCB);
+	
 	
 #pragma endregion
 	
@@ -168,7 +269,10 @@ lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string 
 	lv_ta_set_accepted_chars(obj, "0123456789");
 	lv_ta_set_text(obj, "");
 	lv_ta_set_cursor_type(obj, LV_CURSOR_NONE);
-	lv_obj_set_user_data(obj, (lv_obj_user_data_t)this);
+	sInp inp;
+	inp.name = labelTxt;
+	inp.pw = this;
+	lv_obj_set_user_data(obj, (lv_obj_user_data_t)&inp);
 	lv_obj_set_event_cb(obj, numericEntryCB);
 	lv_obj_set_width(obj, 35);
 	return obj;
@@ -275,6 +379,14 @@ void PropertyWindow::checkBoxCB(lv_obj_t* obj, lv_event_t event)
 	if (event == LV_EVENT_CLICKED)
 	{
 		// TODO: Set the value for the checkbox
+	}
+}
+
+void PropertyWindow::ddCB(lv_obj_t* obj, lv_event_t event)
+{
+	if(event==LV_EVENT_VALUE_CHANGED)
+	{
+		
 	}
 }
 

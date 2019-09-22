@@ -35,10 +35,8 @@ namespace Serialization
 			j["parevent"] = true;
 		else
 			j["parevent"] = false;
-		if (object->protect == 1)
-			j["protect"] = true;
-		else
-			j["protect"] = false;
+		j["protect"] = object->protect;
+		
 #ifdef LV_USE_OBJ_REALIGN
 		j["realign"] = Realign::ToJSON(object->realign);
 #endif
@@ -48,7 +46,7 @@ namespace Serialization
 		if (object->top == 1)
 			j["top"] = true;
 		else
-			j["top"] = false;		
+			j["top"] = false;
 		return j;
 	}
 
@@ -56,7 +54,7 @@ namespace Serialization
 	{	
 		if (widget == nullptr)
 		{
-			widget = lv_obj_create(lv_disp_get_scr_act(NULL), nullptr);
+			widget = lv_obj_create(lv_disp_get_scr_act(nullptr), nullptr);
 		}
 		if (j["style"].is_object())
 		{
@@ -154,12 +152,9 @@ namespace Serialization
 			else
 				widget->parent_event = false;
 		}
-		if (j["protect"].is_boolean())
+		if (j["protect"].is_number())
 		{
-			if (j["protect"] == true)
-				widget->protect = true;
-			else
-				widget->protect = false;
+			widget->protect = j["protect"];			
 		}		
 		#ifdef LV_USE_OBJ_REALIGN
 		if (j["realign"].is_object())
