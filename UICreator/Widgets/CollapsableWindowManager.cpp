@@ -22,12 +22,12 @@ void CollapsableWindowManager::AddWindow(CollapsableWindow *window)
 	{
 		y += 3;
 		lv_obj_t *s = lv_obj_create(this->parent, nullptr);
-		lv_obj_set_width(s, lv_obj_get_width(this->parent) - 8);
+		lv_obj_set_width(s, lv_obj_get_width(this->parent) - 16);
 		lv_obj_set_height(s, 5);
-		lv_obj_set_x(s, 4);
+		lv_obj_set_x(s, 8);
 		lv_obj_set_y(s, y);
 		lv_obj_set_hidden(s, false);
-		lv_obj_set_style(s, &lv_style_pretty_color);
+		lv_obj_set_style(s, &lv_style_pretty);
 		lv_obj_move_foreground(s);
 		seps.push_back(s);
 		y += 3;
@@ -40,6 +40,25 @@ void CollapsableWindowManager::AddWindow(CollapsableWindow *window)
 	lv_obj_set_event_cb(window->GetCollapseButton(), expandCallback);
 }
 
+void CollapsableWindowManager::Update()
+{
+	y = initialY;
+	int ctr = 0;
+	// We now need to reposition all our windows
+	for (std::vector<CollapsableWindow*>::iterator it = windows.begin();
+		it != windows.end();
+		++it)
+	{
+		(*it)->SetVerticalPos(y);
+		if (seperators)
+		{
+			lv_obj_set_y(seps[ctr], y + (*it)->GetCurrentHeight() + verticalPadding + 3);
+			y += 6;
+			ctr++;
+		}
+		y += (*it)->GetCurrentHeight() + verticalPadding;
+	}
+}
 void CollapsableWindowManager::expandCallback(lv_obj_t* obj, lv_event_t event)
 {
 	if (event != LV_EVENT_CLICKED)

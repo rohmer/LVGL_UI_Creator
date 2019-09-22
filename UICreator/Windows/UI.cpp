@@ -14,7 +14,7 @@ UI::UI()
 
 	simWindow = new SimWindow(320, 240);
 	propertyWindow = new PropertyWindow(simWindow,hres,vres);
-	toolTray = new ToolTray(lv_scr_act(), propertyWindow->GetObjectTree(), simWindow->GetDrawSurface());
+	toolTray = new ToolTray(lv_scr_act(), propertyWindow->GetObjectTree(), simWindow->GetDrawSurface(), propertyWindow);
 	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);

@@ -6,5 +6,5 @@
 struct uiObjData
 {
 	const lv_style_t *style;
-	nlohmann::json  *objectJSON;
+	nlohmann::json  objectJSON;
 };

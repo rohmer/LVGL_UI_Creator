@@ -64,7 +64,7 @@ void CollapsableWindow::createObjects(lv_obj_t *parent)
 		lv_label_set_text(collapseBtnLbl, LV_SYMBOL_DOWN);
 	}
 	lv_cont_set_layout(window, LV_LAYOUT_OFF);
-	lv_cont_set_fit(window, LV_FIT_TIGHT);
+	lv_cont_set_fit2(window, LV_FIT_NONE, LV_FIT_NONE);
 	lv_obj_set_pos(window, x, y+25);
 
 	lv_obj_set_style(window, &lv_style_transp);
@@ -145,10 +145,17 @@ lv_obj_t* CollapsableWindow::GetWindow()
 	return window;
 }
 
+void CollapsableWindow::DeleteObjects()
+{
+	for (int i = 0; i < objects.size(); i++)
+		lv_obj_del_async(objects[i]);
+}
+
 void CollapsableWindow::AddObjectToWindow(lv_obj_t* obj)
 {
 	lv_obj_set_parent(obj, window);
 	lv_obj_set_y(obj,lv_obj_get_y(obj) + 10);
+	objects.push_back(obj);
 }
 
 lv_obj_t* CollapsableWindow::GetCollapseButton()

@@ -1,6 +1,6 @@
 #include "ToolTray.h"
 
-ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t* drawSurface)
+ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t* drawSurface, PropertyWindow *propWin)
 {
 	objTree = objectTree;
 	minWin = new MinimizableWindow("Tool Tray",
@@ -14,6 +14,7 @@ ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t* drawSurface
 		10);
 	toolWin = minWin->GetWindowObj();
 	this->drawSurface = drawSurface;
+	this->propertyWindow = propWin;
 	lv_win_set_title(toolWin, "Tool Tray");	
 	lv_obj_align(toolWin, nullptr, LV_ALIGN_IN_LEFT_MID, 0, 0);
 	initializeToolMatrix();
@@ -123,9 +124,6 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		sObjStruct *os = new sObjStruct();
 		os->toolTray = tt;		
 		os->objectJson = Serialization::LVArc::ToJSON(newObj);
-		std::stringstream ss;
-		ss << os->objectJson.dump(4);
-		std::string j = ss.str();
 		lv_obj_set_user_data(newObj, (lv_obj_user_data_t)os);
 		lv_obj_set_event_cb(newObj, updateProperties);
 		int parID = -1;
@@ -134,6 +132,7 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		else
 			parID = 0;
 		tt->objTree->AddNode("Arc", newObj, parID, false);
+		
 	}
 	
 }

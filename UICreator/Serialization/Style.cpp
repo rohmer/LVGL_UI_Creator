@@ -1,16 +1,86 @@
 #include "Style.h"
 
 namespace Serialization
-{	
+{
 	json Style::Serialize(lv_style_t &style)
+	{
+		std::string name = "";
+		if (styleComp(style, lv_style_btn_pr))
+		{
+			name = "lv_style_btn_pr";
+		}
+		if (styleComp(style, lv_style_scr))
+		{
+			name = "lv_style_scr";
+		}
+		if (styleComp(style, lv_style_transp))
+		{
+			name = "lv_style_transp";
+		}
+		if (styleComp(style, lv_style_transp_fit))
+		{
+			name = "lv_style_transp_fit";
+		}
+		if (styleComp(style, lv_style_transp_tight))
+		{
+			name = "lv_style_transp_tight";
+		}
+		if (styleComp(style, lv_style_plain))
+		{
+			name = "lv_style_plain";
+		}
+		if (styleComp(style, lv_style_plain_color))
+		{
+			name = "lv_style_plain_color";
+		}
+		if (styleComp(style, lv_style_pretty_color))
+		{
+			name = "lv_style_pretty_color";
+		}
+		if (styleComp(style, lv_style_pretty))
+		{
+			name = "lv_style_pretty";
+		}
+		if (styleComp(style, lv_style_btn_ina))
+		{
+			name = "lv_style_btn_ina";
+		}
+		if (styleComp(style, lv_style_btn_pr))
+		{
+			name = "lv_style_btn_pr";
+		}
+		if (styleComp(style, lv_style_btn_rel))
+		{
+			name = "lv_style_btn_rel";
+		}
+		if (styleComp(style, lv_style_btn_tgl_pr))
+		{
+			name = "lv_style_btn_tgl_pr";
+		}
+		if (styleComp(style, lv_style_btn_tgl_rel))
+		{
+			name = "lv_style_btn_tgl_rel";
+		}
+		// if name is still blank, we dont know what it is.  Set a random name
+		if (name == "")
+		{
+			std::stringstream ss;
+			srand(time(nullptr));
+			ss << "Style_" << (rand() % 65536);
+			name = ss.str();
+		}
+		return Serialize(style, name);		
+	}
+	
+	json Style::Serialize(lv_style_t &style, std::string name)
 	{
 		json j;
 
+		j["name"] = name;
 		bool glass = false;
 		if (style.glass == 1)
 			glass = true;
 		j["glass"] = glass;
-
 		j["body"]["border"]["color"] = style.body.border.color.full;
 		j["body"]["border"]["opa"] = style.body.border.opa;
 		j["body"]["border"]["part"] = style.body.border.part;
@@ -82,8 +152,47 @@ namespace Serialization
 		style.text.letter_space=j["text"]["letter_space"];
 		style.text.line_space=j["text"]["line_space"];
 		style.text.opa=j["text"]["opa"];
-		style.text.sel_color.full=j["text"]["sel_color"];
+		style.text.sel_color.full=j["text"]["sel_color"];		
 
 		return style;
 	}
+
+	bool Style::styleComp(lv_style_t& st1, lv_style_t& st2)
+	{
+		if ((st1.body.border.color.full == st2.body.border.color.full)
+			&& (st1.body.border.opa == st2.body.border.opa)
+			&& (st1.body.border.part == st2.body.border.part)
+			&& (st1.body.border.width == st2.body.border.width)
+			&& (st1.body.grad_color.full == st2.body.grad_color.full)
+			&& (st1.body.main_color.full == st2.body.main_color.full)
+			&& (st1.body.opa == st2.body.opa)
+			&& (st1.body.padding.bottom == st2.body.padding.bottom)
+			&& (st1.body.padding.bottom == st2.body.padding.bottom)
+			&& (st1.body.padding.left == st2.body.padding.left)
+			&& (st1.body.padding.right == st2.body.padding.right)
+			&& (st1.body.padding.top == st2.body.padding.top)
+			&& (st1.body.radius == st2.body.radius)
+			&& (st1.body.shadow.color.full && st2.body.shadow.color.full)
+			&& (st1.body.shadow.type == st2.body.shadow.type)
+			&& (st1.body.shadow.width == st2.body.shadow.width)
+			&& (st1.image.color.full == st2.image.color.full)
+			&& (st1.image.intense == st2.image.intense)
+			&& (st1.image.opa == st2.image.opa)
+			&& (st1.line.color.full == st2.line.color.full)
+			&& (st1.line.opa == st2.line.opa)
+			&& (st1.line.rounded == st2.line.rounded)
+			&& (st1.line.width == st2.line.width)
+			&& (st1.text.color.full == st2.text.color.full)
+			&& (st1.text.font->base_line == st2.text.font->base_line)
+			&& (st1.text.font->dsc == st2.text.font->dsc)
+			&& (st1.text.font->line_height == st2.text.font->line_height)
+			&& (st1.text.letter_space == st2.text.letter_space)
+			&& (st1.text.line_space == st2.text.line_space)
+			&& (st1.text.opa == st2.text.opa)
+			&& (st1.text.sel_color.full == st2.text.sel_color.full))
+			return true;
+
+		return false;
+	}
+
 }

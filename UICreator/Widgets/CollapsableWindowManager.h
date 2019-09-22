@@ -9,6 +9,7 @@ class CollapsableWindowManager
 public:
 	CollapsableWindowManager(lv_obj_t* parent, int x=10, int y = 5, int verticalPadding=30, bool drawSeperators=true);
 	void AddWindow(CollapsableWindow *window);
+	void Update();
 	
 private:
 	lv_obj_t* parent;

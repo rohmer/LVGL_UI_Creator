@@ -24,6 +24,8 @@ public:
 	int GetCurrentHeight();
 	lv_obj_t* GetWindow();
 
+	void DeleteObjects();
+	
 	void AddObjectToWindow(lv_obj_t *obj);
 	lv_obj_t* GetCollapseButton();
 	const std::string GetName();
@@ -42,5 +44,6 @@ private:
 		CollapsableWindowManager *cwm;
 	};
 	void createObjects(lv_obj_t* parent);
-	static void collapseClicked(lv_obj_t* obj, lv_event_t event);	
+	static void collapseClicked(lv_obj_t* obj, lv_event_t event);
+	std::vector<lv_obj_t*> objects;
 };

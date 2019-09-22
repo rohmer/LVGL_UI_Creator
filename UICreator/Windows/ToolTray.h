@@ -4,6 +4,7 @@
 #include "lvgl/lvgl.h"
 #include "../Widgets/TreeView.h"
 #include "../Widgets/MinimizableWindow.h"
+#include "../Windows/PropertyWindow.h"
 
 #pragma region Object Creation Includes
 #include "../ObjectCreation/Arc.h"
@@ -12,13 +13,14 @@
 class ToolTray
 {
 public:
-	ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t *drawSurface);
+	ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t *drawSurface, PropertyWindow *propWin);
 	
 private:
 	lv_obj_t *toolWin;
 	MinimizableWindow *minWin;
 	TreeView *objTree;
 	lv_obj_t *drawSurface;
+	PropertyWindow *propertyWindow;
 	void initializeToolMatrix();
 	void initializeWidgetButtons(lv_obj_t* parent);
 	
