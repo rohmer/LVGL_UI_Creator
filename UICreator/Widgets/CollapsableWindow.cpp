@@ -32,6 +32,16 @@ CollapsableWindow::CollapsableWindow(lv_obj_t *parent,
 	createObjects(parent);
 }
 
+void CollapsableWindow::UpdateHeight(int height)
+{
+	lv_obj_set_height(window, height);
+}
+
+void CollapsableWindow::UpdateWidth(int width)
+{
+	lv_obj_set_width(window, width);
+}
+
 const std::string CollapsableWindow::GetName()
 {
 	return name;
@@ -161,4 +171,14 @@ void CollapsableWindow::AddObjectToWindow(lv_obj_t* obj)
 lv_obj_t* CollapsableWindow::GetCollapseButton()
 {
 	return collapseBtn;
+}
+
+void CollapsableWindow::DeleteChildren()
+{
+	for(std::vector<lv_obj_t*>::iterator it=objects.begin();
+		it!=objects.end();
+		++it)
+	{
+		lv_obj_del_async(*it);
+	}
 }

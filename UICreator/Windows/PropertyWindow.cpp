@@ -39,6 +39,12 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object)
 {
 	selectedObject = object;
 	updateGlobalProps();
+	sObjStruct *os = (sObjStruct*)lv_obj_get_user_data(object);
+	json j = os->objectJson;
+	if(j["arc"].is_object())
+	{
+		updateArcProperties();
+	}
 }
 
 void PropertyWindow::createBaseObjProps()
@@ -349,6 +355,29 @@ void PropertyWindow::updateGlobalProps()
 		lv_cb_set_checked(protClickFocus, false);
 }
 
+void PropertyWindow::createArcProperties()
+{
+	objProps->UpdateHeight(200);
+	lv_obj_t *cont = lv_cont_create(objProps->GetWindow(), nullptr);
+	lv_cont_set_layout(cont, LV_LAYOUT_PRETTY);
+	lv_cont_set_fit(cont, LV_FIT_FILL);
+
+	lv_obj_t *startL = lv_label_create(cont, nullptr);
+	arcStartTA=createNumericEntry(cont, "Arc Start");
+	arcEndTA = createNumericEntry(cont, "Arc End");
+
+	ColorPicker *cp = new ColorPicker(0, 0, 375, 200, 0x51F542, cont);
+	cwm->Update();
+}
+
+void PropertyWindow::updateArcProperties()
+{
+	if(currentlyLoadedProp!=eObjType::ARC)
+	{
+		objProps->DeleteChildren();
+		createArcProperties();
+	}
+}
 
 lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string labelTxt)
 {
@@ -370,7 +399,7 @@ lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string 
 
 void PropertyWindow::createObjProps()
 {
-	objProps = new CollapsableWindow(propertyWin, "Object", false, 10, 0, 0, 0);
+	objProps = new CollapsableWindow(propertyWin, "Object", false, 10, 0, 385, 0);
 	cwm->AddWindow(objProps);
 }
 
@@ -584,3 +613,4 @@ void PropertyWindow::initializeThemes(uint16_t hue)
 #endif
 }
 #pragma endregion
+

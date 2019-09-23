@@ -5,7 +5,9 @@
 #include "PropertyWindow.h"
 #include "ToolTray.h"
 #include "SimWindow.h"
+#include "../Fonts/FTFont.h"
 #include "Themes.h"
+#include "../Widgets/ColorPicker.h"
 
 class UI
 {

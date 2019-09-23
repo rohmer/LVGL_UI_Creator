@@ -48,7 +48,7 @@ void CollapsableWindowManager::Update()
 	for (std::vector<CollapsableWindow*>::iterator it = windows.begin();
 		it != windows.end();
 		++it)
-	{
+	{	
 		(*it)->SetVerticalPos(y);
 		if (seperators)
 		{

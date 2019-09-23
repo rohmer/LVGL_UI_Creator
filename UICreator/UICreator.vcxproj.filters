@@ -49,6 +49,12 @@
     <Filter Include="Header Files\Editor\Object Creation">
       <UniqueIdentifier>{3880a786-7331-4d37-8187-4ca4d462b5cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Fonts">
+      <UniqueIdentifier>{de122d65-1aaf-420b-baa7-a59ec4b8a57f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fonts">
+      <UniqueIdentifier>{05565ed4-75a2-4fe7-b896-af624e08e66c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="custom_widget.c">
@@ -127,6 +133,12 @@
       <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\MinimizableWindow.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Fonts\FTFont.cpp">
+      <Filter>Source Files\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\ColorPicker.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
   </ItemGroup>
@@ -216,6 +228,12 @@
       <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="Widgets\MinimizableWindow.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Fonts\FTFont.h">
+      <Filter>Header Files\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\ColorPicker.h">
       <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
   </ItemGroup>

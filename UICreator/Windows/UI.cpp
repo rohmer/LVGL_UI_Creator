@@ -4,7 +4,6 @@ UI::UI()
 {
 	lv_coord_t hres = lv_disp_get_hor_res(nullptr);
 	lv_coord_t vres = lv_disp_get_ver_res(nullptr);
-
 	lv_obj_t *screen = lv_obj_create(lv_disp_get_scr_act(nullptr), nullptr);
 	lv_obj_set_style(screen, &lv_style_btn_tgl_pr);
 	lv_obj_set_size(screen, hres, vres);

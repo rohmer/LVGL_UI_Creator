@@ -9,6 +9,7 @@
 #include "../Widgets/CollapsableWindow.h"
 #include "../Widgets/MinimizableWindow.h"
 #include "../Widgets/TreeView.h"
+#include "../Widgets/ColorPicker.h"
 #include "UIObjectData.h"
 #include "../JSON/json.hpp"
 #include "../Serialization/LVObject.h"
@@ -47,6 +48,9 @@ private:
 	lv_obj_t *protNone, *protPos, *protFollow, *protParent, *protPressLost, *protClickFocus, *protChildChg;	
 #pragma endregion
 
+#pragma region Arc Properties
+	lv_obj_t *arcStartTA, *arcEndTA;
+#pragma endregion
 	struct sInp
 	{
 		std::string name;
@@ -78,4 +82,47 @@ private:
 	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
 	static void ddCB(lv_obj_t *obj, lv_event_t event);
 	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
+
+	enum eObjType
+	{
+		ARC,
+		BAR,
+		BUTTON,
+		BUTTONMATRIX,
+		CALENDAR,
+		CANVAS,
+		CHECKBOX,
+		CHART,
+		CONTAINER,
+		DROPDOWN,
+		GAUGE,
+		IMAGE,
+		IMAGEBUTTON,
+		KEYBOARD,
+		LABEL,
+		LED,
+		LINE,
+		LIST,
+		LINEMETER,
+		MESSAGEBOX,
+		PAGE,
+		PRELOADER,
+		ROLLER,
+		SLIDER,
+		SPINBOX,
+		SWITCH,
+		TABLE,
+		TABVIEW,
+		TEXTAREA,
+		TILEVIEW,
+		WINDOW,
+		NONE
+	};
+
+	eObjType currentlyLoadedProp = eObjType::NONE;
+	
+#pragma region Properties by Type
+	void updateArcProperties();
+	void createArcProperties();
+#pragma endregion
 };

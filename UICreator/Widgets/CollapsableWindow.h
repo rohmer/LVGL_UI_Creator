@@ -32,7 +32,9 @@ public:
 	void ToggleCollapsed();
 	void SetPos(int x, int y);
 	void SetVerticalPos(int y);
-	
+	void DeleteChildren();
+	void UpdateHeight(int height);
+	void UpdateWidth(int width);
 private:
 	lv_obj_t *window, *collapseBtnLbl, *collapseBtn, *winTitle;
 	std::string name;

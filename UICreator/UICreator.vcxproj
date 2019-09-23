@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="custom_widget.c" />
     <ClCompile Include="dataset.c" />
+    <ClCompile Include="Fonts\FTFont.cpp" />
     <ClCompile Include="gencode.c" />
     <ClCompile Include="interface.c" />
     <ClCompile Include="loadproj.c" />
@@ -38,6 +39,7 @@
     <ClCompile Include="Utils\ObjectTools.cpp" />
     <ClCompile Include="Widgets\CollapsableWindow.cpp" />
     <ClCompile Include="Widgets\CollapsableWindowManager.cpp" />
+    <ClCompile Include="Widgets\ColorPicker.cpp" />
     <ClCompile Include="Widgets\MinimizableWindow.cpp" />
     <ClCompile Include="Widgets\TreeNode.cpp" />
     <ClCompile Include="Widgets\TreeView.cpp" />
@@ -50,6 +52,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="custom_widget.h" />
     <ClInclude Include="dataset.h" />
+    <ClInclude Include="Fonts\FTFont.h" />
     <ClInclude Include="gencode.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="loadproj.h" />
@@ -67,6 +70,7 @@
     <ClInclude Include="Utils\ObjectTools.h" />
     <ClInclude Include="Widgets\CollapsableWindow.h" />
     <ClInclude Include="Widgets\CollapsableWindowManager.h" />
+    <ClInclude Include="Widgets\ColorPicker.h" />
     <ClInclude Include="Widgets\MinimizableWindow.h" />
     <ClInclude Include="Widgets\TreeNode.h" />
     <ClInclude Include="Widgets\TreeView.h" />
@@ -78,6 +82,9 @@
     <ClInclude Include="Windows\UIObjectData.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\3rdParty\freetype-2.10.1\builds\windows\visualc\freetype.vcxproj">
+      <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">
       <Project>{af5e3abf-b119-42c2-ab75-3b0e380cd6ba}</Project>
     </ProjectReference>
@@ -178,7 +185,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>USE_KEYBOARD;USE_MOUSE;USE_MOUSEWHEEL;LV_CONF_INCLUDE_SIMPLE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -187,7 +194,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)..\3rdParty\MXML\vcnet\$(Configuration)\$(Platform)\mxml1.dll $(OutDir)</Command>
+      <Command>copy /Y $(ProjectDir)..\3rdParty\MXML\vcnet\$(Configuration)\$(Platform)\mxml1.dll $(OutDir) &amp;&amp; copy /Y $(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll $(OutDir) &amp;&amp; copy /Y $(ProjectDir)Fonts\TTFs\*.ttf $(Outdir)
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
