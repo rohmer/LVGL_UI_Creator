@@ -20,7 +20,10 @@ namespace Serialization
 
 		j["dragDir"] = (uint8_t)object->drag_dir;
 		j["dragParent"] = (uint8_t)object->drag_parent;
-		j["dragThrow"] = (uint8_t)object->drag_throw;
+		if (object->drag_throw == 1)
+			j["dragThrow"] = true;
+		else
+			j["dragThrow"] = false;
 #if LV_USE_EXT_CLICK_AREA == LV_EXT_CLICK_AREA_FULL
 		j["extClkPad"] = Area::ToJSON(object->ext_click_pad);
 #endif
@@ -30,7 +33,11 @@ namespace Serialization
 		else
 			j["hidden"] = false;
 		j["opascale"] = (uint8_t)object->opa_scale;
-		j["opascaleen"] = (uint8_t)object->opa_scale_en;
+		if (object->opa_scale_en == 1)
+			j["opascaleen"] = true;
+		else
+			j["opascaleen"] = false;
+		
 		if (object->parent_event == 1)
 			j["parevent"] = true;
 		else
@@ -47,6 +54,7 @@ namespace Serialization
 			j["top"] = true;
 		else
 			j["top"] = false;
+		
 		return j;
 	}
 
@@ -114,9 +122,12 @@ namespace Serialization
 		{
 			widget->drag_parent = 0;
 		}
-		if (j["dragThrow"].is_number())
+		if (j["dragThrow"].is_boolean())
 		{
-			widget->drag_throw = j["dragThrow"].get<uint8_t>();
+			if (j["dragThrow"])
+				widget->drag_throw = 1;
+			else
+				widget->drag_throw = 0;
 		}
 		else
 		{

@@ -145,6 +145,7 @@ void PropertyWindow::createBaseObjProps()
 	lv_obj_set_event_cb(opaScaleEnable, checkBoxCB);	
 
 	opaScale = createNumericEntry(attrCont2, "Opa Scale");
+
 #pragma endregion
 
 #pragma region Drag
@@ -164,7 +165,7 @@ void PropertyWindow::createBaseObjProps()
 	lv_obj_t *ddLab = lv_label_create(dragCont, nullptr);
 	lv_label_set_text(ddLab, "   Dir");	
 	dragDir = lv_ddlist_create(dragCont, nullptr);
-	lv_ddlist_set_options(dragDir, "HOR\nVERT\nHOR&VERT");
+	lv_ddlist_set_options(dragDir, "HOR\nVERT\nALL");
 	lv_ddlist_set_draw_arrow(dragDir, true);
 	sInp sdir;
 	sdir.name = "dragdir";
@@ -297,6 +298,55 @@ void PropertyWindow::updateGlobalProps()
 	}
 	if (selIdx != -1)
 		lv_ddlist_set_selected(styleDD, selIdx);
+	lv_cb_set_checked(drag, j["drag"]);
+	lv_ddlist_set_selected(dragDir, j["dragDir"]);
+	lv_cb_set_checked(dragThrow, j["dragThrow"]);
+
+	lv_cb_set_checked(hidden, j["hidden"]);
+	lv_cb_set_checked(click, j["click"]);
+	lv_cb_set_checked(top, j["top"]);
+	lv_cb_set_checked(parentEvent, j["parevent"]);
+	lv_cb_set_checked(opaScaleEnable, j["opascaleen"]);
+
+	std::stringstream oss;
+	oss << j["opascale"];
+	lv_ta_set_text(opaScale, oss.str().c_str());
+
+	int pval = j["protect"];
+	if(pval==0)
+	{
+		lv_cb_set_checked(protNone, true);
+		lv_cb_set_checked(protPos, false);
+		lv_cb_set_checked(protFollow, false);
+		lv_cb_set_checked(protParent, false);
+		lv_cb_set_checked(protPressLost, false);
+		lv_cb_set_checked(protClickFocus, false);
+		lv_cb_set_checked(protChildChg, false);
+	}
+	if (pval & 0x01)
+		lv_cb_set_checked(protChildChg, true);
+	else
+		lv_cb_set_checked(protChildChg, false);
+	if (pval & 0x02)
+		lv_cb_set_checked(protParent, true);
+	else
+		lv_cb_set_checked(protParent, false);
+	if (pval & 0x04)
+		lv_cb_set_checked(protPos, true);
+	else
+		lv_cb_set_checked(protPos, false);
+	if (pval & 0x08)
+		lv_cb_set_checked(protFollow, true);
+	else
+		lv_cb_set_checked(protFollow, false);
+	if (pval & 0x10)
+		lv_cb_set_checked(protPressLost, true);
+	else
+		lv_cb_set_checked(protPressLost, false);
+	if (pval & 0x20)
+		lv_cb_set_checked(protClickFocus, true);
+	else
+		lv_cb_set_checked(protClickFocus, false);
 }
 
 
