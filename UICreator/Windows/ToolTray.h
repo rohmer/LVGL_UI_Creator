@@ -4,11 +4,12 @@
 #include "lvgl/lvgl.h"
 #include "../Widgets/TreeView.h"
 #include "../Widgets/MinimizableWindow.h"
-#include "../Windows/PropertyWindow.h"
 
 #pragma region Object Creation Includes
 #include "../ObjectCreation/Arc.h"
 #pragma endregion
+
+class PropertyWindow;
 
 class ToolTray
 {

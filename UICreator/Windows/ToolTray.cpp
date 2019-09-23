@@ -1,4 +1,5 @@
 #include "ToolTray.h"
+#include "PropertyWindow.h"
 
 ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t* drawSurface, PropertyWindow *propWin)
 {
@@ -102,10 +103,16 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 			y = lv_obj_get_y(tt->lastWidget) + 10;			
 		} 		
 		newObj = nullptr;
+		int parID = -1;
+		if (tt->objTree->GetSelectedNode() != nullptr)
+			parID = tt->objTree->GetSelectedNode()->GetID();
+		else
+			parID = 0;
 		switch(objID)
 		{
 		case 0:
 			newObj=Arc::Create(parent, x, y);
+			tt->objTree->AddNode("Arc", newObj, parID, false);
 			break;
 		}		
 		if (newObj == nullptr)
@@ -119,19 +126,14 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		{
 			lv_obj_set_drag(newObj, true);
 		}
-
+		lv_obj_set_style(newObj, &lv_style_plain);
 		lv_obj_set_protect(newObj, LV_PROTECT_PRESS_LOST);
 		sObjStruct *os = new sObjStruct();
 		os->toolTray = tt;		
 		os->objectJson = Serialization::LVArc::ToJSON(newObj);
 		lv_obj_set_user_data(newObj, (lv_obj_user_data_t)os);
 		lv_obj_set_event_cb(newObj, updateProperties);
-		int parID = -1;
-		if (tt->objTree->GetSelectedNode() != nullptr)
-			parID = tt->objTree->GetSelectedNode()->GetID();
-		else
-			parID = 0;
-		tt->objTree->AddNode("Arc", newObj, parID, false);
+		tt->propertyWindow->SetSelectedObject(newObj);
 		
 	}
 	

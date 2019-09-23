@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include "lvgl/lvgl.h"
+#include "ToolTray.h"
 #include "SimWindow.h"
 #include "../Widgets/CollapsableWindowManager.h"
 #include "../Widgets/CollapsableWindow.h"
@@ -50,6 +51,11 @@ private:
 	{
 		std::string name;
 		PropertyWindow *pw;
+	};
+	struct sObjStruct
+	{
+		ToolTray *toolTray;
+		json objectJson;
 	};
 	std::map<std::string, json> styles;
 	

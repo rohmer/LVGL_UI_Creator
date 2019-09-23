@@ -1,4 +1,5 @@
 #include "PropertyWindow.h"
+#include "ToolTray.h"
 #include "Themes.h"
 
 lv_theme_t *PropertyWindow::activeTheme;
@@ -37,6 +38,7 @@ void PropertyWindow::createPropertyWin()
 void PropertyWindow::SetSelectedObject(lv_obj_t* object)
 {
 	selectedObject = object;
+	updateGlobalProps();
 }
 
 void PropertyWindow::createBaseObjProps()
@@ -88,7 +90,7 @@ void PropertyWindow::createBaseObjProps()
 	lv_obj_set_size(newSBtn, 35, 35);
 	lv_label_set_text(sBtnImg, LV_SYMBOL_EDIT);
 	lv_obj_set_user_data(newSBtn, (lv_obj_user_data_t)this);
-	lv_obj_set_parent_event(newSBtn, createStyleCB);
+	lv_obj_set_event_cb(newSBtn, createStyleCB);
 #pragma endregion
 
 #pragma region Attributes
@@ -259,6 +261,44 @@ void PropertyWindow::createBaseObjProps()
 	
 	cwm->AddWindow(baseObjProps);
 }
+
+void PropertyWindow::updateGlobalProps()
+{
+	if (selectedObject == nullptr)
+		return;
+	sObjStruct *os =(sObjStruct*)lv_obj_get_user_data(selectedObject);
+	json j = os->objectJson["base"];
+	std::stringstream x, y;	
+	x << j["coords"]["x1"];
+	y << j["coords"]["y1"];
+	lv_ta_set_text(taX,x.str().c_str());
+	lv_ta_set_text(taY, y.str().c_str());
+	int width = j["coords"]["x2"].get<int>() - j["coords"]["x1"].get<int>();
+	int height = j["coords"]["y2"].get<int>() - j["coords"]["y1"].get<int>();
+	std::stringstream ws, hs;
+	ws << width;
+	hs << height;
+	lv_ta_set_text(taWidth, ws.str().c_str());
+	lv_ta_set_text(taHeight, hs.str().c_str());
+
+	std::string styleName = j["style"]["name"];
+	int selIdx = -1;
+	int i = 0;
+	for(std::map<std::string, json>::iterator it=styles.begin();
+		it!=styles.end();
+		++it)
+	{
+		if (it->first == styleName)
+		{
+			selIdx = i;
+			break;
+		}
+		i++;
+	}
+	if (selIdx != -1)
+		lv_ddlist_set_selected(styleDD, selIdx);
+}
+
 
 lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string labelTxt)
 {
