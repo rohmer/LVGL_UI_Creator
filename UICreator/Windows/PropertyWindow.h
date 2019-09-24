@@ -1,4 +1,5 @@
 #pragma once
+#include <any>
 #include <string>
 #include <map>
 #include <vector>
@@ -26,63 +27,6 @@ public:
 	void AddStyle(json styleJson);
 	
 private:
-	MinimizableWindow *minWin;
-	SimWindow *simWindow;
-	lv_obj_t* propertyWin;
-	int screenX, screenY;
-	bool globalExpanded;
-	CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
-	CollapsableWindowManager *cwm;
-	TreeView *treeView;
-	static lv_theme_t *activeTheme;
-	static std::vector<lv_theme_t *> themes;
-
-	lv_obj_t *selectedObject;
-
-#pragma region Global Property Inputs
-	// Position/Area
-	lv_obj_t *taX, *taY, *taWidth, *taHeight;
-	lv_obj_t *styleDD;
-	lv_obj_t *hidden, *click, *top, *parentEvent, *opaScaleEnable, *opaScale;
-	lv_obj_t *drag, *dragDir, *dragThrow, *dragParent;
-	lv_obj_t *protNone, *protPos, *protFollow, *protParent, *protPressLost, *protClickFocus, *protChildChg;	
-#pragma endregion
-
-#pragma region Arc Properties
-	lv_obj_t *arcStartTA, *arcEndTA;
-#pragma endregion
-	struct sInp
-	{
-		std::string name;
-		PropertyWindow *pw;
-	};
-	struct sObjStruct
-	{
-		ToolTray *toolTray;
-		json objectJson;
-	};
-	std::map<std::string, json> styles;
-	
-	static void initializeThemes(uint16_t hue);
-	void createPropertyWin();
-	void createGlobalProps();
-	void createBaseObjProps();
-	void createObjProps();
-	void createTreeView();
-	void updateGlobalProps();
-	
-	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt);
-	void initStyles();
-	
-	static void objSelectCB(TreeNode *node);
-	static void deleteCB(TreeNode *node);	
-	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
-	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
-	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
-	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
-	static void ddCB(lv_obj_t *obj, lv_event_t event);
-	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
-
 	enum eObjType
 	{
 		ARC,
@@ -118,7 +62,70 @@ private:
 		WINDOW,
 		NONE
 	};
+	
+	MinimizableWindow *minWin;
+	SimWindow *simWindow;
+	lv_obj_t* propertyWin;
+	int screenX, screenY;
+	bool globalExpanded;
+	CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
+	CollapsableWindowManager *cwm;
+	TreeView *treeView;
+	static lv_theme_t *activeTheme;
+	static std::vector<lv_theme_t *> themes;
 
+	lv_obj_t *selectedObject;
+
+#pragma region Global Property Inputs
+	// Position/Area
+	lv_obj_t *taX, *taY, *taWidth, *taHeight;
+	lv_obj_t *styleDD;
+	lv_obj_t *hidden, *click, *top, *parentEvent, *opaScaleEnable, *opaScale;
+	lv_obj_t *drag, *dragDir, *dragThrow, *dragParent;
+	lv_obj_t *protNone, *protPos, *protFollow, *protParent, *protPressLost, *protClickFocus, *protChildChg;	
+#pragma endregion
+
+#pragma region Arc Properties
+	lv_obj_t *arcStartTA, *arcEndTA, *arcLineWidth, *arcLineRound;
+#pragma endregion
+	struct sInp
+	{
+		std::string name;
+		PropertyWindow *pw;
+	};
+	struct sObjStruct
+	{
+		ToolTray *toolTray;
+		json objectJson;
+	};
+	std::map<std::string, json> styles;
+	
+	static void initializeThemes(uint16_t hue);
+	void createPropertyWin();
+	void createGlobalProps();
+	void createBaseObjProps();
+	void createObjProps();
+	void createTreeView();
+	void updateGlobalProps();
+
+	struct sOData
+	{
+		PropertyWindow *pw;
+		std::string objName;
+	};
+	
+	static void assignColor(lv_color_t color, std::any objData);
+	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt);
+	void initStyles();
+	
+	static void objSelectCB(TreeNode *node);
+	static void deleteCB(TreeNode *node);	
+	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
+	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
+	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
+	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
+	static void ddCB(lv_obj_t *obj, lv_event_t event);
+	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
 	eObjType currentlyLoadedProp = eObjType::NONE;
 	
 #pragma region Properties by Type

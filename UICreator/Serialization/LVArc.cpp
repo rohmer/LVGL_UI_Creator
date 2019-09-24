@@ -20,10 +20,10 @@ namespace Serialization
 
 	lv_obj_t* LVArc::FromJSON(json j)
 	{
-		lv_obj_t* arc;
+		lv_obj_t* arc = lv_obj_create(lv_scr_act(), nullptr);
 		if (j["base"].is_object())
 		{
-			arc = LVObject::FromJSON(j["base"]);
+			arc = LVObject::FromJSON(j["base"], arc);
 		}
 		else
 		{

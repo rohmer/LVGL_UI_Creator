@@ -7,6 +7,7 @@
 
 #pragma region Object Creation Includes
 #include "../ObjectCreation/Arc.h"
+#include "../ObjectCreation/Bar.h"
 #pragma endregion
 
 class PropertyWindow;

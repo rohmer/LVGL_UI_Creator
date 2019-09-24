@@ -141,6 +141,18 @@
     <ClCompile Include="Widgets\ColorPicker.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectCreation\Bar.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVBar.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVButton.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVButtonMatrix.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -235,6 +247,18 @@
     </ClInclude>
     <ClInclude Include="Widgets\ColorPicker.h">
       <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Bar.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVBar.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVButton.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVButtonMatrix.h">
+      <Filter>Header Files\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -357,16 +357,33 @@ void PropertyWindow::updateGlobalProps()
 
 void PropertyWindow::createArcProperties()
 {
-	objProps->UpdateHeight(200);
+	objProps->UpdateHeight(300);
 	lv_obj_t *cont = lv_cont_create(objProps->GetWindow(), nullptr);
 	lv_cont_set_layout(cont, LV_LAYOUT_PRETTY);
 	lv_cont_set_fit(cont, LV_FIT_FILL);
 
-	lv_obj_t *startL = lv_label_create(cont, nullptr);
 	arcStartTA=createNumericEntry(cont, "Arc Start");
 	arcEndTA = createNumericEntry(cont, "Arc End");
 
-	ColorPicker *cp = new ColorPicker(0, 0, 375, 200, 0x51F542, cont);
+	lv_obj_t *lineProps = lv_cont_create(cont, nullptr);
+	lv_cont_set_layout(lineProps, LV_LAYOUT_PRETTY);
+	lv_obj_set_size(lineProps, 370, 300);
+	lv_obj_t *lineLab = lv_label_create(lineProps, nullptr);
+	lv_label_set_text(lineLab, "Line Properties:");
+	lv_label_set_align(lineLab, LV_LABEL_ALIGN_LEFT);
+	ColorPicker *cp = new ColorPicker(0, 0, 375, 150, 0x51F542, lineProps);
+	sOData odata;
+	odata.pw = this;
+	odata.objName = "ArcColor";
+	cp->SetCallback(assignColor, odata);
+	arcLineWidth = createNumericEntry(lineProps, "Line Width");
+	arcLineRound = lv_cb_create(lineProps, nullptr);
+	lv_cb_set_text(arcLineRound, "Arc Line Rounded");
+	sInp objData;
+	objData.name = "arcLineRounded";
+	objData.pw = this;
+	lv_obj_set_user_data(arcLineRound, (lv_obj_user_data_t)&objData);
+	lv_obj_set_event_cb(arcLineRound, checkBoxCB);
 	cwm->Update();
 }
 
@@ -376,6 +393,26 @@ void PropertyWindow::updateArcProperties()
 	{
 		objProps->DeleteChildren();
 		createArcProperties();
+	}
+}
+
+void PropertyWindow::assignColor(lv_color_t color, std::any objectData)
+{
+	sOData odata=std::any_cast<sOData>(objectData);
+	if(odata.objName=="ArcColor")
+	{
+		static lv_style_t newStyle;
+		lv_style_copy(&newStyle, &lv_style_plain);
+
+		int lineWidth = std::atoi(lv_ta_get_text(odata.pw->arcLineWidth));
+		newStyle.line.width = lineWidth;
+		color.ch.alpha = 255;
+		newStyle.line.color = color;
+		if (lv_cb_is_checked(odata.pw->arcLineRound))
+			newStyle.line.rounded = true;
+		else
+			newStyle.line.rounded = false;
+		lv_arc_set_style(odata.pw->selectedObject, LV_ARC_STYLE_MAIN, &newStyle);
 	}
 }
 
@@ -399,7 +436,7 @@ lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string 
 
 void PropertyWindow::createObjProps()
 {
-	objProps = new CollapsableWindow(propertyWin, "Object", false, 10, 0, 385, 0);
+	objProps = new CollapsableWindow(propertyWin, "Object", false, 10, 0, 375, 0);
 	cwm->AddWindow(objProps);
 }
 

@@ -114,6 +114,9 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 			newObj=Arc::Create(parent, x, y);
 			tt->objTree->AddNode("Arc", newObj, parID, false);
 			break;
+		case 1:
+			newObj = Bar::Create(parent, x, y);
+			tt->objTree->AddNode("Bar", newObj, parID, false);
 		}		
 		if (newObj == nullptr)
 			return;
@@ -128,6 +131,7 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		}
 		lv_obj_set_style(newObj, &lv_style_plain);
 		lv_obj_set_protect(newObj, LV_PROTECT_PRESS_LOST);
+		lv_obj_set_top(newObj, true);
 		sObjStruct *os = new sObjStruct();
 		os->toolTray = tt;		
 		os->objectJson = Serialization::LVArc::ToJSON(newObj);
