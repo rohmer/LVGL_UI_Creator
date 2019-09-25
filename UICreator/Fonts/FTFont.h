@@ -20,12 +20,14 @@ public:
 		int endChar,
 		int DPI = LV_DPI,
 		int bitsPerPixel = 1,
-		int fontFaceIdx=0);
+		int fontFaceIdx=0, 
+		bool compress=true);
 	
 private:
 	FT_Library ftLib;
 	bool initialized = false;
-
+	std::vector<uint8_t> compressFont(std::vector<uint8_t> bitmaps);
+	
 	inline int maximum(int a, int b)
 	{
 		if (a > b)

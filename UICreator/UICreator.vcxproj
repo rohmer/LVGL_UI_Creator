@@ -35,6 +35,11 @@
     <ClCompile Include="Serialization\LVBar.cpp" />
     <ClCompile Include="Serialization\LVButton.cpp" />
     <ClCompile Include="Serialization\LVButtonMatrix.cpp" />
+    <ClCompile Include="Serialization\LVFontCMap.cpp" />
+    <ClCompile Include="Serialization\LVFont.cpp" />
+    <ClCompile Include="Serialization\LVFontDsc.cpp" />
+    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp" />
+    <ClCompile Include="Serialization\LVFontKernDSC.cpp" />
     <ClCompile Include="Serialization\LVLabel.cpp" />
     <ClCompile Include="Serialization\LVObject.cpp" />
     <ClCompile Include="Serialization\Style.cpp" />
@@ -69,6 +74,11 @@
     <ClInclude Include="Serialization\LVBar.h" />
     <ClInclude Include="Serialization\LVButton.h" />
     <ClInclude Include="Serialization\LVButtonMatrix.h" />
+    <ClInclude Include="Serialization\LVFontCMap.h" />
+    <ClInclude Include="Serialization\LVFont.h" />
+    <ClInclude Include="Serialization\LVFontDsc.h" />
+    <ClInclude Include="Serialization\LVFontGlyphDsc.h" />
+    <ClInclude Include="Serialization\LVFontKernDSC.h" />
     <ClInclude Include="Serialization\LVLabel.h" />
     <ClInclude Include="Serialization\LVObject.h" />
     <ClInclude Include="Serialization\Realign.h" />

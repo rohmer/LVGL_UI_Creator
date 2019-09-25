@@ -23,7 +23,8 @@ lv_font_t *FTFont::ConvertFont(
 	int endChar, 
 	int DPI,
 	int bitsPerPixel,
-	int fontFaceIdx)
+	int fontFaceIdx, 
+	bool compress)
 {
 	lv_font_t *lvFont = nullptr;
 	if(!initialized)
@@ -129,6 +130,8 @@ lv_font_t *FTFont::ConvertFont(
 	id0.adv_w = id0.bitmap_index = id0.box_h = id0.box_w = id0.ofs_x = id0.ofs_y = 0;
 	glyphDesc[0] = id0;
 	int idx = 0;
+	static lv_font_fmt_txt_glyph_dsc_t* glyph_dsc = new lv_font_fmt_txt_glyph_dsc_t[endChar - startChar];
+
 	for (ch = startChar; ch <= endChar; ch++)
 	{
 		int ascent;
@@ -217,6 +220,37 @@ lv_font_t *FTFont::ConvertFont(
 	lvFont = new lv_font_t();
 	lvFont->base_line = baseLine;
 	lvFont->line_height = maxHeight;
+	static lv_font_fmt_txt_dsc_t font_dsc;
+	const LV_ATTRIBUTE_LARGE_CONST uint8_t* glyphBitmap;
+	if(compress)
+	{
+		glyphBitmaps=compressFont(glyphBitmaps);
+	}
+	glyphBitmap = glyphBitmaps.data();
+	font_dsc.glyph_dsc = glyphDesc.data();
+	font_dsc.bpp = bppMul;
+	font_dsc.bpp = bitsPerPixel;
+}
 
-	
+std::vector<uint8_t> FTFont::compressFont(std::vector<uint8_t> bitmaps)
+{
+	// Minimal repetitions count to enable RLE mode.
+	const int RLE_SKIP_COUNT = 1;
+	// Number of repeats, when `1` used to replace data
+	// If more - write as number
+	const int RLE_BIT_COLLAPSED_COUNT = 10;
+
+	const int RLE_COUNTER_BITS = 6; // (2^bits - 1) - max value
+	const int RLE_COUNTER_MAX = (1 << RLE_COUNTER_BITS) - 1;
+	// Force flush if counter dencity exceeded.
+	const int RLE_MAX_REPEATS = RLE_COUNTER_MAX + RLE_BIT_COLLAPSED_COUNT + 1;
+
+	int offset = 0;
+	while (offset < bitmaps.size())
+	{
+		int p = bitmaps[offset];
+		
+	}
+
+	return bitmaps;
 }
