@@ -1,5 +1,6 @@
 {
-    "FontDsc": {
+    "baseLine": 3,
+    "dsc": {
         "GlyphDsc": [
             {
                 "adv_w": 0,
@@ -1414,5 +1415,6 @@
         "keyClasses": 0,
         "lastGlyphID": 0,
         "lastLetter": 0
-    }
+    },
+    "lineHeight": 14
 }

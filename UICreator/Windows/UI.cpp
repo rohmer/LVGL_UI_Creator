@@ -3,11 +3,10 @@
 #include <fstream>
 #include "../../3rdParty/JSON/json.hpp"
 
-#include "../Serialization/LVFontDsc.h"
+#include "../Serialization/LVFont.h"
 UI::UI()
 {
-	lv_font_fmt_txt_dsc_t *dsc = (lv_font_fmt_txt_dsc_t*)lv_font_roboto_12.dsc;
-	nlohmann::json fd=Serialization::LVFontDsc::ToJSON(*dsc, lv_font_roboto_12);
+	nlohmann::json fd=Serialization::LVFont::ToJSON(lv_font_roboto_12);
 	std::ofstream fs("FontDsc.json");
 	fs << fd.dump(4);
 	fs.close();
