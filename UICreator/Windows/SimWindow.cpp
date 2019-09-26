@@ -66,7 +66,7 @@ void SimWindow::createObjects()
 	int x = (lv_scr_act()->coords.x2 / 2) - (width / 2);
 	int y = (lv_scr_act()->coords.y2 / 2) - (width / 2);
 	lv_obj_set_pos(window, x, y);
-	lv_win_set_sb_mode(window, LV_SB_MODE_OFF);
+	lv_win_set_sb_mode(window, LV_SB_MODE_AUTO);
 	lv_obj_t* winBtn = lv_win_add_btn(window, LV_SYMBOL_SETTINGS);
 	lv_obj_set_user_data(winBtn, this);
 	lv_obj_set_event_cb(winBtn, settings);

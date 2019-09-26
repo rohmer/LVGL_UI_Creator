@@ -15,6 +15,12 @@ TreeView::TreeView(unsigned int x,
 	createTreeViewContainer(inWindow, parent);
 }
 
+TreeView::~TreeView()
+{
+	for (int i = 0; i < topLevelNodes.size(); i++)
+		delete(topLevelNodes[i]);
+}
+
 lv_obj_t *TreeView::GetTreeViewUI()
 {
 	return window;

@@ -1,8 +1,9 @@
 #include "UI.h"
 #include <iostream>
 #include <fstream>
-#include "../../3rdParty/JSON/json.hpp"
-#include "../Serialization/LVButtonMatrix.h"
+#include "PropertySelection.h"
+#include "../Serialization/LVButton.h"
+
 UI::UI()
 {
 	lv_coord_t hres = lv_disp_get_hor_res(nullptr);
@@ -23,7 +24,12 @@ UI::UI()
 		simWindow->GetDrawSurface(), 
 		propertyWindow,
 		toolBar);
+	
 	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
+	json j = Serialization::LVButton::ToJSON(button);
+	PropertySelection *ps = new PropertySelection(toolBar);	
+	ps->Show(j);
+
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);
 

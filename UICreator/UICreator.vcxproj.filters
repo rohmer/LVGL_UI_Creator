@@ -186,6 +186,9 @@
     <ClCompile Include="Variable\Variable.cpp">
       <Filter>Source Files\Editor\Variable</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\PropertySelection.cpp">
+      <Filter>Source Files\Editor\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -313,6 +316,9 @@
     </ClInclude>
     <ClInclude Include="Variable\Variable.h">
       <Filter>Header Files\Editor\Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertySelection.h">
+      <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
