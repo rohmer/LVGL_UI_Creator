@@ -2,14 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include "../../3rdParty/JSON/json.hpp"
-
-#include "../Serialization/LVFont.h"
+#include "../Serialization/LVButtonMatrix.h"
 UI::UI()
 {
-	nlohmann::json fd=Serialization::LVFont::ToJSON(lv_font_roboto_12);
-	std::ofstream fs("FontDsc.json");
-	fs << fd.dump(4);
-	fs.close();
+	lv_obj_t *obj = lv_btnm_create(lv_scr_act(), nullptr);
+	Serialization::LVButtonMatrix::ToJSON(obj);
+	
 	lv_coord_t hres = lv_disp_get_hor_res(nullptr);
 	lv_coord_t vres = lv_disp_get_ver_res(nullptr);
 	lv_obj_t *screen = lv_obj_create(lv_disp_get_scr_act(nullptr), nullptr);

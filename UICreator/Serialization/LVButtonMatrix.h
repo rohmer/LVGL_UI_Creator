@@ -14,7 +14,7 @@ namespace Serialization
 	class LVButtonMatrix
 	{
 	public:
-		static json ToJSON(lv_obj_t* label);
+		static json ToJSON(lv_obj_t* obj);
 		static lv_obj_t* FromJSON(json j);
 
 	};
