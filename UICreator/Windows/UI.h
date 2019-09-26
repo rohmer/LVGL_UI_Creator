@@ -5,6 +5,7 @@
 #include "PropertyWindow.h"
 #include "ToolTray.h"
 #include "SimWindow.h"
+#include "ToolBar.h"
 #include "../Fonts/FTFont.h"
 #include "Themes.h"
 #include "../Widgets/ColorPicker.h"
@@ -22,4 +23,5 @@ private:
 	PropertyWindow *propertyWindow;
 	ToolTray *toolTray;
 	SimWindow *simWindow;
+	ToolBar *toolBar;
 };

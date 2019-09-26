@@ -5,9 +5,6 @@
 #include "../Serialization/LVButtonMatrix.h"
 UI::UI()
 {
-	lv_obj_t *obj = lv_btnm_create(lv_scr_act(), nullptr);
-	Serialization::LVButtonMatrix::ToJSON(obj);
-	
 	lv_coord_t hres = lv_disp_get_hor_res(nullptr);
 	lv_coord_t vres = lv_disp_get_ver_res(nullptr);
 	lv_obj_t *screen = lv_obj_create(lv_disp_get_scr_act(nullptr), nullptr);
@@ -19,7 +16,13 @@ UI::UI()
 
 	simWindow = new SimWindow(320, 240);
 	propertyWindow = new PropertyWindow(simWindow,hres,vres);
-	toolTray = new ToolTray(lv_scr_act(), propertyWindow->GetObjectTree(), simWindow->GetDrawSurface(), propertyWindow);
+	toolBar = new ToolBar(propertyWindow, simWindow);
+	toolTray = new ToolTray(
+		lv_scr_act(), 
+		propertyWindow->GetObjectTree(), 
+		simWindow->GetDrawSurface(), 
+		propertyWindow,
+		toolBar);
 	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);

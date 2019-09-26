@@ -1,4 +1,5 @@
 #include "PropertyWindow.h"
+#include "ToolBar.h"
 #include "ToolTray.h"
 #include "Themes.h"
 
@@ -20,6 +21,11 @@ TreeView* PropertyWindow::GetObjectTree()
 	return treeView;
 }
 
+lv_obj_t* PropertyWindow::GetSelectedObject()
+{
+	return selectedObject;
+}
+
 void PropertyWindow::createPropertyWin()
 {
 	minWin = new MinimizableWindow("Properties", screenX - 400, 0, 400, screenY, nullptr, false, screenX/2+40, 10);
@@ -35,15 +41,13 @@ void PropertyWindow::createPropertyWin()
 	createTreeView();
 }
 
-void PropertyWindow::SetSelectedObject(lv_obj_t* object)
+void PropertyWindow::SetSelectedObject(lv_obj_t* object, json j)
 {
 	selectedObject = object;
-	updateGlobalProps();
-	sObjStruct *os = (sObjStruct*)lv_obj_get_user_data(object);
-	json j = os->objectJson;
+	updateGlobalProps(j);
 	if(j["arc"].is_object())
 	{
-		updateArcProperties();
+		updateArcProperties(j);
 	}
 }
 
@@ -269,26 +273,25 @@ void PropertyWindow::createBaseObjProps()
 	cwm->AddWindow(baseObjProps);
 }
 
-void PropertyWindow::updateGlobalProps()
+void PropertyWindow::updateGlobalProps(json j)
 {
 	if (selectedObject == nullptr)
 		return;
-	sObjStruct *os =(sObjStruct*)lv_obj_get_user_data(selectedObject);
-	json j = os->objectJson["base"];
-	std::stringstream x, y;	
-	x << j["coords"]["x1"];
+	std::stringstream x, y;
+	json bj = j["base"];
+	x << bj["coords"]["x1"];
 	y << j["coords"]["y1"];
 	lv_ta_set_text(taX,x.str().c_str());
 	lv_ta_set_text(taY, y.str().c_str());
-	int width = j["coords"]["x2"].get<int>() - j["coords"]["x1"].get<int>();
-	int height = j["coords"]["y2"].get<int>() - j["coords"]["y1"].get<int>();
+	int width = bj["coords"]["x2"].get<int>() - bj["coords"]["x1"].get<int>();
+	int height = bj["coords"]["y2"].get<int>() - bj["coords"]["y1"].get<int>();
 	std::stringstream ws, hs;
 	ws << width;
 	hs << height;
 	lv_ta_set_text(taWidth, ws.str().c_str());
 	lv_ta_set_text(taHeight, hs.str().c_str());
 
-	std::string styleName = j["style"]["name"];
+	std::string styleName = bj["style"]["name"];
 	int selIdx = -1;
 	int i = 0;
 	for(std::map<std::string, json>::iterator it=styles.begin();
@@ -304,21 +307,21 @@ void PropertyWindow::updateGlobalProps()
 	}
 	if (selIdx != -1)
 		lv_ddlist_set_selected(styleDD, selIdx);
-	lv_cb_set_checked(drag, j["drag"]);
-	lv_ddlist_set_selected(dragDir, j["dragDir"]);
-	lv_cb_set_checked(dragThrow, j["dragThrow"]);
+	lv_cb_set_checked(drag, bj["drag"]);
+	lv_ddlist_set_selected(dragDir, bj["dragDir"]);
+	lv_cb_set_checked(dragThrow, bj["dragThrow"]);
 
-	lv_cb_set_checked(hidden, j["hidden"]);
-	lv_cb_set_checked(click, j["click"]);
-	lv_cb_set_checked(top, j["top"]);
-	lv_cb_set_checked(parentEvent, j["parevent"]);
-	lv_cb_set_checked(opaScaleEnable, j["opascaleen"]);
+	lv_cb_set_checked(hidden, bj["hidden"]);
+	lv_cb_set_checked(click, bj["click"]);
+	lv_cb_set_checked(top, bj["top"]);
+	lv_cb_set_checked(parentEvent, bj["parevent"]);
+	lv_cb_set_checked(opaScaleEnable, bj["opascaleen"]);
 
 	std::stringstream oss;
-	oss << j["opascale"];
+	oss << bj["opascale"];
 	lv_ta_set_text(opaScale, oss.str().c_str());
 
-	int pval = j["protect"];
+	int pval = bj["protect"];
 	if(pval==0)
 	{
 		lv_cb_set_checked(protNone, true);
@@ -387,7 +390,7 @@ void PropertyWindow::createArcProperties()
 	cwm->Update();
 }
 
-void PropertyWindow::updateArcProperties()
+void PropertyWindow::updateArcProperties(json j)
 {
 	if(currentlyLoadedProp!=eObjType::ARC)
 	{

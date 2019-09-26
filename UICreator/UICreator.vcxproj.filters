@@ -61,6 +61,12 @@
     <Filter Include="Source Files\Serialization\Fonts">
       <UniqueIdentifier>{e27b3561-935b-421a-a764-42bcee2a3b4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Editor\Variable">
+      <UniqueIdentifier>{c0995b3a-06ec-4817-97bf-c3ca1f1c6ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\Variable">
+      <UniqueIdentifier>{f67cfd24-d87f-4673-85fa-f852903dc9a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="custom_widget.c">
@@ -173,6 +179,12 @@
     </ClCompile>
     <ClCompile Include="Serialization\LVFontKernDSC.cpp">
       <Filter>Source Files\Serialization\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\ToolBar.cpp">
+      <Filter>Source Files\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Variable\Variable.cpp">
+      <Filter>Source Files\Editor\Variable</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,6 +307,12 @@
     </ClInclude>
     <ClInclude Include="Serialization\LVFontKernDSC.h">
       <Filter>Header Files\Serialization\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\ToolBar.h">
+      <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Variable\Variable.h">
+      <Filter>Header Files\Editor\Variable</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

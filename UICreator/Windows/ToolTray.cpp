@@ -1,7 +1,12 @@
 #include "ToolTray.h"
 #include "PropertyWindow.h"
+#include "ToolBar.h"
 
-ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t* drawSurface, PropertyWindow *propWin)
+ToolTray::ToolTray(lv_obj_t *parent, 
+	TreeView *objectTree, 
+	lv_obj_t* drawSurface, 
+	PropertyWindow *propWin,
+	ToolBar *toolBar)
 {
 	objTree = objectTree;
 	minWin = new MinimizableWindow("Tool Tray",
@@ -13,6 +18,7 @@ ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t* drawSurface
 		false,
 		lv_obj_get_width_fit(parent)/2-40,
 		10);
+	this->toolBar = toolBar;
 	toolWin = minWin->GetWindowObj();
 	this->drawSurface = drawSurface;
 	this->propertyWindow = propWin;
@@ -133,11 +139,16 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		lv_obj_set_protect(newObj, LV_PROTECT_PRESS_LOST);
 		lv_obj_set_top(newObj, true);
 		sObjStruct *os = new sObjStruct();
+		os->objectID = tt->currentID++;
 		os->toolTray = tt;		
 		os->objectJson = Serialization::LVArc::ToJSON(newObj);
+		std::stringstream ss;
+		ss << os->objectJson.dump(4);
+		std::string s = ss.str();
+		
 		lv_obj_set_user_data(newObj, (lv_obj_user_data_t)os);
 		lv_obj_set_event_cb(newObj, updateProperties);
-		tt->propertyWindow->SetSelectedObject(newObj);
+		tt->propertyWindow->SetSelectedObject(newObj, os->objectJson);
 		
 	}
 	
@@ -145,6 +156,9 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 
 void ToolTray::updateProperties(lv_obj_t *obj, lv_event_t ev)
 {
-	// update x/y and size
+	if (ev != LV_EVENT_CLICKED)
+		return;
+	sObjStruct *os = (sObjStruct *)lv_obj_get_user_data(obj);
+	os->toolTray->toolBar->SetSelectedObject();
 }
 #pragma endregion

@@ -11,20 +11,27 @@
 #pragma endregion
 
 class PropertyWindow;
+class ToolBar;
 
 class ToolTray
 {
 public:
-	ToolTray(lv_obj_t *parent, TreeView *objectTree, lv_obj_t *drawSurface, PropertyWindow *propWin);
+	ToolTray(lv_obj_t *parent, 
+		TreeView *objectTree, 
+		lv_obj_t *drawSurface, 
+		PropertyWindow *propWin,
+		ToolBar *toolBar);
 	
 private:
 	lv_obj_t *toolWin;
+	ToolBar *toolBar;
 	MinimizableWindow *minWin;
 	TreeView *objTree;
 	lv_obj_t *drawSurface;
 	PropertyWindow *propertyWindow;
 	void initializeToolMatrix();
 	void initializeWidgetButtons(lv_obj_t* parent);
+	uint16_t currentID = 0;
 	
 	std::vector<lv_obj_t*> widgetButtons;
 	lv_obj_t *lastWidget = nullptr;
@@ -36,6 +43,7 @@ private:
 	
 	struct sObjStruct
 	{
+		uint16_t objectID;
 		ToolTray *toolTray;
 		json objectJson;
 	};

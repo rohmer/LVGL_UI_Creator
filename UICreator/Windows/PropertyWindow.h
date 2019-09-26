@@ -23,8 +23,9 @@ class PropertyWindow
 public:
 	PropertyWindow(SimWindow *simWindow, int screenWidth, int screenHeight);
 	TreeView *GetObjectTree();
-	void SetSelectedObject(lv_obj_t *object);
+	void SetSelectedObject(lv_obj_t *object, json j);
 	void AddStyle(json styleJson);
+	lv_obj_t *GetSelectedObject();
 	
 private:
 	enum eObjType
@@ -106,7 +107,7 @@ private:
 	void createBaseObjProps();
 	void createObjProps();
 	void createTreeView();
-	void updateGlobalProps();
+	void updateGlobalProps(json j);
 
 	struct sOData
 	{
@@ -129,7 +130,7 @@ private:
 	eObjType currentlyLoadedProp = eObjType::NONE;
 	
 #pragma region Properties by Type
-	void updateArcProperties();
+	void updateArcProperties(json j);
 	void createArcProperties();
 #pragma endregion
 };

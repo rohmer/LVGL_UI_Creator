@@ -10,7 +10,7 @@ namespace Serialization
         int btnCnt = ext->btn_cnt;
         json bj = j["btnm"];
 		int buttonCt = ext->btn_cnt;
-		const char **ma = lv_btnm_get_map_array(btnm);
+		const char **ma = ext->map_p;
 		int ctr=0;
 		int row = 0;
 		while(*ma)
@@ -24,6 +24,23 @@ namespace Serialization
 			}
 			row++;
 			ma++;
+		}
+		for(int i=0; i<buttonCt; i++)
+		{
+			j["ctrl"][i] = ext->ctrl_bits[i];
+		}
+		if (ext->recolor == 1)
+			j["recolor"] = true;
+		else
+			j["recolor"] = false;
+		if (ext->one_toggle == 1)
+			j["oneToggle"] = true;
+		else
+			j["oneToggle"] = false;
+		for(int i=0; i<_LV_BTN_STATE_NUM; i++)
+		{
+			lv_style_t *sty = (lv_style_t*)ext->styles_btn[i];
+			j["btnStyles"][i] = Style::Serialize(*sty);
 		}
 		
 		return j;
