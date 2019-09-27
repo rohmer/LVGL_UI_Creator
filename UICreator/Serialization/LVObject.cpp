@@ -48,7 +48,8 @@ namespace Serialization
 		j["realign"] = Realign::ToJSON(object->realign);
 #endif
 		lv_style_t* sp = const_cast<lv_style_t*>(object->style_p);
-		j["style"] = Style::Serialize(*sp);
+		if(sp!=nullptr)
+			j["style"] = Style::Serialize(*sp);
 
 		if (object->top == 1)
 			j["top"] = true;

@@ -1,13 +1,14 @@
 #pragma once
 
 #include <string>
-
+#include <map>
 #include "../../3rdParty/JSON/json.hpp"
 #include "lvgl/lvgl.h"
 
 #include "Style.h"
 #include "Area.h"
 #include "Realign.h"
+#include "../Variable/Variable.h"
 
 using json = nlohmann::json;
 

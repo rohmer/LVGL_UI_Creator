@@ -23,7 +23,7 @@ class PropertyWindow
 public:
 	PropertyWindow(SimWindow *simWindow, int screenWidth, int screenHeight);
 	TreeView *GetObjectTree();
-	void SetSelectedObject(lv_obj_t *object, json j);
+	void SetSelectedObject(lv_obj_t *object);
 	void AddStyle(json styleJson);
 	lv_obj_t *GetSelectedObject();
 	
@@ -94,11 +94,7 @@ private:
 		std::string name;
 		PropertyWindow *pw;
 	};
-	struct sObjStruct
-	{
-		ToolTray *toolTray;
-		json objectJson;
-	};
+	
 	std::map<std::string, json> styles;
 	
 	static void initializeThemes(uint16_t hue);
@@ -107,7 +103,7 @@ private:
 	void createBaseObjProps();
 	void createObjProps();
 	void createTreeView();
-	void updateGlobalProps(json j);
+	void updateGlobalProps();
 
 	struct sOData
 	{
@@ -130,7 +126,7 @@ private:
 	eObjType currentlyLoadedProp = eObjType::NONE;
 	
 #pragma region Properties by Type
-	void updateArcProperties(json j);
+	void updateArcProperties();
 	void createArcProperties();
 #pragma endregion
 };

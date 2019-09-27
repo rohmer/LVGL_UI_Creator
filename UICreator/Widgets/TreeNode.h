@@ -7,6 +7,7 @@
 class TreeNode
 {
 public:
+	TreeNode(std::string name, TreeNode *parent, lv_obj_t *object, bool protect = false);
 	~TreeNode();
 	bool operator==(const TreeNode &other);
 	TreeNode *DeepCopy();
@@ -17,12 +18,12 @@ public:
 	bool IsSelected();
 	void SetNodeData(std::any nodeData);
 	std::any GetNodeData();
-
+	void SetExpanded(bool exp) { expanded = exp; }
+	
 private:
 	friend class TreeView;
 	void setID(unsigned int tnid);
 	void setPosition(int x, int y);
-	TreeNode(std::string name, TreeNode *parent, lv_obj_t *object, bool protect = false);
 	void addChild(TreeNode *childNode);
 	void addChildFront(TreeNode *childNode);
 	void removeChild(TreeNode *node);

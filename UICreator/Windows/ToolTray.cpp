@@ -114,14 +114,17 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 			parID = tt->objTree->GetSelectedNode()->GetID();
 		else
 			parID = 0;
+		ObjectUserData *userData=new ObjectUserData();
 		switch(objID)
 		{
 		case 0:
 			newObj=Arc::Create(parent, x, y);
+			userData->objectJson = Serialization::LVArc::ToJSON(newObj);
 			tt->objTree->AddNode("Arc", newObj, parID, false);
 			break;
 		case 1:
 			newObj = Bar::Create(parent, x, y);
+			userData->objectJson = Serialization::LVBar::ToJSON(newObj);
 			tt->objTree->AddNode("Bar", newObj, parID, false);
 		}		
 		if (newObj == nullptr)
@@ -138,17 +141,12 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		lv_obj_set_style(newObj, &lv_style_plain);
 		lv_obj_set_protect(newObj, LV_PROTECT_PRESS_LOST);
 		lv_obj_set_top(newObj, true);
-		sObjStruct *os = new sObjStruct();
-		os->objectID = tt->currentID++;
-		os->toolTray = tt;		
-		os->objectJson = Serialization::LVArc::ToJSON(newObj);
-		std::stringstream ss;
-		ss << os->objectJson.dump(4);
-		std::string s = ss.str();
+		userData->objectID = tt->currentID++;
+		userData->toolTray = tt;
 		
-		lv_obj_set_user_data(newObj, (lv_obj_user_data_t)os);
+		lv_obj_set_user_data(newObj, (lv_obj_user_data_t)userData);
 		lv_obj_set_event_cb(newObj, updateProperties);
-		tt->propertyWindow->SetSelectedObject(newObj, os->objectJson);
+		tt->propertyWindow->SetSelectedObject(newObj);
 		
 	}
 	
@@ -158,7 +156,8 @@ void ToolTray::updateProperties(lv_obj_t *obj, lv_event_t ev)
 {
 	if (ev != LV_EVENT_CLICKED)
 		return;
-	sObjStruct *os = (sObjStruct *)lv_obj_get_user_data(obj);
-	os->toolTray->toolBar->SetSelectedObject();
+	
+	ObjectUserData *objectData = (ObjectUserData *)lv_obj_get_user_data(obj);
+	objectData->toolTray->toolBar->SetSelectedObject();
 }
 #pragma endregion

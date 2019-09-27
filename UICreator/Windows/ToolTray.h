@@ -4,10 +4,12 @@
 #include "lvgl/lvgl.h"
 #include "../Widgets/TreeView.h"
 #include "../Widgets/MinimizableWindow.h"
+#include "../ObjectUserData.h"
 
 #pragma region Object Creation Includes
 #include "../ObjectCreation/Arc.h"
 #include "../ObjectCreation/Bar.h"
+#include "../Serialization/LVBar.h"
 #pragma endregion
 
 class PropertyWindow;
@@ -41,13 +43,6 @@ private:
 		int typeID;
 	};
 	
-	struct sObjStruct
-	{
-		uint16_t objectID;
-		ToolTray *toolTray;
-		json objectJson;
-	};
-
 #pragma region Callbacks
 	static void create_obj_cb(lv_obj_t *obj, lv_event_t ev);
 	static void updateProperties(lv_obj_t *obj, lv_event_t ev);

@@ -186,7 +186,7 @@
     <ClCompile Include="Variable\Variable.cpp">
       <Filter>Source Files\Editor\Variable</Filter>
     </ClCompile>
-    <ClCompile Include="Windows\PropertySelection.cpp">
+    <ClCompile Include="Windows\VariableCreateWindow.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
     </ClCompile>
   </ItemGroup>
@@ -317,8 +317,14 @@
     <ClInclude Include="Variable\Variable.h">
       <Filter>Header Files\Editor\Variable</Filter>
     </ClInclude>
-    <ClInclude Include="Windows\PropertySelection.h">
+    <ClInclude Include="ObjectUserData.h">
       <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\VariableCreateWindow.h">
+      <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\Serializers.h">
+      <Filter>Header Files\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

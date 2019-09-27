@@ -26,7 +26,7 @@ void SimWindow::resize(int newWidth, int newHeight, bool repos, bool resize)
 	lv_win_set_title(window, ss.str().c_str());
 	lv_win_ext_t * ext = (lv_win_ext_t*)lv_obj_get_ext_attr(window);
 	int headerSize = ext->btn_size;
-	lv_obj_set_size(window, width + 4, height + headerSize);
+	lv_obj_set_size(window, width + 8, height + headerSize+8);
 	lv_obj_set_size(drawSurface, width, height);
 	if(repos || resize)
 	{
@@ -62,11 +62,11 @@ void SimWindow::createObjects()
 
 	int headerSize = ext->btn_size;
 	
-	lv_obj_set_size(window, width+4, height+headerSize);
+	lv_obj_set_size(window, width+12, height+headerSize+12);
 	int x = (lv_scr_act()->coords.x2 / 2) - (width / 2);
-	int y = (lv_scr_act()->coords.y2 / 2) - (width / 2);
+	int y = (lv_scr_act()->coords.y2 / 2) - (width / 2)-50;
 	lv_obj_set_pos(window, x, y);
-	lv_win_set_sb_mode(window, LV_SB_MODE_AUTO);
+	lv_win_set_sb_mode(window, LV_SB_MODE_OFF);
 	lv_obj_t* winBtn = lv_win_add_btn(window, LV_SYMBOL_SETTINGS);
 	lv_obj_set_user_data(winBtn, this);
 	lv_obj_set_event_cb(winBtn, settings);

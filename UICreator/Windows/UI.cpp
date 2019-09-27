@@ -1,8 +1,8 @@
 #include "UI.h"
 #include <iostream>
 #include <fstream>
-#include "PropertySelection.h"
 #include "../Serialization/LVButton.h"
+#include "VariableCreateWindow.h"
 
 UI::UI()
 {
@@ -27,13 +27,11 @@ UI::UI()
 	
 	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
 	json j = Serialization::LVButton::ToJSON(button);
-	PropertySelection *ps = new PropertySelection(toolBar);	
-	ps->Show(j);
-
+	
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);
 
-	
+	VariableCreateWindow *vcw = new VariableCreateWindow(toolBar);
 	int buttonID=propertyWindow->GetObjectTree()->AddNode("Button", button, 0, false);
 	
 }

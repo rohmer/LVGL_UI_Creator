@@ -41,13 +41,14 @@ void PropertyWindow::createPropertyWin()
 	createTreeView();
 }
 
-void PropertyWindow::SetSelectedObject(lv_obj_t* object, json j)
+void PropertyWindow::SetSelectedObject(lv_obj_t* object)
 {
 	selectedObject = object;
-	updateGlobalProps(j);
+	json j = Serialization::LVObject::ToJSON(object);
+	updateGlobalProps();
 	if(j["arc"].is_object())
 	{
-		updateArcProperties(j);
+		updateArcProperties();
 	}
 }
 
@@ -266,17 +267,18 @@ void PropertyWindow::createBaseObjProps()
 	pcc.pw = this;
 	lv_obj_set_user_data(protChildChg, (lv_obj_user_data_t)&pcc);
 	lv_obj_set_event_cb(protChildChg, checkBoxCB);
-	
-	
+		
 #pragma endregion
-	
 	cwm->AddWindow(baseObjProps);
 }
 
-void PropertyWindow::updateGlobalProps(json j)
+void PropertyWindow::updateGlobalProps()
 {
 	if (selectedObject == nullptr)
 		return;
+	ObjectUserData* oud = (ObjectUserData*)lv_obj_get_user_data(selectedObject);
+	json j = oud->objectJson;
+	std::stringstream ss;
 	std::stringstream x, y;
 	json bj = j["base"];
 	x << bj["coords"]["x1"];
@@ -390,7 +392,7 @@ void PropertyWindow::createArcProperties()
 	cwm->Update();
 }
 
-void PropertyWindow::updateArcProperties(json j)
+void PropertyWindow::updateArcProperties()
 {
 	if(currentlyLoadedProp!=eObjType::ARC)
 	{

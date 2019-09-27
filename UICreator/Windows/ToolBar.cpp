@@ -155,7 +155,6 @@ void ToolBar::SetContextActive()
 void ToolBar::SetSelectedObject()
 {
 	selectedObject = propertyWindow->GetSelectedObject();
-	lv_obj_set_hidden(addVarBtn, false);
 
 	
 }
