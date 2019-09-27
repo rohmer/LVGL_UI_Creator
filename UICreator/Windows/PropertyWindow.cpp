@@ -65,10 +65,10 @@ void PropertyWindow::createBaseObjProps()
 	lv_cont_set_fit(posCont, LV_LAYOUT_GRID);
 	lv_obj_set_style(posCont, &lv_style_transp);
 
-	taX = createNumericEntry(posCont,"X");
-	taY = createNumericEntry(posCont, "  Y");
-	taWidth = createNumericEntry(posCont, "  Width");
-	taHeight = createNumericEntry(posCont, "  Height");
+	taX = createNumericEntry(posCont,"X1", "/base/coords/x1");
+	taY = createNumericEntry(posCont, "Y1","/base/coords/y1");
+	taWidth = createNumericEntry(posCont, "X2","/base/coords/x2");
+	taHeight = createNumericEntry(posCont, "Y2", "/base/coords/y2");
 #pragma endregion
 
 #pragma region Style
@@ -79,7 +79,7 @@ void PropertyWindow::createBaseObjProps()
 
 	lv_obj_t *styleLab = lv_label_create(styleCont, nullptr);
 	lv_label_set_text(styleLab,"Style");
-	styleDD = lv_ddlist_create(styleCont, nullptr);
+	styleDD = lv_ddlist_create(styleCont, nullptr);	
 	std::stringstream ss;
 	for(auto it=styles.begin();
 		it!=styles.end();
@@ -89,11 +89,11 @@ void PropertyWindow::createBaseObjProps()
 	}
 	lv_ddlist_set_options(styleDD, ss.str().c_str());
 	lv_ddlist_set_draw_arrow(styleDD, true);
-	sInp style;
-	style.name = "styledd";
-	style.pw = this;
-	lv_obj_set_user_data(styleDD, (lv_obj_user_data_t)&style);
-	lv_obj_set_event_cb(styleDD, ddCB);	
+	sPropChange *pc1 = new sPropChange();
+	pc1->pw = this;
+	pc1->propertyPath = "/base/style";
+	lv_obj_set_user_data(styleDD, (lv_obj_user_data_t)pc1);
+	lv_obj_set_event_cb(styleDD, ddListCB);	
 	lv_obj_t *sLab = lv_label_create(styleCont, nullptr);
 	lv_label_set_text(sLab, "New Style");	
 	lv_obj_t *newSBtn = lv_btn_create(styleCont, nullptr);
@@ -112,18 +112,18 @@ void PropertyWindow::createBaseObjProps()
 
 	hidden = lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(hidden, "Hidden");
-	sInp hd;
-	hd.name = "hidden";
-	hd.pw = this;
-	lv_obj_set_user_data(hidden, (lv_obj_user_data_t)&hd);
+	sPropChange *pc2 = new sPropChange();
+	pc2->pw = this;
+	pc2->propertyPath = "/base/hidden";
+	lv_obj_set_user_data(hidden, (lv_obj_user_data_t)pc2);
 	lv_obj_set_event_cb(hidden, checkBoxCB);
 	
 	click = lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(click, "Click");
-	sInp cl;
-	cl.name = "click";
-	cl.pw = this;
-	lv_obj_set_user_data(click, (lv_obj_user_data_t)&cl);
+	sPropChange *pc3 = new sPropChange();
+	pc3->pw = this;
+	pc3->propertyPath = "/base/click";
+	lv_obj_set_user_data(click, (lv_obj_user_data_t)pc3);
 	lv_obj_set_event_cb(click, checkBoxCB);
 
 	top = lv_cb_create(attrCont, nullptr);
@@ -131,15 +131,19 @@ void PropertyWindow::createBaseObjProps()
 	sInp stop;
 	stop.name = "top";
 	stop.pw = this;
+	sPropChange *pc4 = new sPropChange();
+	pc4->pw = this;
+	pc4->propertyPath = "/base/top";
+
 	lv_obj_set_user_data(top, (lv_obj_user_data_t)&stop);
 	lv_obj_set_event_cb(top, checkBoxCB);
 
 	parentEvent= lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(parentEvent, "Parent event");
-	sInp parent;
-	parent.name = "parent";
-	parent.pw = this;
-	lv_obj_set_user_data(parentEvent, (lv_obj_user_data_t)&parent);
+	sPropChange *pc5 = new sPropChange();
+	pc5->pw = this;
+	pc5->propertyPath = "/base/parevent";
+	lv_obj_set_user_data(parentEvent, (lv_obj_user_data_t)pc5);
 	lv_obj_set_event_cb(parentEvent, checkBoxCB);
 
 	lv_obj_t *attrCont2 = lv_cont_create(boCont, nullptr);
@@ -149,13 +153,14 @@ void PropertyWindow::createBaseObjProps()
 
 	opaScaleEnable= lv_cb_create(attrCont2, nullptr);	
 	lv_cb_set_text(opaScaleEnable, "Opa Scale Enable");
-	sInp oe;
-	oe.name = "opaenab";
-	oe.pw = this;
-	lv_obj_set_user_data(opaScaleEnable, (lv_obj_user_data_t)&oe);
+	sPropChange *pc6 = new sPropChange();
+	pc6->pw = this;
+	pc6->propertyPath = "/base/opascaleen";
+
+	lv_obj_set_user_data(opaScaleEnable, (lv_obj_user_data_t)pc6);
 	lv_obj_set_event_cb(opaScaleEnable, checkBoxCB);	
 
-	opaScale = createNumericEntry(attrCont2, "Opa Scale");
+	opaScale = createNumericEntry(attrCont2, "Opa Scale", "/base/opascale");
 
 #pragma endregion
 
@@ -167,10 +172,10 @@ void PropertyWindow::createBaseObjProps()
 
 	drag = lv_cb_create(dragCont, nullptr);
 	lv_cb_set_text(drag, "Drag");
-	sInp sdrag;
-	sdrag.name = "drag";
-	sdrag.pw = this;
-	lv_obj_set_user_data(drag, (lv_obj_user_data_t)&sdrag);
+	sPropChange *pc7 = new sPropChange();
+	pc7->pw = this;
+	pc7->propertyPath = "/base/drag";
+	lv_obj_set_user_data(drag, (lv_obj_user_data_t)pc7);
 	lv_obj_set_event_cb(drag, checkBoxCB);
 
 	lv_obj_t *ddLab = lv_label_create(dragCont, nullptr);
@@ -178,26 +183,27 @@ void PropertyWindow::createBaseObjProps()
 	dragDir = lv_ddlist_create(dragCont, nullptr);
 	lv_ddlist_set_options(dragDir, "HOR\nVERT\nALL");
 	lv_ddlist_set_draw_arrow(dragDir, true);
-	sInp sdir;
-	sdir.name = "dragdir";
-	sdir.pw = this;
-	lv_obj_set_user_data(dragDir, (lv_obj_user_data_t)&sdir);
-	lv_obj_set_event_cb(dragDir, ddCB);
+	sPropChange *pc8 = new sPropChange();
+	pc8->pw = this;
+	pc8->propertyPath = "/base/dragDir";
+	lv_obj_set_user_data(dragDir, (lv_obj_user_data_t)pc8);
+	lv_obj_set_event_cb(dragDir, ddListCB);
 	
 	dragThrow = lv_cb_create(dragCont, nullptr);
 	lv_cb_set_text(dragThrow, "Throw");	
-	sInp dthrow;
-	dthrow.name = "dragthrow";
-	dthrow.pw = this;
-	lv_obj_set_user_data(dragThrow, (lv_obj_user_data_t)&dthrow);
+	sPropChange *pc9 = new sPropChange();
+	pc9->pw = this;
+	pc9->propertyPath = "/base/dragThrow";
+
+	lv_obj_set_user_data(dragThrow, (lv_obj_user_data_t)pc9);
 	lv_obj_set_event_cb(dragThrow, checkBoxCB);
 
 	dragParent = lv_cb_create(dragCont, nullptr);
 	lv_cb_set_text(dragParent, "Parent");
-	sInp dpar;
-	dpar.name = "dragparent";
-	dpar.pw = this;
-	lv_obj_set_user_data(dragParent, (lv_obj_user_data_t)&dpar);
+	sPropChange *pc10 = new sPropChange();
+	pc10->pw = this;
+	pc10->propertyPath = "/base/dragParent";
+	lv_obj_set_user_data(dragParent, (lv_obj_user_data_t)pc10);
 	lv_obj_set_event_cb(dragParent, checkBoxCB);
 
 #pragma endregion
@@ -381,12 +387,12 @@ void PropertyWindow::createArcProperties()
 	odata.pw = this;
 	odata.objName = "ArcColor";
 	cp->SetCallback(assignColor, odata);
-	arcLineWidth = createNumericEntry(lineProps, "Line Width");
+	arcLineWidth = createNumericEntry(lineProps, "Line Width","/arc/style/line.width");
 	arcLineRound = lv_cb_create(lineProps, nullptr);
 	lv_cb_set_text(arcLineRound, "Arc Line Rounded");
-	sInp objData;
-	objData.name = "arcLineRounded";
-	objData.pw = this;
+	sPropChange *objData=new sPropChange();
+	objData->pw = this;
+	objData->propertyPath = "/arc/style/line.rounded";
 	lv_obj_set_user_data(arcLineRound, (lv_obj_user_data_t)&objData);
 	lv_obj_set_event_cb(arcLineRound, checkBoxCB);
 	cwm->Update();
@@ -421,7 +427,7 @@ void PropertyWindow::assignColor(lv_color_t color, std::any objectData)
 	}
 }
 
-lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string labelTxt)
+lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string labelTxt, const std::string path)
 {
 	lv_obj_t *label = lv_label_create(parent , nullptr);
 	lv_label_set_text(label, labelTxt.c_str());
@@ -430,10 +436,10 @@ lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string 
 	lv_ta_set_accepted_chars(obj, "0123456789");
 	lv_ta_set_text(obj, "");
 	lv_ta_set_cursor_type(obj, LV_CURSOR_NONE);
-	sInp inp;
-	inp.name = labelTxt;
-	inp.pw = this;
-	lv_obj_set_user_data(obj, (lv_obj_user_data_t)&inp);
+	sPropChange *propChange;
+	propChange->pw = this;
+	propChange->propertyPath = path;
+	lv_obj_set_user_data(obj, (lv_obj_user_data_t)propChange);
 	lv_obj_set_event_cb(obj, numericEntryCB);
 	lv_obj_set_width(obj, 35);
 	return obj;

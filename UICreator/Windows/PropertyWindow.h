@@ -110,18 +110,25 @@ private:
 		PropertyWindow *pw;
 		std::string objName;
 	};
+
+	struct sPropChange
+	{
+		PropertyWindow *pw;
+		std::string propertyPath;
+	};
 	
 	static void assignColor(lv_color_t color, std::any objData);
-	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt);
+	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt, const std::string propertyPath);
 	void initStyles();
-	
+
 	static void objSelectCB(TreeNode *node);
 	static void deleteCB(TreeNode *node);	
 	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
 	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
 	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
+	static void ddListCB(lv_obj_t *obj, lv_event_t event);
+	static void textBoxCB(lv_obj_t *obj, lv_event_t event);
 	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
-	static void ddCB(lv_obj_t *obj, lv_event_t event);
 	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
 	eObjType currentlyLoadedProp = eObjType::NONE;
 	
