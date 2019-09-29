@@ -29,7 +29,10 @@
     <ClCompile Include="mouse_cursor_icon.c" />
     <ClCompile Include="ObjectCreation\Arc.cpp" />
     <ClCompile Include="ObjectCreation\Bar.cpp" />
+    <ClCompile Include="ObjectCreation\Button.cpp" />
+    <ClCompile Include="ObjectCreation\ButtonMatrix.cpp" />
     <ClCompile Include="saveproj.c" />
+    <ClCompile Include="Serialization\LVCalendar.cpp" />
     <ClCompile Include="Serialization\Screen.cpp" />
     <ClCompile Include="Serialization\LVArc.cpp" />
     <ClCompile Include="Serialization\LVBar.cpp" />
@@ -70,9 +73,12 @@
     <ClInclude Include="loadproj.h" />
     <ClInclude Include="ObjectCreation\Arc.h" />
     <ClInclude Include="ObjectCreation\Bar.h" />
+    <ClInclude Include="ObjectCreation\Button.h" />
+    <ClInclude Include="ObjectCreation\ButtonMatrix.h" />
     <ClInclude Include="ObjectUserData.h" />
     <ClInclude Include="saveproj.h" />
     <ClInclude Include="Serialization\Area.h" />
+    <ClInclude Include="Serialization\LVCalendar.h" />
     <ClInclude Include="Serialization\Screen.h" />
     <ClInclude Include="Serialization\LVArc.h" />
     <ClInclude Include="Serialization\LVBar.h" />
@@ -121,7 +127,7 @@
       <Project>{81ce8daf-ebb2-4761-8e45-b71abcca8c68}</Project>
     </ProjectReference>
     <ProjectReference Include="..\3rdParty\spdlog-1.x\spdlog\spdlog.vcxproj">
-      <Project>{51ae7cca-3bb3-4533-929e-61644b17621e}</Project>
+      <Project>{c7b83486-2273-4af5-96ca-45fedbd1545b}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -197,8 +203,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x\include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
