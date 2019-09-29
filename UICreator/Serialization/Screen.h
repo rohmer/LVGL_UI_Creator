@@ -8,6 +8,7 @@
 
 #include "../../3rdParty/JSON/json.hpp"
 #include "../../3rdParty/LVGL/lvgl/lvgl.h"
+#include "../ObjectUserData.h"
 
 using json = nlohmann::json;
 

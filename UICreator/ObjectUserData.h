@@ -11,7 +11,7 @@ public:
 	template<typename T>
 	static std::vector<Variable<T>> variables;
 	json objectJson;
-	uint16_t objectID;
+	uint16_t objectID, parentID;
 	ToolTray *toolTray;
 };
 

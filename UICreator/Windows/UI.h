@@ -9,6 +9,14 @@
 #include "../Fonts/FTFont.h"
 #include "Themes.h"
 #include "../Widgets/ColorPicker.h"
+#include "../../3rdParty/spdlog-1.x/include/spdlog/spdlog.h"
+#ifdef _WINDOWS
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/wincolor_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#else
+#include "../../3rdParty/spdlog-1.x/include/spdlog/sinks/ansicolor_sink.h"
+#endif
 
 class UI
 {

@@ -1,7 +1,7 @@
 #include "ToolTray.h"
 #include "PropertyWindow.h"
 #include "ToolBar.h"
-
+#undef GetObject
 ToolTray::ToolTray(lv_obj_t *parent, 
 	TreeView *objectTree, 
 	lv_obj_t* drawSurface, 
@@ -95,7 +95,7 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		lv_obj_t* parent, *newObj;
 		if (node != nullptr)
 		{
-			parent = tv->GetSelectedNode()->GetObject();
+			parent = tv->GetSelectedNode()->GetLVObject();
 			if (parent == nullptr)
 				parent = tt->drawSurface;
 		} else
@@ -115,6 +115,7 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		else
 			parID = 0;
 		ObjectUserData *userData=new ObjectUserData();
+		userData->parentID = parID;
 		switch(objID)
 		{
 		case 0:

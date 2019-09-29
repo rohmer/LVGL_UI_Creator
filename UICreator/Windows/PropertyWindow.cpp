@@ -5,6 +5,7 @@
 
 lv_theme_t *PropertyWindow::activeTheme;
 std::vector<lv_theme_t*> PropertyWindow::themes;
+bool PropertyWindow::drawing = false;
 
 PropertyWindow::PropertyWindow(SimWindow* simWindow, int screenWidth, int screenHeight) :
 	simWindow(simWindow),
@@ -128,14 +129,11 @@ void PropertyWindow::createBaseObjProps()
 
 	top = lv_cb_create(attrCont, nullptr);
 	lv_cb_set_text(top, "Top");
-	sInp stop;
-	stop.name = "top";
-	stop.pw = this;
 	sPropChange *pc4 = new sPropChange();
 	pc4->pw = this;
 	pc4->propertyPath = "/base/top";
 
-	lv_obj_set_user_data(top, (lv_obj_user_data_t)&stop);
+	lv_obj_set_user_data(top, (lv_obj_user_data_t)pc4);
 	lv_obj_set_event_cb(top, checkBoxCB);
 
 	parentEvent= lv_cb_create(attrCont, nullptr);
@@ -223,30 +221,31 @@ void PropertyWindow::createBaseObjProps()
 	lv_cont_set_fit(row1, LV_FIT_TIGHT);
 	protNone = lv_cb_create(row1, nullptr);
 	lv_cb_set_text(protNone, "None");
-	sInp pnone;
-	pnone.name = "protnone";
-	pnone.pw = this;
-	lv_obj_set_user_data(protNone, (lv_obj_user_data_t)&pnone);
+	sPropChange *pc11 = new sPropChange();
+	pc11->pw = this;
+	pc11->propertyPath = "/base/protect/protNone";
+	lv_obj_set_user_data(protNone, (lv_obj_user_data_t)pc11);
 	lv_obj_set_event_cb(protNone, checkBoxCB);
 	protPos = lv_cb_create(row1, nullptr);
 	lv_cb_set_text(protPos, "Position");
-	sInp ppos;
-	ppos.name = "protpos";
-	ppos.pw = this;
-	lv_obj_set_user_data(protPos, (lv_obj_user_data_t)&ppos);
+	sPropChange *pc12 = new sPropChange();
+	pc12->pw = this;
+	pc12->propertyPath = "/base/protect/protPos";
+	lv_obj_set_user_data(protPos, (lv_obj_user_data_t)pc12);
 	lv_obj_set_event_cb(protPos, checkBoxCB);
 	protFollow = lv_cb_create(row1, nullptr);
+	sPropChange *pc17 = new sPropChange();
+	pc17->pw = this;
+	pc17->propertyPath = "/base/protect/protFollow";
 	lv_cb_set_text(protFollow, "Follow");
-	lv_obj_set_user_data(protFollow, (lv_obj_user_data_t)this);
+	lv_obj_set_user_data(protFollow, (lv_obj_user_data_t)pc17);
 	lv_obj_set_event_cb(protFollow, checkBoxCB);
 	protParent = lv_cb_create(row1, nullptr);
 	lv_cb_set_text(protParent, "Parent");
-	lv_obj_set_user_data(protParent, (lv_obj_user_data_t)this);
-	lv_obj_set_event_cb(protParent, checkBoxCB);
-	sInp ppar;
-	ppar.name = "protpar";
-	ppar.pw = this;
-	lv_obj_set_user_data(protParent, (lv_obj_user_data_t)&ppar);
+	sPropChange *pc13 = new sPropChange();
+	pc13->pw = this;
+	pc13->propertyPath = "/base/protect/protParent";
+	lv_obj_set_user_data(protParent, (lv_obj_user_data_t)pc13);
 	lv_obj_set_event_cb(protParent, checkBoxCB);
 	lv_obj_t *row2 = lv_cont_create(protCont, nullptr);
 	lv_obj_set_style(row2, &lv_style_transp);
@@ -254,24 +253,25 @@ void PropertyWindow::createBaseObjProps()
 	lv_cont_set_fit(row2, LV_FIT_TIGHT);
 	protPressLost = lv_cb_create(row2, nullptr);
 	lv_cb_set_text(protPressLost, "Press lost");
-	sInp ploss;
-	ploss.name = "protpressloss";
-	ploss.pw = this;
-	lv_obj_set_user_data(protPressLost, (lv_obj_user_data_t)&ploss);
+	sPropChange *pc14 = new sPropChange();
+	pc14->pw = this;
+	pc14->propertyPath = "/base/protect/protPressLost";
+
+	lv_obj_set_user_data(protPressLost, (lv_obj_user_data_t)pc14);
 	lv_obj_set_event_cb(protPressLost, checkBoxCB);
 	protClickFocus = lv_cb_create(row2, nullptr);
 	lv_cb_set_text(protClickFocus, "Click focus");
-	sInp pcf;
-	pcf.name = "protclickfocus";
-	pcf.pw = this;
-	lv_obj_set_user_data(protClickFocus, (lv_obj_user_data_t)&pcf);
+	sPropChange *pc15 = new sPropChange();
+	pc15->pw = this;
+	pc15->propertyPath = "/base/protect/protClickFocus";
+	lv_obj_set_user_data(protClickFocus, (lv_obj_user_data_t)pc15);
 	lv_obj_set_event_cb(protClickFocus, checkBoxCB);
 	protChildChg = lv_cb_create(row2, nullptr);
 	lv_cb_set_text(protChildChg, "Child change");
-	sInp pcc;
-	pcc.name = "protchildchange";
-	pcc.pw = this;
-	lv_obj_set_user_data(protChildChg, (lv_obj_user_data_t)&pcc);
+	sPropChange *pc16 = new sPropChange();
+	pc16->pw = this;
+	pc16->propertyPath = "/base/protect/protChildChange";
+	lv_obj_set_user_data(protChildChg, (lv_obj_user_data_t)pc16);
 	lv_obj_set_event_cb(protChildChg, checkBoxCB);
 		
 #pragma endregion
@@ -282,6 +282,7 @@ void PropertyWindow::updateGlobalProps()
 {
 	if (selectedObject == nullptr)
 		return;
+	drawing = true;
 	ObjectUserData* oud = (ObjectUserData*)lv_obj_get_user_data(selectedObject);
 	json j = oud->objectJson;
 	std::stringstream ss;
@@ -328,9 +329,7 @@ void PropertyWindow::updateGlobalProps()
 	std::stringstream oss;
 	oss << bj["opascale"];
 	lv_ta_set_text(opaScale, oss.str().c_str());
-
-	int pval = bj["protect"];
-	if(pval==0)
+	if(bj["protect"]["protNone"])
 	{
 		lv_cb_set_checked(protNone, true);
 		lv_cb_set_checked(protPos, false);
@@ -338,32 +337,33 @@ void PropertyWindow::updateGlobalProps()
 		lv_cb_set_checked(protParent, false);
 		lv_cb_set_checked(protPressLost, false);
 		lv_cb_set_checked(protClickFocus, false);
-		lv_cb_set_checked(protChildChg, false);
+		lv_cb_set_checked(protChildChg, false);		
 	}
-	if (pval & 0x01)
+	if (bj["protect"]["protChildChange"])
 		lv_cb_set_checked(protChildChg, true);
 	else
 		lv_cb_set_checked(protChildChg, false);
-	if (pval & 0x02)
+	if (bj["protect"]["protParent"])
 		lv_cb_set_checked(protParent, true);
 	else
 		lv_cb_set_checked(protParent, false);
-	if (pval & 0x04)
+	if (bj["protect"]["protPos"])
 		lv_cb_set_checked(protPos, true);
 	else
 		lv_cb_set_checked(protPos, false);
-	if (pval & 0x08)
+	if (bj["protect"]["protFollow"])
 		lv_cb_set_checked(protFollow, true);
 	else
 		lv_cb_set_checked(protFollow, false);
-	if (pval & 0x10)
+	if (bj["protect"]["protPressLost"])
 		lv_cb_set_checked(protPressLost, true);
 	else
 		lv_cb_set_checked(protPressLost, false);
-	if (pval & 0x20)
+	if (bj["protect"]["protClickFocus"])
 		lv_cb_set_checked(protClickFocus, true);
 	else
 		lv_cb_set_checked(protClickFocus, false);
+	drawing = false;
 }
 
 void PropertyWindow::createArcProperties()
@@ -373,8 +373,8 @@ void PropertyWindow::createArcProperties()
 	lv_cont_set_layout(cont, LV_LAYOUT_PRETTY);
 	lv_cont_set_fit(cont, LV_FIT_FILL);
 
-	arcStartTA=createNumericEntry(cont, "Arc Start");
-	arcEndTA = createNumericEntry(cont, "Arc End");
+	arcStartTA=createNumericEntry(cont, "Arc Start","/arc/angle/start");
+	arcEndTA = createNumericEntry(cont, "Arc End","/arc/angle/end");
 
 	lv_obj_t *lineProps = lv_cont_create(cont, nullptr);
 	lv_cont_set_layout(lineProps, LV_LAYOUT_PRETTY);
@@ -436,7 +436,7 @@ lv_obj_t* PropertyWindow::createNumericEntry(lv_obj_t *parent,const std::string 
 	lv_ta_set_accepted_chars(obj, "0123456789");
 	lv_ta_set_text(obj, "");
 	lv_ta_set_cursor_type(obj, LV_CURSOR_NONE);
-	sPropChange *propChange;
+	sPropChange *propChange = new sPropChange();
 	propChange->pw = this;
 	propChange->propertyPath = path;
 	lv_obj_set_user_data(obj, (lv_obj_user_data_t)propChange);
@@ -523,6 +523,8 @@ void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)
 
 void PropertyWindow::numericEntryCB(lv_obj_t* obj, lv_event_t event)
 {
+	if (drawing)
+		return;
 	if(event==LV_EVENT_CLICKED)
 	{
 		lv_ta_set_cursor_type(obj, LV_CURSOR_LINE);
@@ -531,10 +533,37 @@ void PropertyWindow::numericEntryCB(lv_obj_t* obj, lv_event_t event)
 	{
 		lv_ta_set_cursor_type(obj, LV_CURSOR_NONE);
 	}
+	if(event==LV_EVENT_VALUE_CHANGED)
+	{
+		sPropChange *pc = (sPropChange*)lv_obj_get_user_data(obj);
+		ObjectUserData *oud = (ObjectUserData*)lv_obj_get_user_data(pc->pw->selectedObject);
+		json j = oud->objectJson;		
+		j[nlohmann::json_pointer<std::string>(pc->propertyPath)] = atoi(lv_ta_get_text(obj));
+
+		std::vector<std::string> propTokens = ObjectTools::Split(pc->propertyPath, '/');
+		std::string oType = propTokens[0];
+		if(oType=="base")
+		{
+			if (!Serialization::LVObject::SetValue(pc->pw->selectedObject, pc->propertyPath, atoi(lv_ta_get_text(obj))))
+			{
+				spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
+			}
+		}
+		if(oType=="arc")
+		{
+			if (!Serialization::LVArc::SetValue(pc->pw->selectedObject, pc->propertyPath, atoi(lv_ta_get_text(obj))))
+			{
+				spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
+			}
+		}
+
+		oud->objectJson = j;
+		lv_obj_set_user_data(obj, (lv_obj_user_data_t)oud);
+	}
 }
 
 void PropertyWindow::createStyleCB(lv_obj_t* obj, lv_event_t event)
-{
+{	
 	if (event == LV_EVENT_CLICKED)
 	{
 		// TODO: Show create style window
@@ -543,17 +572,21 @@ void PropertyWindow::createStyleCB(lv_obj_t* obj, lv_event_t event)
 
 void PropertyWindow::checkBoxCB(lv_obj_t* obj, lv_event_t event)
 {
+	if (drawing)
+		return;
 	if (event == LV_EVENT_CLICKED)
 	{
 		// TODO: Set the value for the checkbox
 	}
 }
 
-void PropertyWindow::ddCB(lv_obj_t* obj, lv_event_t event)
+void PropertyWindow::ddListCB(lv_obj_t* obj, lv_event_t event)
 {
-	if(event==LV_EVENT_VALUE_CHANGED)
+	if (drawing)
+		return;
+	if (event == LV_EVENT_VALUE_CHANGED)
 	{
-		
+		// TODO: Set the value for the ddList
 	}
 }
 
@@ -590,9 +623,9 @@ void PropertyWindow::objSelectCB(TreeNode *node)
 		{
 			uidata = new uiObjData();
 		}
-		uidata->style = node->GetObject()->style_p;
+		uidata->style = node->GetLVObject()->style_p;
 		node->SetNodeData(uidata);
-		lv_obj_set_style(node->GetObject(), &lv_style_plain);
+		lv_obj_set_style(node->GetLVObject(), &lv_style_plain);
 	}
 	else
 	{
@@ -604,7 +637,7 @@ void PropertyWindow::objSelectCB(TreeNode *node)
 			return;
 		}
 
-		lv_obj_set_style(node->GetObject(), uidata->style);
+		lv_obj_set_style(node->GetLVObject(), uidata->style);
 	}
 }
 
@@ -620,7 +653,7 @@ void PropertyWindow::deleteCB(TreeNode* node)
 		// This really should never happen
 		return;
 	}
-	uiObjData *uiData = (uiObjData*)lv_obj_get_user_data(node->GetObject());
+	uiObjData *uiData = (uiObjData*)lv_obj_get_user_data(node->GetLVObject());
 	if(uiData==nullptr)
 	{
 		return;

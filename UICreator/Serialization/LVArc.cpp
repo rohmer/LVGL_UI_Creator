@@ -1,4 +1,4 @@
-#include "LVArc.h"
+	#include "LVArc.h"
 namespace Serialization
 {
 	json LVArc::ToJSON(lv_obj_t* arc)
@@ -64,4 +64,54 @@ namespace Serialization
 
 		return arc;
 	}
+
+	bool LVArc::SetValue(lv_obj_t *obj, std::string key, int value)
+	{
+		if(key=="/arc/angle/start")
+		{
+			int val=lv_arc_get_angle_end(obj);
+			lv_arc_set_angles(obj, value, val);
+			return true;
+		}
+		if (key == "/arc/angle/end")
+		{
+			int val = lv_arc_get_angle_start(obj);
+			lv_arc_set_angles(obj, val, value);
+			return true;
+		}
+		if(key=="/arc/style/line.rounded")
+		{
+			lv_style_t *style=(lv_style_t*)lv_arc_get_style(obj, LV_ARC_STYLE_MAIN);
+			style->line.rounded = value;
+			lv_arc_set_style(obj, LV_ARC_STYLE_MAIN, style);
+			lv_obj_refresh_style(obj);
+			return true;
+		}
+		if (key == "/arc/style/line.width")
+		{
+			lv_style_t *style = (lv_style_t*)lv_arc_get_style(obj, LV_ARC_STYLE_MAIN);
+			style->line.width = value;
+			lv_arc_set_style(obj, LV_ARC_STYLE_MAIN, style);
+			lv_obj_refresh_style(obj);
+			return true;
+		}
+		if (key == "/arc/style/line.color")
+		{
+			lv_style_t *style = (lv_style_t*)lv_arc_get_style(obj, LV_ARC_STYLE_MAIN);
+			style->line.color = lv_color_hex(value);
+			lv_arc_set_style(obj, LV_ARC_STYLE_MAIN, style);
+			lv_obj_refresh_style(obj);
+			return true;
+		}
+		if (key == "/arc/style/line.opa")
+		{
+			lv_style_t *style = (lv_style_t*)lv_arc_get_style(obj, LV_ARC_STYLE_MAIN);
+			style->line.opa = value;
+			lv_arc_set_style(obj, LV_ARC_STYLE_MAIN, style);
+			lv_obj_refresh_style(obj);
+			return true;
+		}
+		return false;
+	}
+
 }

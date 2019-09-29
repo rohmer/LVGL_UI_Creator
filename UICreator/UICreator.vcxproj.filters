@@ -96,9 +96,6 @@
     <ClCompile Include="setting.c">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\JsonDoc.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="Serialization\LVLabel.cpp">
       <Filter>Source Files\Serialization</Filter>
     </ClCompile>
@@ -189,6 +186,9 @@
     <ClCompile Include="Windows\VariableCreateWindow.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="Serialization\Screen.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -219,9 +219,6 @@
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
     <ClInclude Include="Serialization\Area.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\JsonDoc.h">
       <Filter>Header Files\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="Serialization\LVLabel.h">
@@ -317,14 +314,17 @@
     <ClInclude Include="Variable\Variable.h">
       <Filter>Header Files\Editor\Variable</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectUserData.h">
-      <Filter>Header Files\Editor\Windows</Filter>
-    </ClInclude>
     <ClInclude Include="Windows\VariableCreateWindow.h">
       <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Serialization\Serializers.h">
       <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\Screen.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectUserData.h">
+      <Filter>Header Files\Editor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

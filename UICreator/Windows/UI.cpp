@@ -6,6 +6,9 @@
 
 UI::UI()
 {
+	// Setup logger
+	auto console = spdlog::stdout_color_mt("console");
+	auto err_logger = spdlog::stderr_color_mt("stderr");
 	lv_coord_t hres = lv_disp_get_hor_res(nullptr);
 	lv_coord_t vres = lv_disp_get_ver_res(nullptr);
 	lv_obj_t *screen = lv_obj_create(lv_disp_get_scr_act(nullptr), nullptr);
@@ -31,8 +34,6 @@ UI::UI()
 	lv_obj_set_size(button, 50, 50);
 	lv_obj_set_pos(button, 50, 50);
 
-	VariableCreateWindow *vcw = new VariableCreateWindow(toolBar);
-	int buttonID=propertyWindow->GetObjectTree()->AddNode("Button", button, 0, false);
 	
 }
 

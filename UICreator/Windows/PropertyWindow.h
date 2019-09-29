@@ -15,6 +15,7 @@
 #include "../JSON/json.hpp"
 #include "../Serialization/LVObject.h"
 #include "../Serialization/Style.h"
+#include <spdlog/spdlog.h>
 
 using json=nlohmann::json;
 
@@ -131,6 +132,7 @@ private:
 	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
 	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
 	eObjType currentlyLoadedProp = eObjType::NONE;
+	static bool drawing;
 	
 #pragma region Properties by Type
 	void updateArcProperties();

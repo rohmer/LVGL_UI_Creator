@@ -1,8 +1,7 @@
 #include "ObjectTools.h"
 
 std::vector<lv_obj_t*> ObjectTools::GetChildren(lv_obj_t* object)
-{
-	lv_obj_t * i;
+{	
 	std::vector<lv_obj_t*> children;
 	lv_obj_t * result = nullptr;
 

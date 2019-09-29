@@ -11,7 +11,7 @@ public:
 	~TreeNode();
 	bool operator==(const TreeNode &other);
 	TreeNode *DeepCopy();
-	lv_obj_t *GetObject();
+	lv_obj_t *GetLVObject();
 	unsigned int GetID();
 	std::string GetName();
 	unsigned int GetLevel();

@@ -11,6 +11,7 @@
 #include "../ObjectCreation/Bar.h"
 #include "../Serialization/LVBar.h"
 #pragma endregion
+#undef GetObject
 
 class PropertyWindow;
 class ToolBar;

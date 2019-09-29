@@ -30,7 +30,7 @@
     <ClCompile Include="ObjectCreation\Arc.cpp" />
     <ClCompile Include="ObjectCreation\Bar.cpp" />
     <ClCompile Include="saveproj.c" />
-    <ClCompile Include="Serialization\JsonDoc.cpp" />
+    <ClCompile Include="Serialization\Screen.cpp" />
     <ClCompile Include="Serialization\LVArc.cpp" />
     <ClCompile Include="Serialization\LVBar.cpp" />
     <ClCompile Include="Serialization\LVButton.cpp" />
@@ -73,7 +73,7 @@
     <ClInclude Include="ObjectUserData.h" />
     <ClInclude Include="saveproj.h" />
     <ClInclude Include="Serialization\Area.h" />
-    <ClInclude Include="Serialization\JsonDoc.h" />
+    <ClInclude Include="Serialization\Screen.h" />
     <ClInclude Include="Serialization\LVArc.h" />
     <ClInclude Include="Serialization\LVBar.h" />
     <ClInclude Include="Serialization\LVButton.h" />
@@ -120,38 +120,41 @@
     <ProjectReference Include="..\3rdParty\SDL2-2.0.10\VisualC\SDL\SDL.vcxproj">
       <Project>{81ce8daf-ebb2-4761-8e45-b71abcca8c68}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\3rdParty\spdlog-1.x\spdlog\spdlog.vcxproj">
+      <Project>{51ae7cca-3bb3-4533-929e-61644b17621e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{B71C8C46-6B7C-490C-9B3F-6220C80C2109}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>UICreator</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -211,9 +214,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>USE_KEYBOARD;USE_MOUSE;USE_MOUSEWHEEL;LV_CONF_INCLUDE_SIMPLE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x/include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

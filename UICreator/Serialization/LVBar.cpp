@@ -17,7 +17,50 @@ namespace Serialization
 		j["bar"]["styleInd"] = Style::Serialize(*inStyle);
 		return j;
 	}
+	
+	bool LVBar::SetValue(lv_obj_t* obj, std::string key, int value)
+	{
+		if(key=="/bar/range/max")
+		{
+			int min = lv_bar_get_min_value(obj);
+			lv_bar_set_range(obj, min, value);
+			return true;
+		}
+		if (key == "/bar/range/min")
+		{
+			int max = lv_bar_get_min_value(obj);
+			lv_bar_set_range(obj, max, value);
+			return true;
+		}
+		if (key == "/bar/animT")
+		{
+			lv_bar_set_anim_time(obj, value);
+			return true;
+		}
+		if (key == "/bar/symmetrical")
+		{
+			lv_bar_set_sym(obj, value);
+			return true;
+		}
+		return true;
+	}
 
+	bool LVBar::SetValue(lv_obj_t* obj, std::string key, lv_style_t *value)
+	{
+		if (key == "/bar/styleBG")
+		{
+			lv_bar_set_style(obj, LV_BAR_STYLE_BG, value);
+			return true;
+		}
+
+		if (key == "/bar/styleInd")
+		{
+			lv_bar_set_style(obj, LV_BAR_STYLE_INDIC, value);
+			return true;
+		}
+		return false;
+	}
+	
 	lv_obj_t* LVBar::FromJSON(json j)
 	{
 		if (!j["base"].is_object())
