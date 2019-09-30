@@ -30,6 +30,103 @@ namespace Serialization
 		j["button"]["ink"]["out"] = lv_btn_get_ink_out_time(button);
 		return j;
 	}
+	bool LVButton::SetValue(lv_obj_t* obj, std::string key, int value)
+	{
+		if(key=="/button/ink/in")
+		{
+			lv_btn_set_ink_in_time(obj, value);
+			return true;
+		}
+		if (key == "/button/ink/wait")
+		{
+			lv_btn_set_ink_wait_time(obj, value);
+			return true;
+		}
+		if (key == "/button/ink/out")
+		{
+			lv_btn_set_ink_out_time(obj, value);
+			return true;
+		}
+		if (key == "/button/fit/3")
+		{
+			int bottom = lv_btn_get_fit_bottom(obj);
+			int left = lv_btn_get_fit_left(obj);
+			int top = lv_btn_get_fit_top(obj);
+			int right = lv_btn_get_fit_right(obj);
+			lv_btn_set_fit4(obj, left, value, top, bottom);
+			return true;
+		}
+		if (key == "/button/fit/2")
+		{
+			int bottom = lv_btn_get_fit_bottom(obj);
+			int left = lv_btn_get_fit_left(obj);
+			int top = lv_btn_get_fit_top(obj);
+			int right = lv_btn_get_fit_right(obj);
+			lv_btn_set_fit4(obj, left, right, value, bottom);
+			return true;
+		}
+		if (key == "/button/fit/1")
+		{
+			int bottom = lv_btn_get_fit_bottom(obj);
+			int left = lv_btn_get_fit_left(obj);
+			int top = lv_btn_get_fit_top(obj);
+			int right = lv_btn_get_fit_right(obj);
+			lv_btn_set_fit4(obj, value, right, top, bottom);
+			return true;
+		}
+		if(key=="/button/fit/0")
+		{
+			int bottom = lv_btn_get_fit_bottom(obj);
+			int left = lv_btn_get_fit_left(obj);
+			int top  = lv_btn_get_fit_top(obj);
+			int right = lv_btn_get_fit_right(obj);
+			lv_btn_set_fit4(obj, left, right, top, value);
+			return true;
+		}
+		if(key=="/button/layout")
+		{
+			lv_btn_set_layout(obj, value);
+			return true;
+		}
+		if(key=="/button/toggle")
+		{
+			if (value == 1)
+				lv_btn_set_toggle(obj, true);
+			else
+				lv_btn_set_toggle(obj, false);
+			return true;
+		}
+	}
+
+	bool LVButton::SetValue(lv_obj_t* obj, std::string key, lv_style_t* style)
+	{
+		if (key == "/button/styles/tglRel")
+		{
+			lv_btn_set_style(obj, LV_BTN_STYLE_TGL_REL, style);
+			return true;
+		}
+		if (key == "/button/styles/tglPr")
+		{
+			lv_btn_set_style(obj, LV_BTN_STYLE_TGL_PR, style);
+			return true;
+		}
+		if (key == "/button/styles/pr")
+		{
+			lv_btn_set_style(obj, LV_BTN_STYLE_PR, style);
+			return true;
+		}
+		if (key == "/button/styles/ina")
+		{
+			lv_btn_set_style(obj, LV_BTN_STYLE_INA, style);
+			return true;
+		}
+		if(key=="/button/styles/rel")
+		{
+			lv_btn_set_style(obj, LV_BTN_STYLE_REL, style);
+			return true;
+		}
+		return false;
+	}
 
 	lv_obj_t* LVButton::FromJSON(json j)
 	{

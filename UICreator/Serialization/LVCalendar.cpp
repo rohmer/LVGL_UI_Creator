@@ -121,7 +121,7 @@ namespace Serialization
 				}
 				if (!hlDates.empty())
 				{
-					lv_calendar_set_highlighted_dates(cal, hlDates.data(), hlDates.size());
+					lv_calendar_set_highlighted_dates(cal, &hlDates[0], hlDates.size());
 				}
 			}
 
@@ -182,7 +182,98 @@ namespace Serialization
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_WEEK_BOX, &todayBox);
 			}
 		}
+
+		return cal;
 	}
 	
+	bool LVCalendar::SetValue(lv_obj_t* obj, std::string key, std::vector<std::string> value)
+	{
+		if(key=="/cal/dayN")
+		{
+			std::vector<const char*> dayNames;
+			int i = 0;
+			for (int i = 0; i < value.size(); i++)
+				dayNames.push_back(value[i].c_str());
+			lv_calendar_set_day_names(obj, &dayNames[0]);
+			return true;
+		}
+		if (key == "/cal/monthN")
+		{
+			std::vector<const char*> monthNames;
+			int i = 0;
+			for (int i = 0; i < value.size(); i++)
+				monthNames.push_back(value[i].c_str());
+			lv_calendar_set_day_names(obj, &monthNames[0]);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool LVCalendar::SetValue(lv_obj_t* obj, std::string key, lv_style_t* style)
+	{
+		if (key == "/cal/styleBG")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_BG, style);
+			return true;
+		}
+		if (key == "/cal/styleBG")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_BG, style);
+			return true;
+		}
+		if (key == "/cal/styleHead")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_HEADER, style);
+			return true;
+		}
+		if (key == "/cal/styleHeadPR")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_HEADER_PR, style);
+			return true;
+		}
+		if (key == "/cal/styleDayName")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_DAY_NAMES, style);
+			return true;
+		}
+		if (key == "/cal/styleHDay")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_HIGHLIGHTED_DAYS, style);
+			return true;
+		}
+		if (key == "/cal/styleInaDay")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_INACTIVE_DAYS, style);
+			return true;
+		}
+		if (key == "/cal/styleWeekBox")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_WEEK_BOX, style);
+			return true;
+		}
+		if (key == "/cal/styleTodayBox")
+		{
+			lv_calendar_set_style(obj, LV_CALENDAR_STYLE_TODAY_BOX, style);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool LVCalendar::SetValue(lv_obj_t* obj, std::string key, std::vector<lv_calendar_date_t> value)
+	{
+		if(key=="/cal/hlDates")
+		{
+			lv_calendar_set_highlighted_dates(obj, &value[0], value.size());
+			return true;
+		}
+		return false;
+	}
+
+	bool LVCalendar::SetValue(lv_obj_t* obj, std::string key, int value)
+	{
+		return false;
+	}
 
 }
