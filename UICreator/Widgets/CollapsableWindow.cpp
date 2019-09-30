@@ -32,6 +32,16 @@ CollapsableWindow::CollapsableWindow(lv_obj_t *parent,
 	createObjects(parent);
 }
 
+void CollapsableWindow::UpdateHeight(int height)
+{
+	lv_obj_set_height(window, height);
+}
+
+void CollapsableWindow::UpdateWidth(int width)
+{
+	lv_obj_set_width(window, width);
+}
+
 const std::string CollapsableWindow::GetName()
 {
 	return name;
@@ -64,7 +74,7 @@ void CollapsableWindow::createObjects(lv_obj_t *parent)
 		lv_label_set_text(collapseBtnLbl, LV_SYMBOL_DOWN);
 	}
 	lv_cont_set_layout(window, LV_LAYOUT_OFF);
-	lv_cont_set_fit(window, LV_FIT_TIGHT);
+	lv_cont_set_fit2(window, LV_FIT_NONE, LV_FIT_NONE);
 	lv_obj_set_pos(window, x, y+25);
 
 	lv_obj_set_style(window, &lv_style_transp);
@@ -136,10 +146,8 @@ void CollapsableWindow::collapseClicked(lv_obj_t* obj, lv_event_t event)
 
 int CollapsableWindow::GetCurrentHeight()
 {
-	std::vector<lv_obj_t*> children = ObjectTools::GetChildren(window);
-	lv_area_t area;
-	lv_obj_get_coords(window, &area);
-	return (abs(area.y2 - area.y1));	
+	std::vector<lv_obj_t*> children = ObjectTools::GetChildren(window);	
+	return (lv_obj_get_height(window));	
 }
 
 lv_obj_t* CollapsableWindow::GetWindow()
@@ -147,13 +155,30 @@ lv_obj_t* CollapsableWindow::GetWindow()
 	return window;
 }
 
+void CollapsableWindow::DeleteObjects()
+{
+	for (int i = 0; i < objects.size(); i++)
+		lv_obj_del_async(objects[i]);
+}
+
 void CollapsableWindow::AddObjectToWindow(lv_obj_t* obj)
 {
 	lv_obj_set_parent(obj, window);
 	lv_obj_set_y(obj,lv_obj_get_y(obj) + 10);
+	objects.push_back(obj);
 }
 
 lv_obj_t* CollapsableWindow::GetCollapseButton()
 {
 	return collapseBtn;
+}
+
+void CollapsableWindow::DeleteChildren()
+{
+	for(std::vector<lv_obj_t*>::iterator it=objects.begin();
+		it!=objects.end();
+		++it)
+	{
+		lv_obj_del_async(*it);
+	}
 }

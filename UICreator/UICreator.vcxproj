@@ -21,61 +21,102 @@
   <ItemGroup>
     <ClCompile Include="custom_widget.c" />
     <ClCompile Include="dataset.c" />
+    <ClCompile Include="Fonts\FTFont.cpp" />
     <ClCompile Include="gencode.c" />
     <ClCompile Include="interface.c" />
     <ClCompile Include="loadproj.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mouse_cursor_icon.c" />
     <ClCompile Include="ObjectCreation\Arc.cpp" />
+    <ClCompile Include="ObjectCreation\Bar.cpp" />
+    <ClCompile Include="ObjectCreation\Button.cpp" />
+    <ClCompile Include="ObjectCreation\ButtonMatrix.cpp" />
     <ClCompile Include="saveproj.c" />
-    <ClCompile Include="Serialization\JsonDoc.cpp" />
+    <ClCompile Include="Serialization\LVCalendar.cpp" />
+    <ClCompile Include="Serialization\Screen.cpp" />
     <ClCompile Include="Serialization\LVArc.cpp" />
+    <ClCompile Include="Serialization\LVBar.cpp" />
+    <ClCompile Include="Serialization\LVButton.cpp" />
+    <ClCompile Include="Serialization\LVButtonMatrix.cpp" />
+    <ClCompile Include="Serialization\LVFontCMap.cpp" />
+    <ClCompile Include="Serialization\LVFont.cpp" />
+    <ClCompile Include="Serialization\LVFontDsc.cpp" />
+    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp" />
+    <ClCompile Include="Serialization\LVFontKernDSC.cpp" />
     <ClCompile Include="Serialization\LVLabel.cpp" />
     <ClCompile Include="Serialization\LVObject.cpp" />
     <ClCompile Include="Serialization\Style.cpp" />
     <ClCompile Include="setting.c" />
     <ClCompile Include="toolbox.c" />
     <ClCompile Include="Utils\ObjectTools.cpp" />
+    <ClCompile Include="Variable\Variable.cpp" />
     <ClCompile Include="Widgets\CollapsableWindow.cpp" />
     <ClCompile Include="Widgets\CollapsableWindowManager.cpp" />
+    <ClCompile Include="Widgets\ColorPicker.cpp" />
+    <ClCompile Include="Widgets\MinimizableWindow.cpp" />
     <ClCompile Include="Widgets\TreeNode.cpp" />
     <ClCompile Include="Widgets\TreeView.cpp" />
+    <ClCompile Include="Windows\ToolBar.cpp" />
     <ClCompile Include="Windows\UI.cpp" />
     <ClCompile Include="Windows\PropertyWindow.cpp" />
     <ClCompile Include="Windows\SimWindow.cpp" />
     <ClCompile Include="Windows\ToolTray.cpp" />
+    <ClCompile Include="Windows\VariableCreateWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="custom_widget.h" />
     <ClInclude Include="dataset.h" />
+    <ClInclude Include="Fonts\FTFont.h" />
     <ClInclude Include="gencode.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="loadproj.h" />
     <ClInclude Include="ObjectCreation\Arc.h" />
+    <ClInclude Include="ObjectCreation\Bar.h" />
+    <ClInclude Include="ObjectCreation\Button.h" />
+    <ClInclude Include="ObjectCreation\ButtonMatrix.h" />
+    <ClInclude Include="ObjectUserData.h" />
     <ClInclude Include="saveproj.h" />
     <ClInclude Include="Serialization\Area.h" />
-    <ClInclude Include="Serialization\JsonDoc.h" />
+    <ClInclude Include="Serialization\LVCalendar.h" />
+    <ClInclude Include="Serialization\Screen.h" />
     <ClInclude Include="Serialization\LVArc.h" />
+    <ClInclude Include="Serialization\LVBar.h" />
+    <ClInclude Include="Serialization\LVButton.h" />
+    <ClInclude Include="Serialization\LVButtonMatrix.h" />
+    <ClInclude Include="Serialization\LVFontCMap.h" />
+    <ClInclude Include="Serialization\LVFont.h" />
+    <ClInclude Include="Serialization\LVFontDsc.h" />
+    <ClInclude Include="Serialization\LVFontGlyphDsc.h" />
+    <ClInclude Include="Serialization\LVFontKernDSC.h" />
     <ClInclude Include="Serialization\LVLabel.h" />
     <ClInclude Include="Serialization\LVObject.h" />
     <ClInclude Include="Serialization\Realign.h" />
+    <ClInclude Include="Serialization\Serializers.h" />
     <ClInclude Include="Serialization\Style.h" />
     <ClInclude Include="setting.h" />
     <ClInclude Include="toolbox.h" />
     <ClInclude Include="Utils\ObjectTools.h" />
+    <ClInclude Include="Variable\Variable.h" />
     <ClInclude Include="Widgets\CollapsableWindow.h" />
     <ClInclude Include="Widgets\CollapsableWindowManager.h" />
+    <ClInclude Include="Widgets\ColorPicker.h" />
+    <ClInclude Include="Widgets\MinimizableWindow.h" />
     <ClInclude Include="Widgets\TreeNode.h" />
     <ClInclude Include="Widgets\TreeView.h" />
     <ClInclude Include="Windows\Themes.h" />
+    <ClInclude Include="Windows\ToolBar.h" />
     <ClInclude Include="Windows\UI.h" />
     <ClInclude Include="Windows\PropertyWindow.h" />
     <ClInclude Include="Windows\SimWindow.h" />
     <ClInclude Include="Windows\ToolTray.h" />
     <ClInclude Include="Windows\UIObjectData.h" />
+    <ClInclude Include="Windows\VariableCreateWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\3rdParty\freetype-2.10.1\builds\windows\visualc\freetype.vcxproj">
+      <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">
       <Project>{af5e3abf-b119-42c2-ab75-3b0e380cd6ba}</Project>
     </ProjectReference>
@@ -85,38 +126,41 @@
     <ProjectReference Include="..\3rdParty\SDL2-2.0.10\VisualC\SDL\SDL.vcxproj">
       <Project>{81ce8daf-ebb2-4761-8e45-b71abcca8c68}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\3rdParty\spdlog-1.x\spdlog\spdlog.vcxproj">
+      <Project>{c7b83486-2273-4af5-96ca-45fedbd1545b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{B71C8C46-6B7C-490C-9B3F-6220C80C2109}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>UICreator</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -159,8 +203,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x\include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -176,16 +222,19 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>USE_KEYBOARD;USE_MOUSE;USE_MOUSEWHEEL;LV_CONF_INCLUDE_SIMPLE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x/include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(ProjectDir)..\3rdParty\MXML\vcnet\$(Configuration)\$(Platform)\mxml1.dll $(OutDir)</Command>
+      <Command>copy /Y $(ProjectDir)..\3rdParty\MXML\vcnet\$(Configuration)\$(Platform)\mxml1.dll $(OutDir) &amp;&amp; copy /Y $(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll $(OutDir) &amp;&amp; copy /Y $(ProjectDir)Fonts\TTFs\*.ttf $(Outdir)
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

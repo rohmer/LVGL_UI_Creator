@@ -13,6 +13,7 @@ namespace Serialization
 {
 	class LVLabel
 	{
+	public:
 		static json ToJSON(lv_obj_t* label);
 		static lv_obj_t* FromJSON(json j);
 		

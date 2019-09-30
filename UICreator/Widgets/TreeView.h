@@ -26,10 +26,13 @@ public:
 		bool protect = false);
 	lv_obj_t *GetTreeViewUI();
 	TreeNode *GetSelectedNode();
-	
+	TreeNode *GetNodeByID(unsigned int nodeID);
 	void AddSelectCallback(tv_callback cb);
 	void AddDeleteCallback(tv_callback cb);
-
+	void ClearNodes()
+	{
+		topLevelNodes.clear();
+	}
 	
 private:
 	int x, y, width, height, yOffset, curID=0;

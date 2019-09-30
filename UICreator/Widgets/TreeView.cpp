@@ -15,6 +15,12 @@ TreeView::TreeView(unsigned int x,
 	createTreeViewContainer(inWindow, parent);
 }
 
+TreeView::~TreeView()
+{
+	for (int i = 0; i < topLevelNodes.size(); i++)
+		delete(topLevelNodes[i]);
+}
+
 lv_obj_t *TreeView::GetTreeViewUI()
 {
 	return window;
@@ -42,6 +48,15 @@ TreeNode *TreeView::getNode(TreeNode* node, unsigned int nodeID)
 
 	return nullptr;
 }
+TreeNode* TreeView::GetNodeByID(unsigned nodeID)
+{
+	std::vector<TreeNode *> nodes = getAllNodes();
+	for (int i = 0; i < nodes.size(); i++)
+		if (nodes[i]->GetID() == nodeID)
+			return nodes[i];
+	return nullptr;
+}
+
 
 unsigned int TreeView::AddNode(std::string name,
 	lv_obj_t* object,

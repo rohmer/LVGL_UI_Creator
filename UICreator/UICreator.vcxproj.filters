@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Editor\Widgets">
       <UniqueIdentifier>{c6d95de4-f98e-4974-84fa-5fc1ec88fd8b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Serialization">
-      <UniqueIdentifier>{7b569669-e956-4fd2-9991-1c7ea2d4c6d9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Editor\Windows">
       <UniqueIdentifier>{c75f6be6-97ce-495d-91a0-3673e2be0068}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,27 @@
     </Filter>
     <Filter Include="Header Files\Editor\Object Creation">
       <UniqueIdentifier>{3880a786-7331-4d37-8187-4ca4d462b5cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Fonts">
+      <UniqueIdentifier>{de122d65-1aaf-420b-baa7-a59ec4b8a57f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Fonts">
+      <UniqueIdentifier>{05565ed4-75a2-4fe7-b896-af624e08e66c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Serialization">
+      <UniqueIdentifier>{7b569669-e956-4fd2-9991-1c7ea2d4c6d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Serialization\Fonts">
+      <UniqueIdentifier>{eec12278-e7bb-444a-8484-42d899e8d99a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Serialization\Fonts">
+      <UniqueIdentifier>{e27b3561-935b-421a-a764-42bcee2a3b4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Editor\Variable">
+      <UniqueIdentifier>{c0995b3a-06ec-4817-97bf-c3ca1f1c6ccd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\Variable">
+      <UniqueIdentifier>{f67cfd24-d87f-4673-85fa-f852903dc9a3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +95,6 @@
     </ClCompile>
     <ClCompile Include="setting.c">
       <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\JsonDoc.cpp">
-      <Filter>Source Files\Serialization</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\LVLabel.cpp">
       <Filter>Source Files\Serialization</Filter>
@@ -126,6 +141,63 @@
     <ClCompile Include="Widgets\TreeView.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\MinimizableWindow.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Fonts\FTFont.cpp">
+      <Filter>Source Files\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\ColorPicker.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Bar.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVBar.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVButton.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVButtonMatrix.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp">
+      <Filter>Source Files\Serialization\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontCMap.cpp">
+      <Filter>Source Files\Serialization\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFont.cpp">
+      <Filter>Source Files\Serialization\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontDsc.cpp">
+      <Filter>Source Files\Serialization\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontKernDSC.cpp">
+      <Filter>Source Files\Serialization\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\ToolBar.cpp">
+      <Filter>Source Files\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Variable\Variable.cpp">
+      <Filter>Source Files\Editor\Variable</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\VariableCreateWindow.cpp">
+      <Filter>Source Files\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\Screen.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Button.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\ButtonMatrix.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVCalendar.cpp">
+      <Filter>Source Files\Serialization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -156,9 +228,6 @@
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
     <ClInclude Include="Serialization\Area.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\JsonDoc.h">
       <Filter>Header Files\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="Serialization\LVLabel.h">
@@ -211,6 +280,69 @@
     </ClInclude>
     <ClInclude Include="Widgets\TreeView.h">
       <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\MinimizableWindow.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Fonts\FTFont.h">
+      <Filter>Header Files\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\ColorPicker.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Bar.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVBar.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVButton.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVButtonMatrix.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontCMap.h">
+      <Filter>Header Files\Serialization\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFont.h">
+      <Filter>Header Files\Serialization\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontDsc.h">
+      <Filter>Header Files\Serialization\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontGlyphDsc.h">
+      <Filter>Header Files\Serialization\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontKernDSC.h">
+      <Filter>Header Files\Serialization\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\ToolBar.h">
+      <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Variable\Variable.h">
+      <Filter>Header Files\Editor\Variable</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\VariableCreateWindow.h">
+      <Filter>Header Files\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\Serializers.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\Screen.h">
+      <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectUserData.h">
+      <Filter>Header Files\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Button.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\ButtonMatrix.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVCalendar.h">
+      <Filter>Header Files\Serialization</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

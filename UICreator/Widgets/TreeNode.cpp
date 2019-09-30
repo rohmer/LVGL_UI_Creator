@@ -47,13 +47,13 @@ void TreeNode::removeChild(TreeNode *node)
 TreeNode *TreeNode::DeepCopy()
 {
 	lv_obj_t *objCopy;
-	if (this->GetObject() == nullptr)
+	if (this->GetLVObject() == nullptr)
 	{
 		objCopy = nullptr;
 	}
 	else
 	{
-		objCopy = lv_obj_create(this->GetObject()->par, this->GetObject());
+		objCopy = lv_obj_create(this->GetLVObject()->par, this->GetLVObject());
 	}
 	
 	TreeNode *newNode = new TreeNode(name, parent, objCopy, protectedNode);
@@ -65,7 +65,7 @@ TreeNode *TreeNode::DeepCopy()
 		newNode->addChild((*it)->DeepCopy());
 	}
 	newNode->selected = false;
-	newNode->level = level;
+	newNode->level = newNode->GetLevel();
 	return newNode;
 }
 
@@ -108,7 +108,7 @@ void TreeNode::setPosition(int x, int y)
 		lv_obj_set_pos(labelObj, x + 30 + (level * 15), y);
 }
 
-lv_obj_t *TreeNode::GetObject()
+lv_obj_t *TreeNode::GetLVObject()
 {
 	return object;
 }

@@ -9,7 +9,7 @@
 class Arc
 {
 public:
-	static void Create(lv_obj_t *parent, 
-		TreeView *objectTree,
-		TreeNode *parentTreeNode);
+	static lv_obj_t* Create(lv_obj_t *parent, 		
+		int x,
+		int y);
 };

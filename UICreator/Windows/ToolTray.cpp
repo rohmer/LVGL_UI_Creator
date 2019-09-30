@@ -1,11 +1,28 @@
 #include "ToolTray.h"
-
-ToolTray::ToolTray(lv_obj_t *parent, TreeView *objectTree)
+#include "PropertyWindow.h"
+#include "ToolBar.h"
+#undef GetObject
+ToolTray::ToolTray(lv_obj_t *parent, 
+	TreeView *objectTree, 
+	lv_obj_t* drawSurface, 
+	PropertyWindow *propWin,
+	ToolBar *toolBar)
 {
 	objTree = objectTree;
-	toolWin= lv_win_create(parent, nullptr);
-	lv_win_set_title(toolWin, "Tool Tray");
-	lv_obj_set_size(toolWin, lv_obj_get_width_fit(parent) / 4, lv_obj_get_height_fit(parent));
+	minWin = new MinimizableWindow("Tool Tray",
+		0,
+		0,
+		lv_obj_get_width_fit(parent) / 4,
+		lv_obj_get_height_fit(parent),
+		nullptr,
+		false,
+		lv_obj_get_width_fit(parent)/2-40,
+		10);
+	this->toolBar = toolBar;
+	toolWin = minWin->GetWindowObj();
+	this->drawSurface = drawSurface;
+	this->propertyWindow = propWin;
+	lv_win_set_title(toolWin, "Tool Tray");	
 	lv_obj_align(toolWin, nullptr, LV_ALIGN_IN_LEFT_MID, 0, 0);
 	initializeToolMatrix();
 }
@@ -73,26 +90,75 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		sCB* callbackStruct = (sCB*)lv_obj_get_user_data(obj);
 		int objID = callbackStruct->typeID;
 		ToolTray *tt = callbackStruct->toolTray;
-		TreeView *tv = tt->objTree;
-		TreeNode *node = tv->GetSelectedNode();
-		lv_obj_t* parent;
+		TreeView *tv = tt->objTree;		
+		TreeNode *node = tv->GetSelectedNode();		
+		lv_obj_t* parent, *newObj;
 		if (node != nullptr)
 		{
-			parent = tv->GetSelectedNode()->GetObject();
+			parent = tv->GetSelectedNode()->GetLVObject();
 			if (parent == nullptr)
-				parent = tv->GetTreeViewUI();
+				parent = tt->drawSurface;
 		} else
 		{
-			parent = tv->GetTreeViewUI();
+			parent = tt->drawSurface;
 		}
+		int x = 0, y=0;
+		if (tt->lastWidget != nullptr)
+		{
+			x = lv_obj_get_x(tt->lastWidget) + 10;
+			y = lv_obj_get_y(tt->lastWidget) + 10;			
+		} 		
+		newObj = nullptr;
+		int parID = -1;
+		if (tt->objTree->GetSelectedNode() != nullptr)
+			parID = tt->objTree->GetSelectedNode()->GetID();
+		else
+			parID = 0;
+		ObjectUserData *userData=new ObjectUserData();
+		userData->parentID = parID;
 		switch(objID)
 		{
 		case 0:
-			Arc::Create(parent, tt->objTree, node);
+			newObj=Arc::Create(parent, x, y);
+			userData->objectJson = Serialization::LVArc::ToJSON(newObj);
+			tt->objTree->AddNode("Arc", newObj, parID, false);
 			break;
+		case 1:
+			newObj = Bar::Create(parent, x, y);
+			userData->objectJson = Serialization::LVBar::ToJSON(newObj);
+			tt->objTree->AddNode("Bar", newObj, parID, false);
+		}		
+		if (newObj == nullptr)
+			return;
+		tt->lastWidget = newObj;
+		if(newObj->par!=tv->GetTreeViewUI())
+		{ 
+			lv_obj_set_drag_parent(newObj, true);
 		}
+		else
+		{
+			lv_obj_set_drag(newObj, true);
+		}
+		lv_obj_set_style(newObj, &lv_style_plain);
+		lv_obj_set_protect(newObj, LV_PROTECT_PRESS_LOST);
+		lv_obj_set_top(newObj, true);
+		userData->objectID = tt->currentID++;
+		userData->toolTray = tt;
+		
+		lv_obj_set_user_data(newObj, (lv_obj_user_data_t)userData);
+		lv_obj_set_event_cb(newObj, updateProperties);
+		tt->propertyWindow->SetSelectedObject(newObj);
+		
 	}
 	
 }
 
+void ToolTray::updateProperties(lv_obj_t *obj, lv_event_t ev)
+{
+	if (ev != LV_EVENT_CLICKED)
+		return;
+	
+	ObjectUserData *objectData = (ObjectUserData *)lv_obj_get_user_data(obj);
+	objectData->toolTray->toolBar->SetSelectedObject();
+}
 #pragma endregion
