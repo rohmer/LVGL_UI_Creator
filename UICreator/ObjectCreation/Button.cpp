@@ -9,4 +9,5 @@ lv_obj_t* Button::Create(lv_obj_t* parent, int x, int y)
 	lv_obj_set_size(newObj, 50, 50);
 	lv_obj_set_parent(newObj, parent);
 	lv_obj_set_pos(newObj, x, y);
+	return newObj;
 }

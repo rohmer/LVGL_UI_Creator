@@ -1,7 +1,7 @@
 #pragma once
 #include <lvgl/lvgl.h>
 
-class ButtonMatrix
+class Canvas
 {
 public:
 	static lv_obj_t* Create(lv_obj_t* parent,

@@ -198,6 +198,21 @@
     <ClCompile Include="Serialization\LVCalendar.cpp">
       <Filter>Source Files\Serialization</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectCreation\Calendar.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Canvas.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\CheckBox.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Chart.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Container.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -343,6 +358,21 @@
     </ClInclude>
     <ClInclude Include="Serialization\LVCalendar.h">
       <Filter>Header Files\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Calendar.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Canvas.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\CheckBox.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Chart.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Container.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

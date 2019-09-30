@@ -31,6 +31,11 @@
     <ClCompile Include="ObjectCreation\Bar.cpp" />
     <ClCompile Include="ObjectCreation\Button.cpp" />
     <ClCompile Include="ObjectCreation\ButtonMatrix.cpp" />
+    <ClCompile Include="ObjectCreation\Calendar.cpp" />
+    <ClCompile Include="ObjectCreation\Canvas.cpp" />
+    <ClCompile Include="ObjectCreation\Chart.cpp" />
+    <ClCompile Include="ObjectCreation\CheckBox.cpp" />
+    <ClCompile Include="ObjectCreation\Container.cpp" />
     <ClCompile Include="saveproj.c" />
     <ClCompile Include="Serialization\LVCalendar.cpp" />
     <ClCompile Include="Serialization\Screen.cpp" />
@@ -75,6 +80,11 @@
     <ClInclude Include="ObjectCreation\Bar.h" />
     <ClInclude Include="ObjectCreation\Button.h" />
     <ClInclude Include="ObjectCreation\ButtonMatrix.h" />
+    <ClInclude Include="ObjectCreation\Calendar.h" />
+    <ClInclude Include="ObjectCreation\Canvas.h" />
+    <ClInclude Include="ObjectCreation\Chart.h" />
+    <ClInclude Include="ObjectCreation\CheckBox.h" />
+    <ClInclude Include="ObjectCreation\Container.h" />
     <ClInclude Include="ObjectUserData.h" />
     <ClInclude Include="saveproj.h" />
     <ClInclude Include="Serialization\Area.h" />
