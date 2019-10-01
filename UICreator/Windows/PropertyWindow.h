@@ -13,8 +13,8 @@
 #include "../Widgets/ColorPicker.h"
 #include "UIObjectData.h"
 #include "../JSON/json.hpp"
-#include "../Serialization/LVObject.h"
-#include "../Serialization/Style.h"
+#include <Serialization/LVObject.h>
+#include <Serialization/Style.h>
 #include <spdlog/spdlog.h>
 
 using json=nlohmann::json;

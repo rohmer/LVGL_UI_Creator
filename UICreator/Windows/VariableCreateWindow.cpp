@@ -1,4 +1,5 @@
 #include "VariableCreateWindow.h"
+#include "Serialization/LVLabel.h"
 
 VariableCreateWindow::VariableCreateWindow(ToolBar* toolBar) :
 	toolbar(toolBar)

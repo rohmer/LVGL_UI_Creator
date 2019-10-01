@@ -1,7 +1,7 @@
 #include "UI.h"
 #include <iostream>
 #include <fstream>
-#include "../Serialization/LVButton.h"
+#include <Serialization/LVButton.h>
 #include "VariableCreateWindow.h"
 
 UI::UI()

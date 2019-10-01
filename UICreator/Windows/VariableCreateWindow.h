@@ -7,7 +7,6 @@
 #include "../ObjectUserData.h"
 #include "ToolBar.h"
 #include "../Widgets/TreeView.h"
-#include "../Serialization/Serializers.h"
 
 class VariableCreateWindow
 {

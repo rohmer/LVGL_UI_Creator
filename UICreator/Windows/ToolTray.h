@@ -8,8 +8,17 @@
 
 #pragma region Object Creation Includes
 #include "../ObjectCreation/Arc.h"
+#include <Serialization/LVArc.h>
 #include "../ObjectCreation/Bar.h"
-#include "../Serialization/LVBar.h"
+#include <Serialization/LVBar.h>
+#include "../ObjectCreation/Button.h"
+#include <Serialization/LVButton.h>
+#include "../ObjectCreation/ButtonMatrix.h"
+#include <Serialization/LVButtonMatrix.h>
+#include "../ObjectCreation/Calendar.h"
+#include <Serialization/LVCalendar.h>
+#include "../ObjectCreation/Canvas.h"
+#include <Serialization/LVCanvas.h>
 #pragma endregion
 #undef GetObject
 
