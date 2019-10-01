@@ -13,8 +13,8 @@ namespace Serialization
 		j["bar"]["symmetrical"] = lv_bar_get_sym(bar);
 		auto bgStyle = (lv_style_t*)lv_bar_get_style(bar, LV_BAR_STYLE_BG);
 		auto inStyle = (lv_style_t*)lv_bar_get_style(bar, LV_BAR_STYLE_INDIC);
-		j["bar"]["styleBG"] = Style::Serialize(*bgStyle);
-		j["bar"]["styleInd"] = Style::Serialize(*inStyle);
+		j["bar"]["styleBG"] = Style::ToJSON(*bgStyle);
+		j["bar"]["styleInd"] = Style::ToJSON(*inStyle);
 		return j;
 	}
 	
@@ -91,12 +91,12 @@ namespace Serialization
 			}
 			if(barJ["styleBG"].is_object())
 			{
-				const lv_style_t* bgStyle = &Style::Deserialize(barJ["styleBG"]);
+				const lv_style_t* bgStyle = &Style::FromJSON(barJ["styleBG"]);
 				lv_bar_set_style(bar, LV_BAR_STYLE_BG, bgStyle);
 			}
 			if (barJ["styleInd"].is_object())
 			{
-				const lv_style_t* inStyle = &Style::Deserialize(barJ["styleInd"]);
+				const lv_style_t* inStyle = &Style::FromJSON(barJ["styleInd"]);
 				lv_bar_set_style(bar, LV_BAR_STYLE_INDIC, inStyle);
 			}
 		}

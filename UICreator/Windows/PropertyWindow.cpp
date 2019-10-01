@@ -494,19 +494,19 @@ void PropertyWindow::theme_select_event_handler(lv_obj_t * roller, lv_event_t ev
 void PropertyWindow::initStyles()
 {
 	using namespace Serialization;
-	styles.emplace("lv_style_scr", Style::Serialize(lv_style_scr));
-	styles.emplace("lv_style_transp", Style::Serialize(lv_style_transp));
-	styles.emplace("lv_style_transp_tight", Style::Serialize(lv_style_transp_tight));
-	styles.emplace("lv_style_transp_fit", Style::Serialize(lv_style_transp_fit));
-	styles.emplace("lv_style_plain", Style::Serialize(lv_style_plain));
-	styles.emplace("lv_style_plain_color", Style::Serialize(lv_style_plain_color));
-	styles.emplace("lv_style_pretty", Style::Serialize(lv_style_pretty));
-	styles.emplace("lv_style_pretty_color", Style::Serialize(lv_style_pretty_color));
-	styles.emplace("lv_style_btn_rel", Style::Serialize(lv_style_btn_rel));
-	styles.emplace("lv_style_btn_pr", Style::Serialize(lv_style_btn_pr));
-	styles.emplace("lv_style_btn_tgl_rel", Style::Serialize(lv_style_btn_tgl_rel));
-	styles.emplace("lv_style_btn_tgl_pr", Style::Serialize(lv_style_btn_tgl_pr));
-	styles.emplace("lv_style_btn_ina", Style::Serialize(lv_style_btn_ina));
+	styles.emplace("lv_style_scr", Style::ToJSON(lv_style_scr));
+	styles.emplace("lv_style_transp", Style::ToJSON(lv_style_transp));
+	styles.emplace("lv_style_transp_tight", Style::ToJSON(lv_style_transp_tight));
+	styles.emplace("lv_style_transp_fit", Style::ToJSON(lv_style_transp_fit));
+	styles.emplace("lv_style_plain", Style::ToJSON(lv_style_plain));
+	styles.emplace("lv_style_plain_color", Style::ToJSON(lv_style_plain_color));
+	styles.emplace("lv_style_pretty", Style::ToJSON(lv_style_pretty));
+	styles.emplace("lv_style_pretty_color", Style::ToJSON(lv_style_pretty_color));
+	styles.emplace("lv_style_btn_rel", Style::ToJSON(lv_style_btn_rel));
+	styles.emplace("lv_style_btn_pr", Style::ToJSON(lv_style_btn_pr));
+	styles.emplace("lv_style_btn_tgl_rel", Style::ToJSON(lv_style_btn_tgl_rel));
+	styles.emplace("lv_style_btn_tgl_pr", Style::ToJSON(lv_style_btn_tgl_pr));
+	styles.emplace("lv_style_btn_ina", Style::ToJSON(lv_style_btn_ina));
 }
 
 void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)

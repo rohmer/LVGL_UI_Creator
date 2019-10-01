@@ -39,7 +39,7 @@ namespace Serialization
 		for(int i=0; i<_LV_BTN_STATE_NUM; i++)
 		{
 			lv_style_t *sty = (lv_style_t*)ext->styles_btn[i];
-			j["btnStyles"][i] = Style::Serialize(*sty);
+			j["btnStyles"][i] = Style::ToJSON(*sty);
 		}
 		
 		return j;
@@ -98,37 +98,37 @@ namespace Serialization
 				{
 				case 0:
 				{
-					const lv_style_t style = Serialization::Style::Deserialize(j["btnm"]["btnStyles"][i]);
+					const lv_style_t style = Serialization::Style::FromJSON(j["btnm"]["btnStyles"][i]);
 					lv_btnm_set_style(btnm, LV_BTNM_STYLE_BG, &style);
 					break;
 				}
 				case 1:
 				{
-					const lv_style_t style = Serialization::Style::Deserialize(j["btnm"]["btnStyles"][i]);
+					const lv_style_t style = Serialization::Style::FromJSON(j["btnm"]["btnStyles"][i]);
 					lv_btnm_set_style(btnm, LV_BTNM_STYLE_BTN_REL, &style);
 					break;
 				}
 				case 2:
 				{
-					const lv_style_t style = Serialization::Style::Deserialize(j["btnm"]["btnStyles"][i]);
+					const lv_style_t style = Serialization::Style::FromJSON(j["btnm"]["btnStyles"][i]);
 					lv_btnm_set_style(btnm, LV_BTNM_STYLE_BTN_PR, &style);
 					break;
 				}
 				case 3:
 				{
-					const lv_style_t style = Serialization::Style::Deserialize(j["btnm"]["btnStyles"][i]);
+					const lv_style_t style = Serialization::Style::FromJSON(j["btnm"]["btnStyles"][i]);
 					lv_btnm_set_style(btnm, LV_BTNM_STYLE_BTN_TGL_REL, &style);
 					break;
 				}
 				case 4:
 				{
-					const lv_style_t style = Serialization::Style::Deserialize(j["btnm"]["btnStyles"][i]);
+					const lv_style_t style = Serialization::Style::FromJSON(j["btnm"]["btnStyles"][i]);
 					lv_btnm_set_style(btnm, LV_BTNM_STYLE_BTN_TGL_PR, &style);
 					break;
 				}
 				case 5:
 				{
-					const lv_style_t style = Serialization::Style::Deserialize(j["btnm"]["btnStyles"][i]);
+					const lv_style_t style = Serialization::Style::FromJSON(j["btnm"]["btnStyles"][i]);
 					lv_btnm_set_style(btnm, LV_BTNM_STYLE_BTN_INA, &style);
 					break;
 				}

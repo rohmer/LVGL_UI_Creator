@@ -1,7 +1,7 @@
 #include "LVFont.h"
 namespace Serialization
 {
-	json LVFont::ToJSON(lv_font_t& font)
+	json LVFont::ToJSON(const lv_font_t font)
 	{
 		json j;
 		j["baseLine"] = font.base_line;

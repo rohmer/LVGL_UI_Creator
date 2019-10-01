@@ -2,7 +2,7 @@
 
 namespace Serialization
 {
-	json LVFontDsc::ToJSON(lv_font_fmt_txt_dsc_t &fontDsc, lv_font_t &font)
+	json LVFontDsc::ToJSON(lv_font_fmt_txt_dsc_t &fontDsc, const lv_font_t font)
 	{
 		json j;
 		j["bitmapFmt"] = (int)fontDsc.bitmap_format;

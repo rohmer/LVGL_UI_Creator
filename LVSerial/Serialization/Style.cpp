@@ -2,62 +2,62 @@
 
 namespace Serialization
 {
-	json Style::Serialize(lv_style_t &style)
+	json Style::ToJSON(lv_style_t &style)
 	{
 		std::string name = "";
-		if (styleComp(style, lv_style_btn_pr))
+		if (StyleComp(style, lv_style_btn_pr))
 		{
 			name = "lv_style_btn_pr";
 		}
-		if (styleComp(style, lv_style_scr))
+		if (StyleComp(style, lv_style_scr))
 		{
 			name = "lv_style_scr";
 		}
-		if (styleComp(style, lv_style_transp))
+		if (StyleComp(style, lv_style_transp))
 		{
 			name = "lv_style_transp";
 		}
-		if (styleComp(style, lv_style_transp_fit))
+		if (StyleComp(style, lv_style_transp_fit))
 		{
 			name = "lv_style_transp_fit";
 		}
-		if (styleComp(style, lv_style_transp_tight))
+		if (StyleComp(style, lv_style_transp_tight))
 		{
 			name = "lv_style_transp_tight";
 		}
-		if (styleComp(style, lv_style_plain))
+		if (StyleComp(style, lv_style_plain))
 		{
 			name = "lv_style_plain";
 		}
-		if (styleComp(style, lv_style_plain_color))
+		if (StyleComp(style, lv_style_plain_color))
 		{
 			name = "lv_style_plain_color";
 		}
-		if (styleComp(style, lv_style_pretty_color))
+		if (StyleComp(style, lv_style_pretty_color))
 		{
 			name = "lv_style_pretty_color";
 		}
-		if (styleComp(style, lv_style_pretty))
+		if (StyleComp(style, lv_style_pretty))
 		{
 			name = "lv_style_pretty";
 		}
-		if (styleComp(style, lv_style_btn_ina))
+		if (StyleComp(style, lv_style_btn_ina))
 		{
 			name = "lv_style_btn_ina";
 		}
-		if (styleComp(style, lv_style_btn_pr))
+		if (StyleComp(style, lv_style_btn_pr))
 		{
 			name = "lv_style_btn_pr";
 		}
-		if (styleComp(style, lv_style_btn_rel))
+		if (StyleComp(style, lv_style_btn_rel))
 		{
 			name = "lv_style_btn_rel";
 		}
-		if (styleComp(style, lv_style_btn_tgl_pr))
+		if (StyleComp(style, lv_style_btn_tgl_pr))
 		{
 			name = "lv_style_btn_tgl_pr";
 		}
-		if (styleComp(style, lv_style_btn_tgl_rel))
+		if (StyleComp(style, lv_style_btn_tgl_rel))
 		{
 			name = "lv_style_btn_tgl_rel";
 		}
@@ -69,18 +69,15 @@ namespace Serialization
 			ss << "Style_" << (rand() % 65536);
 			name = ss.str();
 		}
-		return Serialize(style, name);		
+		return ToJSON(style, name);		
 	}
 	
-	json Style::Serialize(lv_style_t &style, std::string name)
+	json Style::ToJSON(lv_style_t &style, std::string name)
 	{
 		json j;
 
 		j["name"] = name;
-		bool glass = false;
-		if (style.glass == 1)
-			glass = true;
-		j["glass"] = glass;
+		j["glass"] = (uint8_t)style.glass;
 		j["body"]["border"]["color"] = style.body.border.color.full;
 		j["body"]["border"]["opa"] = style.body.border.opa;
 		j["body"]["border"]["part"] = style.body.border.part;
@@ -106,7 +103,8 @@ namespace Serialization
 		j["line"]["width"] = style.line.width;
 		j["text"]["color"]=style.text.color.full;
 		//TODO: Deal with fonts correctly
-		//j["text"]["font"] = (std::string)typeid(style.text.font).name;
+		const lv_font_t font = *style.text.font;
+		j["text"]["font"] = LVFont::ToJSON(font);
 		j["text"]["letter_space"] = style.text.letter_space;
 		j["text"]["line_space"] = style.text.line_space;
 		j["text"]["opa"] = style.text.opa;
@@ -115,14 +113,10 @@ namespace Serialization
 		return j;
 	}
 
-	lv_style_t Style::Deserialize(json j)
+	lv_style_t Style::FromJSON(json j)
 	{
 		lv_style_t style;
-		if (j["glass"] == true)
-			style.glass = true;
-		else
-			style.glass = false;		
-
+		style.glass = j["glass"];
 		style.body.border.color.full= j["body"]["border"]["color"];
 		style.body.border.opa=j["body"]["border"]["opa"];
 		style.body.border.part=j["body"]["border"]["part"];
@@ -148,7 +142,7 @@ namespace Serialization
 		style.line.width=j["line"]["width"];
 		style.text.color.full=j["text"]["color"];
 		//TODO: Deal with fonts correctly
-		//j["text"]["font"] = typeid(style.text.font).name;
+		//style.text.font=const_cast<lv_font_t*>(&LVFont::FromJSON(j["text"]["font"]));
 		style.text.letter_space=j["text"]["letter_space"];
 		style.text.line_space=j["text"]["line_space"];
 		style.text.opa=j["text"]["opa"];
@@ -157,7 +151,7 @@ namespace Serialization
 		return style;
 	}
 
-	bool Style::styleComp(lv_style_t& st1, lv_style_t& st2)
+	bool Style::StyleComp(lv_style_t st1, lv_style_t st2)
 	{
 		if ((st1.body.border.color.full == st2.body.border.color.full)
 			&& (st1.body.border.opa == st2.body.border.opa)
@@ -166,7 +160,6 @@ namespace Serialization
 			&& (st1.body.grad_color.full == st2.body.grad_color.full)
 			&& (st1.body.main_color.full == st2.body.main_color.full)
 			&& (st1.body.opa == st2.body.opa)
-			&& (st1.body.padding.bottom == st2.body.padding.bottom)
 			&& (st1.body.padding.bottom == st2.body.padding.bottom)
 			&& (st1.body.padding.left == st2.body.padding.left)
 			&& (st1.body.padding.right == st2.body.padding.right)
@@ -183,9 +176,6 @@ namespace Serialization
 			&& (st1.line.rounded == st2.line.rounded)
 			&& (st1.line.width == st2.line.width)
 			&& (st1.text.color.full == st2.text.color.full)
-			&& (st1.text.font->base_line == st2.text.font->base_line)
-			&& (st1.text.font->dsc == st2.text.font->dsc)
-			&& (st1.text.font->line_height == st2.text.font->line_height)
 			&& (st1.text.letter_space == st2.text.letter_space)
 			&& (st1.text.line_space == st2.text.line_space)
 			&& (st1.text.opa == st2.text.opa)

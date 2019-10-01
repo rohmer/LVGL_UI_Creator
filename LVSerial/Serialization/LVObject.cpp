@@ -49,7 +49,7 @@ namespace Serialization
 #endif
 		lv_style_t* sp = const_cast<lv_style_t*>(object->style_p);
 		if (sp != nullptr)
-			j["style"] = Style::Serialize(*sp);
+			j["style"] = Style::ToJSON(*sp);
 
 		if (object->top == 1)
 			j["top"] = true;
@@ -98,7 +98,7 @@ namespace Serialization
 		if (j["style"].is_object())
 		{
 			lv_style_t style;
-			style = Style::Deserialize(j["style"]);
+			style = Style::FromJSON(j["style"]);
 			widget->style_p = &style;
 		}
 		if (j["coords"].is_object())

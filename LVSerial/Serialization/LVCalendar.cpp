@@ -41,39 +41,39 @@ namespace Serialization
 		}
 
 		lv_style_t* styleBG = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_BG);
-		json jBG = Serialization::Style::Serialize(*styleBG);
+		json jBG = Serialization::Style::ToJSON(*styleBG);
 		j["cal"]["styleBG"]["body"] = jBG["body"];
 		j["cal"]["styleBG"]["text"] = jBG["text"];
 
 		lv_style_t* styleHead = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_HEADER);
-		json jHead = Serialization::Style::Serialize(*styleHead);
+		json jHead = Serialization::Style::ToJSON(*styleHead);
 		j["cal"]["styleHead"]["bodt"] = jHead["body"];
 		j["cal"]["styleHead"]["text"] = jHead["text"];
 
 		lv_style_t* styleHeadPR = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_HEADER_PR);
-		json jHeadPR = Serialization::Style::Serialize(*styleHeadPR);
+		json jHeadPR = Serialization::Style::ToJSON(*styleHeadPR);
 		j["cal"]["styleHeadPR"]["body"] = jHeadPR["body"];
 		j["cal"]["styleHeadPR"]["text"] = jHeadPR["text"];
 
 		lv_style_t* styleDayN = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_DAY_NAMES);
-		json jDN = Serialization::Style::Serialize(*styleDayN);
+		json jDN = Serialization::Style::ToJSON(*styleDayN);
 		j["cal"]["styleDayName"]["body"] = jDN["body"];
 		j["cal"]["styleDayName"]["text"] = jDN["text"];
 
 		lv_style_t* styleHDay = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_HIGHLIGHTED_DAYS);
-		json jHD = Serialization::Style::Serialize(*styleHDay);
+		json jHD = Serialization::Style::ToJSON(*styleHDay);
 		j["cal"]["styleHDay"]["text"] = jHD["text"];
 
 		lv_style_t* styleIDay = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_INACTIVE_DAYS);
-		json jID = Serialization::Style::Serialize(*styleIDay);
+		json jID = Serialization::Style::ToJSON(*styleIDay);
 		j["cal"]["styleInaDay"]["text"] = jID["text"];
 
 		lv_style_t* styleWeekBox = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_WEEK_BOX);
-		json jWB = Serialization::Style::Serialize(*styleWeekBox);
+		json jWB = Serialization::Style::ToJSON(*styleWeekBox);
 		j["cal"]["styleWeekBox"]["body"] = jWB["body"];
 
 		lv_style_t* styleTodayBox = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_TODAY_BOX);
-		json jTB = Serialization::Style::Serialize(*styleTodayBox);
+		json jTB = Serialization::Style::ToJSON(*styleTodayBox);
 		j["cal"]["styleTodayBox"]["body"] = jTB["body"];
 		j["cal"]["styleTodayBox"]["text"] = jTB["text"];
 
@@ -143,42 +143,42 @@ namespace Serialization
 
 			if (j["cal"]["styleBG"].is_object())
 			{
-				static lv_style_t bgStyle=Style::Deserialize(j["cal"]["styleBG"]);
+				static lv_style_t bgStyle=Style::FromJSON(j["cal"]["styleBG"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_BG, &bgStyle);
 			}
 			if (j["cal"]["styleHead"].is_object())
 			{
-				static lv_style_t headStyle = Style::Deserialize(j["cal"]["styleHead"]);
+				static lv_style_t headStyle = Style::FromJSON(j["cal"]["styleHead"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_HEADER, &headStyle);
 			}
 			if (j["cal"]["styleHeadPR"].is_object())
 			{
-				static lv_style_t headPRStyle = Style::Deserialize(j["cal"]["styleHeadPR"]);
+				static lv_style_t headPRStyle = Style::FromJSON(j["cal"]["styleHeadPR"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_HEADER_PR, &headPRStyle);
 			}
 			if (j["cal"]["styleDayName"].is_object())
 			{
-				static lv_style_t dayNameStyle = Style::Deserialize(j["cal"]["styleDayName"]);
+				static lv_style_t dayNameStyle = Style::FromJSON(j["cal"]["styleDayName"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_DAY_NAMES, &dayNameStyle);
 			}
 			if (j["cal"]["styleHDay"].is_object())
 			{
-				static lv_style_t hDayStyle = Style::Deserialize(j["cal"]["styleHDay"]);
+				static lv_style_t hDayStyle = Style::FromJSON(j["cal"]["styleHDay"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_HIGHLIGHTED_DAYS, &hDayStyle);
 			}
 			if (j["cal"]["styleInaDay"].is_object())
 			{
-				static lv_style_t inDay = Style::Deserialize(j["cal"]["styleInaDay"]);
+				static lv_style_t inDay = Style::FromJSON(j["cal"]["styleInaDay"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_INACTIVE_DAYS, &inDay);
 			}
 			if (j["cal"]["styleWeekBox"].is_object())
 			{
-				static lv_style_t weekBox = Style::Deserialize(j["cal"]["styleWeekBox"]);
+				static lv_style_t weekBox = Style::FromJSON(j["cal"]["styleWeekBox"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_WEEK_BOX, &weekBox);
 			}
 			if (j["cal"]["styleTodayBox"].is_object())
 			{
-				static lv_style_t todayBox = Style::Deserialize(j["cal"]["styleTodayBox"]);
+				static lv_style_t todayBox = Style::FromJSON(j["cal"]["styleTodayBox"]);
 				lv_calendar_set_style(cal, LV_CALENDAR_STYLE_WEEK_BOX, &todayBox);
 			}
 		}

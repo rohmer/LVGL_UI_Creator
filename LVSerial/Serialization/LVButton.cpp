@@ -14,11 +14,11 @@ namespace Serialization
 		auto tglPrStyle = (lv_style_t*)lv_btn_get_style(button, LV_BTN_STYLE_TGL_PR);
 		auto tglRelStyle = (lv_style_t*)lv_btn_get_style(button, LV_BTNM_STYLE_BTN_TGL_REL);
 
-		j["button"]["styles"]["rel"] = Style::Serialize(*relStyle);
-		j["button"]["styles"]["ina"] = Style::Serialize(*inStyle);
-		j["button"]["styles"]["pr"] = Style::Serialize(*prStyle);
-		j["button"]["styles"]["tglPr"] = Style::Serialize(*tglPrStyle);
-		j["button"]["styles"]["tglRel"] = Style::Serialize(*tglRelStyle);
+		j["button"]["styles"]["rel"] = Style::ToJSON(*relStyle);
+		j["button"]["styles"]["ina"] = Style::ToJSON(*inStyle);
+		j["button"]["styles"]["pr"] = Style::ToJSON(*prStyle);
+		j["button"]["styles"]["tglPr"] = Style::ToJSON(*tglPrStyle);
+		j["button"]["styles"]["tglRel"] = Style::ToJSON(*tglRelStyle);
 		j["button"]["toggle"] = lv_btn_get_toggle(button);
 		j["button"]["layout"] = lv_btn_get_layout(button);
 		j["button"]["fit"]["0"] = lv_btn_get_fit_bottom(button);
@@ -140,27 +140,27 @@ namespace Serialization
 		{
 			if(bj["styles"]["rel"].is_object())
 			{
-				const lv_style_t* style = &Style::Deserialize(bj["styles"]["rel"]);
+				const lv_style_t* style = &Style::FromJSON(bj["styles"]["rel"]);
 				lv_btn_set_style(button, LV_BTN_STYLE_REL, style);
 			}
 			if (bj["styles"]["ina"].is_object())
 			{
-				const lv_style_t* style = &Style::Deserialize(bj["styles"]["ina"]);
+				const lv_style_t* style = &Style::FromJSON(bj["styles"]["ina"]);
 				lv_btn_set_style(button, LV_BTN_STYLE_INA, style);
 			}
 			if (bj["styles"]["pr"].is_object())
 			{
-				const lv_style_t* style = &Style::Deserialize(bj["styles"]["pr"]);
+				const lv_style_t* style = &Style::FromJSON(bj["styles"]["pr"]);
 				lv_btn_set_style(button, LV_BTN_STYLE_PR, style);
 			}
 			if (bj["styles"]["tglPr"].is_object())
 			{
-				const lv_style_t* style = &Style::Deserialize(bj["styles"]["tglPr"]);
+				const lv_style_t* style = &Style::FromJSON(bj["styles"]["tglPr"]);
 				lv_btn_set_style(button, LV_BTN_STYLE_TGL_PR, style);
 			}
 			if (bj["styles"]["tglRel"].is_object())
 			{
-				const lv_style_t* style = &Style::Deserialize(bj["styles"]["tglRel"]);
+				const lv_style_t* style = &Style::FromJSON(bj["styles"]["tglRel"]);
 				lv_btn_set_style(button, LV_BTN_STYLE_TGL_REL, style);
 			}
 		}
