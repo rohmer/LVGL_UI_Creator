@@ -12,7 +12,7 @@ namespace Serialization
 	{
 	public:
 		static json ToJSON(lv_font_fmt_txt_cmap_t  &cmap);
-		static lv_font_fmt_txt_cmap_t &FromJSON(json j);
+		static lv_font_fmt_txt_cmap_t FromJSON(json j);
 
 	};
 }

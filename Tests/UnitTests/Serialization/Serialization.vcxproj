@@ -132,6 +132,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Area.cpp" />
     <ClCompile Include="Realign.cpp" />
