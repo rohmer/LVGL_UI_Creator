@@ -76,7 +76,8 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../../../LVSerial;../../../3rdParty/catch2/single_include/catch2;../../../lvgl</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../3rdParty/LVGL;$(ProjectDir)../../../LVSerial;$(ProjectDir)../../../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../../../3rdParty/Catch2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +133,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Arc.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Area.cpp" />

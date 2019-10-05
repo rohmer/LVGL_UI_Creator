@@ -57,6 +57,7 @@ namespace Serialization
 			{
 				ul.push_back(*it);
 			}
+			cmap.unicode_list = new uint16_t[ul.size()];
 			cmap.unicode_list = &ul[0];
 		}
 

@@ -14,7 +14,7 @@ namespace Serialization
 	{
 	public:
 		static json ToJSON(lv_font_fmt_txt_dsc_t &fontDsc, int kernClasses);
-		static lv_font_fmt_txt_dsc_t* FromJSON(json j);
+		static lv_font_fmt_txt_dsc_t FromJSON(lv_font_fmt_txt_dsc_t& fontDsc, int kernClasses, json j);
 
 	};
 }

@@ -3,7 +3,7 @@
 #include <string>
 #include <map>
 #include "../../3rdParty/JSON/json.hpp"
-#include "lvgl/lvgl.h"
+#include "../../3rdParty/LVGL/lvgl/lvgl.h"
 
 #include "Style.h"
 #include "Area.h"

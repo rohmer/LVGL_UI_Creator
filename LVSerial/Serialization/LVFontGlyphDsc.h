@@ -9,7 +9,7 @@ namespace Serialization
 	{
 	public:
 		static json ToJSON(const lv_font_fmt_txt_glyph_dsc_t &glyphDsc);
-		static lv_font_fmt_txt_dsc_t* FromJSON(json j);
+		static lv_font_fmt_txt_glyph_dsc_t* FromJSON(json j);
 
 	};
 }

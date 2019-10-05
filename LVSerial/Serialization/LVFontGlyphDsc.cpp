@@ -27,9 +27,10 @@ namespace Serialization
 		if (j["box_w"].is_number())
 			gd->box_w = j["box_w"];
 		if (j["ofs_x"].is_number())
-			gd->ofs_x = j["ofx_x"];
+			gd->ofs_x = j["ofs_x"];
 		if (j["ofs_y"].is_number())
-			gd->ofs_y = j["ofx_x"];
-	}
+			gd->ofs_y = j["ofs_y"];
 
+		return gd;
+	}
 }

@@ -30,7 +30,21 @@ namespace Serialization
 			}
 
 			fontDsc.cmap_num = cmapVec.size();
+			fontDsc.cmaps = new lv_font_fmt_txt_cmap_t[cmapVec.size()];
 			fontDsc.cmaps = &cmapVec[0];
+		}
+		int glyphDsc = 0;
+		std::vector<lv_font_fmt_txt_glyph_dsc_t> gd;
+		while(j["GlyphDsc"][glyphDsc].is_object())
+		{
+			gd.push_back(*LVFontGlyphDsc::FromJSON(j["GlyphDsc"][glyphDsc]));
+			glyphDsc++;
+		}
+		fontDsc.glyph_dsc = new lv_font_fmt_txt_glyph_dsc_t[gd.size()];
+		fontDsc.glyph_dsc = &gd[0];
+		if(j["Kern"].is_object())
+		{
+			fontDsc = LVFontKernDSC::FromJSON(fontDsc, fontDsc.kern_classes, j["Kern"]);
 		}
 		return (void*)&fontDsc;
 		
