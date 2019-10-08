@@ -198,9 +198,9 @@ namespace Serialization
 			if (bj["ink"]["in"].is_number())
 				lv_btn_set_ink_in_time(button, bj["ink"]["in"]);
 			if (bj["ink"]["wait"].is_number())
-				lv_btn_set_ink_wait_time(button, bj["ink"]["in"]);
+				lv_btn_set_ink_wait_time(button, bj["ink"]["wait"]);
 			if (bj["ink"]["out"].is_number())
-				lv_btn_set_ink_out_time(button, bj["ink"]["in"]);
+				lv_btn_set_ink_out_time(button, bj["ink"]["out"]);
 		}
 		return button;
 	}
