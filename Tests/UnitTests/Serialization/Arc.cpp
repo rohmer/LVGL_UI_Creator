@@ -30,9 +30,9 @@ TEST_CASE("Deserialize Arc")
 	end = lv_arc_get_angle_end(arc);
 	REQUIRE(start == 25);
 	REQUIRE(end == 125);
-	REQUIRE(style.line.color.ch.blue == 255);
-	REQUIRE(style.line.color.ch.green == 0);
-	REQUIRE(style.line.color.ch.red == 0);
-	REQUIRE(style.line.width == 8);
-	REQUIRE(style.line.rounded == 1);
+	REQUIRE(newStyle->line.color.ch.blue == 255);
+	REQUIRE(newStyle->line.color.ch.green == 0);
+	REQUIRE(newStyle->line.color.ch.red == 0);
+	REQUIRE(newStyle->line.width == 8);
+	REQUIRE(newStyle->line.rounded == 1);
 }

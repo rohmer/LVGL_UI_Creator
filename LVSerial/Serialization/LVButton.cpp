@@ -19,12 +19,12 @@ namespace Serialization
 		j["button"]["styles"]["pr"] = Style::ToJSON(*prStyle);
 		j["button"]["styles"]["tglPr"] = Style::ToJSON(*tglPrStyle);
 		j["button"]["styles"]["tglRel"] = Style::ToJSON(*tglRelStyle);
-		j["button"]["toggle"] = lv_btn_get_toggle(button);
+		j["button"]["toggle"] = lv_btn_get_toggle(button);		
 		j["button"]["layout"] = lv_btn_get_layout(button);
-		j["button"]["fit"]["0"] = lv_btn_get_fit_bottom(button);
-		j["button"]["fit"]["1"] = lv_btn_get_fit_left(button);
-		j["button"]["fit"]["2"] = lv_btn_get_fit_top(button);
-		j["button"]["fit"]["3"] = lv_btn_get_fit_right(button);
+		j["button"]["fit"]["bottom"] = lv_btn_get_fit_bottom(button);
+		j["button"]["fit"]["left"] = lv_btn_get_fit_left(button);
+		j["button"]["fit"]["top"] = lv_btn_get_fit_top(button);
+		j["button"]["fit"]["right"] = lv_btn_get_fit_right(button);
 		j["button"]["ink"]["in"] = lv_btn_get_ink_in_time(button);
 		j["button"]["ink"]["wait"] = lv_btn_get_ink_wait_time(button);
 		j["button"]["ink"]["out"] = lv_btn_get_ink_out_time(button);
@@ -47,7 +47,7 @@ namespace Serialization
 			lv_btn_set_ink_out_time(obj, value);
 			return true;
 		}
-		if (key == "/button/fit/3")
+		if (key == "/button/fit/right")
 		{
 			int bottom = lv_btn_get_fit_bottom(obj);
 			int left = lv_btn_get_fit_left(obj);
@@ -56,7 +56,7 @@ namespace Serialization
 			lv_btn_set_fit4(obj, left, value, top, bottom);
 			return true;
 		}
-		if (key == "/button/fit/2")
+		if (key == "/button/fit/top")
 		{
 			int bottom = lv_btn_get_fit_bottom(obj);
 			int left = lv_btn_get_fit_left(obj);
@@ -65,7 +65,7 @@ namespace Serialization
 			lv_btn_set_fit4(obj, left, right, value, bottom);
 			return true;
 		}
-		if (key == "/button/fit/1")
+		if (key == "/button/fit/left")
 		{
 			int bottom = lv_btn_get_fit_bottom(obj);
 			int left = lv_btn_get_fit_left(obj);
@@ -74,7 +74,7 @@ namespace Serialization
 			lv_btn_set_fit4(obj, value, right, top, bottom);
 			return true;
 		}
-		if(key=="/button/fit/0")
+		if(key=="/button/fit/bottom")
 		{
 			int bottom = lv_btn_get_fit_bottom(obj);
 			int left = lv_btn_get_fit_left(obj);
@@ -168,28 +168,28 @@ namespace Serialization
 		{
 			lv_btn_set_toggle(button, bj["toggle"]);
 		}
-		if (bj["layout"])
+		if (bj["layout"].is_number())
 		{
 			lv_btn_set_layout(button, bj["layout"]);
 		}
 		if (bj["fit"].is_object())
 		{
 			int b = 0, l = 0, t = 0, r = 0;
-			if (bj["fit"]["0"].is_number())
+			if (bj["fit"]["bottom"].is_number())
 			{
-				b = bj["fit"]["0"];
+				b = bj["fit"]["bottom"];
 			}
-			if (bj["fit"]["1"].is_number())
+			if (bj["fit"]["left"].is_number())
 			{
-				l = bj["fit"]["1"];
+				l = bj["fit"]["left"];
 			}
-			if (bj["fit"]["2"].is_number())
+			if (bj["fit"]["top"].is_number())
 			{
-				t = bj["fit"]["2"];
+				t = bj["fit"]["top"];
 			}
-			if (bj["fit"]["3"].is_number())
+			if (bj["fit"]["right"].is_number())
 			{
-				r = bj["fit"]["3"];
+				r = bj["fit"]["right"];
 			}
 			lv_btn_set_fit4(button, l, r, t, b);
 		}

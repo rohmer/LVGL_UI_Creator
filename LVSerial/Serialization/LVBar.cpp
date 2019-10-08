@@ -10,7 +10,7 @@ namespace Serialization
 		j["bar"]["range"]["max"] = lv_bar_get_max_value(bar);
 		j["bar"]["range"]["min"] = lv_bar_get_min_value(bar);
 		j["bar"]["animT"] = lv_bar_get_anim_time(bar);
-		j["bar"]["symmetrical"] = lv_bar_get_sym(bar);
+		j["bar"]["sym"] = lv_bar_get_sym(bar);
 		auto bgStyle = (lv_style_t*)lv_bar_get_style(bar, LV_BAR_STYLE_BG);
 		auto inStyle = (lv_style_t*)lv_bar_get_style(bar, LV_BAR_STYLE_INDIC);
 		j["bar"]["styleBG"] = Style::ToJSON(*bgStyle);
@@ -84,6 +84,10 @@ namespace Serialization
 					min = barJ["range"]["min"].get<int>();
 				}
 				lv_bar_set_range(bar, min, max);
+			}
+			if(barJ["sym"].is_boolean())
+			{
+				lv_bar_set_sym(bar, barJ["sym"]);
 			}
 			if(barJ["animT"].is_number())
 			{
