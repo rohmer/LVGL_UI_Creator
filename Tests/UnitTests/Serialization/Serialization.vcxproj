@@ -137,6 +137,7 @@
     <ClCompile Include="Arc.cpp" />
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="ButtonMatrix.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Area.cpp" />

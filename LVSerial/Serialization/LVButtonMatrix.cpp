@@ -8,7 +8,6 @@ namespace Serialization
 		j["base"] = LVObject::ToJSON(btnm);
         lv_btnm_ext_t * ext =(lv_btnm_ext_t*) lv_obj_get_ext_attr(btnm);
         int btnCnt = ext->btn_cnt;
-        json bj = j["btnm"];
 		int buttonCt = ext->btn_cnt;
 		const char **ma = ext->map_p;
 		int ctr=0;
@@ -18,28 +17,28 @@ namespace Serialization
 			const char *p = *ma;
 			while(strlen(p)>0)
 			{
-				j["btnMap"][ctr] = p;
+				j["btnm"]["btnMap"][ctr] = p;
 				p++;
 				ctr++;
 			}
-			ma++;
+			ma++; 
 		}
-		for(int i=0; i<buttonCt; i++)
+		for(int i=0; i<buttonCt*sizeof(lv_btnm_ctrl_t); i++)
 		{
-			j["ctrl"][i] = ext->ctrl_bits[i];
+			j["btnm"]["ctrl"][i] = ext->ctrl_bits[i];
 		}
 		if (ext->recolor == 1)
-			j["recolor"] = true;
+			j["btnm"]["recolor"] = true;
 		else
-			j["recolor"] = false;
+			j["btnm"]["recolor"] = false;
 		if (ext->one_toggle == 1)
-			j["oneToggle"] = true;
+			j["btnm"]["oneToggle"] = true;
 		else
-			j["oneToggle"] = false;
+			j["btnm"]["oneToggle"] = false;
 		for(int i=0; i<_LV_BTN_STATE_NUM; i++)
 		{
 			lv_style_t *sty = (lv_style_t*)ext->styles_btn[i];
-			j["btnStyles"][i] = Style::ToJSON(*sty);
+			j["btnm"]["btnStyles"][i] = Style::ToJSON(*sty);
 		}
 		
 		return j;
@@ -55,25 +54,38 @@ namespace Serialization
 
 		if (j["btnm"]["btnMap"].is_array())
 		{
-			std::vector<const char*> btnNames;
+			std::vector<std::string> btnNames;
 			int i = 0;
-			while (j["btnm"]["btnMap"][i].is_object())
+			while (j["btnm"]["btnMap"][i].is_string())
 			{
-				btnNames.push_back(const_cast<char*>(j["btnm"]["btnMap"][i].get<std::string>().c_str()));
+				btnNames.push_back(j["btnm"]["btnMap"][i].get<std::string>());
 				i++;
 			}
-			lv_btnm_set_map(btnm, &btnNames[0]);
+			if (i > 0)
+			{
+				static std::vector<const char*> cstr ;
+				cstr.reserve(btnNames.size());
+				for (size_t i = 0; i < btnNames.size(); ++i)
+					cstr.push_back(const_cast<char*>(btnNames[i].c_str()));
+				cstr.push_back("");
+				lv_btnm_set_map(btnm, &cstr[0]);
+			}
 		}
+		std::stringstream ss;
+		ss << j.dump();
+		std::string s = ss.str();
 		if (j["btnm"]["ctrl"].is_array())
 		{
 			int i = 0;
-			std::vector<lv_btnm_ctrl_t> ctrlMap;
-			while (j["btnm"]["ctrl"][i].is_object())
+			static std::vector<lv_btnm_ctrl_t> ctrlMap;
+			while (j["btnm"]["ctrl"][i].is_number())
 			{
 				ctrlMap.push_back(j["btnm"]["ctrl"][i].get<uint16_t>());
+				i++;
 			}
+		
 
-			lv_btnm_set_ctrl_map(btnm, &ctrlMap[0]);
+			lv_btnm_set_ctrl_map(btnm,	&ctrlMap[0]);
 		}
 		if (j["btnm"]["recolor"].is_boolean())
 		{
@@ -85,7 +97,7 @@ namespace Serialization
 		if (j["btnm"]["oneToggle"].is_boolean())
 		{
 			if (j["btnm"]["oneToggle"].get<bool>())
-				lv_btnm_set_one_toggle(btnm, true);
+				lv_btnm_set_one_toggle(btnm, true);	   
 			else
 				lv_btnm_set_one_toggle(btnm, false);
 		}
@@ -133,6 +145,7 @@ namespace Serialization
 					break;
 				}
 				}
+				i++;
 			}
 		}
 		return btnm;
