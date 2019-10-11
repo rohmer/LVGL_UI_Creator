@@ -127,19 +127,23 @@
   <ItemGroup>
     <ClInclude Include="Serialization\Area.h" />
     <ClInclude Include="Serialization\Base64.h" />
+    <ClInclude Include="Serialization\lodepng.h" />
     <ClInclude Include="Serialization\LVArc.h" />
     <ClInclude Include="Serialization\LVBar.h" />
     <ClInclude Include="Serialization\LVButton.h" />
     <ClInclude Include="Serialization\LVButtonMatrix.h" />
     <ClInclude Include="Serialization\LVCalendar.h" />
     <ClInclude Include="Serialization\LVCanvas.h" />
+    <ClInclude Include="Serialization\LVCheckBox.h" />
     <ClInclude Include="Serialization\LVFont.h" />
     <ClInclude Include="Serialization\LVFontCMap.h" />
     <ClInclude Include="Serialization\LVFontDsc.h" />
     <ClInclude Include="Serialization\LVFontGlyphDsc.h" />
     <ClInclude Include="Serialization\LVFontKernDSC.h" />
+    <ClInclude Include="Serialization\LVImage.h" />
     <ClInclude Include="Serialization\LVLabel.h" />
     <ClInclude Include="Serialization\LVObject.h" />
+    <ClInclude Include="Serialization\PNGToArray.h" />
     <ClInclude Include="Serialization\Realign.h" />
     <ClInclude Include="Serialization\Screen.h" />
     <ClInclude Include="Serialization\Serializers.h" />
@@ -147,19 +151,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Serialization\Base64.cpp" />
+    <ClCompile Include="Serialization\lodepng.cpp" />
     <ClCompile Include="Serialization\LVArc.cpp" />
     <ClCompile Include="Serialization\LVBar.cpp" />
     <ClCompile Include="Serialization\LVButton.cpp" />
     <ClCompile Include="Serialization\LVButtonMatrix.cpp" />
     <ClCompile Include="Serialization\LVCalendar.cpp" />
     <ClCompile Include="Serialization\LVCanvas.cpp" />
+    <ClCompile Include="Serialization\LVCheckBox.cpp" />
     <ClCompile Include="Serialization\LVFont.cpp" />
     <ClCompile Include="Serialization\LVFontCMap.cpp" />
     <ClCompile Include="Serialization\LVFontDsc.cpp" />
     <ClCompile Include="Serialization\LVFontGlyphDsc.cpp" />
     <ClCompile Include="Serialization\LVFontKernDSC.cpp" />
+    <ClCompile Include="Serialization\LVImage.cpp" />
     <ClCompile Include="Serialization\LVLabel.cpp" />
     <ClCompile Include="Serialization\LVObject.cpp" />
+    <ClCompile Include="Serialization\PNGToArray.cpp" />
     <ClCompile Include="Serialization\Screen.cpp" />
     <ClCompile Include="Serialization\Style.cpp" />
   </ItemGroup>

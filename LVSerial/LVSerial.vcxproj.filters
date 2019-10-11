@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Font">
+      <UniqueIdentifier>{58ed6219-b8f5-40d4-b1f6-4b939ebdc419}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Font">
+      <UniqueIdentifier>{8581c66e-7745-4b0c-8637-df9090f024ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Serialization\Area.h">
@@ -39,21 +45,6 @@
     <ClInclude Include="Serialization\LVCanvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\LVFont.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontCMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontDsc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontGlyphDsc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontKernDSC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Serialization\LVLabel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +61,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Serialization\Style.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\PNGToArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFont.h">
+      <Filter>Header Files\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontCMap.h">
+      <Filter>Header Files\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontDsc.h">
+      <Filter>Header Files\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontGlyphDsc.h">
+      <Filter>Header Files\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVFontKernDSC.h">
+      <Filter>Header Files\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\LVCheckBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,21 +113,6 @@
     <ClCompile Include="Serialization\LVCanvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\LVFont.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontCMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontDsc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontKernDSC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Serialization\LVLabel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +123,33 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\Style.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\PNGToArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontKernDSC.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFont.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontCMap.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontDsc.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\LVCheckBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

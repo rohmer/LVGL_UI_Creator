@@ -116,37 +116,66 @@ namespace Serialization
 	lv_style_t Style::FromJSON(json j)
 	{
 		lv_style_t style;
-		style.glass = j["glass"];
-		style.body.border.color.full= j["body"]["border"]["color"];
-		style.body.border.opa=j["body"]["border"]["opa"];
-		style.body.border.part=j["body"]["border"]["part"];
-		style.body.border.width=j["body"]["border"]["width"];
-		style.body.grad_color.full=j["body"]["gradColor"];
-		style.body.main_color.full=j["body"]["main_color"];
-		style.body.opa=j["body"]["opa"];
+		if(j["glass"].is_number())
+			style.glass = j["glass"];
+		if(j["body"]["border"]["color"].is_number())
+			style.body.border.color.full= j["body"]["border"]["color"];
+		if(j["body"]["border"]["opa"].is_number())
+			style.body.border.opa=j["body"]["border"]["opa"];
+		if(j["body"]["border"]["part"].is_number())
+			style.body.border.part=j["body"]["border"]["part"];
+		if(j["body"]["border"]["width"].is_number())
+			style.body.border.width=j["body"]["border"]["width"];
+		if(j["body"]["gradColor"].is_number())
+			style.body.grad_color.full=j["body"]["gradColor"];
+		if (j["body"]["main_color"].is_number())
+			style.body.main_color.full=j["body"]["main_color"];
+		if (j["body"]["opa"].is_number())
+			style.body.opa=j["body"]["opa"];
+		if (j["body"]["padding"]["bottom"].is_number())
 		style.body.padding.bottom=j["body"]["padding"]["bottom"];
-		style.body.padding.inner=j["body"]["padding"]["inner"];
-		style.body.padding.left=j["body"]["padding"]["left"];
-		style.body.padding.right=j["body"]["padding"]["right"];
-		style.body.padding.top=j["body"]["padding"]["top"];
-		style.body.radius=j["body"]["radius"];
-		style.body.shadow.color.full=j["body"]["shadow"]["color"];
-		style.body.shadow.type=j["body"]["shadow"]["type"];
-		style.body.shadow.width=j["body"]["shadow"]["width"];
-		style.image.color.full=j["image"]["color"];
-		style.image.intense=j["image"]["intense"];
-		style.image.opa=j["image"]["opa"];
-		style.line.color.full=j["line"]["color"];
-		style.line.opa=j["line"]["opa"];
-		style.line.rounded=j["line"]["rounded"];
-		style.line.width=j["line"]["width"];
-		style.text.color.full=j["text"]["color"];
+		if (j["body"]["padding"]["inner"].is_number())
+			style.body.padding.inner=j["body"]["padding"]["inner"];
+		if (j["body"]["padding"]["left"].is_number())
+			style.body.padding.left=j["body"]["padding"]["left"];
+		if (j["body"]["padding"]["right"].is_number())
+			style.body.padding.right=j["body"]["padding"]["right"];
+		if (j["body"]["padding"]["top"].is_number())
+			style.body.padding.top=j["body"]["padding"]["top"];
+		if (j["body"]["radius"].is_number())
+			style.body.radius=j["body"]["radius"];
+		if (j["body"]["shadow"]["color"].is_number())
+			style.body.shadow.color.full=j["body"]["shadow"]["color"];
+		if (j["body"]["shadow"]["type"].is_number())
+			style.body.shadow.type=j["body"]["shadow"]["type"];
+		if (j["body"]["shadow"]["width"].is_number())
+			style.body.shadow.width=j["body"]["shadow"]["width"];
+		if (j["image"]["color"].is_number())
+			style.image.color.full=j["image"]["color"];
+		if (j["image"]["intense"].is_number())
+			style.image.intense=j["image"]["intense"];
+		if (j["image"]["opa"].is_number())
+			style.image.opa=j["image"]["opa"];
+		if (j["line"]["color"].is_number())
+			style.line.color.full=j["line"]["color"];
+		if (j["line"]["opa"].is_number())
+			style.line.opa=j["line"]["opa"];
+		if (j["line"]["rounded"].is_number())
+			style.line.rounded=j["line"]["rounded"];
+		if (j["line"]["width"].is_number())
+			style.line.width=j["line"]["width"];
+		if (j["text"]["color"].is_number())
+			style.text.color.full=j["text"]["color"];
 		//TODO: Deal with fonts correctly
 		//style.text.font=const_cast<lv_font_t*>(&LVFont::FromJSON(j["text"]["font"]));
-		style.text.letter_space=j["text"]["letter_space"];
-		style.text.line_space=j["text"]["line_space"];
-		style.text.opa=j["text"]["opa"];
-		style.text.sel_color.full=j["text"]["sel_color"];		
+		if (j["text"]["letter_space"].is_number())
+			style.text.letter_space=j["text"]["letter_space"];
+		if (j["text"]["line_space"].is_number())
+			style.text.line_space=j["text"]["line_space"];
+		if (j["text"]["opa"].is_number())
+			style.text.opa=j["text"]["opa"];
+		if (j["text"]["sel_color"].is_number())
+			style.text.sel_color.full=j["text"]["sel_color"];
 
 		return style;
 	}

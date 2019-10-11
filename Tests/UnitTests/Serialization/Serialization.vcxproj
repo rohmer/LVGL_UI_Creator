@@ -138,11 +138,19 @@
     <ClCompile Include="Bar.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="ButtonMatrix.cpp" />
+    <ClCompile Include="Calendar.cpp" />
+    <ClCompile Include="Canvas.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Area.cpp" />
+    <ClCompile Include="PNGToArray.cpp" />
     <ClCompile Include="Realign.cpp" />
     <ClCompile Include="Style.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Image.png">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

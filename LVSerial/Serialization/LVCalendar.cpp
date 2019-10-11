@@ -1,4 +1,6 @@
 #include "LVCalendar.h"
+static std::vector<const char*> dstrings;
+static std::vector<const char*> mstrings;
 
 namespace Serialization
 {
@@ -8,17 +10,23 @@ namespace Serialization
 		j["base"] = LVObject::ToJSON(cal);
 		const char** dayN = lv_calendar_get_day_names(cal);
 		int ctr = 0;
-		while (*dayN)
+		if (dayN != nullptr)
 		{
-			const char* p = *dayN;
-			while (strlen(p) > 0)
+			const char** ma = dayN;
+			int col = 0;
+			while (ctr<7)
 			{
-				j["cal"]["dayN"][ctr] = p;
-				p++;
-				ctr++;
+				const char* p = *ma;
+				if(p!=nullptr)
+				while (strlen(p) > 0)
+				{
+					j["cal"]["dayN"][ctr] = p;
+					p+=strlen(p);
+					ctr++;
+				}
+				ma++;
 			}
 		}
-
 		uint16_t hDateNum = lv_calendar_get_highlighted_dates_num(cal);
 		lv_calendar_date_t* hDates = lv_calendar_get_highlighted_dates(cal);
 		for (int i = 0; i < hDateNum; i++)
@@ -29,17 +37,25 @@ namespace Serialization
 		}
 		const char** monthN = lv_calendar_get_month_names(cal);
 		ctr = 0;
-		while (*monthN)
+		if (monthN != nullptr)
 		{
-			const char* p = *monthN;
-			while (strlen(p) > 0)
+			const char** ma = monthN;
+			int col = 0;
+			while (ctr <12)
 			{
-				j["cal"]["monthN"][ctr] = p;
-				p++;
-				ctr++;
+				const char* p = *ma;
+				if (p != nullptr)
+					while (strlen(p) > 0)
+					{
+						j["cal"]["monthN"][ctr] = p;
+						p += strlen(p);
+						ctr++;
+					}
+				ma++;
 			}
 		}
-
+		
+			
 		lv_style_t* styleBG = (lv_style_t*)lv_calendar_get_style(cal, LV_CALENDAR_STYLE_BG);
 		json jBG = Serialization::Style::ToJSON(*styleBG);
 		j["cal"]["styleBG"]["body"] = jBG["body"];
@@ -93,23 +109,25 @@ namespace Serialization
 		{
 			if (j["cal"]["dayN"].is_array())
 			{
-				std::vector<std::string> dayNames;
+				static std::vector<std::string> dayNames;
 				for (json::iterator it = j["cal"]["dayN"].begin();
 					it != j["cal"]["dayN"].end();
 					++it)
 				{
 					dayNames.push_back(*it);
 				}
-				std::vector<const char*> cstrings;
-				cstrings.reserve(dayNames.size());
-				for (size_t i = 0; i < dayNames.size(); ++i)
-					cstrings.push_back(const_cast<char*>(dayNames[i].c_str()));
-				lv_calendar_set_day_names(cal, &cstrings[0]);
+				lv_calendar_ext_t* ext = (lv_calendar_ext_t*)lv_obj_get_ext_attr(cal);
+				if (ext->day_names == nullptr)
+					ext->day_names = new const char* [7];
+				for (int i = 0; i < 7; i++)
+					ext->day_names[i] = dayNames[i].c_str();
+				/*for (size_t i = 0; i < dayNames.size(); ++i)
+					ext->day_names[0]=dayNames[i].c_str();				*/
 			}
 
 			if (j["cal"]["hlDates"].is_array())
 			{
-				std::vector<lv_calendar_date_t> hlDates;
+				static std::vector<lv_calendar_date_t> hlDates;
 				int ctr = 0;;
 				while (j["cal"]["hlDates"][ctr].is_object())
 				{
@@ -118,6 +136,7 @@ namespace Serialization
 					calDate.month = j["cal"]["hlDates"][ctr]["month"];
 					calDate.year = j["cal"]["hlDates"][ctr]["year"];
 					hlDates.push_back(calDate);
+					ctr++;
 				}
 				if (!hlDates.empty())
 				{
@@ -127,18 +146,24 @@ namespace Serialization
 
 			if (j["cal"]["monthN"].is_array())
 			{
-				std::vector<std::string> monthNames;
+				static std::vector<std::string> monthNames;
 				int ctr = 0;
-				while (j["cal"]["monthN"][ctr].is_object())
+				while (j["cal"]["monthN"][ctr].is_string())
 				{
 					monthNames.push_back(j["cal"]["monthN"][ctr]);
+					ctr++;
 				}
-				std::vector<const char*> cstrings;
-				cstrings.reserve(monthNames.size());
-				for (size_t i = 0; i < monthNames.size(); ++i)
-					cstrings.push_back(const_cast<char*>(monthNames[i].c_str()));
+				
+				if (!monthNames.empty())
+				{
+					lv_calendar_ext_t* ext = (lv_calendar_ext_t*)lv_obj_get_ext_attr(cal);
+					if (ext->month_names == nullptr)
+						ext->month_names = new const char* [7];
 
-				lv_calendar_set_month_names(cal, &cstrings[0]);
+					for (size_t i = 0; i < monthNames.size(); ++i)
+						ext->month_names[i]=monthNames[i].c_str();
+
+				}
 			}
 
 			if (j["cal"]["styleBG"].is_object())

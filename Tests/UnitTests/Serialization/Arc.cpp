@@ -9,6 +9,7 @@ TEST_CASE("Serialize Arc")
 	json j = Serialization::LVArc::ToJSON(arc);
 	REQUIRE(j["arc"]["angle"]["start"] == 25);
 	REQUIRE(j["arc"]["angle"]["end"] == 125);
+	lv_obj_del(arc);
 }
 
 TEST_CASE("Deserialize Arc")
@@ -35,4 +36,6 @@ TEST_CASE("Deserialize Arc")
 	REQUIRE(newStyle->line.color.ch.red == 0);
 	REQUIRE(newStyle->line.width == 8);
 	REQUIRE(newStyle->line.rounded == 1);
+	lv_obj_del(arc);
+	lv_obj_del(newArc);
 }

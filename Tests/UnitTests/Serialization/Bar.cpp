@@ -14,7 +14,8 @@ TEST_CASE("Serialize Bar")
 	json j = Serialization::LVBar::ToJSON(bar);
 	REQUIRE(j["bar"]["range"]["max"] == 101);
 	REQUIRE(j["bar"]["range"]["min"] == 1);
-	REQUIRE(lv_bar_get_sym(bar) == true);	
+	REQUIRE(lv_bar_get_sym(bar) == true);
+	lv_obj_del(bar);
 }
 
 TEST_CASE("Deserialize Bar")
@@ -32,4 +33,5 @@ TEST_CASE("Deserialize Bar")
 	REQUIRE(lv_bar_get_min_value(bar) == lv_bar_get_min_value(newBar));
 	REQUIRE(lv_bar_get_max_value(bar) == lv_bar_get_max_value(newBar));
 	REQUIRE(lv_bar_get_sym(bar) == lv_bar_get_sym(newBar));
+	lv_obj_del(newBar);
 }

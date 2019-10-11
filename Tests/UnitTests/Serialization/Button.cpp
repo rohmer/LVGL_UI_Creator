@@ -19,6 +19,7 @@ TEST_CASE("Serialize Button")
 	REQUIRE(j["button"]["ink"]["in"] == 999);
 	REQUIRE(j["button"]["ink"]["out"]== 998);
 	REQUIRE(j["button"]["ink"]["wait"] == 997);
+	lv_obj_del(button);
 }
 
 TEST_CASE("Deserialize Button")
@@ -39,6 +40,7 @@ TEST_CASE("Deserialize Button")
 	REQUIRE(lv_btn_get_ink_in_time(button) == lv_btn_get_ink_in_time(nButton));
 	REQUIRE(lv_btn_get_ink_out_time(button) == lv_btn_get_ink_out_time(nButton));
 	REQUIRE(lv_btn_get_ink_wait_time(button) == lv_btn_get_ink_wait_time(nButton));
-	
+	lv_obj_del(button);
+	lv_obj_del(nButton);
 	
 }

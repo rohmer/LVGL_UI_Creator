@@ -8,7 +8,7 @@ TEST_CASE("Serialize Button Matrix")
 	lv_btnm_set_recolor(button, true);
 	lv_btnm_set_one_toggle(button, true);
 	json  j = Serialization::LVButtonMatrix::ToJSON(button);
-	
+	lv_obj_del(button);
 	REQUIRE(j["btnm"]["oneToggle"] == true);
 	REQUIRE(j["btnm"]["recolor"] == true);
 	REQUIRE(j["btnm"]["btnMap"][0] == "Btn1");
@@ -67,4 +67,6 @@ TEST_CASE("Deserialize Button Matrix")
 	REQUIRE(btnCnt == btnCnt2);
 	for (int i = 0; i < btnCnt; i++)
 		REQUIRE(btn1[i] == btn2[i]);
+	lv_obj_del(button);
+	lv_obj_del(nBtn);
 }
