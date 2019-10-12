@@ -8,7 +8,7 @@ TEST_CASE("Serialization Area")
 	coord.x2 = 2;
 	coord.y1 = 3;
 	coord.y2 = 4;
-	json j = Serialization::Area::ToJSON(coord);
+	json j = Serialization::Area::ToJSON(coord.x1, coord.y1, coord.x2, coord.y1);
 	REQUIRE(j["x1"] == 1);
 	REQUIRE(j["x2"] == 2);
 	REQUIRE(j["y1"] == 3);

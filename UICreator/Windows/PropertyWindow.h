@@ -13,7 +13,7 @@
 #include "../Widgets/ColorPicker.h"
 #include "UIObjectData.h"
 #include "../JSON/json.hpp"
-#include <Serialization/LVObject.h>
+#include <Serialization/ObjectSerializer.h>
 #include <Serialization/Style.h>
 #include <spdlog/spdlog.h>
 
@@ -27,7 +27,7 @@ public:
 	void SetSelectedObject(lv_obj_t *object);
 	void AddStyle(json styleJson);
 	lv_obj_t *GetSelectedObject();
-	
+
 private:
 	enum eObjType
 	{
@@ -104,7 +104,7 @@ private:
 	void createBaseObjProps();
 	void createObjProps();
 	void createTreeView();
-	void updateGlobalProps();
+	void updateGlobalProps(json j);
 
 	struct sOData
 	{
@@ -135,7 +135,7 @@ private:
 	static bool drawing;
 	
 #pragma region Properties by Type
-	void updateArcProperties();
+	void updateArcProperties(json j);
 	void createArcProperties();
 #pragma endregion
 };

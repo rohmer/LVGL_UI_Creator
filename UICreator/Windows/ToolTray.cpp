@@ -120,25 +120,32 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 		{
 		case 0:
 			newObj=Arc::Create(parent, x, y);
-			userData->objectJson = Serialization::LVArc::ToJSON(newObj);
 			tt->objTree->AddNode("Arc", newObj, parID, false);
 			break;
 		case 1:
 			newObj = Bar::Create(parent, x, y);
-			userData->objectJson = Serialization::LVBar::ToJSON(newObj);
 			tt->objTree->AddNode("Bar", newObj, parID, false);
-		}		
+            break;
+        case 2:
+            newObj = Button::Create(parent, x, y);
+            tt->objTree->AddNode("Button", newObj, parID, false);
+            break;
+        case 3:
+            newObj = ButtonMatrix::Create(parent, x, y);
+            tt->objTree->AddNode("Button Matrix", newObj, parID, false);
+            break;
+        case 4:
+            newObj = Calendar::Create(parent, x, y);
+            tt->objTree->AddNode("Calendar", newObj, parID, false);
+            break;
+            
+		}
+        userData->objectJson = Serialization::ObjectSerializer::SerializeObject(newObj);
+
 		if (newObj == nullptr)
 			return;
 		tt->lastWidget = newObj;
-		if(newObj->par!=tv->GetTreeViewUI())
-		{ 
-			lv_obj_set_drag_parent(newObj, true);
-		}
-		else
-		{
-			lv_obj_set_drag(newObj, true);
-		}
+        lv_obj_set_drag(newObj, true);	
 		lv_obj_set_style(newObj, &lv_style_plain);
 		lv_obj_set_protect(newObj, LV_PROTECT_PRESS_LOST);
 		lv_obj_set_top(newObj, true);
@@ -155,6 +162,11 @@ void ToolTray::create_obj_cb(lv_obj_t * obj, lv_event_t ev)
 
 void ToolTray::updateProperties(lv_obj_t *obj, lv_event_t ev)
 {
+    if(ev==LV_EVENT_DRAG_END)
+    {
+        ObjectUserData* objectData = (ObjectUserData*)lv_obj_get_user_data(obj);
+        objectData->toolTray->propertyWindow->SetSelectedObject(obj);
+    }
 	if (ev != LV_EVENT_CLICKED)
 		return;
 	

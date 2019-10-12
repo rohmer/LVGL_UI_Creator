@@ -23,13 +23,13 @@ namespace Serialization
 			return area;
 		}
 
-		static json ToJSON(lv_area_t coords)
+		static json ToJSON(int x1, int y1, int x2, int y2)
 		{
 			json j;
-			j["x1"] = coords.x1;
-			j["y1"] = coords.y1;
-			j["x2"] = coords.x2;
-			j["y2"] = coords.y2;
+            j["x1"] =x1;
+			j["y1"] = y1;
+			j["x2"] = x2;
+			j["y2"] = y2;
 			return j;
 		}
 		int X1, Y1, X2, Y2;

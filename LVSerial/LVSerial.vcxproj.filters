@@ -54,9 +54,6 @@
     <ClInclude Include="Serialization\Realign.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\Screen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Serialization\Serializers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +87,12 @@
     <ClInclude Include="Serialization\LVCheckBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Serialization\Page.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialization\ObjectSerializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Serialization\Base64.cpp">
@@ -117,9 +120,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\LVObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\Screen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\Style.cpp">
@@ -150,6 +150,12 @@
       <Filter>Source Files\Font</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\LVCheckBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\Page.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\ObjectSerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

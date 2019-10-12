@@ -6,7 +6,16 @@ namespace Serialization
 	{
 		json j;
 
-		j["coords"] = Area::ToJSON(object->coords);
+        int x1 = lv_obj_get_x(object);
+        int y1 = lv_obj_get_y(object);
+        int x2 = x1 + lv_obj_get_width(object);
+        int y2 = y1 + lv_obj_get_height(object);
+		j["coords"] = Area::ToJSON(
+            x1,
+            y1,
+            x2,
+            y2
+        );
 		// We have to process children in JsonDoc
 		if (object->click == 1)
 			j["click"] = true;
@@ -103,7 +112,11 @@ namespace Serialization
 		}
 		if (j["coords"].is_object())
 		{
-			widget->coords = Area::FromJSON(j["coords"]);
+			lv_area_t area = Area::FromJSON(j["coords"]);
+            lv_obj_set_x(widget,area.x1);
+            lv_obj_set_y(widget, area.y1);
+            lv_obj_set_width(widget, abs(area.x2 - area.x1));
+            lv_obj_set_height(widget, abs(area.y2 - area.y1));
 		}
 
 		if (j["click"].is_boolean())

@@ -15,7 +15,7 @@ namespace Serialization
 		j["arc"]["style"]["line.width"] = style->line.width;
 		j["arc"]["style"]["line.color"] = style->line.color.full;
 		j["arc"]["style"]["line.opa"] = style->line.opa;
-		return j;
+        return j;
 	}
 
 	lv_obj_t* LVArc::FromJSON(json j)

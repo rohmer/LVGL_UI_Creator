@@ -45,11 +45,14 @@ void PropertyWindow::createPropertyWin()
 void PropertyWindow::SetSelectedObject(lv_obj_t* object)
 {
 	selectedObject = object;
-	json j = Serialization::LVObject::ToJSON(object);
-	updateGlobalProps();
+	json j = Serialization::ObjectSerializer::SerializeObject(object);    
+    ObjectUserData* objectData = (ObjectUserData*)lv_obj_get_user_data(object);
+    objectData->objectJson = j;
+    lv_obj_set_user_data(object, objectData);
+	updateGlobalProps(j);
 	if(j["arc"].is_object())
 	{
-		updateArcProperties();
+		updateArcProperties(j);
 	}
 }
 
@@ -278,18 +281,19 @@ void PropertyWindow::createBaseObjProps()
 	cwm->AddWindow(baseObjProps);
 }
 
-void PropertyWindow::updateGlobalProps()
+void PropertyWindow::updateGlobalProps(json j)
 {
 	if (selectedObject == nullptr)
 		return;
 	drawing = true;
-	ObjectUserData* oud = (ObjectUserData*)lv_obj_get_user_data(selectedObject);
-	json j = oud->objectJson;
 	std::stringstream ss;
 	std::stringstream x, y;
 	json bj = j["base"];
+    std::stringstream ss1;
+    ss1 << j.dump();
+    std::string s = ss1.str();
 	x << bj["coords"]["x1"];
-	y << j["coords"]["y1"];
+	y << bj["coords"]["y1"];
 	lv_ta_set_text(taX,x.str().c_str());
 	lv_ta_set_text(taY, y.str().c_str());
 	int width = bj["coords"]["x2"].get<int>() - bj["coords"]["x1"].get<int>();
@@ -398,7 +402,7 @@ void PropertyWindow::createArcProperties()
 	cwm->Update();
 }
 
-void PropertyWindow::updateArcProperties()
+void PropertyWindow::updateArcProperties(json j)
 {
 	if(currentlyLoadedProp!=eObjType::ARC)
 	{
