@@ -12,12 +12,13 @@ class TreeView
 	typedef void(*tv_callback)(TreeNode *nodeSelected);
 
 public:
-	TreeView(unsigned int x,
-		unsigned int y,
-		unsigned int width,
-		unsigned int height,
-		std::string title,
-		bool inWindow = false,
+    TreeView(unsigned int x,
+        unsigned int y,
+        unsigned int width,
+        unsigned int height,
+        std::string title,
+        bool inWindow,
+        bool ro,
 		lv_obj_t* parent = nullptr);
 	~TreeView();
 
@@ -35,6 +36,7 @@ public:
 	}
 	
 private:
+    bool readOnly;
 	int x, y, width, height, yOffset, curID=0;
 	std::string title;
 	lv_obj_t *tvContainer;

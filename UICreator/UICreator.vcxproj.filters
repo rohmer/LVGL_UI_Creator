@@ -159,6 +159,12 @@
     <ClCompile Include="ObjectCreation\Container.cpp">
       <Filter>Source Files\Editor\Object Creation</Filter>
     </ClCompile>
+    <ClCompile Include="Widgets\FileBrowser.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\ListBox.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -268,6 +274,12 @@
     </ClInclude>
     <ClInclude Include="ObjectCreation\Container.h">
       <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\FileBrowser.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\ListBox.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

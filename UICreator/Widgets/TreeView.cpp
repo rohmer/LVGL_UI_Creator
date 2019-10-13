@@ -4,14 +4,16 @@ TreeView::TreeView(unsigned int x,
 	unsigned int width,
 	unsigned int height,
 	std::string title,
+    bool ro,
 	bool inWindow,
 	lv_obj_t* parent) :
 	x(x),
 	y(y),
 	width(width),
 	height(height),
-	title(title)
+	title(title)    
 {
+    readOnly = ro;
 	createTreeViewContainer(inWindow, parent);
 }
 
@@ -130,15 +132,18 @@ void TreeView::createTreeViewContainer(bool inWin, lv_obj_t *parent)
 		else
 			window = lv_win_create(parent, nullptr);
 		lv_win_set_title(window, title.c_str());
-		deleteButton = lv_win_add_btn(window, LV_SYMBOL_TRASH);
-		moveDownButton = lv_win_add_btn(window, LV_SYMBOL_UP);
-		copyButton = lv_win_add_btn(window, LV_SYMBOL_COPY);
-		pasteButton = lv_win_add_btn(window, LV_SYMBOL_PASTE);
-		moveUpButton = lv_win_add_btn(window, LV_SYMBOL_UP);
-		lv_obj_set_user_data(deleteButton, (lv_obj_user_data_t)this);
-		lv_obj_set_event_cb(deleteButton, deleteButtonCB);
-		lv_obj_set_click(deleteButton, true);
-		lv_obj_set_hidden(deleteButton, true);
+        if (!readOnly)
+        {
+            deleteButton = lv_win_add_btn(window, LV_SYMBOL_TRASH);
+            moveDownButton = lv_win_add_btn(window, LV_SYMBOL_UP);
+            copyButton = lv_win_add_btn(window, LV_SYMBOL_COPY);
+            pasteButton = lv_win_add_btn(window, LV_SYMBOL_PASTE);
+            moveUpButton = lv_win_add_btn(window, LV_SYMBOL_UP);
+            lv_obj_set_user_data(deleteButton, (lv_obj_user_data_t)this);
+            lv_obj_set_event_cb(deleteButton, deleteButtonCB);
+            lv_obj_set_click(deleteButton, true);
+            lv_obj_set_hidden(deleteButton, true);
+        }
 		lv_obj_set_size(window, width, height);
 		lv_obj_set_pos(window, x, y);
 		yOffset = 0;

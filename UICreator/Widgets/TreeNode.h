@@ -8,7 +8,7 @@ class TreeNode
 {
 public:
 	TreeNode(std::string name, TreeNode *parent, lv_obj_t *object, bool protect = false);
-	~TreeNode();
+    ~TreeNode();
 	bool operator==(const TreeNode &other);
 	TreeNode *DeepCopy();
 	lv_obj_t *GetLVObject();

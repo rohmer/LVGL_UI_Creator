@@ -10,7 +10,8 @@ VariableCreateWindow::VariableCreateWindow(ToolBar* toolBar) :
 		lv_obj_get_width(lv_scr_act()) - 400,
 		lv_obj_get_height(lv_scr_act()) - 400,
 		"Properties",
-		false);
+		false,
+        false);
 	createBaseProperties();
 }
 

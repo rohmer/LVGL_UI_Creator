@@ -598,7 +598,7 @@ void PropertyWindow::createTreeView()
 {
 	treeWin = new CollapsableWindow(propertyWin, "UI Objects", false, 10, 10, 390, 250);
 
-	treeView = new TreeView(0, 0, 385, 250, "UI Objects", false);
+	treeView = new TreeView(0, 0, 385, 250, "UI Objects", false, false);
 	treeView->AddNode("Screen", lv_scr_act(), 0, true);
 	treeView->AddSelectCallback(objSelectCB);
 	treeView->AddDeleteCallback(deleteCB);
