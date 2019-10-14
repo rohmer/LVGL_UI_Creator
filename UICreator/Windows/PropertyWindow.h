@@ -12,6 +12,9 @@
 #include "../Widgets/TreeView.h"
 #include "../Widgets/ColorPicker.h"
 #include "UIObjectData.h"
+#include "PropertyWindows/PropertyControls.h"
+#include "PropertyWindows/BaseProperties.h"
+#include "PropertyWindows/ArcProperties.h"
 #include "../JSON/json.hpp"
 #include <Serialization/ObjectSerializer.h>
 #include <Serialization/Style.h>
@@ -27,43 +30,80 @@ public:
 	void SetSelectedObject(lv_obj_t *object);
 	void AddStyle(json styleJson);
 	lv_obj_t *GetSelectedObject();
+    bool Drawing()
+    {
+        return drawing;
+    }
+    void Drawing(bool val)
+    {
+        drawing = val;
+    }
+
+    CollapsableWindowManager *GetCWM()
+    {
+        return cwm;
+    }
+
+    CollapsableWindow *ObjectPropWin()
+    {
+        return objProps;
+    }
+
+    lv_obj_t *GetWindow()
+    {
+        return propertyWin;
+    }
+
+    struct sOData
+    {
+        PropertyWindow* pw;
+        std::string objName;
+    };
+
+    struct sPropChange
+    {
+        PropertyWindow* pw;
+        std::string propertyPath;
+    };
+    enum eObjType
+    {
+        ARC,
+        BAR,
+        BUTTON,
+        BUTTONMATRIX,
+        CALENDAR,
+        CANVAS,
+        CHECKBOX,
+        CHART,
+        CONTAINER,
+        DROPDOWN,
+        GAUGE,
+        IMAGE,
+        IMAGEBUTTON,
+        KEYBOARD,
+        LABEL,
+        LED,
+        LINE,
+        LIST,
+        LINEMETER,
+        MESSAGEBOX,
+        PAGE,
+        PRELOADER,
+        ROLLER,
+        SLIDER,
+        SPINBOX,
+        SWITCH,
+        TABLE,
+        TABVIEW,
+        TEXTAREA,
+        TILEVIEW,
+        WINDOW,
+        NONE
+    };
+    eObjType CurrentlyLoadedProp = eObjType::NONE;
+    std::map<std::string, json> Styles;
 
 private:
-	enum eObjType
-	{
-		ARC,
-		BAR,
-		BUTTON,
-		BUTTONMATRIX,
-		CALENDAR,
-		CANVAS,
-		CHECKBOX,
-		CHART,
-		CONTAINER,
-		DROPDOWN,
-		GAUGE,
-		IMAGE,
-		IMAGEBUTTON,
-		KEYBOARD,
-		LABEL,
-		LED,
-		LINE,
-		LIST,
-		LINEMETER,
-		MESSAGEBOX,
-		PAGE,
-		PRELOADER,
-		ROLLER,
-		SLIDER,
-		SPINBOX,
-		SWITCH,
-		TABLE,
-		TABVIEW,
-		TEXTAREA,
-		TILEVIEW,
-		WINDOW,
-		NONE
-	};
 	
 	MinimizableWindow *minWin;
 	SimWindow *simWindow;
@@ -78,48 +118,17 @@ private:
 
 	lv_obj_t *selectedObject;
 
-#pragma region Global Property Inputs
-	// Position/Area
-	lv_obj_t *taX, *taY, *taWidth, *taHeight;
-	lv_obj_t *styleDD;
-	lv_obj_t *hidden, *click, *top, *parentEvent, *opaScaleEnable, *opaScale;
-	lv_obj_t *drag, *dragDir, *dragThrow, *dragParent;
-	lv_obj_t *protNone, *protPos, *protFollow, *protParent, *protPressLost, *protClickFocus, *protChildChg;	
-#pragma endregion
-
-#pragma region Arc Properties
-	lv_obj_t *arcStartTA, *arcEndTA, *arcLineWidth, *arcLineRound;
-#pragma endregion
 	struct sInp
 	{
 		std::string name;
 		PropertyWindow *pw;
 	};
-	
-	std::map<std::string, json> styles;
-	
+
 	static void initializeThemes(uint16_t hue);
 	void createPropertyWin();
 	void createGlobalProps();
-	void createBaseObjProps();
 	void createObjProps();
 	void createTreeView();
-	void updateGlobalProps(json j);
-
-	struct sOData
-	{
-		PropertyWindow *pw;
-		std::string objName;
-	};
-
-	struct sPropChange
-	{
-		PropertyWindow *pw;
-		std::string propertyPath;
-	};
-	
-	static void assignColor(lv_color_t color, std::any objData);
-	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt, const std::string propertyPath);
 	void initStyles();
 
 	static void objSelectCB(TreeNode *node);
@@ -127,15 +136,6 @@ private:
 	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
 	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
 	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
-	static void ddListCB(lv_obj_t *obj, lv_event_t event);
-	static void textBoxCB(lv_obj_t *obj, lv_event_t event);
-	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
-	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
-	eObjType currentlyLoadedProp = eObjType::NONE;
 	static bool drawing;
-	
-#pragma region Properties by Type
-	void updateArcProperties(json j);
-	void createArcProperties();
-#pragma endregion
+
 };

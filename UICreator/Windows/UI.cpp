@@ -1,8 +1,6 @@
 #include "UI.h"
 #include <iostream>
 #include <fstream>
-#include <Serialization/LVButton.h>
-#include "../Widgets/FileBrowser.h"
 
 UI::UI()
 {
@@ -26,16 +24,7 @@ UI::UI()
 		propertyWindow->GetObjectTree(), 
 		simWindow->GetDrawSurface(), 
 		propertyWindow,
-		toolBar);
-	
-	lv_obj_t* button = lv_btn_create(simWindow->GetDrawSurface(), nullptr);
-	json j = Serialization::LVButton::ToJSON(button);
-	
-	lv_obj_set_size(button, 50, 50);
-	lv_obj_set_pos(button, 50, 50);
-    
-    FileBrowser *fb = new FileBrowser("", nullptr);
-	
+		toolBar);	
 }
 
 #pragma region ThemeInit

@@ -1,0 +1,42 @@
+#include "ArcProperties.h"
+lv_obj_t* ArcProperties::arcStartTA, * ArcProperties::arcEndTA, * ArcProperties::arcLineWidth, * ArcProperties::arcLineRound;
+void ArcProperties::CreateArcProperties(PropertyWindow *pw)
+{
+    pw->ObjectPropWin()->UpdateHeight(300);
+    lv_obj_t* cont = lv_cont_create(pw->ObjectPropWin()->GetWindow(), nullptr);
+    lv_cont_set_layout(cont, LV_LAYOUT_PRETTY);
+    lv_cont_set_fit(cont, LV_FIT_FILL);
+
+    arcStartTA = PropertyControls::createNumericEntry(pw, cont, "Arc Start", "/arc/angle/start");
+    arcEndTA = PropertyControls::createNumericEntry(pw, cont, "Arc End", "/arc/angle/end");
+
+    lv_obj_t* lineProps = lv_cont_create(cont, nullptr);
+    lv_cont_set_layout(lineProps, LV_LAYOUT_PRETTY);
+    lv_obj_set_size(lineProps, 370, 300);
+    lv_obj_t* lineLab = lv_label_create(lineProps, nullptr);
+    lv_label_set_text(lineLab, "Line Properties:");
+    lv_label_set_align(lineLab, LV_LABEL_ALIGN_LEFT);
+    ColorPicker* cp = new ColorPicker(0, 0, 375, 150, 0x51F542, lineProps);
+    PropertyWindow::sOData odata;
+    odata.pw = pw;
+    odata.objName = "ArcColor";
+    cp->SetCallback(PropertyControls::assignColor, odata);
+    arcLineWidth = PropertyControls::createNumericEntry(pw, lineProps, "Line Width", "/arc/style/line.width");
+    arcLineRound = lv_cb_create(lineProps, nullptr);
+    lv_cb_set_text(arcLineRound, "Arc Line Rounded");
+    sPropChange* objData = new sPropChange();
+    objData->pw = pw;
+    objData->propertyPath = "/arc/style/line.rounded";
+    lv_obj_set_user_data(arcLineRound, (lv_obj_user_data_t)&objData);
+    lv_obj_set_event_cb(arcLineRound, PropertyControls::checkBoxCB);
+    pw->GetCWM()->Update();
+}
+
+void ArcProperties::UpdateArcProperties(PropertyWindow *pw, json j)
+{
+    if (pw->CurrentlyLoadedProp != PropertyWindow::eObjType::ARC)
+    {
+        pw->ObjectPropWin()->DeleteChildren();
+        CreateArcProperties(pw);
+    }
+}

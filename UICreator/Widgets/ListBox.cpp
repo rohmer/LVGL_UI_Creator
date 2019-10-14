@@ -42,6 +42,7 @@ void ListBox::ClearItems()
         delete(element);
     }
     selected = nullptr;
+    items.clear();
 }
 
 void ListBox::AddStyle(eListBoxStyles styleType, lv_style_t *style)

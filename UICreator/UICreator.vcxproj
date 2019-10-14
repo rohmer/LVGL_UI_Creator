@@ -49,6 +49,9 @@
     <ClCompile Include="Widgets\MinimizableWindow.cpp" />
     <ClCompile Include="Widgets\TreeNode.cpp" />
     <ClCompile Include="Widgets\TreeView.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\BaseProperties.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\PropertyControls.cpp" />
     <ClCompile Include="Windows\ToolBar.cpp" />
     <ClCompile Include="Windows\UI.cpp" />
     <ClCompile Include="Windows\PropertyWindow.cpp" />
@@ -87,6 +90,9 @@
     <ClInclude Include="Widgets\MinimizableWindow.h" />
     <ClInclude Include="Widgets\TreeNode.h" />
     <ClInclude Include="Widgets\TreeView.h" />
+    <ClInclude Include="Windows\PropertyWindows\ArcProperties.h" />
+    <ClInclude Include="Windows\PropertyWindows\BaseProperties.h" />
+    <ClInclude Include="Windows\PropertyWindows\PropertyControls.h" />
     <ClInclude Include="Windows\Themes.h" />
     <ClInclude Include="Windows\ToolBar.h" />
     <ClInclude Include="Windows\UI.h" />

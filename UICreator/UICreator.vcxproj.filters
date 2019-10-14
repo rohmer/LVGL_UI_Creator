@@ -55,6 +55,12 @@
     <Filter Include="Header Files\Editor\Variable">
       <UniqueIdentifier>{f67cfd24-d87f-4673-85fa-f852903dc9a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Editor\Windows\PropertyWindows">
+      <UniqueIdentifier>{33d7e7b6-2448-46de-a212-d1d76c7c8d45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\Windows\PropertyWindows">
+      <UniqueIdentifier>{8757e06c-bc6f-4034-9a25-8f0fab173538}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="custom_widget.c">
@@ -164,6 +170,15 @@
     </ClCompile>
     <ClCompile Include="Widgets\ListBox.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\PropertyControls.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BaseProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +295,15 @@
     </ClInclude>
     <ClInclude Include="Widgets\ListBox.h">
       <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\PropertyControls.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BaseProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\ArcProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
