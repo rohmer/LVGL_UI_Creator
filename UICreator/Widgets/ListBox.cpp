@@ -1,5 +1,6 @@
 #include "ListBox.h"
 ListBox::lb_callback ListBox::selectCallback = nullptr;
+ListBox::sListItem* ListBox::selected = nullptr;
 
 ListBox::ListBox(
     unsigned int x,
@@ -23,24 +24,31 @@ ListBox::ListBox(
     lv_obj_set_height(cont, height);    
 }
 
+ListBox::~ListBox()
+{
+    ClearItems();
+}
+
 void ListBox::ClearItems()
 {
-    for (sListItem element : items)
+    for (sListItem *element : items)
     {
-        if (element.icon != nullptr)
-            lv_obj_del(element.icon);
-        if (element.txt != nullptr)
-            lv_obj_del(element.txt);
-        if (element.selectBox != nullptr)
-            lv_obj_del(element.selectBox);
+        if (element->icon != nullptr)
+            lv_obj_del(element->icon);
+        if (element->txt != nullptr)
+            lv_obj_del(element->txt);
+        if (element->selectBox != nullptr)
+            lv_obj_del(element->selectBox);
+        delete(element);
     }
-    items.clear();
+    selected = nullptr;
 }
 
 void ListBox::AddStyle(eListBoxStyles styleType, lv_style_t *style)
 {
-    
+    styles[styleType] = style;
 }
+
 void ListBox::AddItem(std::string name, std::string icon)
 {
     if (styles.find(eListBoxStyles::LIST_ICON) == styles.end())
@@ -48,39 +56,61 @@ void ListBox::AddItem(std::string name, std::string icon)
     if (styles.find(eListBoxStyles::LIST_ITEM) == styles.end())
         styles[eListBoxStyles::LIST_ITEM] = styles[eListBoxStyles::MAIN];
 
-    sListItem li;
+    sListItem* li = new sListItem();
     int y = 3 + (items.size() * lineHeight+3);
-    li.selectBox = lv_obj_create(cont, nullptr);
-    lv_obj_set_style(li.selectBox, &lv_style_transp);
-    lv_obj_set_user_data(li.selectBox, (lv_obj_user_data_t)name.c_str());
-    lv_obj_set_event_cb(li.selectBox, selectCBLocal);
-    lv_obj_set_pos(li.selectBox, 5, y);
-    lv_obj_set_width(li.selectBox,lv_obj_get_width(cont) - 2);
-    lv_obj_set_height(li.selectBox, lineHeight);
+    li->selectBox = lv_obj_create(cont, nullptr);
+    lv_obj_set_style(li->selectBox, &lv_style_transp);
+    lv_obj_set_event_cb(li->selectBox, selectCBLocal);
+    lv_obj_set_pos(li->selectBox, 5, y);
+    lv_obj_set_width(li->selectBox,lv_obj_get_width(cont) - 20);
+    lv_obj_set_height(li->selectBox, lineHeight);
 
     if(!icon.empty())
     {
-        li.icon = lv_label_create(cont, nullptr);        
-        lv_label_set_style(li.icon, LV_LABEL_STYLE_MAIN, styles[LIST_ICON]);
-        lv_label_set_text(li.icon, icon.c_str());
-        lv_obj_set_height(li.icon, lineHeight);
-        lv_obj_set_width(li.icon, lineHeight);
-        lv_obj_set_pos(li.icon, 6, y);
+        li->icon = lv_label_create(cont, nullptr);        
+        lv_label_set_style(li->icon, LV_LABEL_STYLE_MAIN, styles[LIST_ICON]);
+        lv_label_set_text(li->icon, icon.c_str());
+        lv_obj_set_height(li->icon, lineHeight);
+        lv_obj_set_width(li->icon, lineHeight);
+        lv_obj_set_pos(li->icon, 6, y);
     }
-    li.txt = lv_label_create(cont, nullptr);
-    lv_label_set_style(li.icon, LV_LABEL_STYLE_MAIN, styles[LIST_ITEM]);
-    lv_label_set_text(li.txt, name.c_str());
-    lv_obj_set_pos(li.txt, 10 + lineHeight, y);
+    li->txt = lv_label_create(cont, nullptr);
+    lv_label_set_style(li->icon, LV_LABEL_STYLE_MAIN, styles[LIST_ITEM]);
+    lv_label_set_text(li->txt, name.c_str());
+    lv_obj_set_pos(li->txt, 10 + lineHeight, y);
+    lv_obj_set_user_data(li->selectBox, li);
+    li->id = items.size() + 1;
     items.push_back(li);
     
 }
 
 void ListBox::selectCBLocal(lv_obj_t* obj, lv_event_t ev)
 {
-    if (ev != LV_EVENT_CLICKED && ev!=LV_EVENT_SHORT_CLICKED)
+    if (ev != LV_EVENT_CLICKED)
         return;
     if (selectCallback == nullptr)
         return;
-    std::string txt=static_cast<char *>(lv_obj_get_user_data(obj));
-    selectCallback(txt);
+    sListItem *li = (sListItem*)lv_obj_get_user_data(obj);
+    std::string val(lv_label_get_text(li->txt));
+    lv_obj_set_style(li->selectBox, &lv_style_plain_color);
+    if(selected !=nullptr && selected->id==li->id)
+    {
+        lv_obj_set_style(li->selectBox, &lv_style_transp);
+        selected = nullptr;
+    }
+    else
+    {
+        if (selected != nullptr)
+        {
+            lv_obj_set_style(selected->selectBox, &lv_style_transp);
+        }
+        selected = li;
+        lv_obj_set_style(selected->selectBox, &lv_style_plain_color);
+    }
+    selectCallback(val);
+}
+
+void ListBox::AddSelectCallback(lb_callback cb)
+{
+    selectCallback = cb;
 }

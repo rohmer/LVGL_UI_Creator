@@ -11,6 +11,7 @@
 
 #include <filesystem>
 #include <stdio.h>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "ListBox.h"
@@ -18,6 +19,8 @@
 class FileBrowser
 {
 public:    
+    typedef void(*fb_callback)(std::filesystem::path selectedFile);
+
     FileBrowser(
         std::string startingDir, 
         lv_obj_t* parent=nullptr,        
@@ -39,24 +42,29 @@ public:
         lv_obj_t* parent = nullptr, 
         lv_style_t* style = &lv_style_pretty_color);
 
-    bool IsActive();
     std::filesystem::path SelectedPath();
+    void AddCloseCallback(fb_callback cb);
 
 private:    
-    std::vector<std::string> ext;
+    static std::vector<std::string> ext;
     // Objects for drawing
-    lv_obj_t* win, * closeBtn, * upDir, * pathBox, * refreshBtn;
-    ListBox* listBox;
+    lv_obj_t* win, * closeBtn, * upDir;
+    static lv_obj_t* pathBox, *selectButton;
+    static ListBox* listBox;
     lv_style_t* style;
 
     bool active = false;
-    std::filesystem::path path;
+    static std::filesystem::path path;
 
     void createObjects(lv_obj_t* parent, lv_area_t coords);
-    void refreshObjects();
+    static void refreshObjects();
 
     static void closeWinCB(lv_obj_t* obj, lv_event_t ev);
     static void upDirCB(lv_obj_t* obj, lv_event_t ev);
     static void refreshCB(lv_obj_t* obj, lv_event_t ev);
-    
+
+    static void listBoxCB(std::string selected);
+    static void selectCBLocal(lv_obj_t* obj, lv_event_t ev);
+
+    fb_callback selectCB;
 };

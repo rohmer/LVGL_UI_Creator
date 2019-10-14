@@ -1,9 +1,14 @@
 #include "FileBrowser.h"
 
+std::filesystem::path FileBrowser::path;
+lv_obj_t* FileBrowser::pathBox, *FileBrowser::selectButton;
+ListBox* FileBrowser::listBox;
+std::vector<std::string> FileBrowser::ext;
+
 FileBrowser::FileBrowser(std::string startingDir, lv_obj_t* parent, lv_style_t* style) :
-    path(startingDir),
     style(style)
 {
+    path = startingDir;
     lv_area_t coords;
     if (parent == nullptr)
         parent = lv_scr_act();
@@ -24,9 +29,9 @@ FileBrowser::FileBrowser(std::string startingDir, lv_obj_t* parent, lv_style_t* 
 }
 
 FileBrowser::FileBrowser(std::string startingDir, lv_area_t coords, lv_obj_t* parent, lv_style_t* style) :
-    path(startingDir),
     style(style)
 {
+    path = startingDir;
     if (parent == nullptr)
         parent = lv_scr_act();
     if (startingDir.empty())
@@ -39,10 +44,10 @@ FileBrowser::FileBrowser(std::string startingDir, lv_area_t coords, lv_obj_t* pa
 }
 
 FileBrowser::FileBrowser(std::string startingDir, std::vector<std::string> extensions, lv_obj_t* parent, lv_style_t* style) :
-    path(startingDir),
-    ext(extensions),
     style(style)
 {
+    ext = extensions;
+    path = startingDir;
     lv_area_t coords;
     if (parent == nullptr)
         parent = lv_scr_act();
@@ -64,18 +69,13 @@ FileBrowser::FileBrowser(std::string startingDir, std::vector<std::string> exten
 }
 
 FileBrowser::FileBrowser(std::string startingDir, lv_area_t coords, std::vector<std::string> extensions, lv_obj_t* parent, lv_style_t *style) :
-    path(startingDir),
-    ext(extensions),
     style(style)
 {
+    ext = extensions;
+    path = startingDir;
     if (parent == nullptr)
         parent = lv_scr_act();
     createObjects(parent, coords);
-}
-
-bool FileBrowser::IsActive()
-{
-    return active;
 }
 
 void FileBrowser::createObjects(lv_obj_t* parent, lv_area_t coords)
@@ -114,19 +114,19 @@ void FileBrowser::createObjects(lv_obj_t* parent, lv_area_t coords)
     lv_obj_set_height(pathBox, 40);    
     lv_obj_set_user_data(closeBtn, this);
     lv_ta_set_style(pathBox, LV_TA_STYLE_BG, style);
-
-    refreshBtn = lv_btn_create(win, nullptr);
-    lv_obj_t* rbLab = lv_label_create(refreshBtn, nullptr);
-    lv_label_set_text(rbLab, LV_SYMBOL_REFRESH);
-    lv_obj_set_x(refreshBtn, lv_obj_get_width(win) - 50);
-    lv_obj_set_y(refreshBtn, 10);
-    lv_obj_set_height(refreshBtn, 30);
-    lv_obj_set_width(refreshBtn, 30);
-    lv_obj_set_user_data(refreshBtn, this);
-    lv_obj_set_event_cb(refreshBtn, refreshCB);
-    lv_btn_set_style(refreshBtn, LV_BTN_STYLE_INA, style);
+    selectButton = lv_btn_create(win, nullptr);
+    lv_obj_t* sbLabel = lv_label_create(selectButton, nullptr);
+    std::stringstream ss;
+    ss << LV_SYMBOL_OK << "      Select File";
+    lv_label_set_text(sbLabel, ss.str().c_str());
+    lv_obj_set_pos(selectButton, lv_obj_get_width(win) - 275, lv_obj_get_height(win) - 145);
+    lv_obj_set_size(selectButton, 250, 75);
+    lv_obj_set_hidden(selectButton, true);
+    lv_obj_set_user_data(selectButton, this);
+    lv_obj_set_event_cb(selectButton, selectCBLocal);
 
     listBox = new ListBox(10, 50, lv_obj_get_width(win) - 20, lv_obj_get_height(win) - 200, lv_font_get_line_height(&lv_font_roboto_12), win, style);
+    listBox->AddSelectCallback(listBoxCB);
     refreshObjects();
 }
 
@@ -135,15 +135,59 @@ void FileBrowser::refreshObjects()
     lv_ta_set_text(pathBox, path.string().c_str());
     listBox->ClearItems();
     // TODO: Put the directories first
+    std::vector<std::filesystem::directory_entry> files;
     for (const auto& entry : std::filesystem::directory_iterator(path))
     {
-        std::string icon = LV_SYMBOL_FILE;
         if (entry.is_directory())
+            files.push_back(entry);
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
+        if (!entry.is_directory())
+        {
+            if (ext.empty())
+            {
+                files.push_back(entry);
+            } else
+            {
+                bool add = false;
+                for (std::string e : ext)
+                    if (entry.path().extension() == e)
+                    {
+                        add = true;
+                        break;
+                    }
+                if (add)
+                    files.push_back(entry);
+            }
+        }
+    }
+    for (const auto &element : files)
+    {
+        std::string icon = LV_SYMBOL_FILE;
+        if (element.is_directory())
             icon = LV_SYMBOL_DIRECTORY;
-        std::filesystem::path p = entry.path().filename();
+        std::filesystem::path p = element.path().filename();
         listBox->AddItem(p.string(), icon);
     }
+    
 }
+
+void FileBrowser::listBoxCB(std::string selected)
+{
+    std::filesystem::path p = path;
+    p /= selected;
+    if(is_directory(p))
+    {
+        path = p;
+        refreshObjects();
+        lv_obj_set_hidden(selectButton, true);
+        return;
+    }
+    lv_ta_set_text(pathBox, p.string().c_str());
+    lv_obj_set_hidden(selectButton, false);
+}
+
 
 void FileBrowser::closeWinCB(lv_obj_t* obj, lv_event_t ev)
 {
@@ -170,7 +214,18 @@ std::filesystem::path FileBrowser::SelectedPath()
     return path;
 }
 
-void FileBrowser::refreshCB(lv_obj_t* obj, lv_event_t ev)
+void FileBrowser::AddCloseCallback(fb_callback cb)
 {
+    this->selectCB = cb;
+}
 
+void FileBrowser::selectCBLocal(lv_obj_t* obj, lv_event_t ev)
+{
+    if (ev != LV_EVENT_CLICKED)
+        return;
+    FileBrowser *fb=(FileBrowser*)lv_obj_get_user_data(obj);
+    if (fb->selectCB != nullptr)
+        fb->selectCB(path);
+    delete(fb->listBox);
+    lv_obj_del_async(fb->win);
 }
