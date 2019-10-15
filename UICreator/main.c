@@ -84,7 +84,7 @@ int main(int argc, char ** argv)
     /*Initialize the HAL (display, input devices, tick) for LittlevGL*/
     hal_init();
 
-    UI *uiWindow=new UI();
+    UI *uiWindow=new UI(kb_indev);
 
 
     while(1) {
@@ -119,7 +119,6 @@ int main(int argc, char ** argv)
 
     return 0;
 }
-
 /**********************
  *   STATIC FUNCTIONS
  **********************/
@@ -159,6 +158,7 @@ static void hal_init(void)
     // lv_img_set_src(cursor_obj, &mouse_cursor_icon);             /*Set the image source*/
     // lv_indev_set_cursor(mouse_indev, cursor_obj);               /*Connect the image  object to the driver*/
 
+    
 #if USE_KEYBOARD
 	lv_indev_drv_t kb_drv;
 	lv_indev_drv_init(&kb_drv);

@@ -142,3 +142,20 @@ void ColorPicker::sliderCB(lv_obj_t* obj, lv_event_t event)
 	data->cp->colStyle.body.grad_color = col;
 	lv_obj_set_style(data->cp->exCol, &data->cp->colStyle);
 }
+
+void ColorPicker::SetColor(uint32_t color)
+{
+    lv_color_t col=lv_color_hex(color);
+    colStyle.body.main_color = col;
+    colStyle.body.grad_color = col;
+    lv_obj_set_style(exCol, &colStyle);
+}
+
+void ColorPicker::SetColor(int R, int G, int B, int A)
+{
+    lv_color_t col = lv_color_make(R,G,B);
+    col.ch.alpha = A;
+    colStyle.body.main_color = col;
+    colStyle.body.grad_color = col;
+    lv_obj_set_style(exCol, &colStyle);
+}

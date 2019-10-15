@@ -50,6 +50,7 @@
     <ClCompile Include="Widgets\TreeNode.cpp" />
     <ClCompile Include="Widgets\TreeView.cpp" />
     <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\BarProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\BaseProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\PropertyControls.cpp" />
     <ClCompile Include="Windows\ToolBar.cpp" />
@@ -92,6 +93,7 @@
     <ClInclude Include="Widgets\TreeView.h" />
     <ClInclude Include="Windows\PropertyWindows\ArcProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BaseProperties.h" />
+    <ClInclude Include="Windows\PropertyWindows\BarProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\PropertyControls.h" />
     <ClInclude Include="Windows\Themes.h" />
     <ClInclude Include="Windows\ToolBar.h" />

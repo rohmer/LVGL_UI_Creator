@@ -6,12 +6,19 @@
 lv_theme_t *PropertyWindow::activeTheme;
 std::vector<lv_theme_t*> PropertyWindow::themes;
 bool PropertyWindow::drawing = false;
+lv_group_t* PropertyWindow::kbGroup;
 
-PropertyWindow::PropertyWindow(SimWindow* simWindow, int screenWidth, int screenHeight) :
-	simWindow(simWindow),
+PropertyWindow::PropertyWindow(lv_indev_t* kb_indev, 
+    SimWindow* simWindow, 
+    int screenWidth, 
+    int screenHeight) :
+    kbIndev(kb_indev),
+    simWindow(simWindow),
 	screenX(screenWidth),
 	screenY(screenHeight)
 {
+    kbGroup = lv_group_create();
+    lv_indev_set_group(GetKBInDev(), kbGroup);
 	initializeThemes(0);
 	initStyles();
 	createPropertyWin();
@@ -54,6 +61,10 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object)
 	{
 		ArcProperties::UpdateArcProperties(this, j);
 	}
+    if(j["bar"].is_object())
+    {
+        BarProperties::UpdateBarProperties(this, j);
+    }
 }
 
 void PropertyWindow::createObjProps()
@@ -118,6 +129,20 @@ void PropertyWindow::initStyles()
 	Styles.emplace("lv_style_btn_tgl_rel", Style::ToJSON(lv_style_btn_tgl_rel));
 	Styles.emplace("lv_style_btn_tgl_pr", Style::ToJSON(lv_style_btn_tgl_pr));
 	Styles.emplace("lv_style_btn_ina", Style::ToJSON(lv_style_btn_ina));
+
+    StylePtrs.emplace("lv_style_scr", &lv_style_scr);
+    StylePtrs.emplace("lv_style_transp", &lv_style_transp);
+    StylePtrs.emplace("lv_style_transp_tight", &lv_style_transp_tight);
+    StylePtrs.emplace("lv_style_transp_fit", &lv_style_transp_fit);
+    StylePtrs.emplace("lv_style_plain", &lv_style_plain);
+    StylePtrs.emplace("lv_style_plain_color", &lv_style_plain_color);
+    StylePtrs.emplace("lv_style_pretty", &lv_style_pretty);
+    StylePtrs.emplace("lv_style_pretty_color", &lv_style_pretty_color);
+    StylePtrs.emplace("lv_style_btn_rel", &lv_style_btn_rel);
+    StylePtrs.emplace("lv_style_btn_pr", &lv_style_btn_pr);
+    StylePtrs.emplace("lv_style_btn_tgl_rel", &lv_style_btn_tgl_rel);
+    StylePtrs.emplace("lv_style_btn_tgl_pr", &lv_style_btn_tgl_pr);
+    StylePtrs.emplace("lv_style_btn_ina", &lv_style_btn_ina);
 }
 
 void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)
@@ -129,47 +154,6 @@ void PropertyWindow::hue_select_event_cb(lv_obj_t * roller, lv_event_t event)
 		initializeThemes(hue);
 
 		lv_theme_set_current(activeTheme);
-	}
-}
-
-void PropertyWindow::numericEntryCB(lv_obj_t* obj, lv_event_t event)
-{
-	if (drawing)
-		return;
-	if(event==LV_EVENT_CLICKED)
-	{
-		lv_ta_set_cursor_type(obj, LV_CURSOR_LINE);
-	}
-	if(event==LV_EVENT_DEFOCUSED)
-	{
-		lv_ta_set_cursor_type(obj, LV_CURSOR_NONE);
-	}
-	if(event==LV_EVENT_VALUE_CHANGED)
-	{
-		sPropChange *pc = (sPropChange*)lv_obj_get_user_data(obj);
-		ObjectUserData *oud = (ObjectUserData*)lv_obj_get_user_data(pc->pw->selectedObject);
-		json j = oud->objectJson;		
-		j[nlohmann::json_pointer<std::string>(pc->propertyPath)] = atoi(lv_ta_get_text(obj));
-
-		std::vector<std::string> propTokens = ObjectTools::Split(pc->propertyPath, '/');
-		std::string oType = propTokens[0];
-		if(oType=="base")
-		{
-			if (!Serialization::LVObject::SetValue(pc->pw->selectedObject, pc->propertyPath, atoi(lv_ta_get_text(obj))))
-			{
-				spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
-			}
-		}
-		if(oType=="arc")
-		{
-			if (!Serialization::LVArc::SetValue(pc->pw->selectedObject, pc->propertyPath, atoi(lv_ta_get_text(obj))))
-			{
-				spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
-			}
-		}
-
-		oud->objectJson = j;
-		lv_obj_set_user_data(obj, (lv_obj_user_data_t)oud);
 	}
 }
 

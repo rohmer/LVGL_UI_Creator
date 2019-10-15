@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-UI::UI()
+UI::UI(lv_indev_t* kb_indev)
 {
 	// Setup logger
 	auto console = spdlog::stdout_color_mt("console");
@@ -17,7 +17,7 @@ UI::UI()
 	lv_theme_set_current(activeTheme);
 
 	simWindow = new SimWindow(320, 240);
-	propertyWindow = new PropertyWindow(simWindow,hres,vres);
+	propertyWindow = new PropertyWindow(kb_indev, simWindow,hres,vres);
 	toolBar = new ToolBar(propertyWindow, simWindow);
 	toolTray = new ToolTray(
 		lv_scr_act(), 

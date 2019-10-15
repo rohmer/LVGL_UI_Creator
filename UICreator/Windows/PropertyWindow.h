@@ -15,6 +15,7 @@
 #include "PropertyWindows/PropertyControls.h"
 #include "PropertyWindows/BaseProperties.h"
 #include "PropertyWindows/ArcProperties.h"
+#include "PropertyWindows/BarProperties.h"
 #include "../JSON/json.hpp"
 #include <Serialization/ObjectSerializer.h>
 #include <Serialization/Style.h>
@@ -25,11 +26,21 @@ using json=nlohmann::json;
 class PropertyWindow
 {
 public:
-	PropertyWindow(SimWindow *simWindow, int screenWidth, int screenHeight);
+	PropertyWindow(lv_indev_t* kb_indev, SimWindow *simWindow, int screenWidth, int screenHeight);
 	TreeView *GetObjectTree();
 	void SetSelectedObject(lv_obj_t *object);
 	void AddStyle(json styleJson);
 	lv_obj_t *GetSelectedObject();
+    lv_group_t *GetKBGroup()
+    {
+        return kbGroup;
+    }
+
+    lv_indev_t* GetKBInDev()
+    {
+        return kbIndev;
+    }
+
     bool Drawing()
     {
         return drawing;
@@ -102,6 +113,7 @@ public:
     };
     eObjType CurrentlyLoadedProp = eObjType::NONE;
     std::map<std::string, json> Styles;
+    std::map<std::string, lv_style_t*> StylePtrs;
 
 private:
 	
@@ -135,7 +147,8 @@ private:
 	static void deleteCB(TreeNode *node);	
 	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
 	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
-	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
 	static bool drawing;
 
+    static lv_group_t* kbGroup;
+    lv_indev_t* kbIndev;
 };

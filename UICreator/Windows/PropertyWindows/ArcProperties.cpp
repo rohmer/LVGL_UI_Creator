@@ -1,5 +1,7 @@
 #include "ArcProperties.h"
 lv_obj_t* ArcProperties::arcStartTA, * ArcProperties::arcEndTA, * ArcProperties::arcLineWidth, * ArcProperties::arcLineRound;
+ColorPicker* ArcProperties::cp;
+
 void ArcProperties::CreateArcProperties(PropertyWindow *pw)
 {
     pw->ObjectPropWin()->UpdateHeight(300);
@@ -16,7 +18,7 @@ void ArcProperties::CreateArcProperties(PropertyWindow *pw)
     lv_obj_t* lineLab = lv_label_create(lineProps, nullptr);
     lv_label_set_text(lineLab, "Line Properties:");
     lv_label_set_align(lineLab, LV_LABEL_ALIGN_LEFT);
-    ColorPicker* cp = new ColorPicker(0, 0, 375, 150, 0x51F542, lineProps);
+    cp = new ColorPicker(0, 0, 375, 150, 0x51F542, lineProps);
     PropertyWindow::sOData odata;
     odata.pw = pw;
     odata.objName = "ArcColor";
@@ -34,9 +36,25 @@ void ArcProperties::CreateArcProperties(PropertyWindow *pw)
 
 void ArcProperties::UpdateArcProperties(PropertyWindow *pw, json j)
 {
+    pw->Drawing(true);
     if (pw->CurrentlyLoadedProp != PropertyWindow::eObjType::ARC)
     {
         pw->ObjectPropWin()->DeleteChildren();
         CreateArcProperties(pw);
+        pw->CurrentlyLoadedProp = PropertyWindow::eObjType::ARC;
     }
+
+    json ap = j["arc"];
+    std::stringstream as, ae, lw;
+    as << ap["angle"]["start"];
+    ae << ap["angle"]["end"];
+    lw << ap["style"]["line.width"];
+    lv_ta_set_text(arcStartTA, as.str().c_str());
+    lv_ta_set_text(arcEndTA, ae.str().c_str());
+    lv_ta_set_text(arcLineWidth, lw.str().c_str());
+    if (ap["style"]["line.rounded"] == 0)
+        lv_cb_set_checked(arcLineRound, false);
+    else
+        lv_cb_set_checked(arcLineRound, true);
+    pw->Drawing(false);
 }

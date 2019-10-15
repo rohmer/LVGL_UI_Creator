@@ -19,7 +19,7 @@ namespace Serialization
 		static json ToJSON(lv_obj_t* obj);
 		static lv_obj_t* FromJSON(json j, lv_obj_t* widget = nullptr);
 		static bool SetValue(lv_obj_t *obj, std::string key, int value);		
-
+        static bool SetStyle(lv_obj_t* obj, std::string key, std::string value, std::map<std::string, lv_style_t*> stylePtrs);
 	};
 
 

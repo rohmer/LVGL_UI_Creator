@@ -21,7 +21,7 @@
 class UI
 {
 public:
-	UI();
+	UI(lv_indev_t* kb_indev);
 
 private:
 	lv_theme_t *activeTheme;

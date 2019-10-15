@@ -19,44 +19,13 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     lv_cont_set_fit(posCont, LV_LAYOUT_GRID);
     lv_obj_set_style(posCont, &lv_style_transp);
 
-    taX = PropertyControls::createNumericEntry(propertyWin, posCont, "X1", "/base/coords/x1");
-    taY = PropertyControls::createNumericEntry(propertyWin, posCont, "Y1", "/base/coords/y1");
-    taWidth = PropertyControls::createNumericEntry(propertyWin, posCont, "X2", "/base/coords/x2");
-    taHeight = PropertyControls::createNumericEntry(propertyWin, posCont, "Y2", "/base/coords/y2");
+    taX = PropertyControls::createNumericEntry(propertyWin, posCont, "X", "/base/coords/x");
+    taY = PropertyControls::createNumericEntry(propertyWin, posCont, "Y", "/base/coords/y");
+    taWidth = PropertyControls::createNumericEntry(propertyWin, posCont, "Width", "/base/coords/width");
+    taHeight = PropertyControls::createNumericEntry(propertyWin, posCont, "Height", "/base/coords/height");
 #pragma endregion
 
-#pragma region Style
-    lv_obj_t* styleCont = lv_cont_create(boCont, nullptr);
-    lv_cont_set_layout(styleCont, LV_LAYOUT_ROW_M);
-    lv_cont_set_fit(styleCont, LV_LAYOUT_GRID);
-    lv_obj_set_style(styleCont, &lv_style_transp);
-
-    lv_obj_t* styleLab = lv_label_create(styleCont, nullptr);
-    lv_label_set_text(styleLab, "Style");
-    styleDD = lv_ddlist_create(styleCont, nullptr);
-    std::stringstream ss;
-    for (auto it = propertyWin->Styles.begin();
-        it != propertyWin->Styles.end();
-        ++it)
-    {
-        ss << (*it).first << "\n";
-    }
-    lv_ddlist_set_options(styleDD, ss.str().c_str());
-    lv_ddlist_set_draw_arrow(styleDD, true);
-    sPropChange* pc1 = new sPropChange();
-    pc1->pw = propertyWin;
-    pc1->propertyPath = "/base/style";
-    lv_obj_set_user_data(styleDD, (lv_obj_user_data_t)pc1);
-    lv_obj_set_event_cb(styleDD, PropertyControls::ddListCB);
-    lv_obj_t* sLab = lv_label_create(styleCont, nullptr);
-    lv_label_set_text(sLab, "New Style");
-    lv_obj_t* newSBtn = lv_btn_create(styleCont, nullptr);
-    lv_obj_t* sBtnImg = lv_label_create(newSBtn, nullptr);
-    lv_obj_set_size(newSBtn, 35, 35);
-    lv_label_set_text(sBtnImg, LV_SYMBOL_EDIT);
-    lv_obj_set_user_data(newSBtn, (lv_obj_user_data_t)propertyWin);
-    lv_obj_set_event_cb(newSBtn, PropertyControls::createStyleCB);
-#pragma endregion
+    styleDD = PropertyControls::createStyleEntry(propertyWin, boCont, "Style", "/base/style");
 
 #pragma region Attributes
     lv_obj_t* attrCont = lv_cont_create(boCont, nullptr);
@@ -242,12 +211,12 @@ void BaseProperties::UpdateGlobalProps(PropertyWindow *pw, json j)
     std::stringstream ss1;
     ss1 << j.dump();
     std::string s = ss1.str();
-    x << bj["coords"]["x1"];
-    y << bj["coords"]["y1"];
+    x << bj["coords"]["x"];
+    y << bj["coords"]["y"];
     lv_ta_set_text(taX, x.str().c_str());
     lv_ta_set_text(taY, y.str().c_str());
-    int width = bj["coords"]["x2"].get<int>() - bj["coords"]["x1"].get<int>();
-    int height = bj["coords"]["y2"].get<int>() - bj["coords"]["y1"].get<int>();
+    int width = bj["coords"]["width"].get<int>();
+    int height = bj["coords"]["height"].get<int>();
     std::stringstream ws, hs;
     ws << width;
     hs << height;

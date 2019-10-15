@@ -180,6 +180,9 @@
     <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp">
       <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BarProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -303,6 +306,9 @@
       <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
     </ClInclude>
     <ClInclude Include="Windows\PropertyWindows\ArcProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BarProperties.h">
       <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
     </ClInclude>
   </ItemGroup>

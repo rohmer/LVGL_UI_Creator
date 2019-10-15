@@ -6,15 +6,15 @@ namespace Serialization
 	{
 		json j;
 
-        int x1 = lv_obj_get_x(object);
-        int y1 = lv_obj_get_y(object);
-        int x2 = x1 + lv_obj_get_width(object);
-        int y2 = y1 + lv_obj_get_height(object);
-		j["coords"] = Area::ToJSON(
-            x1,
-            y1,
-            x2,
-            y2
+        int x = lv_obj_get_x(object);
+        int y = lv_obj_get_y(object);
+        int width = lv_obj_get_width(object);
+        int height = lv_obj_get_height(object);
+	    j["coords"] = Area::ToJSON(
+            x,
+            y,
+            width,
+            height
         );
 		// We have to process children in JsonDoc
 		if (object->click == 1)
@@ -112,11 +112,11 @@ namespace Serialization
 		}
 		if (j["coords"].is_object())
 		{
-			lv_area_t area = Area::FromJSON(j["coords"]);
-            lv_obj_set_x(widget,area.x1);
-            lv_obj_set_y(widget, area.y1);
-            lv_obj_set_width(widget, abs(area.x2 - area.x1));
-            lv_obj_set_height(widget, abs(area.y2 - area.y1));
+			sAreaPos area = Area::FromJSON(j["coords"]);
+            lv_obj_set_x(widget,area.x);
+            lv_obj_set_y(widget, area.y);
+            lv_obj_set_width(widget, area.width);
+            lv_obj_set_height(widget, area.height);
 		}
 
 		if (j["click"].is_boolean())
@@ -258,34 +258,41 @@ namespace Serialization
 		return widget;
 	}
 
+    bool LVObject::SetStyle(lv_obj_t* obj, std::string key, std::string value, std::map<std::string, lv_style_t*> stylePtrs)
+	{
+	    if(key=="/base/style")
+	    {
+            if (stylePtrs.find(value) != stylePtrs.end())
+            {
+                lv_obj_set_style(obj, stylePtrs[value]);
+                return true;
+            }
+
+	    }
+
+        return false;
+	}
+
 	bool LVObject::SetValue(lv_obj_t* obj, std::string key, int value)
 	{
-		if (key == "/base/coords/x1")
+		if (key == "/base/coords/x")
 		{
-			lv_area_t a = obj->coords;
-			a.x1 = value;
-			obj->coords = a;
+            lv_obj_set_x(obj, value);
 			return true;
 		}
-		if (key == "/base/coords/x2")
+		if (key == "/base/coords/width")
 		{
-			lv_area_t a = obj->coords;
-			a.x2 = value;
-			obj->coords = a;
+            lv_obj_set_width(obj,value);
 			return true;
 		}
-		if (key == "/base/coords/y1")
+		if (key == "/base/coords/y")
 		{
-			lv_area_t a = obj->coords;
-			a.y1 = value;
-			obj->coords = a;
+            lv_obj_set_y(obj, value);
 			return true;
 		}
-		if (key == "/base/coords/y2")
+		if (key == "/base/coords/height")
 		{
-			lv_area_t a = obj->coords;
-			a.y2 = value;
-			obj->coords = a;
+            lv_obj_set_height(obj, value);
 			return true;
 		}
 		if (key == "/base/dragDir")
@@ -458,6 +465,5 @@ namespace Serialization
 		return false;
 	}
 #endif
-
 
 }

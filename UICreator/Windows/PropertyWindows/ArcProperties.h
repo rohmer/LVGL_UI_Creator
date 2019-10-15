@@ -19,5 +19,6 @@ public:
  private:
 #pragma region Arc Properties
     static lv_obj_t* arcStartTA, * arcEndTA, * arcLineWidth, * arcLineRound;
+    static ColorPicker* cp;
 #pragma endregion
 };

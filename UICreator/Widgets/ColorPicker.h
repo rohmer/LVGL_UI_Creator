@@ -12,6 +12,8 @@ public:
 	void SetCallback(cp_callback cb, std::any callbackObject);
 	void Show();
 	void Hide();
+    void SetColor(uint32_t color);
+    void SetColor(int R, int G, int B, int A);
 
 private:
 	lv_obj_t *cont;

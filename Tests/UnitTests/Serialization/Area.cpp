@@ -18,14 +18,14 @@ TEST_CASE("Serialization Area")
 TEST_CASE("Deserialization","[Area]")
 {
 	json j;
-	j["x1"] = 32;
-	j["x2"] = 11;
-	j["y1"] = 531;
-	j["y2"] = 523;
-	lv_area_t coord = Serialization::Area::FromJSON(j);
-	REQUIRE(coord.x1 == 32);
-	REQUIRE(coord.x2 == 11);
-	REQUIRE(coord.y1 == 531);
-	REQUIRE(coord.y2 == 523);
+	j["x"] = 32;
+	j["width"] = 11;
+	j["y"] = 531;
+	j["height"] = 523;
+    Serialization::sAreaPos coord = Serialization::Area::FromJSON(j);
+	REQUIRE(coord.x == 32);
+	REQUIRE(coord.width == 11);
+	REQUIRE(coord.y == 531);
+	REQUIRE(coord.height == 523);
 
 }
