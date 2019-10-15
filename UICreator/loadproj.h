@@ -23,7 +23,6 @@ extern "C" {
 #endif
 
 
-
 /*********************
  *      DEFINES
  *********************/
@@ -35,7 +34,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-void load_project(lv_obj_t * tft_win);
+void load_project(lv_obj_t* tft_win);
 /**********************
  *      MACROS
  **********************/

@@ -8,10 +8,9 @@ class ToolTray;
 struct ObjectUserData
 {
 public:
-	template<typename T>
-	static std::vector<Variable<T>> variables;
-	json objectJson;
-	uint16_t objectID, parentID;
-	ToolTray *toolTray;
+    template <typename T>
+    static std::vector<Variable<T>> variables;
+    json objectJson;
+    uint16_t objectID, parentID;
+    ToolTray* toolTray;
 };
-

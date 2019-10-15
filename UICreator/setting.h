@@ -23,7 +23,6 @@ extern "C" {
 #endif
 
 
-
 /*********************
  *      DEFINES
  *********************/
@@ -35,9 +34,9 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-void setting_win_init(lv_obj_t * parent);
-void setting_attr_mod(lv_obj_t * obj);
-void lb_selected_mod(lv_obj_t * obj);
+void setting_win_init(lv_obj_t* parent);
+void setting_attr_mod(lv_obj_t* obj);
+void lb_selected_mod(lv_obj_t* obj);
 /**********************
  *      MACROS
  **********************/

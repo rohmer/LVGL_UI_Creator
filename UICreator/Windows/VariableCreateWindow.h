@@ -11,16 +11,16 @@
 class VariableCreateWindow
 {
 public:
-	VariableCreateWindow(ToolBar *toolBar);
+    VariableCreateWindow(ToolBar* toolBar);
 
 private:
-	ToolBar *toolbar;
-	TreeNode *baseObjProps;
-	std::map<std::string, TreeNode*> *objTypeProps;
-	TreeView *treeView;
-	
-	void createBaseProperties();
-	TreeNode *createObjTypeProperties(lv_obj_t *object);
+    ToolBar* toolbar;
+    TreeNode* baseObjProps;
+    std::map<std::string, TreeNode*>* objTypeProps;
+    TreeView* treeView;
 
-	unsigned int parseNode(std::string nodeName, const json &node, unsigned int parent);
+    void createBaseProperties();
+    TreeNode* createObjTypeProperties(lv_obj_t* object);
+
+    unsigned int parseNode(std::string nodeName, const json& node, unsigned int parent);
 };

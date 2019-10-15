@@ -11,12 +11,11 @@ using json = nlohmann::json;
 
 namespace Serialization
 {
-	class LVImage
-	{
-	public:
-		static json ToJSON(lv_obj_t* img);
-		static lv_obj_t* FromJSON(json j);
-		static bool SetValue(lv_obj_t* obj, std::string key, int value);
-
-	};
+    class LVImage
+    {
+    public:
+        static json ToJSON(lv_obj_t* img);
+        static lv_obj_t* FromJSON(json j);
+        static bool SetValue(lv_obj_t* obj, std::string key, int value);
+    };
 }

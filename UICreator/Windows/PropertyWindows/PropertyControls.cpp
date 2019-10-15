@@ -1,6 +1,7 @@
 #include "PropertyControls.h"
 
-lv_obj_t* PropertyControls::createStyleEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt, std::string propertyPath)
+lv_obj_t* PropertyControls::createStyleEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt,
+                                             std::string propertyPath)
 {
     lv_obj_t* styleCont = lv_cont_create(parent, nullptr);
     lv_cont_set_layout(styleCont, LV_LAYOUT_ROW_M);
@@ -9,11 +10,11 @@ lv_obj_t* PropertyControls::createStyleEntry(PropertyWindow* pw, lv_obj_t* paren
 
     lv_obj_t* styleLab = lv_label_create(styleCont, nullptr);
     lv_label_set_text(styleLab, labelTxt.c_str());
-    lv_obj_t *styleDD = lv_ddlist_create(styleCont, nullptr);
+    lv_obj_t* styleDD = lv_ddlist_create(styleCont, nullptr);
     std::stringstream ss;
     for (auto it = pw->Styles.begin();
-        it != pw->Styles.end();
-        ++it)
+         it != pw->Styles.end();
+         ++it)
     {
         ss << (*it).first << "\n";
     }
@@ -56,12 +57,12 @@ void PropertyControls::assignColor(lv_color_t color, std::any objectData)
     }
 }
 
-lv_obj_t *PropertyControls::createCBEntry(
-    PropertyWindow* pw, 
-    lv_obj_t* parent, 
-    std::string labelTxt, 
+lv_obj_t* PropertyControls::createCBEntry(
+    PropertyWindow* pw,
+    lv_obj_t* parent,
+    std::string labelTxt,
     std::string propertyPath)
-{    
+{
     lv_obj_t* cb = lv_cb_create(parent, nullptr);
     lv_cb_set_text(cb, labelTxt.c_str());
     sPropChange* propChange = new sPropChange();
@@ -72,7 +73,8 @@ lv_obj_t *PropertyControls::createCBEntry(
     return cb;
 }
 
-lv_obj_t* PropertyControls::createNumericEntry(PropertyWindow *pw, lv_obj_t* parent, const std::string labelTxt, const std::string path)
+lv_obj_t* PropertyControls::createNumericEntry(PropertyWindow* pw, lv_obj_t* parent, const std::string labelTxt,
+                                               const std::string path)
 {
     lv_obj_t* label = lv_label_create(parent, nullptr);
     lv_label_set_text(label, labelTxt.c_str());
@@ -102,7 +104,6 @@ void PropertyControls::numericEntryCB(lv_obj_t* obj, lv_event_t event)
         lv_group_t* kbGroup = pc->pw->GetKBGroup();
         lv_group_remove_all_objs(kbGroup);
         lv_group_add_obj(kbGroup, obj);
-
     }
     if (event == LV_EVENT_VALUE_CHANGED)
     {
@@ -117,25 +118,33 @@ void PropertyControls::numericEntryCB(lv_obj_t* obj, lv_event_t event)
         std::string oType = propTokens[1];
         if (oType == "base")
         {
-            if (!Serialization::LVObject::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath, atoi(lv_ta_get_text(obj))))
-            {
-                spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
-            } 
-        }
-        if (oType == "arc")
-        {
-            if (!Serialization::LVArc::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath, atoi(lv_ta_get_text(obj))))
+            if (!Serialization::LVObject::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath,
+                                                   atoi(lv_ta_get_text(obj))))
             {
                 spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
             }
         }
-
+        if (oType == "arc")
+        {
+            if (!Serialization::LVArc::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath,
+                                                atoi(lv_ta_get_text(obj))))
+            {
+                spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
+            }
+        }
+        if (oType == "bar")
+        {
+            if (!Serialization::LVBar::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath,
+                                                atoi(lv_ta_get_text(obj))))
+            {
+                spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
+            }
+        }
         oud->objectJson = j;
         lv_obj_set_user_data(pc->pw->GetSelectedObject(), (lv_obj_user_data_t)oud);
     }
     if (event == LV_EVENT_VALUE_CHANGED)
     {
-        
     }
 }
 
@@ -150,14 +159,15 @@ void PropertyControls::checkBoxCB(lv_obj_t* obj, lv_event_t event)
         std::string oType = propTokens[1];
         if (oType == "base")
         {
-            if (!Serialization::LVObject::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath, lv_cb_is_checked(obj)))
+            if (!Serialization::LVObject::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath, lv_cb_is_checked(obj))
+            )
             {
                 spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
             }
         }
         if (oType == "arc")
         {
-            spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);            
+            spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
         }
     }
 }
@@ -178,6 +188,12 @@ void PropertyControls::styleListCB(lv_obj_t* obj, lv_event_t event)
     sPropChange* pc = (sPropChange*)lv_obj_get_user_data(obj);
     if (pc->pw->Drawing())
         return;
+    if (event == LV_EVENT_CLICKED)
+    {
+        lv_group_t* kbGroup = pc->pw->GetKBGroup();
+        lv_group_remove_all_objs(kbGroup);
+        lv_group_add_obj(kbGroup, obj);
+    }
     if (event == LV_EVENT_VALUE_CHANGED)
     {
         std::vector<std::string> propTokens = ObjectTools::Split(pc->propertyPath, '/');
@@ -186,11 +202,20 @@ void PropertyControls::styleListCB(lv_obj_t* obj, lv_event_t event)
         {
             char val[32];
             lv_ddlist_get_selected_str(obj, val, 32);
-            std::string value = val;         
+            std::string value = val;
             Serialization::LVObject::SetStyle(pc->pw->GetSelectedObject(),
-                pc->propertyPath,
-                value,
-                pc->pw->StylePtrs);
+                                              pc->propertyPath,
+                                              value,
+                                              pc->pw->StylePtrs);
+        }
+        if (oType == "bar")
+        {
+            char val[32];
+            lv_ddlist_get_selected_str(obj, val, 32);
+            std::string value = val;
+            Serialization::LVBar::SetValue(pc->pw->GetSelectedObject(),
+                                           pc->propertyPath,
+                                           pc->pw->StylePtrs[val]);
         }
     }
 }

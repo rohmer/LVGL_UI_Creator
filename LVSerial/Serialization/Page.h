@@ -24,14 +24,14 @@ using json = nlohmann::json;
 // This allows us to read everything, and then assign parents after
 namespace Serialization
 {
-	class Page
-	{
-	public:
-		static std::vector<lv_obj_t*> FromJSON(json j);
-		static json ToJSON(std::vector<lv_obj_t*> objects);
+    class Page
+    {
+    public:
+        static std::vector<lv_obj_t*> FromJSON(json j);
+        static json ToJSON(std::vector<lv_obj_t*> objects);
 
-	private:
+    private:
         static std::map<unsigned int, lv_obj_t*> idToObj;
         static json serializeObject(lv_obj_t* object);
-	};
+    };
 }

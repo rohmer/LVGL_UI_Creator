@@ -23,7 +23,6 @@ extern "C" {
 #endif
 
 
-
 /*********************
  *      DEFINES
  *********************/
@@ -36,7 +35,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 
-void toolbox_win_init(lv_obj_t * parent);
+void toolbox_win_init(lv_obj_t* parent);
 
 /**********************
  *      MACROS

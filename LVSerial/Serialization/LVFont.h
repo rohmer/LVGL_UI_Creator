@@ -10,11 +10,10 @@ using json = nlohmann::json;
 
 namespace Serialization
 {
-	class LVFont
-	{
-	public:
-		static json ToJSON(const lv_font_t font);
-		static lv_font_t &FromJSON(json j);
-
-	};
+    class LVFont
+    {
+    public:
+        static json ToJSON(lv_font_t font);
+        static lv_font_t& FromJSON(json j);
+    };
 }

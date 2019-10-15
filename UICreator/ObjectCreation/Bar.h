@@ -8,7 +8,7 @@
 class Bar
 {
 public:
-	static lv_obj_t* Create(lv_obj_t *parent,
-		int x,
-		int y);
+    static lv_obj_t* Create(lv_obj_t* parent,
+                            int x,
+                            int y);
 };

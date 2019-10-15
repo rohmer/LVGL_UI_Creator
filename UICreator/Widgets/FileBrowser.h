@@ -18,38 +18,38 @@
 
 class FileBrowser
 {
-public:    
-    typedef void(*fb_callback)(std::filesystem::path selectedFile);
+public:
+    typedef void (*fb_callback)(std::filesystem::path selectedFile);
 
     FileBrowser(
-        std::string startingDir, 
-        lv_obj_t* parent=nullptr,        
-        lv_style_t *style=&lv_style_pretty_color);
-    FileBrowser(
-        std::string startingDir, 
-        lv_area_t coords, 
-        lv_obj_t* parent = nullptr, 
+        std::string startingDir,
+        lv_obj_t* parent = nullptr,
         lv_style_t* style = &lv_style_pretty_color);
     FileBrowser(
-        std::string startingDir, 
-        std::vector<std::string> extensions, 
-        lv_obj_t* parent=nullptr, 
+        std::string startingDir,
+        lv_area_t coords,
+        lv_obj_t* parent = nullptr,
         lv_style_t* style = &lv_style_pretty_color);
     FileBrowser(
-        std::string startingDir, 
-        lv_area_t coords, 
-        std::vector<std::string> extensions, 
-        lv_obj_t* parent = nullptr, 
+        std::string startingDir,
+        std::vector<std::string> extensions,
+        lv_obj_t* parent = nullptr,
+        lv_style_t* style = &lv_style_pretty_color);
+    FileBrowser(
+        std::string startingDir,
+        lv_area_t coords,
+        std::vector<std::string> extensions,
+        lv_obj_t* parent = nullptr,
         lv_style_t* style = &lv_style_pretty_color);
 
     std::filesystem::path SelectedPath();
     void AddCloseCallback(fb_callback cb);
 
-private:    
+private:
     static std::vector<std::string> ext;
     // Objects for drawing
-    lv_obj_t* win, * closeBtn, * upDir;
-    static lv_obj_t* pathBox, *selectButton;
+    lv_obj_t *win, *closeBtn, *upDir;
+    static lv_obj_t *pathBox, *selectButton;
     static ListBox* listBox;
     lv_style_t* style;
 

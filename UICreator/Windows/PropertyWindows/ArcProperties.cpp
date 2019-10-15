@@ -1,13 +1,15 @@
 #include "ArcProperties.h"
-lv_obj_t* ArcProperties::arcStartTA, * ArcProperties::arcEndTA, * ArcProperties::arcLineWidth, * ArcProperties::arcLineRound;
+lv_obj_t *ArcProperties::arcStartTA, *ArcProperties::arcEndTA, *ArcProperties::arcLineWidth, *ArcProperties::
+         arcLineRound;
 ColorPicker* ArcProperties::cp;
 
-void ArcProperties::CreateArcProperties(PropertyWindow *pw)
+void ArcProperties::CreateArcProperties(PropertyWindow* pw)
 {
     pw->ObjectPropWin()->UpdateHeight(300);
     lv_obj_t* cont = lv_cont_create(pw->ObjectPropWin()->GetWindow(), nullptr);
     lv_cont_set_layout(cont, LV_LAYOUT_PRETTY);
     lv_cont_set_fit(cont, LV_FIT_FILL);
+    pw->ObjectPropWin()->AddObjectToWindow(cont);
 
     arcStartTA = PropertyControls::createNumericEntry(pw, cont, "Arc Start", "/arc/angle/start");
     arcEndTA = PropertyControls::createNumericEntry(pw, cont, "Arc End", "/arc/angle/end");
@@ -29,19 +31,18 @@ void ArcProperties::CreateArcProperties(PropertyWindow *pw)
     sPropChange* objData = new sPropChange();
     objData->pw = pw;
     objData->propertyPath = "/arc/style/line.rounded";
-    lv_obj_set_user_data(arcLineRound, (lv_obj_user_data_t)&objData);
+    lv_obj_set_user_data(arcLineRound, static_cast<lv_obj_user_data_t>(&objData));
     lv_obj_set_event_cb(arcLineRound, PropertyControls::checkBoxCB);
-    pw->GetCWM()->Update();
 }
 
-void ArcProperties::UpdateArcProperties(PropertyWindow *pw, json j)
+void ArcProperties::UpdateArcProperties(PropertyWindow* pw, json j)
 {
     pw->Drawing(true);
-    if (pw->CurrentlyLoadedProp != PropertyWindow::eObjType::ARC)
+    if (pw->CurrentlyLoadedProp != PropertyWindow::ARC)
     {
         pw->ObjectPropWin()->DeleteChildren();
         CreateArcProperties(pw);
-        pw->CurrentlyLoadedProp = PropertyWindow::eObjType::ARC;
+        pw->CurrentlyLoadedProp = PropertyWindow::ARC;
     }
 
     json ap = j["arc"];

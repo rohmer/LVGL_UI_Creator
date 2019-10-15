@@ -21,17 +21,18 @@
 #include <Serialization/Style.h>
 #include <spdlog/spdlog.h>
 
-using json=nlohmann::json;
+using json = nlohmann::json;
 
 class PropertyWindow
 {
 public:
-	PropertyWindow(lv_indev_t* kb_indev, SimWindow *simWindow, int screenWidth, int screenHeight);
-	TreeView *GetObjectTree();
-	void SetSelectedObject(lv_obj_t *object);
-	void AddStyle(json styleJson);
-	lv_obj_t *GetSelectedObject();
-    lv_group_t *GetKBGroup()
+    PropertyWindow(lv_indev_t* kb_indev, SimWindow* simWindow, int screenWidth, int screenHeight);
+    TreeView* GetObjectTree();
+    void SetSelectedObject(lv_obj_t* object);
+    void AddStyle(json styleJson);
+    lv_obj_t* GetSelectedObject();
+
+    lv_group_t* GetKBGroup()
     {
         return kbGroup;
     }
@@ -45,22 +46,23 @@ public:
     {
         return drawing;
     }
+
     void Drawing(bool val)
     {
         drawing = val;
     }
 
-    CollapsableWindowManager *GetCWM()
+    CollapsableWindowManager* GetCWM()
     {
         return cwm;
     }
 
-    CollapsableWindow *ObjectPropWin()
+    CollapsableWindow* ObjectPropWin()
     {
         return objProps;
     }
 
-    lv_obj_t *GetWindow()
+    lv_obj_t* GetWindow()
     {
         return propertyWin;
     }
@@ -76,6 +78,7 @@ public:
         PropertyWindow* pw;
         std::string propertyPath;
     };
+
     enum eObjType
     {
         ARC,
@@ -111,43 +114,44 @@ public:
         WINDOW,
         NONE
     };
-    eObjType CurrentlyLoadedProp = eObjType::NONE;
+
+    eObjType CurrentlyLoadedProp = NONE;
     std::map<std::string, json> Styles;
     std::map<std::string, lv_style_t*> StylePtrs;
 
 private:
-	
-	MinimizableWindow *minWin;
-	SimWindow *simWindow;
-	lv_obj_t* propertyWin;
-	int screenX, screenY;
-	bool globalExpanded;
-	CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
-	CollapsableWindowManager *cwm;
-	TreeView *treeView;
-	static lv_theme_t *activeTheme;
-	static std::vector<lv_theme_t *> themes;
 
-	lv_obj_t *selectedObject;
+    MinimizableWindow* minWin;
+    SimWindow* simWindow;
+    lv_obj_t* propertyWin;
+    int screenX, screenY;
+    bool globalExpanded;
+    CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
+    CollapsableWindowManager* cwm;
+    TreeView* treeView;
+    static lv_theme_t* activeTheme;
+    static std::vector<lv_theme_t *> themes;
 
-	struct sInp
-	{
-		std::string name;
-		PropertyWindow *pw;
-	};
+    lv_obj_t* selectedObject;
 
-	static void initializeThemes(uint16_t hue);
-	void createPropertyWin();
-	void createGlobalProps();
-	void createObjProps();
-	void createTreeView();
-	void initStyles();
+    struct sInp
+    {
+        std::string name;
+        PropertyWindow* pw;
+    };
 
-	static void objSelectCB(TreeNode *node);
-	static void deleteCB(TreeNode *node);	
-	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
-	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
-	static bool drawing;
+    static void initializeThemes(uint16_t hue);
+    void createPropertyWin();
+    void createGlobalProps();
+    void createObjProps();
+    void createTreeView();
+    void initStyles();
+
+    static void objSelectCB(TreeNode* node);
+    static void deleteCB(TreeNode* node);
+    static void theme_select_event_handler(lv_obj_t* roller, lv_event_t event);
+    static void hue_select_event_cb(lv_obj_t* roller, lv_event_t event);
+    static bool drawing;
 
     static lv_group_t* kbGroup;
     lv_indev_t* kbIndev;

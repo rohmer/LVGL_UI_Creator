@@ -13,12 +13,12 @@ class ArcProperties
     friend class PropertyControls;
 
 public:
-    static void UpdateArcProperties(PropertyWindow *pw, json j);
-    static void CreateArcProperties(PropertyWindow *pw);
+    static void UpdateArcProperties(PropertyWindow* pw, json j);
+    static void CreateArcProperties(PropertyWindow* pw);
 
- private:
+private:
 #pragma region Arc Properties
-    static lv_obj_t* arcStartTA, * arcEndTA, * arcLineWidth, * arcLineRound;
+    static lv_obj_t *arcStartTA, *arcEndTA, *arcLineWidth, *arcLineRound;
     static ColorPicker* cp;
 #pragma endregion
 };

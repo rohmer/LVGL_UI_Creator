@@ -8,7 +8,7 @@
 class ListBox
 {
 public:
-    typedef void(*lb_callback)(std::string selectedItem);
+    typedef void (*lb_callback)(std::string selectedItem);
 
     enum eListBoxStyles
     {
@@ -25,13 +25,14 @@ public:
         unsigned int width,
         unsigned int height,
         unsigned int lineHeight,
-        lv_obj_t *parent=nullptr,
-        lv_style_t *style=&lv_style_pretty_color);
+        lv_obj_t* parent = nullptr,
+        lv_style_t* style = &lv_style_pretty_color);
 
     void ClearItems();
     void AddItem(std::string name, std::string icon = "");
     void AddStyle(eListBoxStyles, lv_style_t* style);
     void AddSelectCallback(lb_callback cb);
+
     struct sListItem
     {
         int id = -1;
@@ -39,6 +40,7 @@ public:
         lv_obj_t* txt = nullptr;
         lv_obj_t* selectBox = nullptr;
     };
+
 private:
     lv_obj_t* cont;
 
@@ -51,6 +53,4 @@ private:
 
     static void selectCBLocal(lv_obj_t* obj, lv_event_t ev);
     static sListItem* selected;
-
-    
 };

@@ -21,15 +21,15 @@
 class UI
 {
 public:
-	UI(lv_indev_t* kb_indev);
+    UI(lv_indev_t* kb_indev);
 
 private:
-	lv_theme_t *activeTheme;
-	std::vector<lv_theme_t *> themes;
-	void initializeThemes(uint16_t hue);
+    lv_theme_t* activeTheme;
+    std::vector<lv_theme_t *> themes;
+    void initializeThemes(uint16_t hue);
 
-	PropertyWindow *propertyWindow;
-	ToolTray *toolTray;
-	SimWindow *simWindow;
-	ToolBar *toolBar;
+    PropertyWindow* propertyWindow;
+    ToolTray* toolTray;
+    SimWindow* simWindow;
+    ToolBar* toolBar;
 };

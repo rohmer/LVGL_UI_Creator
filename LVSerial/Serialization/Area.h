@@ -13,29 +13,31 @@ namespace Serialization
     {
         int x, y, height, width;
     };
-	class Area
-	{
-	public:		
-		static sAreaPos FromJSON(json j)
-		{
-			sAreaPos area;
 
-			area.x = (int)j["x"];
-			area.width = (int)j["width"];
-			area.y = (int)j["y"];
-			area.height = (int)j["height"];
-			return area;
-		}
+    class Area
+    {
+    public:
+        static sAreaPos FromJSON(json j)
+        {
+            sAreaPos area;
 
-		static json ToJSON(int x, int y, int width, int height)
-		{
-			json j;
-            j["x"] =x;
-			j["y"] = y;
-			j["width"] = width;
-			j["height"] = height;
-			return j;
-		}
-		int X1, Y1, Width, Height;
-	};
+            area.x = static_cast<int>(j["x"]);
+            area.width = static_cast<int>(j["width"]);
+            area.y = static_cast<int>(j["y"]);
+            area.height = static_cast<int>(j["height"]);
+            return area;
+        }
+
+        static json ToJSON(int x, int y, int width, int height)
+        {
+            json j;
+            j["x"] = x;
+            j["y"] = y;
+            j["width"] = width;
+            j["height"] = height;
+            return j;
+        }
+
+        int X1, Y1, Width, Height;
+    };
 }

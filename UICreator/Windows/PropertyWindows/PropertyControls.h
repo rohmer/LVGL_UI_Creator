@@ -15,9 +15,12 @@ struct sPropChange
 class PropertyControls
 {
 public:
-    static lv_obj_t* createNumericEntry(PropertyWindow* pw, lv_obj_t* parent, const std::string labelTxt, const std::string propertyPath);
-    static lv_obj_t *createCBEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt, std::string propertyPath);
-    static lv_obj_t* createStyleEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt, std::string propertyPath);
+    static lv_obj_t* createNumericEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt,
+                                        std::string propertyPath);
+    static lv_obj_t* createCBEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt,
+                                   std::string propertyPath);
+    static lv_obj_t* createStyleEntry(PropertyWindow* pw, lv_obj_t* parent, std::string labelTxt,
+                                      std::string propertyPath);
 
     static void numericEntryCB(lv_obj_t* obj, lv_event_t event);
     static void ddListCB(lv_obj_t* obj, lv_event_t event);

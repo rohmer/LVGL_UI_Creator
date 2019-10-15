@@ -13,12 +13,12 @@ using json = nlohmann::json;
 
 namespace Serialization
 {
-	class Style
-	{
-	public:
-		static json ToJSON(lv_style_t &style);
-		static json ToJSON(lv_style_t &style, std::string name);
-		static lv_style_t FromJSON(json j);
-		static bool StyleComp(lv_style_t st1, lv_style_t st2);
-	};
+    class Style
+    {
+    public:
+        static json ToJSON(lv_style_t& style);
+        static json ToJSON(lv_style_t& style, std::string name);
+        static lv_style_t FromJSON(json j);
+        static bool StyleComp(lv_style_t st1, lv_style_t st2);
+    };
 }

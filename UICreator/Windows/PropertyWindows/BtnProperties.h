@@ -7,14 +7,12 @@
 #include "PropertyControls.h"
 #include "../PropertyWindow.h"
 
-class BarProperties
+class BtnProperties
 {
     friend class PropertyWindow;
     friend class PropertyControls;
 
 public:
-    static void UpdateBarProperties(PropertyWindow* pw, json j);
-    static void CreateBarProperties(PropertyWindow* pw);
-
-    static lv_obj_t *rngStart, *rngEnd, *sym, *animTime, *value, *bg, *ind, *sel;
+    static void UpdateBtnProperties(PropertyWindow* pw, json j);
+    static void CreateBtnProperties(PropertyWindow* pw);
 };

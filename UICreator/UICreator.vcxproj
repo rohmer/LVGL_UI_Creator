@@ -94,6 +94,7 @@
     <ClInclude Include="Windows\PropertyWindows\ArcProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BaseProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BarProperties.h" />
+    <ClInclude Include="Windows\PropertyWindows\BtnProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\PropertyControls.h" />
     <ClInclude Include="Windows\Themes.h" />
     <ClInclude Include="Windows\ToolBar.h" />

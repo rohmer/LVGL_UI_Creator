@@ -311,5 +311,8 @@
     <ClInclude Include="Windows\PropertyWindows\BarProperties.h">
       <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
     </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BtnProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

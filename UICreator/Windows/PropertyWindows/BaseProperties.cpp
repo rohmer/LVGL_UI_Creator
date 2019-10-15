@@ -1,9 +1,11 @@
 #include "BaseProperties.h"
-lv_obj_t *BaseProperties::taX, * BaseProperties::taY, * BaseProperties::taWidth, * BaseProperties::taHeight;
+lv_obj_t *BaseProperties::taX, *BaseProperties::taY, *BaseProperties::taWidth, *BaseProperties::taHeight;
 lv_obj_t* BaseProperties::styleDD;
-lv_obj_t* BaseProperties::hidden, * BaseProperties::click, * BaseProperties::top, * BaseProperties::parentEvent, * BaseProperties::opaScaleEnable, * BaseProperties::opaScale;
-lv_obj_t* BaseProperties::drag, * BaseProperties::dragDir, * BaseProperties::dragThrow, * BaseProperties::dragParent;
-lv_obj_t* BaseProperties::protNone, * BaseProperties::protPos, * BaseProperties::protFollow, * BaseProperties::protParent, * BaseProperties::protPressLost, * BaseProperties::protClickFocus, * BaseProperties::protChildChg;
+lv_obj_t *BaseProperties::hidden, *BaseProperties::click, *BaseProperties::top, *BaseProperties::parentEvent, *
+         BaseProperties::opaScaleEnable, *BaseProperties::opaScale;
+lv_obj_t *BaseProperties::drag, *BaseProperties::dragDir, *BaseProperties::dragThrow, *BaseProperties::dragParent;
+lv_obj_t *BaseProperties::protNone, *BaseProperties::protPos, *BaseProperties::protFollow, *BaseProperties::protParent,
+         *BaseProperties::protPressLost, *BaseProperties::protClickFocus, *BaseProperties::protChildChg;
 CollapsableWindow* BaseProperties::baseObjProps;
 
 void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
@@ -38,7 +40,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc2 = new sPropChange();
     pc2->pw = propertyWin;
     pc2->propertyPath = "/base/hidden";
-    lv_obj_set_user_data(hidden, (lv_obj_user_data_t)pc2);
+    lv_obj_set_user_data(hidden, static_cast<lv_obj_user_data_t>(pc2));
     lv_obj_set_event_cb(hidden, PropertyControls::checkBoxCB);
 
     click = lv_cb_create(attrCont, nullptr);
@@ -46,7 +48,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc3 = new sPropChange();
     pc3->pw = propertyWin;
     pc3->propertyPath = "/base/click";
-    lv_obj_set_user_data(click, (lv_obj_user_data_t)pc3);
+    lv_obj_set_user_data(click, static_cast<lv_obj_user_data_t>(pc3));
     lv_obj_set_event_cb(click, PropertyControls::checkBoxCB);
 
     top = lv_cb_create(attrCont, nullptr);
@@ -55,7 +57,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     pc4->pw = propertyWin;
     pc4->propertyPath = "/base/top";
 
-    lv_obj_set_user_data(top, (lv_obj_user_data_t)pc4);
+    lv_obj_set_user_data(top, static_cast<lv_obj_user_data_t>(pc4));
     lv_obj_set_event_cb(top, PropertyControls::checkBoxCB);
 
     parentEvent = lv_cb_create(attrCont, nullptr);
@@ -63,7 +65,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc5 = new sPropChange();
     pc5->pw = propertyWin;
     pc5->propertyPath = "/base/parevent";
-    lv_obj_set_user_data(parentEvent, (lv_obj_user_data_t)pc5);
+    lv_obj_set_user_data(parentEvent, static_cast<lv_obj_user_data_t>(pc5));
     lv_obj_set_event_cb(parentEvent, PropertyControls::checkBoxCB);
 
     lv_obj_t* attrCont2 = lv_cont_create(boCont, nullptr);
@@ -77,7 +79,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     pc6->pw = propertyWin;
     pc6->propertyPath = "/base/opascaleen";
 
-    lv_obj_set_user_data(opaScaleEnable, (lv_obj_user_data_t)pc6);
+    lv_obj_set_user_data(opaScaleEnable, static_cast<lv_obj_user_data_t>(pc6));
     lv_obj_set_event_cb(opaScaleEnable, PropertyControls::checkBoxCB);
 
     opaScale = PropertyControls::createNumericEntry(propertyWin, attrCont2, "Opa Scale", "/base/opascale");
@@ -95,7 +97,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc7 = new sPropChange();
     pc7->pw = propertyWin;
     pc7->propertyPath = "/base/drag";
-    lv_obj_set_user_data(drag, (lv_obj_user_data_t)pc7);
+    lv_obj_set_user_data(drag, static_cast<lv_obj_user_data_t>(pc7));
     lv_obj_set_event_cb(drag, PropertyControls::checkBoxCB);
 
     lv_obj_t* ddLab = lv_label_create(dragCont, nullptr);
@@ -106,7 +108,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc8 = new sPropChange();
     pc8->pw = propertyWin;
     pc8->propertyPath = "/base/dragDir";
-    lv_obj_set_user_data(dragDir, (lv_obj_user_data_t)pc8);
+    lv_obj_set_user_data(dragDir, static_cast<lv_obj_user_data_t>(pc8));
     lv_obj_set_event_cb(dragDir, PropertyControls::ddListCB);
 
     dragThrow = lv_cb_create(dragCont, nullptr);
@@ -115,7 +117,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     pc9->pw = propertyWin;
     pc9->propertyPath = "/base/dragThrow";
 
-    lv_obj_set_user_data(dragThrow, (lv_obj_user_data_t)pc9);
+    lv_obj_set_user_data(dragThrow, static_cast<lv_obj_user_data_t>(pc9));
     lv_obj_set_event_cb(dragThrow, PropertyControls::checkBoxCB);
 
     dragParent = lv_cb_create(dragCont, nullptr);
@@ -123,7 +125,7 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc10 = new sPropChange();
     pc10->pw = propertyWin;
     pc10->propertyPath = "/base/dragParent";
-    lv_obj_set_user_data(dragParent, (lv_obj_user_data_t)pc10);
+    lv_obj_set_user_data(dragParent, static_cast<lv_obj_user_data_t>(pc10));
     lv_obj_set_event_cb(dragParent, PropertyControls::checkBoxCB);
 
 #pragma endregion
@@ -146,28 +148,28 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     sPropChange* pc11 = new sPropChange();
     pc11->pw = propertyWin;
     pc11->propertyPath = "/base/protect/protNone";
-    lv_obj_set_user_data(protNone, (lv_obj_user_data_t)pc11);
+    lv_obj_set_user_data(protNone, static_cast<lv_obj_user_data_t>(pc11));
     lv_obj_set_event_cb(protNone, PropertyControls::checkBoxCB);
     protPos = lv_cb_create(row1, nullptr);
     lv_cb_set_text(protPos, "Position");
     sPropChange* pc12 = new sPropChange();
     pc12->pw = propertyWin;
     pc12->propertyPath = "/base/protect/protPos";
-    lv_obj_set_user_data(protPos, (lv_obj_user_data_t)pc12);
+    lv_obj_set_user_data(protPos, static_cast<lv_obj_user_data_t>(pc12));
     lv_obj_set_event_cb(protPos, PropertyControls::checkBoxCB);
     protFollow = lv_cb_create(row1, nullptr);
     sPropChange* pc17 = new sPropChange();
     pc17->pw = propertyWin;
     pc17->propertyPath = "/base/protect/protFollow";
     lv_cb_set_text(protFollow, "Follow");
-    lv_obj_set_user_data(protFollow, (lv_obj_user_data_t)pc17);
+    lv_obj_set_user_data(protFollow, static_cast<lv_obj_user_data_t>(pc17));
     lv_obj_set_event_cb(protFollow, PropertyControls::checkBoxCB);
     protParent = lv_cb_create(row1, nullptr);
     lv_cb_set_text(protParent, "Parent");
     sPropChange* pc13 = new sPropChange();
     pc13->pw = propertyWin;
     pc13->propertyPath = "/base/protect/protParent";
-    lv_obj_set_user_data(protParent, (lv_obj_user_data_t)pc13);
+    lv_obj_set_user_data(protParent, static_cast<lv_obj_user_data_t>(pc13));
     lv_obj_set_event_cb(protParent, PropertyControls::checkBoxCB);
     lv_obj_t* row2 = lv_cont_create(protCont, nullptr);
     lv_obj_set_style(row2, &lv_style_transp);
@@ -179,28 +181,28 @@ void BaseProperties::CreateBaseObjProps(PropertyWindow* propertyWin)
     pc14->pw = propertyWin;
     pc14->propertyPath = "/base/protect/protPressLost";
 
-    lv_obj_set_user_data(protPressLost, (lv_obj_user_data_t)pc14);
+    lv_obj_set_user_data(protPressLost, static_cast<lv_obj_user_data_t>(pc14));
     lv_obj_set_event_cb(protPressLost, PropertyControls::checkBoxCB);
     protClickFocus = lv_cb_create(row2, nullptr);
     lv_cb_set_text(protClickFocus, "Click focus");
     sPropChange* pc15 = new sPropChange();
     pc15->pw = propertyWin;
     pc15->propertyPath = "/base/protect/protClickFocus";
-    lv_obj_set_user_data(protClickFocus, (lv_obj_user_data_t)pc15);
+    lv_obj_set_user_data(protClickFocus, static_cast<lv_obj_user_data_t>(pc15));
     lv_obj_set_event_cb(protClickFocus, PropertyControls::checkBoxCB);
     protChildChg = lv_cb_create(row2, nullptr);
     lv_cb_set_text(protChildChg, "Child change");
     sPropChange* pc16 = new sPropChange();
     pc16->pw = propertyWin;
     pc16->propertyPath = "/base/protect/protChildChange";
-    lv_obj_set_user_data(protChildChg, (lv_obj_user_data_t)pc16);
+    lv_obj_set_user_data(protChildChg, static_cast<lv_obj_user_data_t>(pc16));
     lv_obj_set_event_cb(protChildChg, PropertyControls::checkBoxCB);
 
 #pragma endregion
     propertyWin->GetCWM()->AddWindow(baseObjProps);
 }
 
-void BaseProperties::UpdateGlobalProps(PropertyWindow *pw, json j)
+void BaseProperties::UpdateGlobalProps(PropertyWindow* pw, json j)
 {
     if (pw->GetSelectedObject() == nullptr)
         return;
@@ -227,8 +229,8 @@ void BaseProperties::UpdateGlobalProps(PropertyWindow *pw, json j)
     int selIdx = -1;
     int i = 0;
     for (std::map<std::string, json>::iterator it = pw->Styles.begin();
-        it != pw->Styles.end();
-        ++it)
+         it != pw->Styles.end();
+         ++it)
     {
         if (it->first == styleName)
         {
@@ -288,5 +290,3 @@ void BaseProperties::UpdateGlobalProps(PropertyWindow *pw, json j)
         lv_cb_set_checked(protClickFocus, false);
     pw->Drawing(false);
 }
-
-

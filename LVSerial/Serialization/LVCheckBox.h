@@ -16,6 +16,5 @@ namespace Serialization
         static lv_obj_t* FromJSON(json j);
         static bool SetValue(lv_obj_t* obj, std::string key, int value);
         static bool SetValue(lv_obj_t* obj, std::string key, std::string value);
-
     };
 }

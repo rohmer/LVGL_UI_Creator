@@ -12,11 +12,10 @@ using json = nlohmann::json;
 
 namespace Serialization
 {
-	class LVFontDsc
-	{
-	public:
-		static json ToJSON(lv_font_fmt_txt_dsc_t &fontDsc, const lv_font_t font);
-		static void* FromJSON(json j);
-
-	};
+    class LVFontDsc
+    {
+    public:
+        static json ToJSON(lv_font_fmt_txt_dsc_t& fontDsc, lv_font_t font);
+        static void* FromJSON(json j);
+    };
 }

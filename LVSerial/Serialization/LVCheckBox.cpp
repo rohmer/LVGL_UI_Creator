@@ -37,9 +37,9 @@ namespace Serialization
             lv_cb_set_text(cb, j["cb"]["text"].get<std::string>().c_str());
         if (j["cb"]["checked"].is_number())
             lv_cb_set_checked(cb, j["cb"]["checked"]);
-        if (j["cb"]["inact"].is_boolean() && j["cb"]["inact"]==true)
+        if (j["cb"]["inact"].is_boolean() && j["cb"]["inact"] == true)
             lv_cb_set_inactive(cb);
-        if(j["cb"]["style"].is_object())
+        if (j["cb"]["style"].is_object())
         {
             json s = j["cb"]["style"];
             if (s["bg"].is_object())
@@ -76,5 +76,4 @@ namespace Serialization
             return cb;
         }
     }
-
 }

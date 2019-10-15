@@ -2,35 +2,35 @@
 
 
 #pragma region Themes
-static const char * th_options =
+static const char* th_options =
 {
 #if LV_USE_THEME_NIGHT
-		"Night"
+    "Night"
 #endif
 
 #if LV_USE_THEME_MATERIAL
-		"\nMaterial"
+    "\nMaterial"
 #endif
 
 #if LV_USE_THEME_ALIEN
-		"\nAlien"
+    "\nAlien"
 #endif
 
 #if LV_USE_THEME_ZEN
-		"\nZen"
+    "\nZen"
 #endif
 
 #if LV_USE_THEME_NEMO
-		"\nNemo"
+    "\nNemo"
 #endif
 
 #if LV_USE_THEME_MONO
-		"\nMono"
+    "\nMono"
 #endif
 
 #if LV_USE_THEME_DEFAULT
-		"\nDefault"
+    "\nDefault"
 #endif
-		""
+    ""
 };
 #pragma endregion
