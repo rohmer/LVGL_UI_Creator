@@ -113,7 +113,7 @@ namespace Serialization
         return j;
     }
 
-    lv_style_t Style::FromJSON(json j)
+    const lv_style_t Style::FromJSON(json j)
     {
         lv_style_t style;
         if (j["glass"].is_number())

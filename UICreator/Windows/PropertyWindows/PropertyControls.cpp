@@ -140,6 +140,14 @@ void PropertyControls::numericEntryCB(lv_obj_t* obj, lv_event_t event)
                 spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
             }
         }
+        if (oType == "btn")
+        {
+            if (!Serialization::LVButton::SetValue(pc->pw->GetSelectedObject(), pc->propertyPath,
+                atoi(lv_ta_get_text(obj))))
+            {
+                spdlog::get("console")->error("Failed to set value: {0}", pc->propertyPath);
+            }
+        }
         oud->objectJson = j;
         lv_obj_set_user_data(pc->pw->GetSelectedObject(), (lv_obj_user_data_t)oud);
     }

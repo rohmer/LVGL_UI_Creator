@@ -44,33 +44,33 @@ namespace Serialization
             json s = j["cb"]["style"];
             if (s["bg"].is_object())
             {
-                const lv_style_t* st = &Style::FromJSON(s["bg"]);
-                lv_cb_set_style(cb, LV_CB_STYLE_BG, st);
+                const lv_style_t st = Style::FromJSON(s["bg"]);
+                lv_cb_set_style(cb, LV_CB_STYLE_BG, &st);
             }
             if (s["rel"].is_object())
             {
-                const lv_style_t* st = &Style::FromJSON(s["rel"]);
-                lv_cb_set_style(cb, LV_CB_STYLE_BOX_REL, st);
+                const lv_style_t st = Style::FromJSON(s["rel"]);
+                lv_cb_set_style(cb, LV_CB_STYLE_BOX_REL, &st);
             }
             if (s["ina"].is_object())
             {
-                const lv_style_t* st = &Style::FromJSON(s["ina"]);
-                lv_cb_set_style(cb, LV_CB_STYLE_BOX_INA, st);
+                const lv_style_t st = Style::FromJSON(s["ina"]);
+                lv_cb_set_style(cb, LV_CB_STYLE_BOX_INA, &st);
             }
             if (s["pr"].is_object())
             {
-                const lv_style_t* st = &Style::FromJSON(s["pr"]);
-                lv_cb_set_style(cb, LV_CB_STYLE_BOX_PR, st);
+                const lv_style_t st = Style::FromJSON(s["pr"]);
+                lv_cb_set_style(cb, LV_CB_STYLE_BOX_PR, &st);
             }
             if (s["tglRel"].is_object())
             {
-                const lv_style_t* st = &Style::FromJSON(s["tglRel"]);
-                lv_cb_set_style(cb, LV_CB_STYLE_BOX_TGL_REL, st);
+                const lv_style_t st = Style::FromJSON(s["tglRel"]);
+                lv_cb_set_style(cb, LV_CB_STYLE_BOX_TGL_REL, &st);
             }
             if (s["tglPr"].is_object())
             {
-                const lv_style_t* st = &Style::FromJSON(s["tglPr"]);
-                lv_cb_set_style(cb, LV_CB_STYLE_BOX_TGL_PR, st);
+                const lv_style_t st = Style::FromJSON(s["tglPr"]);
+                lv_cb_set_style(cb, LV_CB_STYLE_BOX_TGL_PR, &st);
             }
 
             return cb;

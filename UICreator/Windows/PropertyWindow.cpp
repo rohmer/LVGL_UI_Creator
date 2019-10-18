@@ -65,7 +65,10 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object)
     {
         BarProperties::UpdateBarProperties(this, j);
     }
-
+    if(j["button"].is_object())
+    {
+        BtnProperties::UpdateBtnProperties(this, j);
+    }
     GetCWM()->Update();
 }
 

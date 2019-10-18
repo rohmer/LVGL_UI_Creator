@@ -183,6 +183,9 @@
     <ClCompile Include="Windows\PropertyWindows\BarProperties.cpp">
       <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BtnProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">

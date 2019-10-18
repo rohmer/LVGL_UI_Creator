@@ -52,6 +52,7 @@
     <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\BarProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\BaseProperties.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\BtnProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\PropertyControls.cpp" />
     <ClCompile Include="Windows\ToolBar.cpp" />
     <ClCompile Include="Windows\UI.cpp" />

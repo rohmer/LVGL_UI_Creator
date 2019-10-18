@@ -16,6 +16,7 @@
 #include "PropertyWindows/BaseProperties.h"
 #include "PropertyWindows/ArcProperties.h"
 #include "PropertyWindows/BarProperties.h"
+#include "PropertyWindows/BtnProperties.h"
 #include "../JSON/json.hpp"
 #include <Serialization/ObjectSerializer.h>
 #include <Serialization/Style.h>
