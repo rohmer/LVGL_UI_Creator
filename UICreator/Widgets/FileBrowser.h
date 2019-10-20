@@ -3,13 +3,20 @@
 #ifdef _WINDOWS
 #include <direct.h>
 #define GetCurrentDir _getcwd
+#include <io.h>
+#include <filesystem>
+using path = std::filesystem::path;
+using dirit = std::filesystem::directory_iterator;
+using dirent = std::filesystem::directory_entry;
 #else
 #include <unistd.h>
+#include <experimental/filesystem>
+using path = std::experimental::filesystem::path;
+using dirit = std::experimental::filesystem::directory_iterator;
+using dirent = std::experimental::filesystem::directory_entry;
 #define GetCurrentDir getcwd
 #endif
-#include <io.h>
 
-#include <filesystem>
 #include <stdio.h>
 #include <sstream>
 #include <string>
@@ -19,7 +26,7 @@
 class FileBrowser
 {
 public:
-    typedef void (*fb_callback)(std::filesystem::path selectedFile);
+    typedef void (*fb_callback)(path selectedFile);
 
     FileBrowser(
         std::string startingDir,
@@ -54,7 +61,7 @@ private:
     lv_style_t* style;
 
     bool active = false;
-    static std::filesystem::path path;
+    static path path;
 
     void createObjects(lv_obj_t* parent, lv_area_t coords);
     static void refreshObjects();

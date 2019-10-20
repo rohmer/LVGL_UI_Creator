@@ -1,6 +1,6 @@
 #include "FileBrowser.h"
 
-std::filesystem::path FileBrowser::path;
+path FileBrowser::path;
 lv_obj_t *FileBrowser::pathBox, *FileBrowser::selectButton;
 ListBox* FileBrowser::listBox;
 std::vector<std::string> FileBrowser::ext;
@@ -137,14 +137,13 @@ void FileBrowser::refreshObjects()
 {
     lv_ta_set_text(pathBox, path.string().c_str());
     listBox->ClearItems();
-    // TODO: Put the directories first
-    std::vector<std::filesystem::directory_entry> files;
-    for (const auto& entry : std::filesystem::directory_iterator(path))
+    std::vector<dirent> files;
+    for (const auto& entry : dirit(path))
     {
         if (entry.is_directory())
             files.push_back(entry);
     }
-    for (const auto& entry : std::filesystem::directory_iterator(path))
+    for (const auto& entry : dirit(path))
     {
         if (!entry.is_directory())
         {
@@ -171,14 +170,14 @@ void FileBrowser::refreshObjects()
         std::string icon = LV_SYMBOL_FILE;
         if (element.is_directory())
             icon = LV_SYMBOL_DIRECTORY;
-        std::filesystem::path p = element.path().filename();
+        path p = element.path().filename();
         listBox->AddItem(p.string(), icon);
     }
 }
 
 void FileBrowser::listBoxCB(std::string selected)
 {
-    std::filesystem::path p = path;
+    path p = path;
     p /= selected;
     if (is_directory(p))
     {
