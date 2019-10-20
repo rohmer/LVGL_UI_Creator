@@ -5,13 +5,13 @@
 #define GetCurrentDir _getcwd
 #include <io.h>
 #include <filesystem>
-using path = std::filesystem::path;
+using pathType = std::filesystem::path;
 using dirit = std::filesystem::directory_iterator;
 using dirent = std::filesystem::directory_entry;
 #else
 #include <unistd.h>
 #include <experimental/filesystem>
-using path = std::experimental::filesystem::path;
+using pathType = std::experimental::filesystem::path;
 using dirit = std::experimental::filesystem::directory_iterator;
 using dirent = std::experimental::filesystem::directory_entry;
 #define GetCurrentDir getcwd

@@ -170,14 +170,14 @@ void FileBrowser::refreshObjects()
         std::string icon = LV_SYMBOL_FILE;
         if (element.is_directory())
             icon = LV_SYMBOL_DIRECTORY;
-        path p = element.path().filename();
+        pathType p = element.path().filename();
         listBox->AddItem(p.string(), icon);
     }
 }
 
 void FileBrowser::listBoxCB(std::string selected)
 {
-    path p = path;
+    pathType p = path;
     p /= selected;
     if (is_directory(p))
     {
