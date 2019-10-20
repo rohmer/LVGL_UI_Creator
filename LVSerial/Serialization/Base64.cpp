@@ -5,7 +5,7 @@
 
    Version: 1.01.00
 
-   Copyright (C) 2004-2017 René Nyffenegger
+   Copyright (C) 2004-2017 Renï¿½ Nyffenegger
 
    This source code is provided 'as-is', without any express or implied
    warranty. In no event will the author be held liable for any damages
@@ -25,11 +25,11 @@
 
    3. This notice may not be removed or altered from any source distribution.
 
-   René Nyffenegger rene.nyffenegger@adp-gmbh.ch
+   Renï¿½ Nyffenegger rene.nyffenegger@adp-gmbh.ch
 
 */
 
-#include "base64.h"
+#include "Base64.h"
 #include <iostream>
 
 static const std::string base64_chars =
