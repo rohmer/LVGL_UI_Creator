@@ -26,7 +26,7 @@ using dirent = std::experimental::filesystem::directory_entry;
 class FileBrowser
 {
 public:
-    typedef void (*fb_callback)(path selectedFile);
+    typedef void (*fb_callback)(pathType selectedFile);
 
     FileBrowser(
         std::string startingDir,
@@ -61,7 +61,7 @@ private:
     lv_style_t* style;
 
     bool active = false;
-    static path path;
+    static pathType path;
 
     void createObjects(lv_obj_t* parent, lv_area_t coords);
     static void refreshObjects();

@@ -1,6 +1,6 @@
 #include "FileBrowser.h"
 
-path FileBrowser::path;
+pathType FileBrowser::path;
 lv_obj_t *FileBrowser::pathBox, *FileBrowser::selectButton;
 ListBox* FileBrowser::listBox;
 std::vector<std::string> FileBrowser::ext;
