@@ -49,7 +49,7 @@ public:
         lv_obj_t* parent = nullptr,
         lv_style_t* style = &lv_style_pretty_color);
 
-    std::filesystem::path SelectedPath();
+    pathType SelectedPath();
     void AddCloseCallback(fb_callback cb);
 
 private:

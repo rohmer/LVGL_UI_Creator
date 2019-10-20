@@ -140,12 +140,21 @@ void FileBrowser::refreshObjects()
     std::vector<dirent> files;
     for (const auto& entry : dirit(path))
     {
+        #ifdef _WINDOWS
         if (entry.is_directory())
             files.push_back(entry);
+        #else
+        if(std::experimental::filesystem::is_directory(entry))
+            files.push_back(entry);
+        #endif
     }
     for (const auto& entry : dirit(path))
     {
+        #ifdef _WINDOWS
         if (!entry.is_directory())
+        #else
+        if(std::experimental::filesystem::is_directory(entry))
+        #endif
         {
             if (ext.empty())
             {
@@ -168,7 +177,11 @@ void FileBrowser::refreshObjects()
     for (const auto& element : files)
     {
         std::string icon = LV_SYMBOL_FILE;
+        #ifdef _WINDOWS
         if (element.is_directory())
+        #else
+        if(std::experimental::filesystem::is_directory(element))
+        #endif        
             icon = LV_SYMBOL_DIRECTORY;
         pathType p = element.path().filename();
         listBox->AddItem(p.string(), icon);
@@ -211,7 +224,7 @@ void FileBrowser::upDirCB(lv_obj_t* obj, lv_event_t ev)
     }
 }
 
-std::filesystem::path FileBrowser::SelectedPath()
+pathType FileBrowser::SelectedPath()
 {
     return path;
 }
