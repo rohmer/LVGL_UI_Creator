@@ -78,9 +78,6 @@
     <ClCompile Include="loadproj.c">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="main.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="mouse_cursor_icon.c">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
@@ -185,6 +182,9 @@
     </ClCompile>
     <ClCompile Include="Windows\PropertyWindows\BtnProperties.cpp">
       <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

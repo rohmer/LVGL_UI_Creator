@@ -25,7 +25,7 @@
     <ClCompile Include="gencode.c" />
     <ClCompile Include="interface.c" />
     <ClCompile Include="loadproj.c" />
-    <ClCompile Include="main.c" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="mouse_cursor_icon.c" />
     <ClCompile Include="ObjectCreation\Arc.cpp" />
     <ClCompile Include="ObjectCreation\Bar.cpp" />
@@ -228,8 +228,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(ProjectDir)..\3rdParty\MXML\vcnet\$(Configuration)\$(Platform)\mxml1.dll $(OutDir) &amp;&amp; copy /Y $(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll $(OutDir) &amp;&amp; copy /Y $(ProjectDir)Fonts\TTFs\*.ttf $(Outdir)
-
+      <Command>
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
