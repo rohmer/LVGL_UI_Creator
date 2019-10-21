@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
 
+set(CXX g++-8)
+set(cc gcc-8)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 project(LVGL_UI_Creator)
 
 # 3rdParty Libraries
