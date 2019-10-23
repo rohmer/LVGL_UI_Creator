@@ -86,12 +86,13 @@ unsigned int TreeView::AddNode(std::string name,
     if (parent == nullptr)
     {
         topLevelNodes.push_back(newNode);
+        newNode->level=0;
     }
     else
     {
         parent->addChild(newNode);
+        newNode->level=newNode->GetLevel();
     }
-    newNode->level = newNode->GetLevel();
     createUIObjects(newNode);
     placeUIObjects();
     return newNode->id;

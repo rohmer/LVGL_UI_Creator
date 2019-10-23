@@ -138,7 +138,7 @@ void TreeNode::addChild(TreeNode* node)
 unsigned int TreeNode::GetLevel()
 {
     unsigned int i = 0;
-    TreeNode* np = this;
+    auto np = this;
     while (np->parent != nullptr)
     {
         i++;
