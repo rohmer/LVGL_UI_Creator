@@ -9,12 +9,13 @@ namespace Serialization
         lv_btnm_ext_t* ext = static_cast<lv_btnm_ext_t*>(lv_obj_get_ext_attr(btnm));
         int btnCnt = ext->btn_cnt;
         int buttonCt = ext->btn_cnt;
-        const char** ma = ext->map_p;
+        const char** ma = lv_btnm_get_map_array(btnm);
         int ctr = 0;
         int row = 0;
         while (*ma)
         {
             const char* p = *ma;
+            if(p)
             while (strlen(p) > 0)
             {
                 j["btnm"]["btnMap"][ctr] = p;

@@ -37,9 +37,9 @@
 #include "SDL_opengl.h"
 #endif /* SDL_VIDEO_OPENGL */
 
-#if SDL_VIDEO_OPENGL_ES
+#if SDL_VIDEO_OPENGL_ES && !SDL_VIDEO_OPENGL
 #include "SDL_opengles.h"
-#endif /* SDL_VIDEO_OPENGL_ES */
+#endif /* SDL_VIDEO_OPENGL_ES && !SDL_VIDEO_OPENGL */
 
 /* GL and GLES2 headers conflict on Linux 32 bits */
 #if SDL_VIDEO_OPENGL_ES2 && !SDL_VIDEO_OPENGL
@@ -108,6 +108,9 @@ static VideoBootStrap *bootstrap[] = {
 #endif
 #if SDL_VIDEO_DRIVER_QNX
     &QNX_bootstrap,
+#endif
+#if SDL_VIDEO_DRIVER_OFFSCREEN
+    &OFFSCREEN_bootstrap,
 #endif
 #if SDL_VIDEO_DRIVER_DUMMY
     &DUMMY_bootstrap,
@@ -4180,6 +4183,27 @@ void SDL_Vulkan_GetDrawableSize(SDL_Window * window, int *w, int *h)
         _this->Vulkan_GetDrawableSize(_this, window, w, h);
     } else {
         SDL_GetWindowSize(window, w, h);
+    }
+}
+
+SDL_MetalView
+SDL_Metal_CreateView(SDL_Window * window)
+{
+    CHECK_WINDOW_MAGIC(window, NULL);
+
+    if (_this->Metal_CreateView) {
+        return _this->Metal_CreateView(_this, window);
+    } else {
+        SDL_SetError("Metal is not supported.");
+        return NULL;
+    }
+}
+
+void
+SDL_Metal_DestroyView(SDL_MetalView view)
+{
+    if (_this && view && _this->Metal_DestroyView) {
+        _this->Metal_DestroyView(_this, view);
     }
 }
 

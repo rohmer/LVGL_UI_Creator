@@ -52,6 +52,8 @@
     <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\BarProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\BaseProperties.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\BtnmEditorWindow.cpp" />
+    <ClCompile Include="Windows\PropertyWindows\BtnmProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\BtnProperties.cpp" />
     <ClCompile Include="Windows\PropertyWindows\PropertyControls.cpp" />
     <ClCompile Include="Windows\ToolBar.cpp" />
@@ -95,6 +97,8 @@
     <ClInclude Include="Windows\PropertyWindows\ArcProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BaseProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BarProperties.h" />
+    <ClInclude Include="Windows\PropertyWindows\BtnmEditorWindow.h" />
+    <ClInclude Include="Windows\PropertyWindows\BtnmProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BtnProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\PropertyControls.h" />
     <ClInclude Include="Windows\Themes.h" />
@@ -229,8 +233,11 @@
     </Link>
     <PostBuildEvent>
       <Command>
-</Command>
+      </Command>
     </PostBuildEvent>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

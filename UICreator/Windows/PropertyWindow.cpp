@@ -69,6 +69,10 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object)
     {
         BtnProperties::UpdateBtnProperties(this, j);
     }
+    if (j["btnm"].is_object())
+    {
+        BtnmProperties::UpdateBtnmProperties(this, j);
+    }
     GetCWM()->Update();
 }
 

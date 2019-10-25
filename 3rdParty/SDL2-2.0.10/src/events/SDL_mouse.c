@@ -339,7 +339,7 @@ SDL_PrivateSendMouseMotion(SDL_Window * window, SDL_MouseID mouseID, int relativ
             if (window) {
                 float fx = (float)x / (float)window->w;
                 float fy = (float)y / (float)window->h;
-                SDL_SendTouchMotion(SDL_MOUSE_TOUCHID, 0, fx, fy, 1.0f);
+                SDL_SendTouchMotion(SDL_MOUSE_TOUCHID, 0, window, fx, fy, 1.0f);
             }
         }
     }
@@ -381,19 +381,16 @@ SDL_PrivateSendMouseMotion(SDL_Window * window, SDL_MouseID mouseID, int relativ
         yrel = y - mouse->last_y;
     }
 
-    /* Drop events that don't change state */
-    if (!xrel && !yrel) {
-#ifdef DEBUG_MOUSE
-        printf("Mouse event didn't change state - dropped!\n");
-#endif
-        return 0;
-    }
-
     /* Ignore relative motion when first positioning the mouse */
     if (!mouse->has_position) {
         xrel = 0;
         yrel = 0;
         mouse->has_position = SDL_TRUE;
+    } else if (!xrel && !yrel) {  /* Drop events that don't change state */
+#ifdef DEBUG_MOUSE
+        printf("Mouse event didn't change state - dropped!\n");
+#endif
+        return 0;
     }
 
     /* Ignore relative motion positioning the first touch */
@@ -509,7 +506,7 @@ SDL_PrivateSendMouseButton(SDL_Window * window, SDL_MouseID mouseID, Uint8 state
             if (window) {
                 float fx = (float)mouse->x / (float)window->w;
                 float fy = (float)mouse->y / (float)window->h;
-                SDL_SendTouch(SDL_MOUSE_TOUCHID, 0, track_mouse_down, fx, fy, 1.0f);
+                SDL_SendTouch(SDL_MOUSE_TOUCHID, 0, window, track_mouse_down, fx, fy, 1.0f);
             }
         }
     }

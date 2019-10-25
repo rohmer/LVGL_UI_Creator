@@ -629,6 +629,17 @@ JNIEXPORT int JNICALL SDL_JAVA_INTERFACE(nativeRunMain)(JNIEnv *env, jclass cls,
 
     library_file = (*env)->GetStringUTFChars(env, library, NULL);
     library_handle = dlopen(library_file, RTLD_GLOBAL);
+
+    if (!library_handle) {
+        /* When deploying android app bundle format uncompressed native libs may not extract from apk to filesystem.
+           In this case we should use lib name without path. https://bugzilla.libsdl.org/show_bug.cgi?id=4739 */
+        const char *library_name = SDL_strrchr(library_file, '/');
+        if (library_name && *library_name) {
+            library_name += 1;
+            library_handle = dlopen(library_name, RTLD_GLOBAL);
+        }
+    }
+
     if (library_handle) {
         const char *function_name;
         SDL_main_func SDL_main;
@@ -2369,11 +2380,19 @@ int Android_JNI_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *bu
     button_texts = (*env)->NewObjectArray(env, messageboxdata->numbuttons,
         clazz, NULL);
     for (i = 0; i < messageboxdata->numbuttons; ++i) {
-        temp = messageboxdata->buttons[i].flags;
+        const SDL_MessageBoxButtonData *sdlButton;
+
+        if (messageboxdata->flags & SDL_MESSAGEBOX_BUTTONS_RIGHT_TO_LEFT) {
+            sdlButton = &messageboxdata->buttons[messageboxdata->numbuttons - 1 - i];
+        } else {
+            sdlButton = &messageboxdata->buttons[i];
+        }
+
+        temp = sdlButton->flags;
         (*env)->SetIntArrayRegion(env, button_flags, i, 1, &temp);
-        temp = messageboxdata->buttons[i].buttonid;
+        temp = sdlButton->buttonid;
         (*env)->SetIntArrayRegion(env, button_ids, i, 1, &temp);
-        text = (*env)->NewStringUTF(env, messageboxdata->buttons[i].text);
+        text = (*env)->NewStringUTF(env, sdlButton->text);
         (*env)->SetObjectArrayElement(env, button_texts, i, text);
         (*env)->DeleteLocalRef(env, text);
     }
@@ -2381,7 +2400,7 @@ int Android_JNI_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *bu
     if (messageboxdata->colorScheme) {
         colors = (*env)->NewIntArray(env, SDL_MESSAGEBOX_COLOR_MAX);
         for (i = 0; i < SDL_MESSAGEBOX_COLOR_MAX; ++i) {
-            temp = (0xFF << 24) |
+            temp = (0xFFU << 24) |
                    (messageboxdata->colorScheme->colors[i].r << 16) |
                    (messageboxdata->colorScheme->colors[i].g << 8) |
                    (messageboxdata->colorScheme->colors[i].b << 0);
@@ -2488,7 +2507,8 @@ SDL_bool SDL_IsDeXMode(void)
 void SDL_AndroidBackButton(void)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-    return (*env)->CallStaticVoidMethod(env, mActivityClass, midManualBackButton);
+    (*env)->CallStaticVoidMethod(env, mActivityClass, midManualBackButton);
+    return;
 }
 
 const char * SDL_AndroidGetInternalStoragePath(void)

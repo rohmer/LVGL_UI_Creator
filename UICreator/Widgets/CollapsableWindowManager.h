@@ -11,6 +11,8 @@ public:
                              bool drawSeperators = true);
     void AddWindow(CollapsableWindow* window);
     void Update();
+    void SetPos(int x, int y);
+    void SetWidth(int width);
 
 private:
     lv_obj_t* parent;

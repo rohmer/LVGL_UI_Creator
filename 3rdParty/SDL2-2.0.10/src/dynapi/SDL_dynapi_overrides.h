@@ -724,3 +724,6 @@
 #define SDL_RWwrite SDL_RWwrite_REAL
 #define SDL_RWclose SDL_RWclose_REAL
 #define SDL_LoadFile SDL_LoadFile_REAL
+#define SDL_Metal_CreateView SDL_Metal_CreateView_REAL
+#define SDL_Metal_DestroyView SDL_Metal_DestroyView_REAL
+#define SDL_LockTextureToSurface SDL_LockTextureToSurface_REAL

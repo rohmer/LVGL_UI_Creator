@@ -22,7 +22,6 @@
     <ProjectName>SDL2</ProjectName>
     <ProjectGuid>{81CE8DAF-EBB2-4761-8E45-B71ABCCA8C68}</ProjectGuid>
     <RootNamespace>SDL</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -109,7 +108,6 @@
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -136,12 +134,10 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -203,7 +199,6 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OmitDefaultLibName>true</OmitDefaultLibName>
@@ -327,7 +322,7 @@
     <ClInclude Include="..\..\src\haptic\windows\SDL_dinputhaptic_c.h" />
     <ClInclude Include="..\..\src\haptic\windows\SDL_windowshaptic_c.h" />
     <ClInclude Include="..\..\src\haptic\windows\SDL_xinputhaptic_c.h" />
-    <ClInclude Include="..\..\src\joystick\hidapi\controller_type.h" />
+    <ClInclude Include="..\..\src\joystick\controller_type.h" />
     <ClInclude Include="..\..\src\joystick\hidapi\SDL_hidapijoystick_c.h" />
     <ClInclude Include="..\..\src\joystick\SDL_joystick_c.h" />
     <ClInclude Include="..\..\src\joystick\SDL_sysjoystick.h" />

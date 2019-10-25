@@ -14,6 +14,14 @@ CollapsableWindowManager::CollapsableWindowManager(lv_obj_t* parent,
     initialY = y;
 }
 
+void CollapsableWindowManager::SetPos(int x, int y) 
+{
+    this->x = x;
+    this->y = y;
+    this->initialY = y;
+    Update();
+}
+
 void CollapsableWindowManager::AddWindow(CollapsableWindow* window)
 {
     window->SetPos(x, y);
@@ -40,6 +48,23 @@ void CollapsableWindowManager::AddWindow(CollapsableWindow* window)
     lv_obj_set_event_cb(window->GetCollapseButton(), expandCallback);
 }
 
+void CollapsableWindowManager::SetWidth(int width)
+{
+    for (std::vector<CollapsableWindow*>::iterator it = windows.begin();
+        it != windows.end();
+        ++it)
+    {
+        (*it)->UpdateWidth(width);
+    }
+    for (std::vector<lv_obj_t*>::iterator it = seps.begin();
+        it != seps.end();
+        ++it)
+    {
+        lv_obj_set_width(*it, width - 16);
+    }
+    Update();
+}
+
 void CollapsableWindowManager::Update()
 {
     y = initialY;
@@ -50,9 +75,11 @@ void CollapsableWindowManager::Update()
          ++it)
     {
         (*it)->SetVerticalPos(y);
+        (*it)->SetPos(x, y);
         if (seperators)
         {
             lv_obj_set_y(seps[ctr], y + (*it)->GetCurrentHeight() + verticalPadding + 3);
+            lv_obj_set_x(seps[ctr], x);
             y += 6;
             ctr++;
         }

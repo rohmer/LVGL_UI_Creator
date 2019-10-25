@@ -186,6 +186,12 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BtnmProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BtnmEditorWindow.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -315,6 +321,12 @@
       <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
     </ClInclude>
     <ClInclude Include="Windows\PropertyWindows\BtnProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BtnmProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BtnmEditorWindow.h">
       <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
     </ClInclude>
   </ItemGroup>
