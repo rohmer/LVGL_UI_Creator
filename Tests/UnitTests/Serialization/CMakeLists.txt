@@ -18,6 +18,5 @@ include_directories(../3rdParty/spdlog-1.x/include)
 include_directories(../LVSerial)
 include_directories(../3rdParty/Catch2/include)
 include_directories(../3rdParty/libimagequant)
-include_directories(../ImgLib)
 
 add_executable(SerializationUnitTests ${Serialization_UT_Src})
