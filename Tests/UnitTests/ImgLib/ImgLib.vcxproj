@@ -47,6 +47,9 @@
   <ItemGroup>
     <ClInclude Include="JPEG.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{AA10CB6C-C0B7-4F0B-9FC6-58F157F8E785}</ProjectGuid>

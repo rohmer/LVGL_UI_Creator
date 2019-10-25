@@ -130,6 +130,9 @@
       <Project>{ba7252e3-2a2e-45fe-9a1a-21bd062eddcf}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{B71C8C46-6B7C-490C-9B3F-6220C80C2109}</ProjectGuid>
