@@ -151,5 +151,5 @@ void BtnmEditorWindow::assignMap(lv_obj_t* obj, lv_event_t event)
     if (event != LV_EVENT_CLICKED)
         return;
     std::string m = lv_ta_get_text(mapTA);
-    std::vector<std::string> lines=
+    std::vector<std::string> lines;
 }
