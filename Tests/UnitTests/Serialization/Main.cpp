@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 static void hal_init(void)
 {
 	/* Use the 'monitor' driver which creates window on PC's monitor to simulate a display*/
-	monitor_init();
+	//monitor_init();
 
 	/*Create a display buffer*/
 	static lv_disp_buf_t disp_buf1;
