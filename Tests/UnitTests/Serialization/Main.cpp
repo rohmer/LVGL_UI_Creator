@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_RUNNER
-#include "catch.hpp"
+#include "../../../3rdParty/Catch2/single_include/catch2/catch.hpp"
 
-#define _DEFAULT_SOURCE /* needed for usleep() */
+//#define _DEFAULT_SOURCE /* needed for usleep() */
 #include <stdlib.h>
 #include <cstdio>
 #if defined(WIN32) || defined(_WINDOWS)
