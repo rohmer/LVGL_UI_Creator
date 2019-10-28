@@ -15,26 +15,24 @@ public:
         std::string btnName;
         int btnNum, lineNum;
         std::string tn, n;
+        unsigned int width;
+        uint16_t ctrlBits;
     };
 
 private:
-    static lv_obj_t* window, * preview, *previewCont, *mapTA;
-    static std::string btnMap;
+    static lv_obj_t* window, * preview, *previewCont;    
 
     static int listContWidth, listContHeight;
     static PropertyWindow* pw;
-    static CollapsableWindowManager* cwm;
-    static CollapsableWindow* defWin;
 
     static void closeBtnCB(lv_obj_t* obj, lv_event_t event);
-    static void assignMap(lv_obj_t* obj, lv_event_t event);
+    static void previewCB(lv_obj_t* obj, lv_event_t event);
 
-    static void createEditorLines();
+    static void resize();    
+    static void loadButtons();
 
-    static void resize();
-    static void updateMap();
-    
     static std::vector<btnStruct> buttons;
 
+    static uint8_t get_button_width(lv_btnm_ctrl_t ctrl_bits);
     
 };
