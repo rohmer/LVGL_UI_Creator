@@ -4,6 +4,8 @@ lv_obj_t* BtnmEditorWindow::window, * BtnmEditorWindow::preview, * BtnmEditorWin
 *BtnmEditorWindow::buttonWindow;
 lv_obj_t *BtnmEditorWindow::addLeft, * BtnmEditorWindow::addRight, * BtnmEditorWindow::addAbove, * BtnmEditorWindow::addBelow,
     * BtnmEditorWindow::btnLabel, *BtnmEditorWindow::delBtn, *BtnmEditorWindow::btnWidth;
+lv_obj_t* BtnmEditorWindow::hidden, * BtnmEditorWindow::noRepeat, * BtnmEditorWindow::inactive, * BtnmEditorWindow::tglEnable,
+* BtnmEditorWindow::tglState, * BtnmEditorWindow::clickTrig;
 int BtnmEditorWindow::listContHeight, BtnmEditorWindow::listContWidth;
 PropertyWindow* BtnmEditorWindow::pw;
 std::vector<BtnmEditorWindow::btnStruct> BtnmEditorWindow::buttons;
@@ -19,12 +21,12 @@ void BtnmEditorWindow::resize()
     if (btnmW < 50)
         windowWidth = 200;
     else
-        windowWidth = btnmW + 350;
+        windowWidth = btnmW + 400;
     int windowHeight;
-    if (btnmH < 350)
-        windowHeight = 350;
+    if (btnmH < 90)
+         windowHeight = 420;
     else
-        windowHeight = btnmH + 25;
+        windowHeight = btnmH + 330  ;
     lv_obj_set_size(window, windowWidth, windowHeight);
     int posX = lv_obj_get_width(lv_scr_act()) / 2 - windowWidth / 2;
     int posY = lv_obj_get_height(lv_scr_act()) / 2 - windowHeight / 2;
@@ -34,16 +36,17 @@ void BtnmEditorWindow::resize()
     lv_obj_set_pos(allCont, btnmW + 15, 5);
     lv_obj_set_size(allCont, windowWidth-btnmW-20, 90);
     lv_obj_set_pos(oneToggle, windowWidth - btnmW - 150, 20);
-    if ( lv_obj_get_y(previewCont)<90)
+    if ( lv_obj_get_height(previewCont)<90)
     {
         lv_obj_set_pos(buttonWindow, 5, lv_obj_get_y(allCont)+lv_obj_get_height(allCont)+30);
     }
     else
     {
         int pY = lv_obj_get_height(previewCont);
-        lv_obj_set_pos(buttonWindow, 5, lv_obj_get_height(previewCont) + lv_obj_get_y(previewCont)+15);
+        lv_obj_set_pos(buttonWindow, 5, lv_obj_get_height(previewCont) + lv_obj_get_y(previewCont)+5);
     }
-    lv_obj_set_size(buttonWindow, windowWidth - 10, windowHeight - btnmH -100);
+    int val = windowHeight - btnmH - 100;
+    lv_obj_set_size(buttonWindow, windowWidth - 10, 220);
 }
 
 void BtnmEditorWindow::CreateBtnmEditorWindow(PropertyWindow* propertyWindow)
@@ -149,7 +152,7 @@ void BtnmEditorWindow::loadButtons()
                     case(0):
                         bs.btnName = ss.str();
                         // Get width and ctrl bits
-                        bs.ctrlBits = (uint16_t)btnExt[buttons.size()].ctrl_bits;
+                        bs.ctrlBits = (uint16_t)(btnExt[buttons.size()].ctrl_bits);
                         bs.width = get_button_width(bs.ctrlBits);
                         break;
                     case(1):
@@ -184,7 +187,7 @@ void BtnmEditorWindow::createButtonEd()
     lv_label_set_text(l1, ss.str().c_str());
     ss.str("");
     lv_obj_set_size(addLeft, 100, 30);
-    int mid = (lv_obj_get_height(buttonWindow)-60) / 2;
+    int mid = 50;
     lv_obj_set_pos(addLeft, 5, mid);
 
     addAbove = lv_btn_create(buttonWindow, nullptr);
@@ -193,13 +196,14 @@ void BtnmEditorWindow::createButtonEd()
     lv_label_set_text(l2, ss.str().c_str());
     ss.str("");
     lv_obj_set_size(addAbove, 100, 30);
-    lv_obj_set_pos(addAbove, 140, 15);
+    lv_obj_set_pos(addAbove, 130, 15);
 
     btnLabel = lv_ta_create(buttonWindow, nullptr);
     lv_obj_set_size(btnLabel, 100, 30);
     lv_obj_set_pos(btnLabel, 120, mid);
     lv_obj_set_user_data(btnLabel, (lv_obj_user_data_t)2);
     lv_obj_set_event_cb(btnLabel, taCB);
+    lv_ta_set_cursor_type(btnLabel, LV_CURSOR_NONE);
 
     delBtn = lv_btn_create(buttonWindow, nullptr);
     lv_obj_t* l3 = lv_label_create(delBtn, nullptr);
@@ -213,7 +217,7 @@ void BtnmEditorWindow::createButtonEd()
     lv_label_set_text(l4, ss.str().c_str());
     ss.str("");
     lv_obj_set_size(addRight, 100, 30);
-    lv_obj_set_pos(addRight, 260, mid);
+    lv_obj_set_pos(addRight, 270, mid);
 
     addBelow = lv_btn_create(buttonWindow, nullptr);
     lv_obj_t* l5 = lv_label_create(addBelow, nullptr);
@@ -221,7 +225,7 @@ void BtnmEditorWindow::createButtonEd()
     lv_label_set_text(l5, ss.str().c_str());
     ss.str("");
     lv_obj_set_size(addBelow, 100, 30);
-    lv_obj_set_pos(addBelow, 140, mid+40);
+    lv_obj_set_pos(addBelow, 130, mid+40);
 
     lv_obj_t* l6 = lv_label_create(buttonWindow, nullptr);
     lv_label_set_text(l6, "Button Width:");
@@ -231,7 +235,28 @@ void BtnmEditorWindow::createButtonEd()
     lv_ta_set_cursor_type(btnWidth, LV_CURSOR_NONE);
     lv_obj_set_size(btnWidth, 30, 25);
     lv_obj_set_pos(btnWidth, lv_obj_get_width(buttonWindow) - 50, 10);
+    lv_ta_set_cursor_type(btnWidth, LV_CURSOR_NONE);
+    lv_obj_set_user_data(btnLabel, (lv_obj_user_data_t)3);
+    lv_ta_set_accepted_chars(btnWidth, "0123456789");
 
+    lv_obj_t* bOptsWin = lv_cont_create(buttonWindow, nullptr);
+    lv_obj_set_pos(bOptsWin, 5, mid + 80);
+    lv_obj_set_size(bOptsWin, lv_obj_get_width(buttonWindow) - 10, 85);
+    lv_cont_set_fit(bOptsWin, LV_FIT_NONE);
+    lv_cont_set_layout(bOptsWin, LV_LAYOUT_PRETTY);
+
+    hidden = lv_cb_create(bOptsWin, nullptr);
+    lv_cb_set_text(hidden,"Hidden");
+    noRepeat = lv_cb_create(bOptsWin, nullptr);
+    lv_cb_set_text(noRepeat, "No Repeat");
+    inactive = lv_cb_create(bOptsWin, nullptr);
+    lv_cb_set_text(inactive, "Inactive");
+    tglEnable = lv_cb_create(bOptsWin, nullptr);
+    lv_cb_set_text(tglEnable, "Toggle Enable");
+    tglState = lv_cb_create(bOptsWin, nullptr);
+    lv_cb_set_text(tglState, "Toggle State");
+    clickTrig = lv_cb_create(bOptsWin, nullptr);
+    lv_cb_set_text(clickTrig, "Click Trigger");
 
 }
 
@@ -240,6 +265,26 @@ void BtnmEditorWindow::updateButtonEd(int buttonNum)
     if (!buttonEdDrawn)
         createButtonEd();
     buttonEdDrawn = true;
+    btnStruct bs = buttons[buttonNum];
+    lv_ta_set_text(btnLabel, bs.btnName.c_str());
+    std::stringstream ss;
+    ss << bs.width;
+    lv_ta_set_text(btnWidth, ss.str().c_str());
+
+    bool bHid = bs.ctrlBits && LV_BTNM_CTRL_HIDDEN;
+    bool bNoRep = bs.ctrlBits && LV_BTNM_CTRL_NO_REPEAT;
+    bool bInac = bs.ctrlBits && LV_BTNM_CTRL_INACTIVE;
+    bool bTglEn = bs.ctrlBits && LV_BTNM_CTRL_INACTIVE;
+    bool bTglSt = bs.ctrlBits && LV_BTNM_CTRL_TGL_STATE;
+    bool bClkTrig = bs.ctrlBits && LV_BTNM_CTRL_CLICK_TRIG;
+
+    lv_cb_set_checked(hidden, bHid);
+    lv_cb_set_checked(noRepeat, bNoRep);
+    lv_cb_set_checked(inactive, bInac);
+    lv_cb_set_checked(tglEnable, bTglEn);
+    lv_cb_set_checked(tglState, bTglSt);
+    lv_cb_set_checked(clickTrig, bClkTrig);
+
 }
 
 void BtnmEditorWindow::closeBtnCB(lv_obj_t* obj, lv_event_t event)

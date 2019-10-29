@@ -16,13 +16,14 @@ public:
         int btnNum, lineNum;
         std::string tn, n;
         unsigned int width;
-        uint16_t ctrlBits;
+        lv_btnm_ctrl_t ctrlBits;
     };
 
 private:
     static lv_obj_t* window, * preview, * previewCont, * recolor, * oneToggle, * allCont,
         * width, * height, *buttonWindow;
     static lv_obj_t* addLeft, * addRight, * addAbove, * addBelow, * btnLabel, *delBtn, *btnWidth;
+    static lv_obj_t* hidden, * noRepeat, * inactive, * tglEnable, * tglState, * clickTrig;
 
     static int listContWidth, listContHeight;
     static PropertyWindow* pw;
