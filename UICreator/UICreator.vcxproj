@@ -123,9 +123,6 @@
     <ProjectReference Include="..\3rdParty\SDL2-2.0.10\VisualC\SDL\SDL.vcxproj">
       <Project>{81ce8daf-ebb2-4761-8e45-b71abcca8c68}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\3rdParty\spdlog-1.x\spdlog\spdlog.vcxproj">
-      <Project>{c7b83486-2273-4af5-96ca-45fedbd1545b}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\LVSerial\LVSerial.vcxproj">
       <Project>{ba7252e3-2a2e-45fe-9a1a-21bd062eddcf}</Project>
     </ProjectReference>
