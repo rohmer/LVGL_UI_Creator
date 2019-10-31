@@ -139,6 +139,7 @@
     <ClCompile Include="lvgl\porting\lv_port_disp_template.c" />
     <ClCompile Include="lvgl\porting\lv_port_fs_template.c" />
     <ClCompile Include="lvgl\porting\lv_port_indev_template.c" />
+    <ClCompile Include="lvgl\src\lv_core\lv_debug.c" />
     <ClCompile Include="lvgl\src\lv_core\lv_disp.c" />
     <ClCompile Include="lvgl\src\lv_core\lv_group.c" />
     <ClCompile Include="lvgl\src\lv_core\lv_indev.c" />
@@ -176,6 +177,7 @@
     <ClCompile Include="lvgl\src\lv_misc\lv_log.c" />
     <ClCompile Include="lvgl\src\lv_misc\lv_math.c" />
     <ClCompile Include="lvgl\src\lv_misc\lv_mem.c" />
+    <ClCompile Include="lvgl\src\lv_misc\lv_printf.c" />
     <ClCompile Include="lvgl\src\lv_misc\lv_task.c" />
     <ClCompile Include="lvgl\src\lv_misc\lv_templ.c" />
     <ClCompile Include="lvgl\src\lv_misc\lv_txt.c" />
@@ -243,6 +245,7 @@
     <ClInclude Include="lvgl\porting\lv_port_fs_template.h" />
     <ClInclude Include="lvgl\porting\lv_port_indev_template.h" />
     <ClInclude Include="lvgl\src\lv_conf_checker.h" />
+    <ClInclude Include="lvgl\src\lv_core\lv_debug.h" />
     <ClInclude Include="lvgl\src\lv_core\lv_disp.h" />
     <ClInclude Include="lvgl\src\lv_core\lv_group.h" />
     <ClInclude Include="lvgl\src\lv_core\lv_indev.h" />
@@ -277,6 +280,7 @@
     <ClInclude Include="lvgl\src\lv_misc\lv_log.h" />
     <ClInclude Include="lvgl\src\lv_misc\lv_math.h" />
     <ClInclude Include="lvgl\src\lv_misc\lv_mem.h" />
+    <ClInclude Include="lvgl\src\lv_misc\lv_printf.h" />
     <ClInclude Include="lvgl\src\lv_misc\lv_task.h" />
     <ClInclude Include="lvgl\src\lv_misc\lv_templ.h" />
     <ClInclude Include="lvgl\src\lv_misc\lv_txt.h" />

@@ -43,6 +43,9 @@
 /*Images pixels with this color will not be drawn (with chroma keying)*/
 #define LV_COLOR_TRANSP    LV_COLOR_LIME         /*LV_COLOR_LIME: pure green*/
 
+/* Enable chroma keying for indexed images. */
+#define LV_INDEXED_CHROMA    1
+
 /* Enable anti-aliasing (lines, and radiuses will be smoothed) */
 #define LV_ANTIALIAS        1
 
@@ -193,6 +196,14 @@ typedef void * lv_img_decoder_user_data_t;
  * font's bitmaps */
 #define LV_ATTRIBUTE_LARGE_CONST
 
+/* Export integer constant to binding.
+ * This macro is used with constants in the form of LV_<CONST> that
+ * should also appear on lvgl binding API such as Micropython
+ *
+ * The default value just prevents a GCC warning.
+ */
+#define LV_EXPORT_CONST_INT(int_value) struct _silence_gcc_warning
+
 /*===================
  *  HAL settings
  *==================*/
@@ -228,6 +239,42 @@ typedef void * lv_indev_drv_user_data_t;            /*Type of user data in the i
  * 0: user need to register a callback with `lv_log_register_print`*/
 #  define LV_LOG_PRINTF   0
 #endif  /*LV_USE_LOG*/
+
+/*=================
+ * Debug settings
+ *================*/
+
+/* If Debug is enabled LittelvGL validates the parameters of the functions.
+ * If an invalid parameter is found an error log message is printed and
+ * the MCU halts at the error. (`LV_USE_LOG` should be enabled)
+ * If you are debugging the MCU you can pause
+ * the debugger to see exactly where  the issue is.
+ *
+ * The behavior of asserts can be overwritten by redefining them here.
+ * E.g. #define LV_ASSERT_MEM(p)  <my_assert_code>
+ */
+#define LV_USE_DEBUG        1
+#if LV_USE_DEBUG
+
+/*Check if the parameter is NULL. (Quite fast) */
+#define LV_USE_ASSERT_NULL      1
+
+/*Checks is the memory is successfully allocated or no. (Quite fast)*/
+#define LV_USE_ASSERT_MEM       1
+
+/* Check the strings.
+ * Search for NULL, very long strings, invalid characters, and unnatural repetitions. (Slow)
+ * If disabled `LV_USE_ASSERT_NULL` will be performed instead (if it's enabled) */
+#define LV_USE_ASSERT_STR       0
+
+/* Check NULL, the object's type and existence (e.g. not deleted). (Quite slow)
+ * If disabled `LV_USE_ASSERT_NULL` will be performed instead (if it's enabled) */
+#define LV_USE_ASSERT_OBJ       0
+
+/*Check if the styles are properly initialized. (Fast)*/
+#define LV_USE_ASSERT_STYLE     1
+
+#endif /*LV_USE_DEBUG*/
 
 /*================
  *  THEME USAGE
@@ -296,6 +343,29 @@ typedef void * lv_font_user_data_t;
 
  /*Can break (wrap) texts on these chars*/
 #define LV_TXT_BREAK_CHARS                  " ,.;:-_"
+
+/* If a character is at least this long, will break wherever "prettiest" */
+#define LV_TXT_LINE_BREAK_LONG_LEN          12
+
+/* Minimum number of characters of a word to put on a line before a break */
+#define LV_TXT_LINE_BREAK_LONG_PRE_MIN_LEN  3
+
+/* Minimum number of characters of a word to put on a line after a break */
+#define LV_TXT_LINE_BREAK_LONG_POST_MIN_LEN 3
+
+/*Change the built in (v)snprintf functions*/
+#define LV_SPRINTF_CUSTOM   0
+#if LV_SPRINTF_CUSTOM
+#  define LV_SPRINTF_INCLUDE <stdio.h>
+#  define lv_snprintf     snprintf
+#  define lv_vsnprintf    vsnprintf
+#endif  /*LV_SPRINTF_CUSTOM*/
+
+ /* Set the pixel order of the display.
+  * Important only if "subpx fonts" are used.
+  * With "normal" font it doesn't matter.
+  */
+ #define LV_SUBPX_BGR    0
 
 /*===================
  *  LV_OBJ SETTINGS

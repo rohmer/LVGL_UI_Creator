@@ -13,8 +13,7 @@ public:
     struct btnStruct
     {
         std::string btnName;
-        int btnNum, lineNum;
-        std::string tn, n;
+        int btnNum, lineNum;       
         unsigned int width;
         lv_btnm_ctrl_t ctrlBits;
     };
@@ -35,6 +34,13 @@ private:
     static void taCB(lv_obj_t* obj, lv_event_t event);
     static void btnDel(lv_obj_t* obj, lv_event_t event);
 
+    static void addLeftCB(lv_obj_t* obj, lv_event_t event);
+    static void addAboveCB(lv_obj_t* obj, lv_event_t event);
+    static void addRightCB(lv_obj_t* obj, lv_event_t event);
+    static void addBelowCB(lv_obj_t* obj, lv_event_t event);
+
+    static void optCB(lv_obj_t* obj, lv_event_t event);
+
     static void resize();    
     static void loadButtons();
 
@@ -45,5 +51,8 @@ private:
 
     static void updateButtonEd(int buttonNum);
     static void createButtonEd();
+    static void resetBtnNums();
 
+    static int selectedButton;
+    static bool changingSel;
 };

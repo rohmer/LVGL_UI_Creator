@@ -100,6 +100,8 @@
     <ClCompile Include="lvgl\src\lv_themes\lv_theme_night.c" />
     <ClCompile Include="lvgl\src\lv_themes\lv_theme_templ.c" />
     <ClCompile Include="lvgl\src\lv_themes\lv_theme_zen.c" />
+    <ClCompile Include="lvgl\src\lv_core\lv_debug.c" />
+    <ClCompile Include="lvgl\src\lv_misc\lv_printf.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lv_drivers\display\fbdev.h" />
@@ -206,5 +208,7 @@
     <ClInclude Include="lvgl\src\lv_version.h" />
     <ClInclude Include="lv_conf.h" />
     <ClInclude Include="lv_drv_conf.h" />
+    <ClInclude Include="lvgl\src\lv_core\lv_debug.h" />
+    <ClInclude Include="lvgl\src\lv_misc\lv_printf.h" />
   </ItemGroup>
 </Project>

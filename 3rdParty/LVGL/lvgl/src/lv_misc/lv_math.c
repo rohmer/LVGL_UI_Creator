@@ -25,7 +25,7 @@
 /**********************
  *  STATIC VARIABLES
  **********************/
-static int16_t sin0_90_table[] = {
+static const int16_t sin0_90_table[] = {
     0,     572,   1144,  1715,  2286,  2856,  3425,  3993,  4560,  5126,  5690,  6252,  6813,  7371,  7927,  8481,
     9032,  9580,  10126, 10668, 11207, 11743, 12275, 12803, 13328, 13848, 14364, 14876, 15383, 15886, 16383, 16876,
     17364, 17846, 18323, 18794, 19260, 19720, 20173, 20621, 21062, 21497, 21925, 22347, 22762, 23170, 23571, 23964,
@@ -92,6 +92,29 @@ int32_t lv_bezier3(uint32_t t, int32_t u0, int32_t u1, int32_t u2, int32_t u3)
     uint32_t v4 = ((uint32_t)t3 * u3) >> 10;
 
     return v1 + v2 + v3 + v4;
+}
+
+/**
+ * Calculate the integer square root of a number.
+ * @param num
+ * @return square root of 'num'
+ */
+uint32_t lv_sqrt(uint32_t num)
+{
+    // http://www.codecodex.com/wiki/Calculate_an_integer_square_root#C
+    uint32_t root  = 0;
+    uint32_t place = 0x40000000;
+
+    while(place > num) place >>= 2;
+    while(place) {
+        if(num >= root + place) {
+            num -= root + place;
+            root += (place << 1);
+        }
+        root >>= 1;
+        place >>= 2;
+    }
+    return root;
 }
 
 /**********************
