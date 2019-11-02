@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    node {
+      label 'PILinux'
+    }
+
+  }
   stages {
     stage('Build') {
       steps {
