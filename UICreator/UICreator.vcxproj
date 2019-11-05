@@ -111,6 +111,9 @@
     <ClInclude Include="Windows\VariableCreateWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\3rdParty\breakpad\breakpad\breakpad.vcxproj">
+      <Project>{d932bf54-002f-4357-a99e-8af5e021c8ed}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\3rdParty\freetype-2.10.1\builds\windows\visualc\freetype.vcxproj">
       <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
     </ProjectReference>
