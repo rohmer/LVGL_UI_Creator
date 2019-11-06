@@ -1,0 +1,130 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+pkg_lib := $(shell dh_listpackages | head -n1)
+
+pkgs_deb := $(shell dh_listpackages | sed -e '/$(pkg_lib)/d; /dbg/d')
+pkgs_dbg := $(shell dh_listpackages | grep dbg | sed -e 's|-dbg||')
+
+DESTDIR_DIST := $(CURDIR)/debian/tmp
+
+BUILD_DIST := directfb-build
+
+#conf_script_env := LDFLAGS="-wl,--as-needed"
+
+DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+DEB_HOST_ARCH_OS   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+DEB_HOST_ARCH_CPU  ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_CPU)
+DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+  conf_gnu_type += --build $(DEB_HOST_GNU_TYPE)
+else
+  conf_gnu_type += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+  CROSS=LD=$(DEB_HOST_GNU_TYPE)-ld
+endif
+
+ifeq ($(DEB_HOST_ARCH_OS), linux)
+  conf_options := \
+    --with-gfxdrivers=vdpau \
+    --enable-x11vdpau \
+    --enable-video4linux2 \
+    --enable-multi \
+    --enable-voodoo \
+    --enable-fusionsound \
+    --enable-sawman \
+    --enable-fusiondale \
+    --enable-divine \
+    --enbale-imlib2 \
+    --enable-mng \
+    --disable-unique \
+    --disable-mesa
+else
+  conf_options := \
+    --with-gfxdrivers=none \
+    --with-inputdrivers=ps2mouse
+endif
+
+ifeq ($(DEB_HOST_ARCH_CPU), i386)
+  conf_options += \
+    --with-gfxdrivers=vdpau \
+    --enable-x11vdpau
+else
+  conf_options += \
+    --with-gfxdrivers=none
+endif
+
+ifeq ($(DEB_HOST_ARCH), armhf)
+  conf_options += \
+    --enable-egl \
+    --with-gfxdrivers=gles2 \
+    EGL_CFLAGS='-I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads' \
+    EGL_LIBS='-L/opt/vc/lib -lGLESv2 -lEGL'
+endif
+
+
+%:
+	dh --parallel $@
+
+override_dh_auto_configure:
+	autoreconf -f -i
+
+	mkdir -p $(BUILD_DIST)
+
+	cd $(BUILD_DIST) && \
+	$(conf_script_env) ../configure \
+		$(conf_gnu_type) \
+		--prefix=/usr \
+		--includedir=\$${prefix}/include \
+		--mandir=\$${prefix}/share/man \
+		--infodir=\$${prefix}/share/info \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		$(conf_options) \
+		--enable-static \
+		--enable-one \
+		--disable-one-module \
+		--with-tests \
+		--disable-unique \
+		--disable-sdl \
+		--enable-vnc \
+		--enable-x11
+
+override_dh_auto_build:
+	$(MAKE) -j8 $(CROSS) -C $(BUILD_DIST)
+
+override_dh_clean:
+	rm -rf $(BUILD_DIST)
+
+	find . -name 'Makefile.in' -delete
+	rm -f configure config.* aclocal.m4 ltmain.sh INSTALL \
+		missing mkinstalldirs depcomp install-sh compile
+
+	dh_clean
+
+override_dh_auto_install:
+	$(MAKE) $(CROSS) -C $(BUILD_DIST) install DESTDIR=$(DESTDIR_DIST)
+
+override_dh_install:
+	dh_install -a  --sourcedir=$(DESTDIR_DIST)
+	dh_install --remaining-packages
+
+override_dh_link:
+	for pkg in $(pkgs_deb); do \
+		rm -rf debian/$$pkg/usr/share/doc/$$pkg; \
+		dh_link -p$$pkg usr/share/doc/$(pkg_lib) usr/share/doc/$$pkg; \
+	done
+
+override_dh_makeshlibs:
+	dh_makeshlibs -a
+
+override_dh_strip:
+	for pkg in $(pkgs_dbg); do \
+		dh_strip -p$$pkg --dbg-package=$${pkg}-dbg; \
+	done
+	dh_strip --remaining-packages
+
+.PHONY: override_dh_auto_test

@@ -1,0 +1,34 @@
+=  Container region
+\  Container region level
++  Specific region
+
+
+= Root
+   \ Desktop
+      + Icons
+      + Fullscreen Apps redirected
+    
+   \ User
+      = Frame
+         \ Background
+         \ Content
+            + Normal
+               + Opaque
+         \ Foreground
+            + Decoration
+
+  \ System
+     + Exposé
+     + Dock/Panel
+     + Glass
+     + Clipboard Manager
+     + Virtual Keyboard
+     + Input Methods
+
+  \ Cursor
+     + Drag'n'Drop
+     + Shape
+
+  \ Screen
+     + Saver
+     + Lock
