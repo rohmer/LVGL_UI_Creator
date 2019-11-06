@@ -6,11 +6,16 @@
  *
  */
 
+// telemetry settings
+// Set to 1 to enable telemetry
+#define USE_TELEMETRY 1
+
 /*********************
  *      INCLUDES
  *********************/
 #define _DEFAULT_SOURCE /* needed for usleep() */
 #include <stdlib.h>
+#include <filesystem>
 //#include <cstdio>
 #if defined(WIN32) || defined(_WINDOWS)
 #include <windows.h>
@@ -48,7 +53,22 @@ void usleep(__int64 usec)
 #if defined(__APPLE__) && defined(TARGET_OS_MAC)
 # if __APPLE__ && TARGET_OS_MAC
 #define SDL_APPLE
+#if USE_TELEMETRY==1
+#include "../3rdParty/Breakpad/src/client/ios/Breakpad.h"
+#endif
 # endif
+#endif
+
+#if defined(WIN32) || defined(_WINDOWS)
+#if USE_TELEMETRY==1
+#include "../3rdParty/Breakpad/src/client/windows/handler/exception_handler.h"
+#endif
+#endif
+
+#if defined(linux)
+#if USE_TELEMETRY==1
+#include "../3rdParty/Breakpad/src/client/linux/handler/exception_handler.h"
+#endif
 #endif
 
 /**********************
@@ -67,6 +87,7 @@ static void memory_monitor(lv_task_t* param);
  **********************/
 static lv_indev_t* kb_indev;
 
+
 /**********************
  *      MACROS
  **********************/
@@ -74,9 +95,53 @@ static lv_indev_t* kb_indev;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
+#if USE_TELEMETRY==1
+#if defined(WIN32) || defined(_WINDOWS)
+#include <windows.h>
+#include <dbghelp.h>
+#include <string>
+#include <utility>
+#include <tchar.h>
+#include "../3rdParty/Breakpad/src/google_breakpad/common/minidump_format.h"
+bool ShowDumpResults(const wchar_t* dump_path,
+    const wchar_t* minidump_id,
+    void* context,
+    EXCEPTION_POINTERS* exinfo,
+    MDRawAssertionInfo* assertion,
+    bool succeeded) {
+    TCHAR* text = new TCHAR[256];
+    text[0] = _T('\0');
+    int result = swprintf_s(text,
+        256,
+        TEXT("Dump generation request %s\r\n"),
+        succeeded ? TEXT("succeeded") : TEXT("failed"));
+    if (result == -1) {
+        delete[] text;
+    }
+    return true;
+}
+#endif
+#endif
 
 int main(int argc, char** argv)
 {
+
+    // Init telemetry if being used
+#if USE_TELEMETRY==1
+#if defined(WIN32) || defined(_WINDOWS)
+    google_breakpad::ExceptionHandler* handler = new google_breakpad::ExceptionHandler(std::filesystem::temp_directory_path().native(),
+        NULL,
+        ShowDumpResults,
+        NULL,
+        google_breakpad::ExceptionHandler::HANDLER_ALL,
+        MiniDumpNormal,
+        _T("UICreator"),
+        NULL);
+        
+
+#endif
+#endif
+
     (void)argc; /*Unused*/
     (void)argv; /*Unused*/
 

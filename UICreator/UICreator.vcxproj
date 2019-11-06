@@ -234,7 +234,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>USE_KEYBOARD;USE_MOUSE;USE_MOUSEWHEEL;LV_CONF_INCLUDE_SIMPLE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x/include;$(ProjectDir)../LVSerial</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/LVGL;$(ProjectDir)../3rdParty/LVGL/lvgl;$(ProjectDir)../3rdParty/SDL2-2.0.10/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x/include;$(ProjectDir)../LVSerial;$(ProjectDir)../3rdParty/Breakpad;$(ProjectDir)../3rdParty/Breakpad/src</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
