@@ -111,6 +111,18 @@
     <ClInclude Include="Windows\VariableCreateWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\3rdParty\Breakpad\src\client\windows\common.vcxproj">
+      <Project>{c3e47941-ff55-cea1-3da2-b2f9995c2a6d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\3rdParty\Breakpad\src\client\windows\crash_generation\crash_generation_client.vcxproj">
+      <Project>{19fda561-1ce4-6fc8-c7d8-b264359ab5bc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\3rdParty\Breakpad\src\client\windows\handler\exception_handler.vcxproj">
+      <Project>{28ddbd75-c8aa-7784-c27f-6674a9d93f29}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\3rdParty\Breakpad\src\client\windows\sender\crash_report_sender.vcxproj">
+      <Project>{da8cda6d-3173-ff47-3e4a-307b18e6c585}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\3rdParty\freetype-2.10.1\builds\windows\visualc\freetype.vcxproj">
       <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
     </ProjectReference>
