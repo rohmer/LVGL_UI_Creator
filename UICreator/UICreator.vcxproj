@@ -19,12 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="custom_widget.c" />
-    <ClCompile Include="dataset.c" />
     <ClCompile Include="Fonts\FTFont.cpp" />
-    <ClCompile Include="gencode.c" />
-    <ClCompile Include="interface.c" />
-    <ClCompile Include="loadproj.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mouse_cursor_icon.c" />
     <ClCompile Include="ObjectCreation\Arc.cpp" />
@@ -36,9 +31,6 @@
     <ClCompile Include="ObjectCreation\Chart.cpp" />
     <ClCompile Include="ObjectCreation\CheckBox.cpp" />
     <ClCompile Include="ObjectCreation\Container.cpp" />
-    <ClCompile Include="saveproj.c" />
-    <ClCompile Include="setting.c" />
-    <ClCompile Include="toolbox.c" />
     <ClCompile Include="Utils\ObjectTools.cpp" />
     <ClCompile Include="Variable\Variable.cpp" />
     <ClCompile Include="Widgets\CollapsableWindow.cpp" />
@@ -70,7 +62,6 @@
     <ClInclude Include="Fonts\FTFont.h" />
     <ClInclude Include="gencode.h" />
     <ClInclude Include="interface.h" />
-    <ClInclude Include="loadproj.h" />
     <ClInclude Include="ObjectCreation\Arc.h" />
     <ClInclude Include="ObjectCreation\Bar.h" />
     <ClInclude Include="ObjectCreation\Button.h" />
@@ -80,8 +71,6 @@
     <ClInclude Include="ObjectCreation\Chart.h" />
     <ClInclude Include="ObjectCreation\CheckBox.h" />
     <ClInclude Include="ObjectCreation\Container.h" />
-    <ClInclude Include="ObjectUserData.h" />
-    <ClInclude Include="saveproj.h" />
     <ClInclude Include="setting.h" />
     <ClInclude Include="toolbox.h" />
     <ClInclude Include="Utils\ObjectTools.h" />

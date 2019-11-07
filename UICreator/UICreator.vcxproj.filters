@@ -63,35 +63,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="custom_widget.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="dataset.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="gencode.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="interface.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="loadproj.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="mouse_cursor_icon.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="saveproj.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="setting.c">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
     <ClCompile Include="Windows\ToolTray.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="toolbox.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\SimWindow.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
@@ -209,12 +185,6 @@
     <ClInclude Include="interface.h">
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="loadproj.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="saveproj.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="setting.h">
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
@@ -277,9 +247,6 @@
     </ClInclude>
     <ClInclude Include="Windows\VariableCreateWindow.h">
       <Filter>Header Files\Editor\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectUserData.h">
-      <Filter>Header Files\Editor</Filter>
     </ClInclude>
     <ClInclude Include="ObjectCreation\Button.h">
       <Filter>Header Files\Editor\Object Creation</Filter>

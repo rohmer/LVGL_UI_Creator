@@ -123,22 +123,27 @@ void ToolTray::create_obj_cb(lv_obj_t* obj, lv_event_t ev)
         case 0:
             newObj = Arc::Create(parent, x, y);
             tt->objTree->AddNode("Arc", newObj, parID, false);
+            userData->objectName = "Arc";
             break;
         case 1:
             newObj = Bar::Create(parent, x, y);
             tt->objTree->AddNode("Bar", newObj, parID, false);
+            userData->objectName = "Bar";
             break;
         case 2:
             newObj = Button::Create(parent, x, y);
             tt->objTree->AddNode("Button", newObj, parID, false);
+            userData->objectName = "Button";
             break;
         case 3:
             newObj = ButtonMatrix::Create(parent, x, y);
-            tt->objTree->AddNode("Button Matrix", newObj, parID, false);
+            tt->objTree->AddNode("ButtonMatrix", newObj, parID, false);
+            userData->objectName = "ButtonMatrix";
             break;
         case 4:
             newObj = Calendar::Create(parent, x, y);
             tt->objTree->AddNode("Calendar", newObj, parID, false);
+            userData->objectName = "Calendar";
             break;
         }
         userData->objectJson = Serialization::ObjectSerializer::SerializeObject(newObj);

@@ -93,6 +93,9 @@
     <ClInclude Include="Serialization\ObjectSerializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Serialization\ObjectUserData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Serialization\Base64.cpp">

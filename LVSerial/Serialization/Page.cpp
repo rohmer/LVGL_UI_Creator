@@ -1,5 +1,5 @@
 #include "Page.h"
-#include "../../UICreator/ObjectUserData.h"
+#include "ObjectUserData.h"
 std::map<unsigned int, lv_obj_t*> Serialization::Page::idToObj;
 
 namespace Serialization
@@ -7,6 +7,13 @@ namespace Serialization
     json Page::ToJSON(std::vector<lv_obj_t*> objects)
     {
         json page;
+
+        // Normalize styles so we only have them defined once, and reused
+        for (int i = 0; i < objects.size(); i++)
+        {
+            getStyles(objects[i]);
+        }
+
         for (int i = 0; i < objects.size(); i++)
         {
             auto oud = static_cast<ObjectUserData*>(lv_obj_get_user_data(objects[i]));
@@ -23,10 +30,55 @@ namespace Serialization
                 page["obj"][i]["par"] = -1; // Parent is the screen
             }
         }
-
+        
         return page;
     }
 
+    void Page::getStyles(lv_obj_t* obj)
+    {
+        addStyle("base",lv_obj_get_style(obj));
+        
+        lv_obj_type_t type;
+        lv_obj_get_type(obj, &type);
+
+        if (strcmp(type.type[0], "lv_arc") == 0)
+        {
+            addStyle("arc", lv_arc_get_style(obj, LV_ARC_STYLE_MAIN));
+        }
+        if (strcmp(type.type[0], "lv_bar") == 0)
+        {
+            addStyle("arc", lv_arc_get_style(obj, LV_BAR_STYLE_BG));
+            addStyle("arc", lv_arc_get_style(obj, LV_BAR_STYLE_INDIC));
+        }
+        if (strcmp(type.type[0], "lv_btn") == 0)
+        {
+            addStyle("btn", lv_btn_get_style(obj,LV_BTN_STATE_INA));
+            addStyle("btn", lv_btn_get_style(obj, LV_BTN_STATE_PR));
+            addStyle("btn", lv_btn_get_style(obj, LV_BTN_STATE_TGL_REL));
+            addStyle("btn", lv_btn_get_style(obj, LV_BTN_STATE_TGL_PR));
+            addStyle("btn", lv_btn_get_style(obj, LV_BTN_STATE_INA));
+        }
+    }
+
+    void Page::addStyle(std::string styleName, const lv_style_t* style)
+    {
+        if (style == nullptr)
+            return;
+        if (styles.find((lv_style_t*)style) != styles.end())
+        {
+            int i = 0;
+            std::stringstream ss;
+            ss << styleName << "." << i;
+            while (nameToStyle.find(ss.str()) != nameToStyle.end())
+            {
+                ss.str("");
+                i++;
+                ss << styleName << "." << i;
+            }
+            styles.emplace(style, ss.str());
+            nameToStyle.emplace(ss.str(), style);
+        }
+    }
     json Page::serializeObject(lv_obj_t* object)
     {
         lv_obj_type_t* objType = new lv_obj_type_t();

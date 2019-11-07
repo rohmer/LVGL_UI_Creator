@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{BA7252E3-2A2E-45FE-9A1A-21BD062EDDCF}</ProjectGuid>
-    <RootNamespace>LVSerial</RootNamespace>
+    <ProjectGuid>{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}</ProjectGuid>
+    <RootNamespace>CodeGeneration</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -39,7 +39,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -76,8 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../3rdParty/LVGL</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\3rdParty\JSON</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,59 +124,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Serialization\Area.h" />
-    <ClInclude Include="Serialization\Base64.h" />
-    <ClInclude Include="Serialization\lodepng.h" />
-    <ClInclude Include="Serialization\LVArc.h" />
-    <ClInclude Include="Serialization\LVBar.h" />
-    <ClInclude Include="Serialization\LVButton.h" />
-    <ClInclude Include="Serialization\LVButtonMatrix.h" />
-    <ClInclude Include="Serialization\LVCalendar.h" />
-    <ClInclude Include="Serialization\LVCanvas.h" />
-    <ClInclude Include="Serialization\LVCheckBox.h" />
-    <ClInclude Include="Serialization\LVFont.h" />
-    <ClInclude Include="Serialization\LVFontCMap.h" />
-    <ClInclude Include="Serialization\LVFontDsc.h" />
-    <ClInclude Include="Serialization\LVFontGlyphDsc.h" />
-    <ClInclude Include="Serialization\LVFontKernDSC.h" />
-    <ClInclude Include="Serialization\LVImage.h" />
-    <ClInclude Include="Serialization\LVLabel.h" />
-    <ClInclude Include="Serialization\LVObject.h" />
-    <ClInclude Include="Serialization\ObjectSerializer.h" />
-    <ClInclude Include="Serialization\ObjectUserData.h" />
-    <ClInclude Include="Serialization\PNGToArray.h" />
-    <ClInclude Include="Serialization\Realign.h" />
-    <ClInclude Include="Serialization\Page.h" />
-    <ClInclude Include="Serialization\Serializers.h" />
-    <ClInclude Include="Serialization\Style.h" />
+    <ClInclude Include="CodeGeneratorBase.h" />
+    <ClInclude Include="ResultItem.h" />
+    <ClInclude Include="ResultsLog.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Serialization\Base64.cpp" />
-    <ClCompile Include="Serialization\lodepng.cpp" />
-    <ClCompile Include="Serialization\LVArc.cpp" />
-    <ClCompile Include="Serialization\LVBar.cpp" />
-    <ClCompile Include="Serialization\LVButton.cpp" />
-    <ClCompile Include="Serialization\LVButtonMatrix.cpp" />
-    <ClCompile Include="Serialization\LVCalendar.cpp" />
-    <ClCompile Include="Serialization\LVCanvas.cpp" />
-    <ClCompile Include="Serialization\LVCheckBox.cpp" />
-    <ClCompile Include="Serialization\LVFont.cpp" />
-    <ClCompile Include="Serialization\LVFontCMap.cpp" />
-    <ClCompile Include="Serialization\LVFontDsc.cpp" />
-    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp" />
-    <ClCompile Include="Serialization\LVFontKernDSC.cpp" />
-    <ClCompile Include="Serialization\LVImage.cpp" />
-    <ClCompile Include="Serialization\LVLabel.cpp" />
-    <ClCompile Include="Serialization\LVObject.cpp" />
-    <ClCompile Include="Serialization\ObjectSerializer.cpp" />
-    <ClCompile Include="Serialization\PNGToArray.cpp" />
-    <ClCompile Include="Serialization\Page.cpp" />
-    <ClCompile Include="Serialization\Style.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">
-      <Project>{af5e3abf-b119-42c2-ab75-3b0e380cd6ba}</Project>
-    </ProjectReference>
+    <ClCompile Include="CodeGeneratorBase.cpp" />
+    <ClCompile Include="ResultLog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -5,7 +5,8 @@ namespace Serialization
     json LVObject::ToJSON(lv_obj_t* object)
     {
         json j;
-
+        ObjectUserData* objectData = static_cast<ObjectUserData*>(lv_obj_get_user_data(object));
+        j["name"] = objectData->objectName;
         int x = lv_obj_get_x(object);
         int y = lv_obj_get_y(object);
         int width = lv_obj_get_width(object);

@@ -45,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "exception_handler", "3rdPar
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crash_report_sender", "3rdParty\Breakpad\src\client\windows\sender\crash_report_sender.vcxproj", "{DA8CDA6D-3173-FF47-3E4A-307B18E6C585}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeGeneration", "CodeGeneration\CodeGeneration.vcxproj", "{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug Static|x64 = Debug Static|x64
@@ -355,6 +357,26 @@ Global
 		{DA8CDA6D-3173-FF47-3E4A-307B18E6C585}.Release|x64.Build.0 = Release|x64
 		{DA8CDA6D-3173-FF47-3E4A-307B18E6C585}.Release|x86.ActiveCfg = Release|Win32
 		{DA8CDA6D-3173-FF47-3E4A-307B18E6C585}.Release|x86.Build.0 = Release|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug Static|x64.ActiveCfg = Debug|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug Static|x64.Build.0 = Debug|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug Static|x86.ActiveCfg = Debug|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug Static|x86.Build.0 = Debug|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug|x64.ActiveCfg = Debug|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug|x64.Build.0 = Debug|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug|x86.ActiveCfg = Debug|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Debug|x86.Build.0 = Debug|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Purify|x64.ActiveCfg = Release|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Purify|x64.Build.0 = Release|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Purify|x86.ActiveCfg = Release|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Purify|x86.Build.0 = Release|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release Static|x64.ActiveCfg = Release|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release Static|x64.Build.0 = Release|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release Static|x86.ActiveCfg = Release|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release Static|x86.Build.0 = Release|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release|x64.ActiveCfg = Release|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release|x64.Build.0 = Release|x64
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release|x86.ActiveCfg = Release|Win32
+		{205FCA7D-C248-4CC6-B550-3A54D3F95FC4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

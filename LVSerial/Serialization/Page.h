@@ -33,5 +33,11 @@ namespace Serialization
     private:
         static std::map<unsigned int, lv_obj_t*> idToObj;
         static json serializeObject(lv_obj_t* object);
+        static std::map<std::string, unsigned int> objectNames;
+        static std::map<const lv_style_t*, std::string> styles;
+        static std::map <std::string, const lv_style_t*> nameToStyle;
+
+        static void getStyles(lv_obj_t* object);
+        static void addStyle(std::string styleName, const lv_style_t* style);
     };
 }
