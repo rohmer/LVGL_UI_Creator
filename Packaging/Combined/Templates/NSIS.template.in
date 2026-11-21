@@ -1,0 +1,203 @@
+; CPack NSIS template for mutually exclusive native Windows architectures.
+; CPack owns the payload/component file lists; this template owns the wizard.
+Unicode true
+!include "MUI2.nsh"
+!include "Sections.nsh"
+!include "LogicLib.nsh"
+!include "FileFunc.nsh"
+!include "nsDialogs.nsh"
+!include "x64.nsh"
+
+!define INST_DIR "@CPACK_TEMPORARY_DIRECTORY@"
+!define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\LVGL UI Creator"
+Name "@CPACK_NSIS_PACKAGE_NAME@"
+OutFile "@CPACK_TOPLEVEL_DIRECTORY@/@CPACK_OUTPUT_FILE_NAME@"
+InstallDir "$LOCALAPPDATA\Programs\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
+RequestExecutionLevel user
+SetCompressor @CPACK_NSIS_COMPRESSOR@
+ShowInstDetails show
+ShowUninstDetails show
+BrandingText "LVGL UI Creator"
+@CPACK_NSIS_INSTALLER_MUI_ICON_CODE@
+@CPACK_NSIS_INSTALLER_ICON_CODE@
+@CPACK_NSIS_MANIFEST_DPI_AWARE_CODE@
+VIProductVersion "@CPACK_PACKAGE_VERSION@.0"
+VIAddVersionKey "ProductName" "LVGL UI Creator"
+VIAddVersionKey "FileDescription" "LVGL UI Creator x64 and x86 installer"
+VIAddVersionKey "FileVersion" "@CPACK_PACKAGE_VERSION@"
+VIAddVersionKey "LegalCopyright" "LVGL UI Creator contributors"
+
+Var Architecture
+Var ArchitectureDialog
+Var X64Radio
+Var X86Radio
+Var TestMode
+Var CommandLine
+Var OptionValue
+@CPACK_NSIS_SECTION_SELECTED_VARS@
+
+!define MUI_ABORTWARNING
+!insertmacro MUI_PAGE_WELCOME
+@CPACK_NSIS_LICENSE_PAGE@
+Page custom ArchitecturePage ArchitectureLeave
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_LANGUAGE "English"
+
+; CPack generates common, x64, and x86 sections. Never run its standard
+; FinishSection removal: an unselected architecture shares destination paths
+; with the selected one and would otherwise delete the new installation.
+Section "-Prepare installation"
+    ; Clean the previous package before replacing it, including files that
+    ; belong only to its architecture. Its exact-file uninstall preserves user
+    ; projects. Running in place makes ExecWait wait for the actual uninstaller.
+    IfFileExists "$INSTDIR\installation.ini" 0 preparation_done
+    IfFileExists "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe" 0 preparation_done
+    ReadINIStr $0 "$INSTDIR\installation.ini" "install" "architecture"
+    ${If} $0 == "x64"
+    ${OrIf} $0 == "x86"
+        ExecWait '$\"$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe$\" /S _?=$INSTDIR' $0
+        ${If} $0 != 0
+            MessageBox MB_ICONSTOP "The previous installation could not be removed. Close the application and try again." /SD IDOK
+            SetErrorLevel 3
+            Quit
+        ${EndIf}
+    ${EndIf}
+    preparation_done:
+SectionEnd
+
+@CPACK_NSIS_COMPONENT_SECTIONS@
+
+Function ApplyArchitecture
+    ${If} $Architecture == "x64"
+        SectionSetFlags ${x64} ${SF_SELECTED}
+        SectionSetFlags ${x86} 0
+    ${Else}
+        SectionSetFlags ${x64} 0
+        SectionSetFlags ${x86} ${SF_SELECTED}
+    ${EndIf}
+FunctionEnd
+
+Function ArchitecturePage
+    !insertmacro MUI_HEADER_TEXT "Windows architecture" "Select the application to install. Shared tools and SDKs are included."
+    nsDialogs::Create 1018
+    Pop $ArchitectureDialog
+    ${If} $ArchitectureDialog == error
+        Abort
+    ${EndIf}
+    ${NSD_CreateLabel} 0 0 100% 28u "64-bit is recommended on 64-bit Windows. Choose 32-bit for a 32-bit Windows system or a specific compatibility requirement."
+    Pop $0
+    ${NSD_CreateRadioButton} 0 40u 100% 14u "Windows x64 (64-bit, recommended)"
+    Pop $X64Radio
+    ${NSD_CreateRadioButton} 0 62u 100% 14u "Windows x86 (32-bit)"
+    Pop $X86Radio
+    ${IfNot} ${RunningX64}
+        EnableWindow $X64Radio 0
+    ${EndIf}
+    ${If} $Architecture == "x64"
+        ${NSD_Check} $X64Radio
+    ${Else}
+        ${NSD_Check} $X86Radio
+    ${EndIf}
+    nsDialogs::Show
+FunctionEnd
+
+Function ArchitectureLeave
+    ${NSD_GetState} $X64Radio $0
+    ${If} $0 == ${BST_CHECKED}
+        StrCpy $Architecture "x64"
+    ${Else}
+        StrCpy $Architecture "x86"
+    ${EndIf}
+    Call ApplyArchitecture
+FunctionEnd
+
+Function .onInit
+    SetShellVarContext current
+    SetRegView 32
+    StrCpy $TestMode "0"
+    StrCpy $Architecture "x86"
+    ${If} ${RunningX64}
+        StrCpy $Architecture "x64"
+    ${EndIf}
+    ${GetParameters} $CommandLine
+    ClearErrors
+    ${GetOptions} $CommandLine "/TESTMODE=" $OptionValue
+    ${IfNot} ${Errors}
+        ${If} $OptionValue == "1"
+            StrCpy $TestMode "1"
+        ${Else}
+            MessageBox MB_ICONSTOP "Expected /TESTMODE=1." /SD IDOK
+            SetErrorLevel 2
+            Quit
+        ${EndIf}
+    ${EndIf}
+    ClearErrors
+    ${GetOptions} $CommandLine "/ARCH=" $OptionValue
+    ${IfNot} ${Errors}
+        ${If} $OptionValue != "x64"
+        ${AndIf} $OptionValue != "x86"
+            MessageBox MB_ICONSTOP "Architecture must be /ARCH=x64 or /ARCH=x86." /SD IDOK
+            SetErrorLevel 2
+            Quit
+        ${EndIf}
+        StrCpy $Architecture $OptionValue
+    ${EndIf}
+    ${If} $Architecture == "x64"
+    ${AndIfNot} ${RunningX64}
+        MessageBox MB_ICONSTOP "The x64 application requires 64-bit Windows. Choose x86." /SD IDOK
+        SetErrorLevel 2
+        Quit
+    ${EndIf}
+    Call ApplyArchitecture
+FunctionEnd
+
+Section "-Registration"
+    SetOutPath "$INSTDIR"
+    WriteINIStr "$INSTDIR\installation.ini" "install" "architecture" "$Architecture"
+    WriteINIStr "$INSTDIR\installation.ini" "install" "version" "@CPACK_PACKAGE_VERSION@"
+    WriteINIStr "$INSTDIR\installation.ini" "install" "testMode" "$TestMode"
+    WriteUninstaller "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe"
+    ${If} $TestMode != "1"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "@CPACK_NSIS_DISPLAY_NAME@ ($Architecture)"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "@CPACK_PACKAGE_VERSION@"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "@CPACK_PACKAGE_VENDOR@"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\UICreator.exe"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '$\"$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe$\"'
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "QuietUninstallString" '$\"$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe$\" /S'
+        WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoModify" 1
+        WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoRepair" 1
+        CreateDirectory "$SMPROGRAMS\LVGL UI Creator"
+        CreateShortCut "$SMPROGRAMS\LVGL UI Creator\LVGL UI Creator.lnk" "$INSTDIR\UICreator.exe" "" "$INSTDIR\UICreator.exe"
+        CreateShortCut "$SMPROGRAMS\LVGL UI Creator\Uninstall.lnk" "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe"
+    ${EndIf}
+SectionEnd
+
+Function un.onInit
+    SetShellVarContext current
+    SetRegView 32
+    ReadINIStr $TestMode "$INSTDIR\installation.ini" "install" "testMode"
+FunctionEnd
+
+Section "Uninstall"
+    ; CPack emits exact file deletes and nonrecursive empty-directory removes.
+    ; User-created projects and unrelated files therefore survive uninstall.
+@CPACK_NSIS_DELETE_FILES@
+@CPACK_NSIS_DELETE_DIRECTORIES@
+    Delete "$INSTDIR\installation.ini"
+    Delete "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe"
+    ${If} $TestMode != "1"
+        ReadRegStr $0 HKCU "${UNINSTALL_KEY}" "InstallLocation"
+        ${If} $0 == $INSTDIR
+            DeleteRegKey HKCU "${UNINSTALL_KEY}"
+            Delete "$SMPROGRAMS\LVGL UI Creator\LVGL UI Creator.lnk"
+            Delete "$SMPROGRAMS\LVGL UI Creator\Uninstall.lnk"
+            RMDir "$SMPROGRAMS\LVGL UI Creator"
+        ${EndIf}
+    ${EndIf}
+    RMDir "$INSTDIR"
+SectionEnd

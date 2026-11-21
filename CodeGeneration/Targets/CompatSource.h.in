@@ -1,0 +1,3 @@
+#pragma once
+namespace CGeneration {inline constexpr const char* Compat9=R"COMPAT(@COMPAT9_SOURCE@)COMPAT";
+inline constexpr const char* Compat8=R"COMPAT(@COMPAT8_SOURCE@)COMPAT";}

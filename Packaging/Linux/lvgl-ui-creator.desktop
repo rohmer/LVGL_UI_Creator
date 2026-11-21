@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=LVGL UI Creator
+Comment=Design and test LVGL interfaces
+Exec=lvgl-ui-creator %f
+Icon=lvgl-ui-creator
+Terminal=false
+Categories=Development;GUIDesigner;
+StartupNotify=true
+Keywords=LVGL;ESP32;Arduino;Raspberry Pi;UI;

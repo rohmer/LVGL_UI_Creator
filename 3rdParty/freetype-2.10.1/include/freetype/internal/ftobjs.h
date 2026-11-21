@@ -4,7 +4,7 @@
  *
  *   The FreeType private base classes (specification).
  *
- * Copyright (C) 1996-2019 by
+ * Copyright (C) 1996-2026 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -26,21 +26,21 @@
 #ifndef FTOBJS_H_
 #define FTOBJS_H_
 
-#include <ft2build.h>
-#include FT_RENDER_H
-#include FT_SIZES_H
-#include FT_LCD_FILTER_H
-#include FT_INTERNAL_MEMORY_H
-#include FT_INTERNAL_GLYPH_LOADER_H
-#include FT_INTERNAL_DRIVER_H
-#include FT_INTERNAL_AUTOHINT_H
-#include FT_INTERNAL_SERVICE_H
-#include FT_INTERNAL_CALC_H
+#include <freetype/ftrender.h>
+#include <freetype/ftsizes.h>
+#include <freetype/ftlcdfil.h>
+#include <freetype/internal/ftmemory.h>
+#include <freetype/internal/ftgloadr.h>
+#include <freetype/internal/ftdrv.h>
+#include <freetype/internal/autohint.h>
+#include <freetype/internal/ftserv.h>
+#include <freetype/internal/ftcalc.h>
 
 #ifdef FT_CONFIG_OPTION_INCREMENTAL
-#include FT_INCREMENTAL_H
+#include <freetype/ftincrem.h>
 #endif
 
+#include "compiler-macros.h"
 
 FT_BEGIN_HEADER
 
@@ -214,8 +214,8 @@ FT_BEGIN_HEADER
     FT_CMap_CharIndexFunc  char_index;
     FT_CMap_CharNextFunc   char_next;
 
-    /* Subsequent entries are special ones for format 14 -- the variant */
-    /* selector subtable which behaves like no other                    */
+    /* Subsequent entries are special ones for formats 14 and 15 -- */
+    /* the variant selector subtables which behave like no other    */
 
     FT_CMap_CharVarIndexFunc      char_var_index;
     FT_CMap_CharVarIsDefaultFunc  char_var_default;
@@ -226,8 +226,8 @@ FT_BEGIN_HEADER
   } FT_CMap_ClassRec;
 
 
-#define FT_DECLARE_CMAP_CLASS( class_ )              \
-  FT_CALLBACK_TABLE const  FT_CMap_ClassRec class_;
+#define FT_DECLARE_CMAP_CLASS( class_ )            \
+  FT_CALLBACK_TABLE const FT_CMap_ClassRec  class_;
 
 #define FT_DEFINE_CMAP_CLASS(       \
           class_,                   \
@@ -274,6 +274,28 @@ FT_BEGIN_HEADER
   ft_lcd_padding( FT_BBox*        cbox,
                   FT_GlyphSlot    slot,
                   FT_Render_Mode  mode );
+
+
+  /**************************************************************************
+   *
+   * @Function:
+   *   find_unicode_charmap
+   *
+   * @Description:
+   *   This function finds a Unicode charmap, if there is one.  And if there
+   *   is more than one, it tries to favour the more extensive one, i.e., one
+   *   that supports UCS-4 against those which are limited to the BMP (UCS-2
+   *   encoding.)
+   *
+   *   If a unicode charmap is found, `face->charmap` is set to it.
+   *
+   *   This function is called from `open_face`, from `FT_Select_Charmap(...,
+   *   FT_ENCODING_UNICODE)`, and also from `afadjust.c` in the 'autofit'
+   *   module.
+   */
+  FT_BASE( FT_Error )
+  find_unicode_charmap( FT_Face  face );
+
 
 #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
 
@@ -343,11 +365,6 @@ FT_BEGIN_HEADER
    *     Value~0 means to use the font's value.  Value~-1 means to use the
    *     CFF driver's default.
    *
-   *   lcd_weights ::
-   *   lcd_filter_func ::
-   *     These fields specify the LCD filtering weights and callback function
-   *     for ClearType-style subpixel rendering.
-   *
    *   refcount ::
    *     A counter initialized to~1 at the time an @FT_Face structure is
    *     created.  @FT_Reference_Face increments this counter, and
@@ -368,11 +385,6 @@ FT_BEGIN_HEADER
 
     FT_Char              no_stem_darkening;
     FT_Int32             random_seed;
-
-#ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
-    FT_LcdFiveTapFilter      lcd_weights;      /* filter weights, if any */
-    FT_Bitmap_LcdFilterFunc  lcd_filter_func;  /* filtering callback     */
-#endif
 
     FT_Int  refcount;
 
@@ -418,7 +430,8 @@ FT_BEGIN_HEADER
    *     initializing the glyph slot.
    */
 
-#define FT_GLYPH_OWN_BITMAP  0x1U
+#define FT_GLYPH_OWN_BITMAP    0x1U
+#define FT_GLYPH_OWN_GZIP_SVG  0x2U
 
   typedef struct  FT_Slot_InternalRec_
   {
@@ -497,9 +510,9 @@ FT_BEGIN_HEADER
    */
   typedef struct  FT_ModuleRec_
   {
-    FT_Module_Class*  clazz;
-    FT_Library        library;
-    FT_Memory         memory;
+    const FT_Module_Class*  clazz;
+    FT_Library              library;
+    FT_Memory               memory;
 
   } FT_ModuleRec;
 
@@ -603,12 +616,6 @@ FT_BEGIN_HEADER
 #define FT_FACE_MEMORY( x )   FT_FACE( x )->memory
 #define FT_FACE_STREAM( x )   FT_FACE( x )->stream
 
-#define FT_SIZE_FACE( x )     FT_SIZE( x )->face
-#define FT_SLOT_FACE( x )     FT_SLOT( x )->face
-
-#define FT_FACE_SLOT( x )     FT_FACE( x )->glyph
-#define FT_FACE_SIZE( x )     FT_FACE( x )->size
-
 
   /**************************************************************************
    *
@@ -653,7 +660,7 @@ FT_BEGIN_HEADER
   FT_BASE( void )
   FT_Done_GlyphSlot( FT_GlyphSlot  slot );
 
- /* */
+  /* */
 
 #define FT_REQUEST_WIDTH( req )                                            \
           ( (req)->horiResolution                                          \
@@ -673,7 +680,7 @@ FT_BEGIN_HEADER
 
 
   /* Set the metrics according to a size request. */
-  FT_BASE( void )
+  FT_BASE( FT_Error )
   FT_Request_Metrics( FT_Face          face,
                       FT_Size_Request  req );
 
@@ -707,9 +714,9 @@ FT_BEGIN_HEADER
                               const FT_Vector*  origin );
 
   /* Allocate a new bitmap buffer in a glyph slot. */
+  /* Dimensions must be preset in advance.         */
   FT_BASE( FT_Error )
-  ft_glyphslot_alloc_bitmap( FT_GlyphSlot  slot,
-                             FT_ULong      size );
+  ft_glyphslot_alloc_bitmap( FT_GlyphSlot  slot );
 
 
   /* Set the bitmap buffer in a glyph slot to a given pointer.  The buffer */
@@ -872,10 +879,6 @@ FT_BEGIN_HEADER
    *   lcd_weights ::
    *     The LCD filter weights for ClearType-style subpixel rendering.
    *
-   *   lcd_filter_func ::
-   *     The LCD filtering callback function for for ClearType-style subpixel
-   *     rendering.
-   *
    *   lcd_geometry ::
    *     This array specifies LCD subpixel geometry and controls Harmony LCD
    *     rendering technique, alternative to ClearType.
@@ -909,7 +912,6 @@ FT_BEGIN_HEADER
 
 #ifdef FT_CONFIG_OPTION_SUBPIXEL_RENDERING
     FT_LcdFiveTapFilter      lcd_weights;      /* filter weights, if any */
-    FT_Bitmap_LcdFilterFunc  lcd_filter_func;  /* filtering callback     */
 #else
     FT_Vector                lcd_geometry[3];  /* RGB subpixel positions */
 #endif
@@ -976,17 +978,6 @@ FT_BEGIN_HEADER
   FT_Done_Memory( FT_Memory  memory );
 
 #endif /* !FT_CONFIG_OPTION_NO_DEFAULT_SYSTEM */
-
-
-  /* Define default raster's interface.  The default raster is located in  */
-  /* `src/base/ftraster.c'.                                                */
-  /*                                                                       */
-  /* Client applications can register new rasters through the              */
-  /* FT_Set_Raster() API.                                                  */
-
-#ifndef FT_NO_DEFAULT_RASTER
-  FT_EXPORT_VAR( FT_Raster_Funcs )  ft_default_raster;
-#endif
 
 
   /**************************************************************************
@@ -1057,6 +1048,9 @@ FT_BEGIN_HEADER
    *   The struct will be allocated in the global scope (or the scope where
    *   the macro is used).
    */
+#define FT_DECLARE_GLYPH( class_ )                \
+  FT_CALLBACK_TABLE const FT_Glyph_Class  class_;
+
 #define FT_DEFINE_GLYPH(          \
           class_,                 \
           size_,                  \

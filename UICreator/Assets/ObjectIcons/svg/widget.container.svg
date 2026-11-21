@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Container</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="3,11 3,4 10,4" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="22,4 29,4 29,11" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="29,21 29,28 22,28" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="10,28 3,28 3,21" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="8" y="9" width="6" height="14" rx="1" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+  <rect x="18" y="9" width="6" height="5" rx="1" fill="#45D6B3" stroke="none" stroke-width="0"/>
+  <rect x="18" y="18" width="6" height="5" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+</g>
+</svg>

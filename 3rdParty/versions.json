@@ -1,0 +1,46 @@
+{
+  "LVGL": {
+    "source": "https://github.com/lvgl/lvgl/releases/tag/v9.6.0",
+    "version": "9.6.0"
+  },
+  "SDL": {
+    "source": "https://github.com/libsdl-org/SDL/releases/tag/release-3.4.20",
+    "version": "3.4.20"
+  },
+  "JSON": {
+    "source": "https://github.com/nlohmann/json/releases/tag/v3.12.0",
+    "version": "3.12.0"
+  },
+  "spdlog": {
+    "source": "https://github.com/gabime/spdlog/releases/tag/v1.17.0",
+    "version": "1.17.0"
+  },
+  "Catch2": {
+    "source": "https://github.com/catchorg/Catch2/releases/tag/v3.16.1",
+    "version": "3.16.1"
+  },
+  "FreeType": {
+    "source": "https://github.com/freetype/freetype/tree/VER-2-15-0",
+    "version": "2.15.0"
+  },
+  "Mini-XML": {
+    "source": "https://github.com/michaelrsweet/mxml/releases/tag/v4.0.6",
+    "version": "4.0.6"
+  },
+  "libimagequant": {
+    "source": "https://github.com/ImageOptim/libimagequant/tree/4.4.1",
+    "version": "4.4.1"
+  },
+  "Breakpad": {
+    "commit": "d5c861bbf9be1e743cd7a73deae3ea4a4e05a0f4",
+    "source": "https://github.com/google/breakpad"
+  },
+  "DirectFB": {
+    "commit": "5b474ffbe2e91b8363b3dd7d2c04cac191dbaa37",
+    "source": "https://github.com/deniskropp/DirectFB"
+  },
+  "nanopb": {
+    "version": "0.4.9.2",
+    "source": "https://github.com/nanopb/nanopb/releases/tag/nanopb-0.4.9.2"
+  }
+}

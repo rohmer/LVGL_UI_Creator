@@ -51,8 +51,3 @@ void lv_gui_designer(void);
 #endif
 
 #endif /* _INTERFACE_H_ */
-
-
-
-
-

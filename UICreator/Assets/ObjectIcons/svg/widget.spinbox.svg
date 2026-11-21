@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Spinbox</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="7" width="26" height="18" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M22 7L22 25" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <polyline points="24,13 26,11 28,13" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+  <polyline points="24,19 26,21 28,19" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+  <polyline points="7,12 9,10 14,10 16,12 16,14 7,21 16,21" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+</g>
+</svg>

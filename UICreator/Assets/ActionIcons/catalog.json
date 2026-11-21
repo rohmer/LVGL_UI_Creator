@@ -1,0 +1,896 @@
+{
+  "viewBox": 32,
+  "colors": {
+    "none": "none",
+    "primary": "#D6E5F5",
+    "accent": "#45D6B3",
+    "blue": "#65AFFF",
+    "muted": "#8FA8C4"
+  },
+  "icons": [
+    {
+      "id": 0,
+      "key": "action.new",
+      "name": "New project",
+      "aliases": [
+        "new"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.new.svg"
+    },
+    {
+      "id": 1,
+      "key": "action.open",
+      "name": "Open project",
+      "aliases": [
+        "open"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.open.svg"
+    },
+    {
+      "id": 2,
+      "key": "action.save",
+      "name": "Save",
+      "aliases": [
+        "save"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.save.svg"
+    },
+    {
+      "id": 3,
+      "key": "action.save_as",
+      "name": "Save as",
+      "aliases": [
+        "save-as"
+      ],
+      "primitives": 12,
+      "svg": "svg/action.save_as.svg"
+    },
+    {
+      "id": 4,
+      "key": "action.exit",
+      "name": "Exit",
+      "aliases": [
+        "exit"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.exit.svg"
+    },
+    {
+      "id": 5,
+      "key": "action.undo",
+      "name": "Undo",
+      "aliases": [
+        "undo"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.undo.svg"
+    },
+    {
+      "id": 6,
+      "key": "action.redo",
+      "name": "Redo",
+      "aliases": [
+        "redo"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.redo.svg"
+    },
+    {
+      "id": 7,
+      "key": "action.duplicate",
+      "name": "Duplicate",
+      "aliases": [
+        "duplicate"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.duplicate.svg"
+    },
+    {
+      "id": 8,
+      "key": "action.delete",
+      "name": "Delete",
+      "aliases": [
+        "delete",
+        "variable-remove"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.delete.svg"
+    },
+    {
+      "id": 9,
+      "key": "action.copy",
+      "name": "Copy",
+      "aliases": [
+        "copy"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.copy.svg"
+    },
+    {
+      "id": 10,
+      "key": "action.paste",
+      "name": "Paste",
+      "aliases": [
+        "paste"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.paste.svg"
+    },
+    {
+      "id": 11,
+      "key": "action.move_up",
+      "name": "Move up",
+      "aliases": [
+        "move-up"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.move_up.svg"
+    },
+    {
+      "id": 12,
+      "key": "action.move_down",
+      "name": "Move down",
+      "aliases": [
+        "move-down"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.move_down.svg"
+    },
+    {
+      "id": 13,
+      "key": "action.events",
+      "name": "Events and actions",
+      "aliases": [
+        "events-editor"
+      ],
+      "primitives": 11,
+      "svg": "svg/action.events.svg"
+    },
+    {
+      "id": 14,
+      "key": "action.layout",
+      "name": "Layout designer",
+      "aliases": [
+        "layout-designer"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.layout.svg"
+    },
+    {
+      "id": 15,
+      "key": "action.property_search",
+      "name": "Find property",
+      "aliases": [
+        "property-search"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.property_search.svg"
+    },
+    {
+      "id": 16,
+      "key": "action.align_left",
+      "name": "Align left",
+      "aliases": [
+        "align-left"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.align_left.svg"
+    },
+    {
+      "id": 17,
+      "key": "action.align_hcenter",
+      "name": "Align horizontal centers",
+      "aliases": [
+        "align-hcenter"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.align_hcenter.svg"
+    },
+    {
+      "id": 18,
+      "key": "action.align_right",
+      "name": "Align right",
+      "aliases": [
+        "align-right"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.align_right.svg"
+    },
+    {
+      "id": 19,
+      "key": "action.align_top",
+      "name": "Align top",
+      "aliases": [
+        "align-top"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.align_top.svg"
+    },
+    {
+      "id": 20,
+      "key": "action.align_vcenter",
+      "name": "Align vertical centers",
+      "aliases": [
+        "align-vcenter"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.align_vcenter.svg"
+    },
+    {
+      "id": 21,
+      "key": "action.align_bottom",
+      "name": "Align bottom",
+      "aliases": [
+        "align-bottom"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.align_bottom.svg"
+    },
+    {
+      "id": 22,
+      "key": "action.distribute_horizontal",
+      "name": "Distribute horizontally",
+      "aliases": [
+        "distribute-horizontal"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.distribute_horizontal.svg"
+    },
+    {
+      "id": 23,
+      "key": "action.distribute_vertical",
+      "name": "Distribute vertically",
+      "aliases": [
+        "distribute-vertical"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.distribute_vertical.svg"
+    },
+    {
+      "id": 24,
+      "key": "action.commands",
+      "name": "Commands",
+      "aliases": [
+        "commands"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.commands.svg"
+    },
+    {
+      "id": 25,
+      "key": "action.device_previews",
+      "name": "Device previews",
+      "aliases": [
+        "device-previews"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.device_previews.svg"
+    },
+    {
+      "id": 26,
+      "key": "action.screen_flow",
+      "name": "Screens and navigation",
+      "aliases": [
+        "screen-flow"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.screen_flow.svg"
+    },
+    {
+      "id": 27,
+      "key": "action.problems",
+      "name": "Problems",
+      "aliases": [
+        "problems"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.problems.svg"
+    },
+    {
+      "id": 28,
+      "key": "action.fit_canvas",
+      "name": "Fit canvas",
+      "aliases": [
+        "fit-canvas",
+        "center-canvas"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.fit_canvas.svg"
+    },
+    {
+      "id": 29,
+      "key": "action.zoom_reset",
+      "name": "Actual size",
+      "aliases": [
+        "zoom-reset"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.zoom_reset.svg"
+    },
+    {
+      "id": 30,
+      "key": "action.zoom_in",
+      "name": "Zoom in",
+      "aliases": [
+        "zoom-in"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.zoom_in.svg"
+    },
+    {
+      "id": 31,
+      "key": "action.zoom_out",
+      "name": "Zoom out",
+      "aliases": [
+        "zoom-out"
+      ],
+      "primitives": 3,
+      "svg": "svg/action.zoom_out.svg"
+    },
+    {
+      "id": 32,
+      "key": "action.view_all",
+      "name": "Show all panels",
+      "aliases": [
+        "view:all",
+        "submenu:Show panel"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.view_all.svg"
+    },
+    {
+      "id": 33,
+      "key": "action.preferences",
+      "name": "Workspace preferences",
+      "aliases": [
+        "preferences"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.preferences.svg"
+    },
+    {
+      "id": 34,
+      "key": "action.screens",
+      "name": "Screens panel",
+      "aliases": [
+        "view:screens"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.screens.svg",
+      "reuse": "widget.page"
+    },
+    {
+      "id": 35,
+      "key": "action.widgets",
+      "name": "Widgets panel",
+      "aliases": [
+        "view:widgets"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.widgets.svg"
+    },
+    {
+      "id": 36,
+      "key": "action.hierarchy",
+      "name": "Hierarchy panel",
+      "aliases": [
+        "view:hierarchy"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.hierarchy.svg",
+      "reuse": "widget.layer_view"
+    },
+    {
+      "id": 37,
+      "key": "action.properties",
+      "name": "Properties panel",
+      "aliases": [
+        "view:properties"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.properties.svg"
+    },
+    {
+      "id": 38,
+      "key": "action.tools",
+      "name": "Tools panel",
+      "aliases": [
+        "view:tools"
+      ],
+      "primitives": 15,
+      "svg": "svg/action.tools.svg"
+    },
+    {
+      "id": 39,
+      "key": "action.simulator",
+      "name": "Simulator preview",
+      "aliases": [
+        "view:simulator"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.simulator.svg"
+    },
+    {
+      "id": 40,
+      "key": "action.themes",
+      "name": "Theme gallery",
+      "aliases": [
+        "theme-gallery"
+      ],
+      "primitives": 17,
+      "svg": "svg/action.themes.svg"
+    },
+    {
+      "id": 41,
+      "key": "action.components",
+      "name": "Component library",
+      "aliases": [
+        "component-library"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.components.svg"
+    },
+    {
+      "id": 42,
+      "key": "action.fonts",
+      "name": "Project fonts",
+      "aliases": [
+        "font-manager"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.fonts.svg"
+    },
+    {
+      "id": 43,
+      "key": "action.images",
+      "name": "Project images",
+      "aliases": [
+        "image-manager"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.images.svg",
+      "reuse": "widget.image"
+    },
+    {
+      "id": 44,
+      "key": "action.font_converter",
+      "name": "Convert font",
+      "aliases": [
+        "font-converter"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.font_converter.svg"
+    },
+    {
+      "id": 45,
+      "key": "action.image_converter",
+      "name": "Convert images",
+      "aliases": [
+        "image-converter"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.image_converter.svg"
+    },
+    {
+      "id": 46,
+      "key": "action.model_playground",
+      "name": "Model playground",
+      "aliases": [
+        "model-playground"
+      ],
+      "primitives": 16,
+      "svg": "svg/action.model_playground.svg"
+    },
+    {
+      "id": 47,
+      "key": "action.model_generator",
+      "name": "Generate language model",
+      "aliases": [
+        "language-model-generator"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.model_generator.svg"
+    },
+    {
+      "id": 48,
+      "key": "action.model_load",
+      "name": "Load language model",
+      "aliases": [
+        "language-model-load"
+      ],
+      "primitives": 13,
+      "svg": "svg/action.model_load.svg"
+    },
+    {
+      "id": 49,
+      "key": "action.export_protobuf",
+      "name": "Export Protobuf",
+      "aliases": [
+        "export-protobuf"
+      ],
+      "primitives": 15,
+      "svg": "svg/action.export_protobuf.svg"
+    },
+    {
+      "id": 50,
+      "key": "action.export_c",
+      "name": "Export C",
+      "aliases": [
+        "export-c"
+      ],
+      "primitives": 14,
+      "svg": "svg/action.export_c.svg"
+    },
+    {
+      "id": 51,
+      "key": "action.project_creator",
+      "name": "Create project",
+      "aliases": [
+        "project-creator",
+        "project-creator-linux"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.project_creator.svg"
+    },
+    {
+      "id": 52,
+      "key": "action.device_tools",
+      "name": "Build, flash and serial",
+      "aliases": [
+        "device-tools"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.device_tools.svg"
+    },
+    {
+      "id": 53,
+      "key": "action.run",
+      "name": "Run",
+      "aliases": [
+        "run-toggle",
+        "run-application"
+      ],
+      "primitives": 1,
+      "svg": "svg/action.run.svg"
+    },
+    {
+      "id": 54,
+      "key": "action.stop",
+      "name": "Stop",
+      "aliases": [
+        "run-stop"
+      ],
+      "primitives": 1,
+      "svg": "svg/action.stop.svg"
+    },
+    {
+      "id": 55,
+      "key": "action.performance",
+      "name": "Performance",
+      "aliases": [
+        "performance"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.performance.svg"
+    },
+    {
+      "id": 56,
+      "key": "action.validate",
+      "name": "Validate screen",
+      "aliases": [
+        "validate-screen",
+        "export-preflight"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.validate.svg"
+    },
+    {
+      "id": 57,
+      "key": "action.debug",
+      "name": "Debug screen",
+      "aliases": [
+        "debug-screen"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.debug.svg"
+    },
+    {
+      "id": 58,
+      "key": "action.debug_stop",
+      "name": "Stop debug viewer",
+      "aliases": [
+        "debug-stop"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.debug_stop.svg"
+    },
+    {
+      "id": 59,
+      "key": "action.welcome",
+      "name": "Welcome",
+      "aliases": [
+        "welcome"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.welcome.svg"
+    },
+    {
+      "id": 60,
+      "key": "action.shortcuts",
+      "name": "Keyboard shortcuts",
+      "aliases": [
+        "shortcuts"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.shortcuts.svg",
+      "reuse": "widget.keyboard"
+    },
+    {
+      "id": 61,
+      "key": "action.diagnostics",
+      "name": "Diagnostics",
+      "aliases": [
+        "diagnostics"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.diagnostics.svg"
+    },
+    {
+      "id": 62,
+      "key": "action.about",
+      "name": "About",
+      "aliases": [
+        "about"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.about.svg"
+    },
+    {
+      "id": 63,
+      "key": "action.screen_add",
+      "name": "Add screen",
+      "aliases": [
+        "screen-add"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.screen_add.svg"
+    },
+    {
+      "id": 64,
+      "key": "action.select_screen",
+      "name": "Select screen",
+      "aliases": [
+        "select-screen"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.select_screen.svg"
+    },
+    {
+      "id": 65,
+      "key": "action.grid_decrease",
+      "name": "Decrease grid spacing",
+      "aliases": [
+        "grid-decrease"
+      ],
+      "primitives": 7,
+      "svg": "svg/action.grid_decrease.svg"
+    },
+    {
+      "id": 66,
+      "key": "action.grid_increase",
+      "name": "Increase grid spacing",
+      "aliases": [
+        "grid-increase"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.grid_increase.svg"
+    },
+    {
+      "id": 67,
+      "key": "action.variable_add",
+      "name": "Add variable",
+      "aliases": [
+        "variable-add"
+      ],
+      "primitives": 14,
+      "svg": "svg/action.variable_add.svg"
+    },
+    {
+      "id": 68,
+      "key": "action.variable_delete",
+      "name": "Remove variable",
+      "aliases": [
+        "variable-delete"
+      ],
+      "primitives": 13,
+      "svg": "svg/action.variable_delete.svg"
+    },
+    {
+      "id": 69,
+      "key": "action.minimize",
+      "name": "Minimize",
+      "aliases": [
+        "minimize"
+      ],
+      "primitives": 1,
+      "svg": "svg/action.minimize.svg"
+    },
+    {
+      "id": 70,
+      "key": "action.restore",
+      "name": "Restore window",
+      "aliases": [
+        "restore"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.restore.svg"
+    },
+    {
+      "id": 71,
+      "key": "action.close",
+      "name": "Close",
+      "aliases": [
+        "close"
+      ],
+      "primitives": 2,
+      "svg": "svg/action.close.svg"
+    },
+    {
+      "id": 72,
+      "key": "action.settings",
+      "name": "Settings",
+      "aliases": [
+        "settings"
+      ],
+      "primitives": 34,
+      "svg": "svg/action.settings.svg"
+    },
+    {
+      "id": 73,
+      "key": "action.add",
+      "name": "Add",
+      "aliases": [
+        "add"
+      ],
+      "primitives": 2,
+      "svg": "svg/action.add.svg"
+    },
+    {
+      "id": 74,
+      "key": "action.remove",
+      "name": "Remove",
+      "aliases": [
+        "remove"
+      ],
+      "primitives": 1,
+      "svg": "svg/action.remove.svg"
+    },
+    {
+      "id": 75,
+      "key": "action.file_menu",
+      "name": "File",
+      "aliases": [
+        "menu:File"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.file_menu.svg"
+    },
+    {
+      "id": 76,
+      "key": "action.edit_menu",
+      "name": "Edit",
+      "aliases": [
+        "menu:Edit"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.edit_menu.svg"
+    },
+    {
+      "id": 77,
+      "key": "action.assets_menu",
+      "name": "Assets",
+      "aliases": [
+        "menu:Assets"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.assets_menu.svg"
+    },
+    {
+      "id": 78,
+      "key": "action.language_models_menu",
+      "name": "Language models",
+      "aliases": [
+        "menu:Language Models"
+      ],
+      "primitives": 8,
+      "svg": "svg/action.language_models_menu.svg"
+    },
+    {
+      "id": 79,
+      "key": "action.export_menu",
+      "name": "Export",
+      "aliases": [
+        "menu:Export"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.export_menu.svg"
+    },
+    {
+      "id": 80,
+      "key": "action.debug_menu",
+      "name": "Debug",
+      "aliases": [
+        "menu:Debug"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.debug_menu.svg"
+    },
+    {
+      "id": 81,
+      "key": "action.help_menu",
+      "name": "Help",
+      "aliases": [
+        "menu:Help",
+        "help"
+      ],
+      "primitives": 5,
+      "svg": "svg/action.help_menu.svg"
+    },
+    {
+      "id": 82,
+      "key": "action.recent",
+      "name": "Recent projects",
+      "aliases": [
+        "submenu:Recent projects"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.recent.svg",
+      "prefixes": [
+        "recent:"
+      ]
+    },
+    {
+      "id": 83,
+      "key": "action.align_menu",
+      "name": "Align objects",
+      "aliases": [
+        "submenu:Align"
+      ],
+      "primitives": 4,
+      "svg": "svg/action.align_menu.svg"
+    },
+    {
+      "id": 84,
+      "key": "action.distribute_menu",
+      "name": "Distribute objects",
+      "aliases": [
+        "submenu:Distribute"
+      ],
+      "primitives": 6,
+      "svg": "svg/action.distribute_menu.svg"
+    },
+    {
+      "id": 85,
+      "key": "action.view_menu",
+      "name": "View",
+      "aliases": [
+        "menu:View"
+      ],
+      "primitives": 10,
+      "svg": "svg/action.view_menu.svg"
+    },
+    {
+      "id": 86,
+      "key": "action.screen_home",
+      "name": "Start screen",
+      "aliases": [
+        "screen-home"
+      ],
+      "primitives": 9,
+      "svg": "svg/action.screen_home.svg"
+    }
+  ]
+}

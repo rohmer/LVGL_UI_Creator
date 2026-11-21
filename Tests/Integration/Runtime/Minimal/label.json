@@ -1,0 +1,15 @@
+{
+  "formatVersion": 2,
+  "lvglVersion": "9.6.0",
+  "runtimeTarget": "9.6",
+  "canvas": {"width": 320, "height": 240},
+  "obj": [
+    {
+      "oid": 0,
+      "par": -1,
+      "base": {"coords": {"x": 12, "y": 12, "width": 200, "height": 28}},
+      "text": "On-device Protobuf"
+    }
+  ],
+  "variables": []
+}

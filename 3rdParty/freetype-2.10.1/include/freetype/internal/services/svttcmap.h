@@ -4,7 +4,7 @@
  *
  *   The FreeType TrueType/sfnt cmap extra information service.
  *
- * Copyright (C) 2003-2019 by
+ * Copyright (C) 2003-2026 by
  * Masatake YAMATO, Redhat K.K.,
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
@@ -22,8 +22,8 @@
 #ifndef SVTTCMAP_H_
 #define SVTTCMAP_H_
 
-#include FT_INTERNAL_SERVICE_H
-#include FT_TRUETYPE_TABLES_H
+#include <freetype/internal/ftserv.h>
+#include <freetype/tttables.h>
 
 
 FT_BEGIN_HEADER
@@ -52,7 +52,8 @@ FT_BEGIN_HEADER
    *     table), 2~(high-byte mapping through table), 4~(segment mapping to
    *     delta values), 6~(trimmed table mapping), 8~(mixed 16-bit and 32-bit
    *     coverage), 10~(trimmed array), 12~(segmented coverage), 13~(last
-   *     resort font), and 14 (Unicode Variation Sequences).
+   *     resort font), 14~(Unicode Variation Sequences), and 15~(extended
+   *     glyph repertoire Unicode Variation Sequences).
    */
   typedef struct  TT_CMapInfo_
   {

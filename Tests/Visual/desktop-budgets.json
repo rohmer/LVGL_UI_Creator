@@ -1,0 +1,17 @@
+{
+  "format": "lvgl-regression-budgets",
+  "version": 1,
+  "name": "Desktop native replay smoke budgets",
+  "description": "Responsiveness and LVGL allocation bounds for the fixed 480x320 desktop fixture, with headroom for debug builds. They are measured host regression guards, not ESP32 or Raspberry Pi device claims. Tighten per CI machine after collecting its reports.",
+  "limits": [
+    {"metric": "loadMs", "maximum": 1000},
+    {"metric": "frame.p95Ms", "maximum": 16.67, "samples": "frame.samples", "minimumSamples": 20},
+    {"metric": "key.p95Ms", "maximum": 16.67, "samples": "key.samples", "minimumSamples": 20},
+    {"metric": "prediction.p95Ms", "maximum": 5, "samples": "prediction.samples", "minimumSamples": 100},
+    {"metric": "lvglHeapPeak", "maximum": 1048576, "available": "lvglHeapAvailable"},
+    {"metric": "inputBytes", "minimum": 1, "maximum": 2097152},
+    {"metric": "framebufferBytes", "minimum": 614400, "maximum": 614400},
+    {"metric": "loadedScreens", "minimum": 1, "maximum": 1},
+    {"metric": "loadedObjects", "minimum": 3, "maximum": 3}
+  ]
+}

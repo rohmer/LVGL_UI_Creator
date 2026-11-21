@@ -1,0 +1,65 @@
+/*
+   (c) Copyright 2001-2011  The world wide DirectFB Open Source Community (directfb.org)
+   (c) Copyright 2000-2004  Convergence (integrated media) GmbH
+
+   All rights reserved.
+
+   Written by Denis Oliver Kropp <dok@directfb.org>,
+              Andreas Hundt <andi@fischlustig.de>,
+              Sven Neumann <neo@directfb.org>,
+              Ville Syrjälä <syrjala@sci.fi> and
+              Claudio Ciccani <klan@users.sf.net>.
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the
+   Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.
+*/
+
+#ifndef __DIRECT__BUILD_H__
+#define __DIRECT__BUILD_H__
+
+
+#define DIRECT_OS_LINUX_GNU_LIBC   (0)
+#define DIRECT_OS_LINUX_KERNEL     (1)
+#define DIRECT_OS_PSP              (2)
+#define DIRECT_OS_WIN32            (3)
+#define DIRECT_OS_FAMOS            (4)
+
+
+#define DIRECT_BUILD_DEBUG       (@DIRECT_BUILD_DEBUG@)
+#define DIRECT_BUILD_DEBUGS      (@DIRECT_BUILD_DEBUGS@)
+#define DIRECT_BUILD_TRACE       (@DIRECT_BUILD_TRACE@)
+#define DIRECT_BUILD_TEXT        (@DIRECT_BUILD_TEXT@)
+#define DIRECT_BUILD_GETTID      (@DIRECT_BUILD_GETTID@)
+#define DIRECT_BUILD_NETWORK     (@DIRECT_BUILD_NETWORK@)
+#define DIRECT_BUILD_STDBOOL     (@DIRECT_BUILD_STDBOOL@)
+#define DIRECT_BUILD_DYNLOAD     (@DIRECT_BUILD_DYNLOAD@)
+#define DIRECT_BUILD_MULTICORE   (@DIRECT_BUILD_MULTICORE@)
+#define DIRECT_BUILD_OSTYPE      (@DIRECT_BUILD_OSTYPE@)
+#define DIRECT_BUILD_GCC_ATOMICS (@DIRECT_BUILD_GCC_ATOMICS@)
+
+
+
+#if !DIRECT_BUILD_DEBUGS
+#if defined(DIRECT_ENABLE_DEBUG) || defined(DIRECT_FORCE_DEBUG)
+#define DIRECT_MINI_DEBUG
+#endif
+#undef DIRECT_ENABLE_DEBUG
+#ifdef DIRECT_FORCE_DEBUG
+#warning DIRECT_FORCE_DEBUG used with 'pure release' library headers.
+#undef DIRECT_FORCE_DEBUG
+#endif
+#endif
+ 
+#endif

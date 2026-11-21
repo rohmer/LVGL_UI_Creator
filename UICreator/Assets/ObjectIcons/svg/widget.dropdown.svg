@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Drop down list</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="4" y="4" width="24" height="8" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M8 8L17 8" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+  <polyline points="22,7 24,9 26,7" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+  <rect x="4" y="16" width="24" height="13" rx="2" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M8 20L22 20" fill="none" stroke="#D6E5F5" stroke-width="1.6"/>
+  <path d="M8 25L18 25" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+</g>
+</svg>

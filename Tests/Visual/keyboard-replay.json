@@ -1,0 +1,13 @@
+{
+  "format": "lvgl-input-replay",
+  "version": 1,
+  "actions": [
+    {"type": "focus", "oid": 0},
+    {"type": "text", "text": "hello professional interface", "targetOid": 0, "expectedText": "hello professional interface"},
+    {"type": "focus", "oid": 1},
+    {"type": "text", "text": "second target!", "targetOid": 1, "expectedText": "second target!"},
+    {"type": "key", "key": "backspace", "targetOid": 1, "expectedText": "second target"},
+    {"type": "prediction", "prefix": "hel", "iterations": 100},
+    {"type": "frames", "count": 30}
+  ]
+}

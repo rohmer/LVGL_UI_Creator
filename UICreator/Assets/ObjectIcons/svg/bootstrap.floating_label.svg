@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Floating label</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="7,9 3,9 3,28 29,28 29,9 25,9" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="8" y="4" width="15" height="6" rx="2" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M7 19L21 19" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M24 16L24 22" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+</g>
+</svg>

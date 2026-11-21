@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Model playground</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="5,4 27,4 29,6 29,19 26,22 17,22 11,28 11,22 5,22 3,20 3,6 5,4" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <circle cx="10" cy="12" r="2" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <circle cx="22" cy="12" r="2" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M12 12L20 12" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M16 12L16 17" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <circle cx="16" cy="18" r="1.5" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+</g>
+</svg>

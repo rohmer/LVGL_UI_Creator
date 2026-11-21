@@ -1,0 +1,345 @@
+{
+  "$schema": "./keyboard.schema.json",
+  "version": 1,
+  "id": "fr-FR-azerty",
+  "initialLayout": "letters",
+  "width": 10,
+  "layouts": {
+    "letters": {
+      "shiftedLayout": "letters_shifted",
+      "rows": [
+        {
+          "keys": [
+            {"id": "a", "label": "a", "action": {"type": "insert", "text": "a"}},
+            {"id": "z", "label": "z", "action": {"type": "insert", "text": "z"}},
+            {"id": "e", "label": "e", "action": {"type": "insert", "text": "e"}},
+            {"id": "r", "label": "r", "action": {"type": "insert", "text": "r"}},
+            {"id": "t", "label": "t", "action": {"type": "insert", "text": "t"}},
+            {"id": "y", "label": "y", "action": {"type": "insert", "text": "y"}},
+            {"id": "u", "label": "u", "action": {"type": "insert", "text": "u"}},
+            {"id": "i", "label": "i", "action": {"type": "insert", "text": "i"}},
+            {"id": "o", "label": "o", "action": {"type": "insert", "text": "o"}},
+            {"id": "p", "label": "p", "action": {"type": "insert", "text": "p"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "q", "label": "q", "action": {"type": "insert", "text": "q"}},
+            {"id": "s", "label": "s", "action": {"type": "insert", "text": "s"}},
+            {"id": "d", "label": "d", "action": {"type": "insert", "text": "d"}},
+            {"id": "f", "label": "f", "action": {"type": "insert", "text": "f"}},
+            {"id": "g", "label": "g", "action": {"type": "insert", "text": "g"}},
+            {"id": "h", "label": "h", "action": {"type": "insert", "text": "h"}},
+            {"id": "j", "label": "j", "action": {"type": "insert", "text": "j"}},
+            {"id": "k", "label": "k", "action": {"type": "insert", "text": "k"}},
+            {"id": "l", "label": "l", "action": {"type": "insert", "text": "l"}},
+            {"id": "m", "label": "m", "action": {"type": "insert", "text": "m"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "shift", "label": "⇧", "width": 2.0, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "w", "label": "w", "action": {"type": "insert", "text": "w"}},
+            {"id": "x", "label": "x", "action": {"type": "insert", "text": "x"}},
+            {"id": "c", "label": "c", "action": {"type": "insert", "text": "c"}},
+            {"id": "v", "label": "v", "action": {"type": "insert", "text": "v"}},
+            {"id": "b", "label": "b", "action": {"type": "insert", "text": "b"}},
+            {"id": "n", "label": "n", "action": {"type": "insert", "text": "n"}},
+            {"id": "backspace", "label": "⌫", "width": 2.0, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 1.25, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "éàç", "width": 1.25, "action": {"type": "switch_layout", "layout": "accents"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "espace", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "apostrophe", "label": "'", "width": 0.75, "action": {"type": "insert", "text": "'"}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "letters_shifted": {
+      "rows": [
+        {
+          "keys": [
+            {"id": "a", "label": "A", "action": {"type": "insert", "text": "A"}},
+            {"id": "z", "label": "Z", "action": {"type": "insert", "text": "Z"}},
+            {"id": "e", "label": "E", "action": {"type": "insert", "text": "E"}},
+            {"id": "r", "label": "R", "action": {"type": "insert", "text": "R"}},
+            {"id": "t", "label": "T", "action": {"type": "insert", "text": "T"}},
+            {"id": "y", "label": "Y", "action": {"type": "insert", "text": "Y"}},
+            {"id": "u", "label": "U", "action": {"type": "insert", "text": "U"}},
+            {"id": "i", "label": "I", "action": {"type": "insert", "text": "I"}},
+            {"id": "o", "label": "O", "action": {"type": "insert", "text": "O"}},
+            {"id": "p", "label": "P", "action": {"type": "insert", "text": "P"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "q", "label": "Q", "action": {"type": "insert", "text": "Q"}},
+            {"id": "s", "label": "S", "action": {"type": "insert", "text": "S"}},
+            {"id": "d", "label": "D", "action": {"type": "insert", "text": "D"}},
+            {"id": "f", "label": "F", "action": {"type": "insert", "text": "F"}},
+            {"id": "g", "label": "G", "action": {"type": "insert", "text": "G"}},
+            {"id": "h", "label": "H", "action": {"type": "insert", "text": "H"}},
+            {"id": "j", "label": "J", "action": {"type": "insert", "text": "J"}},
+            {"id": "k", "label": "K", "action": {"type": "insert", "text": "K"}},
+            {"id": "l", "label": "L", "action": {"type": "insert", "text": "L"}},
+            {"id": "m", "label": "M", "action": {"type": "insert", "text": "M"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "shift", "label": "⬆", "width": 2.0, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "w", "label": "W", "action": {"type": "insert", "text": "W"}},
+            {"id": "x", "label": "X", "action": {"type": "insert", "text": "X"}},
+            {"id": "c", "label": "C", "action": {"type": "insert", "text": "C"}},
+            {"id": "v", "label": "V", "action": {"type": "insert", "text": "V"}},
+            {"id": "b", "label": "B", "action": {"type": "insert", "text": "B"}},
+            {"id": "n", "label": "N", "action": {"type": "insert", "text": "N"}},
+            {"id": "backspace", "label": "⌫", "width": 2.0, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 1.25, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "éàç", "width": 1.25, "action": {"type": "switch_layout", "layout": "accents"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "espace", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "apostrophe", "label": "'", "width": 0.75, "action": {"type": "insert", "text": "'"}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "accents": {
+      "shiftedLayout": "accents_shifted",
+      "rows": [
+        {
+          "offset": 0.5,
+          "keys": [
+            {"id": "letter_00e0", "label": "à", "action": {"type": "insert", "text": "à"}},
+            {"id": "letter_00e2", "label": "â", "action": {"type": "insert", "text": "â"}},
+            {"id": "letter_00e4", "label": "ä", "action": {"type": "insert", "text": "ä"}},
+            {"id": "letter_00e6", "label": "æ", "action": {"type": "insert", "text": "æ"}},
+            {"id": "letter_00e7", "label": "ç", "action": {"type": "insert", "text": "ç"}},
+            {"id": "letter_00e9", "label": "é", "action": {"type": "insert", "text": "é"}},
+            {"id": "letter_00e8", "label": "è", "action": {"type": "insert", "text": "è"}},
+            {"id": "letter_00ea", "label": "ê", "action": {"type": "insert", "text": "ê"}},
+            {"id": "letter_00eb", "label": "ë", "action": {"type": "insert", "text": "ë"}}
+          ]
+        },
+        {
+          "offset": 0.5,
+          "keys": [
+            {"id": "letter_00ee", "label": "î", "action": {"type": "insert", "text": "î"}},
+            {"id": "letter_00ef", "label": "ï", "action": {"type": "insert", "text": "ï"}},
+            {"id": "letter_00f4", "label": "ô", "action": {"type": "insert", "text": "ô"}},
+            {"id": "letter_00f6", "label": "ö", "action": {"type": "insert", "text": "ö"}},
+            {"id": "letter_0153", "label": "œ", "action": {"type": "insert", "text": "œ"}},
+            {"id": "letter_00f9", "label": "ù", "action": {"type": "insert", "text": "ù"}},
+            {"id": "letter_00fb", "label": "û", "action": {"type": "insert", "text": "û"}},
+            {"id": "letter_00fc", "label": "ü", "action": {"type": "insert", "text": "ü"}},
+            {"id": "letter_00ff", "label": "ÿ", "action": {"type": "insert", "text": "ÿ"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "shift", "label": "⇧", "width": 1.5, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "punct_2019", "label": "’", "action": {"type": "insert", "text": "’"}},
+            {"id": "punct_00ab", "label": "«", "action": {"type": "insert", "text": "«"}},
+            {"id": "punct_00bb", "label": "»", "action": {"type": "insert", "text": "»"}},
+            {"id": "punct_003f", "label": "?", "action": {"type": "insert", "text": "?"}},
+            {"id": "punct_0021", "label": "!", "action": {"type": "insert", "text": "!"}},
+            {"id": "punct_003a", "label": ":", "action": {"type": "insert", "text": ":"}},
+            {"id": "punct_002d", "label": "-", "action": {"type": "insert", "text": "-"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 1.25, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "ABC", "width": 1.25, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "espace", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "apostrophe", "label": "'", "width": 0.75, "action": {"type": "insert", "text": "'"}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "accents_shifted": {
+      "rows": [
+        {
+          "offset": 0.5,
+          "keys": [
+            {"id": "letter_00e0", "label": "À", "action": {"type": "insert", "text": "À"}},
+            {"id": "letter_00e2", "label": "Â", "action": {"type": "insert", "text": "Â"}},
+            {"id": "letter_00e4", "label": "Ä", "action": {"type": "insert", "text": "Ä"}},
+            {"id": "letter_00e6", "label": "Æ", "action": {"type": "insert", "text": "Æ"}},
+            {"id": "letter_00e7", "label": "Ç", "action": {"type": "insert", "text": "Ç"}},
+            {"id": "letter_00e9", "label": "É", "action": {"type": "insert", "text": "É"}},
+            {"id": "letter_00e8", "label": "È", "action": {"type": "insert", "text": "È"}},
+            {"id": "letter_00ea", "label": "Ê", "action": {"type": "insert", "text": "Ê"}},
+            {"id": "letter_00eb", "label": "Ë", "action": {"type": "insert", "text": "Ë"}}
+          ]
+        },
+        {
+          "offset": 0.5,
+          "keys": [
+            {"id": "letter_00ee", "label": "Î", "action": {"type": "insert", "text": "Î"}},
+            {"id": "letter_00ef", "label": "Ï", "action": {"type": "insert", "text": "Ï"}},
+            {"id": "letter_00f4", "label": "Ô", "action": {"type": "insert", "text": "Ô"}},
+            {"id": "letter_00f6", "label": "Ö", "action": {"type": "insert", "text": "Ö"}},
+            {"id": "letter_0153", "label": "Œ", "action": {"type": "insert", "text": "Œ"}},
+            {"id": "letter_00f9", "label": "Ù", "action": {"type": "insert", "text": "Ù"}},
+            {"id": "letter_00fb", "label": "Û", "action": {"type": "insert", "text": "Û"}},
+            {"id": "letter_00fc", "label": "Ü", "action": {"type": "insert", "text": "Ü"}},
+            {"id": "letter_00ff", "label": "Ÿ", "action": {"type": "insert", "text": "Ÿ"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "shift", "label": "⬆", "width": 1.5, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "punct_2019", "label": "’", "action": {"type": "insert", "text": "’"}},
+            {"id": "punct_00ab", "label": "«", "action": {"type": "insert", "text": "«"}},
+            {"id": "punct_00bb", "label": "»", "action": {"type": "insert", "text": "»"}},
+            {"id": "punct_003f", "label": "?", "action": {"type": "insert", "text": "?"}},
+            {"id": "punct_0021", "label": "!", "action": {"type": "insert", "text": "!"}},
+            {"id": "punct_003a", "label": ":", "action": {"type": "insert", "text": ":"}},
+            {"id": "punct_002d", "label": "-", "action": {"type": "insert", "text": "-"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 1.25, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "ABC", "width": 1.25, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "espace", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "apostrophe", "label": "'", "width": 0.75, "action": {"type": "insert", "text": "'"}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "symbols": {
+      "rows": [
+        {
+          "keys": [
+            {"id": "symbol_1", "label": "1", "action": {"type": "insert", "text": "1"}},
+            {"id": "symbol_2", "label": "2", "action": {"type": "insert", "text": "2"}},
+            {"id": "symbol_3", "label": "3", "action": {"type": "insert", "text": "3"}},
+            {"id": "symbol_4", "label": "4", "action": {"type": "insert", "text": "4"}},
+            {"id": "symbol_5", "label": "5", "action": {"type": "insert", "text": "5"}},
+            {"id": "symbol_6", "label": "6", "action": {"type": "insert", "text": "6"}},
+            {"id": "symbol_7", "label": "7", "action": {"type": "insert", "text": "7"}},
+            {"id": "symbol_8", "label": "8", "action": {"type": "insert", "text": "8"}},
+            {"id": "symbol_9", "label": "9", "action": {"type": "insert", "text": "9"}},
+            {"id": "symbol_10", "label": "0", "action": {"type": "insert", "text": "0"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_11", "label": "@", "action": {"type": "insert", "text": "@"}},
+            {"id": "symbol_12", "label": "#", "action": {"type": "insert", "text": "#"}},
+            {"id": "symbol_13", "label": "$", "action": {"type": "insert", "text": "$"}},
+            {"id": "symbol_14", "label": "%", "action": {"type": "insert", "text": "%"}},
+            {"id": "symbol_15", "label": "&", "action": {"type": "insert", "text": "&"}},
+            {"id": "symbol_16", "label": "-", "action": {"type": "insert", "text": "-"}},
+            {"id": "symbol_17", "label": "+", "action": {"type": "insert", "text": "+"}},
+            {"id": "symbol_18", "label": "(", "action": {"type": "insert", "text": "("}},
+            {"id": "symbol_19", "label": ")", "action": {"type": "insert", "text": ")"}},
+            {"id": "symbol_20", "label": "/", "action": {"type": "insert", "text": "/"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_page", "label": "=\\<", "width": 1.5, "action": {"type": "switch_layout", "layout": "more_symbols"}},
+            {"id": "symbol_21", "label": "*", "action": {"type": "insert", "text": "*"}},
+            {"id": "symbol_22", "label": "\"", "action": {"type": "insert", "text": "\""}},
+            {"id": "symbol_23", "label": "'", "action": {"type": "insert", "text": "'"}},
+            {"id": "symbol_24", "label": ":", "action": {"type": "insert", "text": ":"}},
+            {"id": "symbol_25", "label": ";", "action": {"type": "insert", "text": ";"}},
+            {"id": "symbol_26", "label": "!", "action": {"type": "insert", "text": "!"}},
+            {"id": "symbol_27", "label": "?", "action": {"type": "insert", "text": "?"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "ABC", "width": 1.25, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "accents", "label": "éàç", "width": 1.25, "action": {"type": "switch_layout", "layout": "accents"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "espace", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "apostrophe", "label": "'", "width": 0.75, "action": {"type": "insert", "text": "'"}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "more_symbols": {
+      "rows": [
+        {
+          "keys": [
+            {"id": "symbol_1", "label": "_", "action": {"type": "insert", "text": "_"}},
+            {"id": "symbol_2", "label": "\\", "action": {"type": "insert", "text": "\\"}},
+            {"id": "symbol_3", "label": "[", "action": {"type": "insert", "text": "["}},
+            {"id": "symbol_4", "label": "]", "action": {"type": "insert", "text": "]"}},
+            {"id": "symbol_5", "label": "{", "action": {"type": "insert", "text": "{"}},
+            {"id": "symbol_6", "label": "}", "action": {"type": "insert", "text": "}"}},
+            {"id": "symbol_7", "label": "<", "action": {"type": "insert", "text": "<"}},
+            {"id": "symbol_8", "label": ">", "action": {"type": "insert", "text": ">"}},
+            {"id": "symbol_9", "label": "=", "action": {"type": "insert", "text": "="}},
+            {"id": "symbol_10", "label": "^", "action": {"type": "insert", "text": "^"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_11", "label": "`", "action": {"type": "insert", "text": "`"}},
+            {"id": "symbol_12", "label": "~", "action": {"type": "insert", "text": "~"}},
+            {"id": "symbol_13", "label": "|", "action": {"type": "insert", "text": "|"}},
+            {"id": "symbol_14", "label": "€", "action": {"type": "insert", "text": "€"}},
+            {"id": "symbol_15", "label": "£", "action": {"type": "insert", "text": "£"}},
+            {"id": "symbol_16", "label": "¥", "action": {"type": "insert", "text": "¥"}},
+            {"id": "symbol_17", "label": "¢", "action": {"type": "insert", "text": "¢"}},
+            {"id": "symbol_18", "label": "©", "action": {"type": "insert", "text": "©"}},
+            {"id": "symbol_19", "label": "®", "action": {"type": "insert", "text": "®"}},
+            {"id": "symbol_20", "label": "™", "action": {"type": "insert", "text": "™"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_page", "label": "123", "width": 1.5, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "symbol_21", "label": "•", "action": {"type": "insert", "text": "•"}},
+            {"id": "symbol_22", "label": "…", "action": {"type": "insert", "text": "…"}},
+            {"id": "symbol_23", "label": "√", "action": {"type": "insert", "text": "√"}},
+            {"id": "symbol_24", "label": "π", "action": {"type": "insert", "text": "π"}},
+            {"id": "symbol_25", "label": "÷", "action": {"type": "insert", "text": "÷"}},
+            {"id": "symbol_26", "label": "×", "action": {"type": "insert", "text": "×"}},
+            {"id": "symbol_27", "label": "°", "action": {"type": "insert", "text": "°"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "ABC", "width": 1.25, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "accents", "label": "éàç", "width": 1.25, "action": {"type": "switch_layout", "layout": "accents"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "espace", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "apostrophe", "label": "'", "width": 0.75, "action": {"type": "insert", "text": "'"}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    }
+  }
+}

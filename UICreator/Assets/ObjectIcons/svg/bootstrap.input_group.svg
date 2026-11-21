@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Input group</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="9" width="26" height="14" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="4" y="10" width="8" height="12" rx="2" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <path d="M12 10L12 22" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M6 16L10 16" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <path d="M8 14L8 18" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <path d="M16 16L23 16" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M25 13L25 19" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+</g>
+</svg>

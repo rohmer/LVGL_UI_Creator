@@ -23,7 +23,6 @@ extern "C" {
 #endif
 
 
-
 /*********************
  *      DEFINES
  *********************/
@@ -35,7 +34,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-void save_project(lv_obj_t * par_layer);
+void save_project(lv_obj_t* par_layer);
 /**********************
  *      MACROS
  **********************/

@@ -1,0 +1,49 @@
+syntax = "proto2";
+package lvserial;
+import "nanopb.proto";
+
+// Stable entity tags shared by UICreator and embedded consumers.
+enum EntityKind {
+  WIDGET = 0;
+  SCREEN = 1;
+  VARIABLE = 2;
+  PROJECT = 3;
+  STYLE = 4;
+  FONT = 5;
+  ASSET = 6;
+}
+enum ValueKind {
+  NULL_VALUE = 0;
+  OBJECT = 1;
+  ARRAY = 2;
+  BOOLEAN = 3;
+  SIGNED = 4;
+  UNSIGNED = 5;
+  REAL = 6;
+  TEXT = 7;
+  BINARY = 8;
+}
+
+// Typed property tree in preorder. Paths use RFC 6901 JSON Pointer escaping.
+// Container nodes preserve empty objects/arrays and their child counts.
+// Values are structured Protobuf fields, never an embedded JSON document.
+// Record format 2: OBJECT may use signed_value as a default profile ID and
+// unsigned_value as its presence mask (see Device/lvserial_defaults.c). Omitted
+// entries are excluded from child_count. The C decoder expands defaults and
+// child_count before invoking visitors. Other kinds retain their usual meaning.
+message Property {
+  required string path = 1 [(nanopb).max_size = 512];
+  required ValueKind kind = 2;
+  optional bool boolean_value = 3;
+  optional sint64 signed_value = 4;
+  optional uint64 unsigned_value = 5;
+  optional double real_value = 6;
+  optional bytes text_value = 7;
+  optional uint32 child_count = 8;
+}
+message Record {
+  required uint32 format_version = 1 [default = 1];
+  required EntityKind kind = 2;
+  required string type = 3 [(nanopb).max_size = 64];
+  repeated Property properties = 4;
+}

@@ -22,9 +22,6 @@
     <Filter Include="Source Files\Editor\Widgets">
       <UniqueIdentifier>{1b9da59e-0aa9-401e-a923-d8199bc0c548}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Serialization">
-      <UniqueIdentifier>{91833899-322b-46e8-9080-e124019e8d49}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Editor\Widgets">
       <UniqueIdentifier>{c6d95de4-f98e-4974-84fa-5fc1ec88fd8b}</UniqueIdentifier>
     </Filter>
@@ -52,69 +49,33 @@
     <Filter Include="Source Files\Fonts">
       <UniqueIdentifier>{05565ed4-75a2-4fe7-b896-af624e08e66c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Serialization">
-      <UniqueIdentifier>{7b569669-e956-4fd2-9991-1c7ea2d4c6d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Serialization\Fonts">
-      <UniqueIdentifier>{eec12278-e7bb-444a-8484-42d899e8d99a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Serialization\Fonts">
-      <UniqueIdentifier>{e27b3561-935b-421a-a764-42bcee2a3b4e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Editor\Variable">
       <UniqueIdentifier>{c0995b3a-06ec-4817-97bf-c3ca1f1c6ccd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Editor\Variable">
       <UniqueIdentifier>{f67cfd24-d87f-4673-85fa-f852903dc9a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Editor\Windows\PropertyWindows">
+      <UniqueIdentifier>{33d7e7b6-2448-46de-a212-d1d76c7c8d45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Editor\Windows\PropertyWindows">
+      <UniqueIdentifier>{8757e06c-bc6f-4034-9a25-8f0fab173538}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="custom_widget.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="dataset.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="gencode.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="interface.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="loadproj.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="main.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="mouse_cursor_icon.c">
       <Filter>Source Files\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="saveproj.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="setting.c">
-      <Filter>Source Files\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVLabel.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVObject.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\Style.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="Windows\ToolTray.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
-    </ClCompile>
-    <ClCompile Include="toolbox.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\SimWindow.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Utils\ObjectTools.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\SdlSimulator.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
     <ClCompile Include="Windows\PropertyWindow.cpp">
@@ -131,9 +92,6 @@
     </ClCompile>
     <ClCompile Include="ObjectCreation\Arc.cpp">
       <Filter>Source Files\Editor\Object Creation</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVArc.cpp">
-      <Filter>Source Files\Serialization</Filter>
     </ClCompile>
     <ClCompile Include="Widgets\TreeNode.cpp">
       <Filter>Source Files\Editor\Widgets</Filter>
@@ -153,30 +111,6 @@
     <ClCompile Include="ObjectCreation\Bar.cpp">
       <Filter>Source Files\Editor\Object Creation</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\LVBar.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVButton.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVButtonMatrix.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontGlyphDsc.cpp">
-      <Filter>Source Files\Serialization\Fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontCMap.cpp">
-      <Filter>Source Files\Serialization\Fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFont.cpp">
-      <Filter>Source Files\Serialization\Fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontDsc.cpp">
-      <Filter>Source Files\Serialization\Fonts</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\LVFontKernDSC.cpp">
-      <Filter>Source Files\Serialization\Fonts</Filter>
-    </ClCompile>
     <ClCompile Include="Windows\ToolBar.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
     </ClCompile>
@@ -186,17 +120,56 @@
     <ClCompile Include="Windows\VariableCreateWindow.cpp">
       <Filter>Source Files\Editor\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\Screen.cpp">
-      <Filter>Source Files\Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectCreation\Button.cpp">
       <Filter>Source Files\Editor\Object Creation</Filter>
     </ClCompile>
     <ClCompile Include="ObjectCreation\ButtonMatrix.cpp">
       <Filter>Source Files\Editor\Object Creation</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\LVCalendar.cpp">
-      <Filter>Source Files\Serialization</Filter>
+    <ClCompile Include="ObjectCreation\Calendar.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Canvas.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\CheckBox.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Chart.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectCreation\Container.cpp">
+      <Filter>Source Files\Editor\Object Creation</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\FileBrowser.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\ListBox.cpp">
+      <Filter>Source Files\Editor\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\PropertyControls.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BaseProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\ArcProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BarProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BtnProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BtnmProperties.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\PropertyWindows\BtnmEditorWindow.cpp">
+      <Filter>Source Files\Editor\Windows\PropertyWindows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,32 +188,11 @@
     <ClInclude Include="interface.h">
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="loadproj.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="saveproj.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="setting.h">
       <Filter>Header Files\Editor</Filter>
     </ClInclude>
     <ClInclude Include="toolbox.h">
       <Filter>Header Files\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\Area.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVLabel.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVObject.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\Realign.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\Style.h">
-      <Filter>Header Files\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="Windows\ToolTray.h">
       <Filter>Header Files\Editor\Windows</Filter>
@@ -249,6 +201,12 @@
       <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Utils\ObjectTools.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\EditorEvents.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SdlSimulator.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>
     <ClInclude Include="Windows\PropertyWindow.h">
@@ -268,9 +226,6 @@
     </ClInclude>
     <ClInclude Include="ObjectCreation\Arc.h">
       <Filter>Header Files\Editor\Object Creation</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVArc.h">
-      <Filter>Header Files\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="Windows\UIObjectData.h">
       <Filter>Header Files\Editor\Windows</Filter>
@@ -293,30 +248,6 @@
     <ClInclude Include="ObjectCreation\Bar.h">
       <Filter>Header Files\Editor\Object Creation</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\LVBar.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVButton.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVButtonMatrix.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontCMap.h">
-      <Filter>Header Files\Serialization\Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFont.h">
-      <Filter>Header Files\Serialization\Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontDsc.h">
-      <Filter>Header Files\Serialization\Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontGlyphDsc.h">
-      <Filter>Header Files\Serialization\Fonts</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\LVFontKernDSC.h">
-      <Filter>Header Files\Serialization\Fonts</Filter>
-    </ClInclude>
     <ClInclude Include="Windows\ToolBar.h">
       <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
@@ -326,23 +257,56 @@
     <ClInclude Include="Windows\VariableCreateWindow.h">
       <Filter>Header Files\Editor\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\Serializers.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\Screen.h">
-      <Filter>Header Files\Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectUserData.h">
-      <Filter>Header Files\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectCreation\Button.h">
       <Filter>Header Files\Editor\Object Creation</Filter>
     </ClInclude>
     <ClInclude Include="ObjectCreation\ButtonMatrix.h">
       <Filter>Header Files\Editor\Object Creation</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\LVCalendar.h">
-      <Filter>Header Files\Serialization</Filter>
+    <ClInclude Include="ObjectCreation\Calendar.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectCreation\Canvas.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\CheckBox.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Chart.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectCreation\Container.h">
+      <Filter>Header Files\Editor\Object Creation</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\FileBrowser.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Widgets\ListBox.h">
+      <Filter>Header Files\Editor\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\PropertyControls.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BaseProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\ArcProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BarProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BtnProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BtnmProperties.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\PropertyWindows\BtnmEditorWindow.h">
+      <Filter>Header Files\Editor\Windows\PropertyWindows</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
 </Project>

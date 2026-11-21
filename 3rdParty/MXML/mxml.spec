@@ -3,7 +3,7 @@
 #
 # https://www.msweet.org/mxml
 #
-# Copyright © 2003-2019 by Michael R Sweet.
+# Copyright © 2003-2026 by Michael R Sweet.
 #
 # Licensed under Apache License v2.0.  See the file "LICENSE" for more
 # information.
@@ -11,7 +11,7 @@
 
 Summary: Small XML file parsing library
 Name: mxml
-Version: 3.0
+Version: 4.0.6
 Release: 1
 License: Apache 2.0
 Group: Development/Libraries

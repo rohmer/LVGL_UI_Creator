@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Build, flash and serial</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="7" y="5" width="18" height="22" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="12" y="10" width="8" height="11" rx="1" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M3 10L7 10" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M3 16L7 16" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M3 22L7 22" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M25 10L29 10" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M25 16L29 16" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M25 22L29 22" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M13 25L19 25" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+</g>
+</svg>

@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.24)
+project(AdvancedKeyboardExportTest LANGUAGES C CXX)
+add_library(lvgl STATIC IMPORTED GLOBAL)
+set_target_properties(lvgl PROPERTIES IMPORTED_LOCATION "${LVGL_ARCHIVE}")
+target_include_directories(lvgl INTERFACE "${LVGL_SOURCE_DIR}")
+target_compile_definitions(lvgl INTERFACE LV_CONF_SKIP=1 LV_COLOR_DEPTH=32 LV_USE_STDLIB_MALLOC=1 LV_MEM_CUSTOM=1
+    LV_GRADIENT_MAX_STOPS=8 LV_USE_CALENDAR_HEADER_ARROW=1 LV_USE_RLE=1 LV_USE_LZ4=1 LV_USE_LZ4_INTERNAL=1
+    LV_BIN_DECODER_RAM_LOAD=1 LV_USE_LODEPNG=1 LV_USE_TJPGD=1 LV_COLOR_FORMAT_DEFAULT=LV_COLOR_FORMAT_ARGB8888)
+add_subdirectory("${EXPORTED_DIR}" exported)
+add_executable(consumer Consumer.c)
+set_target_properties(consumer PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED YES)
+target_link_libraries(consumer PRIVATE generated_ui)
+if(MSVC)
+    target_compile_options(consumer PRIVATE /utf-8 /we4013)
+endif()
+enable_testing()
+add_test(NAME AdvancedKeyboardCConsumer COMMAND consumer)

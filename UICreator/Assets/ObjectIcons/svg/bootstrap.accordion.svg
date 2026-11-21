@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Accordion</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="26" height="26" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="4" y="4" width="24" height="6" rx="2" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <path d="M7 7L17 7" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="22,8 24,6 26,8" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M7 12L20 12" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M3 15L29 15" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M7 18.5L17 18.5" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="22,17.5 24,19.5 26,17.5" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M3 22L29 22" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M7 25.5L17 25.5" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="22,24.5 24,26.5 26,24.5" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+</g>
+</svg>

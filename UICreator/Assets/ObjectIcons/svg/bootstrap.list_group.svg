@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>List group</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="5" y="3" width="22" height="26" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="6" y="4" width="20" height="6" rx="1" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <path d="M5 11L27 11" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M5 20L27 20" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <circle cx="9" cy="7" r="1" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+  <path d="M13 7L23 7" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <circle cx="9" cy="15.5" r="1" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+  <path d="M13 15.5L23 15.5" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <circle cx="9" cy="24" r="1" fill="#8FA8C4" stroke="none" stroke-width="1.6"/>
+  <path d="M13 24L20 24" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+</g>
+</svg>

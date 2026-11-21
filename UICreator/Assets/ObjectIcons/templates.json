@@ -1,0 +1,161 @@
+[
+  {
+    "id": 36, "key": "template.admin-dashboard", "name": "Admin dashboard",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["line",10,10,10,28,"muted",1.6],
+      ["rect",13,13,5,4,1,"none","accent",1.6],
+      ["rect",21,13,5,4,1,"none","blue",1.6],
+      ["polyline",[[13,24],[17,21],[21,23],[26,19]],"accent",1.8],
+      ["line",6,14,7,14,"accent",1.8],
+      ["line",6,18,7,18,"muted",1.8],
+      ["line",6,22,7,22,"muted",1.8]
+    ]
+  },
+  {
+    "id": 37, "key": "template.analytics-dashboard", "name": "Analytics dashboard",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["polyline",[[7,14],[7,24],[17,24]],"muted",1.6],
+      ["polyline",[[8,21],[11,18],[14,19],[18,14]],"accent",1.8],
+      ["circle",24,19,4,"blue","none",1.8],
+      ["polyline",[[24,15],[24,19],[28,19]],"accent",1.8],
+      ["line",7,7,12,7,"blue",1.6]
+    ]
+  },
+  {
+    "id": 38, "key": "template.commerce-dashboard", "name": "Commerce dashboard",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["rect",7,16,10,9,1,"accent","none",1.8],
+      ["arc",12,16,3,180,360,"accent",1.8],
+      ["rect",21,21,2,4,0,"none","blue",1.6],
+      ["rect",25,16,2,9,0,"none","blue",1.6],
+      ["line",7,7,14,7,"accent",1.6]
+    ]
+  },
+  {
+    "id": 39, "key": "template.user-management", "name": "User management",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["circle",16,16,3,"accent","none",1.8],
+      ["arc",16,24,6,180,360,"accent",1.8],
+      ["circle",7,17,2,"blue","none",1.6],
+      ["arc",7,25,3,180,285,"blue",1.6],
+      ["circle",25,17,2,"blue","none",1.6],
+      ["arc",25,25,3,255,360,"blue",1.6]
+    ]
+  },
+  {
+    "id": 40, "key": "template.settings-page", "name": "Settings page",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["line",7,15,25,15,"muted",1.6],
+      ["line",7,20,25,20,"muted",1.6],
+      ["line",7,25,25,25,"muted",1.6],
+      ["circle",12,15,2,"accent","accent",1.6],
+      ["circle",21,20,2,"blue","blue",1.6],
+      ["circle",16,25,2,"accent","accent",1.6],
+      ["line",7,7,11,7,"accent",1.6]
+    ]
+  },
+  {
+    "id": 41, "key": "template.sign-in", "name": "Sign in",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["circle",14,11,2,"accent","none",1.8],
+      ["arc",14,18,4,180,360,"accent",1.8],
+      ["rect",8,20,12,5,1,"blue","none",1.6],
+      ["line",21,16,28,16,"accent",1.8],
+      ["polyline",[[25,13],[28,16],[25,19]],"accent",1.8]
+    ]
+  },
+  {
+    "id": 42, "key": "template.checkout", "name": "Checkout",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["polyline",[[6,10],[9,10],[11,19],[21,19],[23,12],[10,12]],"accent",1.8],
+      ["circle",13,23,1.6,"blue","blue",1.6],
+      ["circle",20,23,1.6,"blue","blue",1.6],
+      ["polyline",[[21,8],[23,10],[27,6]],"blue",1.8]
+    ]
+  },
+  {
+    "id": 43, "key": "template.pricing", "name": "Pricing",
+    "commands": [
+      ["rect",3,9,7,17,1,"muted","none",1.6],
+      ["rect",12,5,8,22,1,"accent","none",1.8],
+      ["rect",22,9,7,17,1,"muted","none",1.6],
+      ["line",12,11,20,11,"accent",1.8],
+      ["circle",16,16,2,"blue","none",1.6],
+      ["line",15,22,17,22,"accent",1.8],
+      ["line",5,14,8,14,"muted",1.6],
+      ["line",5,18,8,18,"muted",1.6],
+      ["line",24,14,27,14,"muted",1.6],
+      ["line",24,18,27,18,"muted",1.6]
+    ]
+  },
+  {
+    "id": 44, "key": "template.album", "name": "Album",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["rect",6,13,9,11,1,"accent","none",1.6],
+      ["rect",18,13,8,5,1,"blue","none",1.6],
+      ["rect",18,21,8,3,1,"muted","none",1.6],
+      ["circle",9,16,1,"none","blue",1.6],
+      ["polyline",[[7,22],[10,19],[13,22]],"accent",1.6]
+    ]
+  },
+  {
+    "id": 45, "key": "template.blog", "name": "Blog",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",7,8,25,8,"accent",1.8],
+      ["rect",7,12,11,7,1,"blue","none",1.6],
+      ["line",7,23,18,23,"muted",1.6],
+      ["line",22,13,25,13,"accent",1.6],
+      ["line",22,17,25,17,"muted",1.6],
+      ["line",22,21,25,21,"muted",1.6],
+      ["line",22,25,25,25,"muted",1.6]
+    ]
+  },
+  {
+    "id": 46, "key": "template.product", "name": "Product",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["polyline",[[6,13],[12,10],[18,13],[12,16],[6,13],[6,21],[12,24],[18,21],[18,13]],"accent",1.6],
+      ["line",12,16,12,24,"accent",1.6],
+      ["line",22,12,26,12,"blue",1.8],
+      ["line",22,17,26,17,"muted",1.6],
+      ["rect",21,21,6,3,1,"none","blue",1.6]
+    ]
+  },
+  {
+    "id": 47, "key": "template.cover", "name": "Cover",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["polyline",[[4,19],[10,13],[16,19],[21,14],[28,21]],"blue",1.6],
+      ["circle",23,9,2,"accent","none",1.6],
+      ["line",10,22,22,22,"accent",1.8],
+      ["line",13,25,19,25,"primary",1.6]
+    ]
+  },
+  {
+    "id": 48, "key": "template.component-gallery", "name": "Component gallery",
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.6],
+      ["line",3,10,29,10,"muted",1.6],
+      ["rect",6,13,8,4,1,"none","accent",1.6],
+      ["circle",23,15,2,"blue","none",1.8],
+      ["line",7,23,14,23,"muted",1.8],
+      ["circle",10,23,1.5,"accent","accent",1.6],
+      ["polyline",[[20,24],[22,20],[25,23],[27,19]],"blue",1.8]
+    ]
+  }
+]

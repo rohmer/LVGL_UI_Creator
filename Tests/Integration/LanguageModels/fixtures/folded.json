@@ -1,0 +1,123 @@
+{
+  "unigrams": [
+    {
+      "tokens": [
+        "caf\u00E9"
+      ],
+      "count": 2,
+      "weight": 0.2
+    },
+    {
+      "tokens": [
+        "strasse"
+      ],
+      "count": 2,
+      "weight": 0.2
+    },
+    {
+      "tokens": [
+        "\u03BF\u03C3"
+      ],
+      "count": 2,
+      "weight": 0.2
+    },
+    {
+      "tokens": [
+        "123"
+      ],
+      "count": 1,
+      "weight": 0.1
+    },
+    {
+      "tokens": [
+        "can\u0027t"
+      ],
+      "count": 1,
+      "weight": 0.1
+    },
+    {
+      "tokens": [
+        "can\u2019t"
+      ],
+      "count": 1,
+      "weight": 0.1
+    },
+    {
+      "tokens": [
+        "na\u00EFve"
+      ],
+      "count": 1,
+      "weight": 0.1
+    }
+  ],
+  "bigrams": [
+    {
+      "tokens": [
+        "123",
+        "can\u2019t"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "caf\u00E9",
+        "caf\u00E9"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "can\u2019t",
+        "can\u0027t"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "na\u00EFve",
+        "123"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "strasse",
+        "strasse"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "\u03BF\u03C3",
+        "\u03BF\u03C3"
+      ],
+      "count": 1,
+      "weight": 1
+    }
+  ],
+  "trigrams": [
+    {
+      "tokens": [
+        "123",
+        "can\u2019t",
+        "can\u0027t"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "na\u00EFve",
+        "123",
+        "can\u2019t"
+      ],
+      "count": 1,
+      "weight": 1
+    }
+  ]
+}

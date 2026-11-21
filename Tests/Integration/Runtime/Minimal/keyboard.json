@@ -1,0 +1,33 @@
+{
+  "formatVersion": 2,
+  "lvglVersion": "9.6.0",
+  "runtimeTarget": "9.6",
+  "canvas": {"width": 640, "height": 400},
+  "obj": [
+    {
+      "oid": 7,
+      "par": -1,
+      "base": {"coords": {"x": 8, "y": 112, "width": 624, "height": 280}},
+      "advancedKeyboard": {
+        "targetOid": 8,
+        "autoFocus": true,
+        "hideOnDefocus": true,
+        "trieId": "builtin-en-us",
+        "autocorrect": true,
+        "autocorrectThreshold": 0.3,
+        "keyBackground": 15659769,
+        "keyForeground": 1976657,
+        "keyRadius": 6
+      }
+    },
+    {
+      "oid": 8,
+      "par": -1,
+      "base": {"coords": {"x": 8, "y": 8, "width": 624, "height": 96}},
+      "textarea": {"text": "Initial text", "placeholder": "Type a message", "password": false, "maxLength": 64}
+    }
+  ],
+  "variables": [
+    {"var": {"name": "message", "dataType": 0, "default": "Hello", "history": 4, "oid": 8, "property": "text"}}
+  ]
+}

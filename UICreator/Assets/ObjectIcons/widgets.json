@@ -1,0 +1,134 @@
+[
+  {"id":0,"key":"widget.arc","name":"Arc","commands":[
+    ["arc",16,16,11,135,405,"muted",2], ["arc",16,16,11,135,315,"accent",2.4], ["circle",23.8,8.2,2,"none","primary",0]
+  ]},
+  {"id":1,"key":"widget.bar","name":"Bar","commands":[
+    ["rect",3,11,26,10,4,"primary","none",1.8], ["rect",6,14,15,4,1,"none","accent",0], ["line",24,16,26,16,"muted",1.6]
+  ]},
+  {"id":2,"key":"widget.button","name":"Button","commands":[
+    ["rect",4,7,24,17,4,"primary","none",1.8], ["line",9,15.5,20,15.5,"accent",2], ["triangle",[[22,19],[29,25],[24,26]],"blue"], ["line",25,25,27,29,"blue",1.8]
+  ]},
+  {"id":3,"key":"widget.button_matrix","name":"Button matrix","commands":[
+    ["rect",3,5,26,22,3,"primary","none",1.6], ["rect",6,9,5,6,1,"none","accent",0], ["rect",13.5,9,5,6,1,"blue","none",1.5], ["rect",21,9,5,6,1,"blue","none",1.5],
+    ["rect",6,18,5,5,1,"blue","none",1.5], ["rect",13.5,18,5,5,1,"blue","none",1.5], ["rect",21,18,5,5,1,"none","primary",0]
+  ]},
+  {"id":4,"key":"widget.calendar","name":"Calendar","commands":[
+    ["rect",5,6,22,23,3,"primary","none",1.8], ["line",5,13,27,13,"muted",1.6], ["line",10,3,10,9,"accent",2], ["line",22,3,22,9,"accent",2],
+    ["circle",10,18,1,"none","primary",0], ["rect",15,16,5,5,1,"none","blue",0], ["circle",23,18,1,"none","primary",0], ["line",9,25,12,25,"muted",1.6], ["line",16,25,19,25,"muted",1.6]
+  ]},
+  {"id":5,"key":"widget.canvas","name":"Canvas","commands":[
+    ["rect",4,5,24,22,2,"primary","none",1.8], ["circle",9,11,2,"none","accent",0], ["polyline",[[10,23],[12,18],[22,8],[25,11],[15,21],[10,23]],"blue",1.8], ["line",18,12,21,15,"primary",1.6]
+  ]},
+  {"id":6,"key":"widget.checkbox","name":"Check box","commands":[
+    ["rect",5,5,22,22,4,"primary","none",1.8], ["polyline",[[10,16],[14,20],[23,11]],"accent",2.4]
+  ]},
+  {"id":7,"key":"widget.chart","name":"Chart","commands":[
+    ["polyline",[[4,4],[4,27],[29,27]],"primary",1.8], ["rect",8,20,4,4,0.5,"none","blue",0], ["rect",16,16,4,8,0.5,"none","muted",0], ["rect",24,10,3,14,0.5,"none","blue",0],
+    ["polyline",[[8,17],[13,11],[19,14],[26,6]],"accent",2], ["circle",19,14,1.5,"none","primary",0]
+  ]},
+  {"id":8,"key":"widget.container","name":"Container","commands":[
+    ["polyline",[[3,11],[3,4],[10,4]],"primary",1.8], ["polyline",[[22,4],[29,4],[29,11]],"primary",1.8], ["polyline",[[29,21],[29,28],[22,28]],"primary",1.8], ["polyline",[[10,28],[3,28],[3,21]],"primary",1.8],
+    ["rect",8,9,6,14,1,"blue","none",1.6], ["rect",18,9,6,5,1,"none","accent",0], ["rect",18,18,6,5,1,"muted","none",1.6]
+  ]},
+  {"id":9,"key":"widget.dropdown","name":"Drop down list","commands":[
+    ["rect",4,4,24,8,2,"primary","none",1.8], ["line",8,8,17,8,"blue",1.6], ["polyline",[[22,7],[24,9],[26,7]],"accent",1.6],
+    ["rect",4,16,24,13,2,"muted","none",1.6], ["line",8,20,22,20,"primary",1.6], ["line",8,25,18,25,"blue",1.6]
+  ]},
+  {"id":10,"key":"widget.gauge","name":"Gauge","commands":[
+    ["arc",16,18,11,180,360,"primary",2], ["line",16,7,16,10,"blue",1.8], ["line",5,18,8,18,"blue",1.8], ["line",24,18,27,18,"blue",1.8],
+    ["line",16,18,22,11,"accent",2.2], ["circle",16,18,2,"none","accent",0], ["line",7,26,25,26,"muted",1.8]
+  ]},
+  {"id":11,"key":"widget.image","name":"Image","commands":[
+    ["rect",4,5,24,22,3,"primary","none",1.8], ["circle",10,11,2,"none","accent",0], ["polyline",[[7,23],[14,15],[19,20],[23,16],[26,23]],"blue",1.8]
+  ]},
+  {"id":12,"key":"widget.image_button","name":"Image button","commands":[
+    ["rect",3,7,26,19,5,"primary","none",1.8], ["rect",7,11,12,10,1.5,"blue","none",1.4], ["triangle",[[9,19],[13,14],[17,19]],"blue"], ["circle",10,13,1,"none","accent",0],
+    ["triangle",[[22,18],[29,24],[25,25]],"accent"], ["line",25,24,27,29,"accent",1.8]
+  ]},
+  {"id":13,"key":"widget.keyboard","name":"Keyboard","commands":[
+    ["rect",3,7,26,18,3,"primary","none",1.8], ["line",7,12,9,12,"blue",1.8], ["line",12,12,14,12,"blue",1.8], ["line",17,12,19,12,"blue",1.8], ["line",22,12,24,12,"blue",1.8],
+    ["line",8,17,10,17,"primary",1.8], ["line",13,17,15,17,"primary",1.8], ["line",18,17,20,17,"primary",1.8], ["line",23,17,25,17,"primary",1.8], ["line",10,21,22,21,"accent",2]
+  ]},
+  {"id":14,"key":"widget.label","name":"Label","commands":[
+    ["polyline",[[6,26],[16,5],[26,26]],"primary",2.2], ["line",10,19,22,19,"accent",2], ["line",4,29,28,29,"muted",1.4]
+  ]},
+  {"id":15,"key":"widget.led","name":"LED","commands":[
+    ["circle",16,16,7,"primary","accent",1.6], ["circle",14,13,1.6,"none","primary",0], ["line",16,3,16,6,"blue",1.8], ["line",16,26,16,29,"blue",1.8],
+    ["line",3,16,6,16,"blue",1.8], ["line",26,16,29,16,"blue",1.8], ["line",6,6,8,8,"muted",1.8], ["line",24,24,26,26,"muted",1.8], ["line",6,26,8,24,"muted",1.8], ["line",24,8,26,6,"muted",1.8]
+  ]},
+  {"id":16,"key":"widget.line","name":"Line","commands":[
+    ["line",5,26,27,6,"accent",2], ["rect",3,24,4,4,0.5,"primary","none",1.5], ["rect",25,4,4,4,0.5,"primary","none",1.5]
+  ]},
+  {"id":17,"key":"widget.line_meter","name":"Line meter","commands":[
+    ["line",4,20,8,19,"muted",2], ["line",5,13,9,15,"muted",2], ["line",9,7,12,10,"primary",2], ["line",16,4,16,8,"primary",2], ["line",23,7,21,11,"accent",2],
+    ["line",28,13,24,15,"accent",2], ["line",29,20,25,19,"accent",2], ["line",12,19,20,19,"blue",2], ["circle",16,25,1.5,"none","primary",0]
+  ]},
+  {"id":18,"key":"widget.message_box","name":"Message box","commands":[
+    ["rect",3,5,26,22,3,"primary","none",1.8], ["polyline",[[5,27],[5,30],[10,27]],"primary",1.8], ["circle",9,13,3,"accent","none",1.5], ["line",9,12,9,15,"accent",1.5],
+    ["line",16,11,25,11,"primary",1.6], ["line",16,16,23,16,"muted",1.6], ["rect",17,21,8,3,1,"none","blue",0]
+  ]},
+  {"id":19,"key":"widget.page","name":"Page","commands":[
+    ["polyline",[[5,3],[20,3],[27,10],[27,29],[5,29],[5,3]],"primary",1.8], ["polyline",[[20,3],[20,10],[27,10]],"muted",1.6],
+    ["line",9,15,22,15,"primary",1.6], ["line",9,20,22,20,"blue",1.6], ["line",9,25,18,25,"muted",1.6]
+  ]},
+  {"id":20,"key":"widget.preloader","name":"Preloader","commands":[
+    ["arc",16,16,10,0,40,"accent",2.4], ["arc",16,16,10,60,100,"blue",2.4], ["arc",16,16,10,120,160,"primary",2.4],
+    ["arc",16,16,10,180,220,"muted",2.4], ["arc",16,16,10,240,280,"muted",2.4], ["arc",16,16,10,300,340,"primary",2.4], ["circle",16,16,1.5,"none","blue",0]
+  ]},
+  {"id":21,"key":"widget.roller","name":"Roller","commands":[
+    ["rect",7,3,18,26,3,"primary","none",1.8], ["rect",8,12,16,8,0.5,"none","blue",0], ["line",12,7,20,7,"muted",1.6], ["line",11,16,21,16,"primary",1.8], ["line",12,25,20,25,"muted",1.6],
+    ["polyline",[[3,14],[5,16],[3,18]],"accent",1.6], ["polyline",[[29,14],[27,16],[29,18]],"accent",1.6]
+  ]},
+  {"id":22,"key":"widget.slider","name":"Slider","commands":[
+    ["line",4,16,28,16,"muted",3], ["line",4,16,19,16,"accent",3], ["circle",19,16,4,"primary","blue",1.6], ["circle",4,25,1,"none","muted",0], ["circle",28,25,1,"none","muted",0]
+  ]},
+  {"id":23,"key":"widget.spinbox","name":"Spinbox","commands":[
+    ["rect",3,7,26,18,3,"primary","none",1.8], ["line",22,7,22,25,"muted",1.6], ["polyline",[[24,13],[26,11],[28,13]],"accent",1.6], ["polyline",[[24,19],[26,21],[28,19]],"accent",1.6],
+    ["polyline",[[7,12],[9,10],[14,10],[16,12],[16,14],[7,21],[16,21]],"blue",1.6]
+  ]},
+  {"id":24,"key":"widget.switch","name":"Switch","commands":[
+    ["rect",3,9,26,14,7,"accent","none",1.8], ["circle",22,16,4,"none","accent",0], ["line",7,16,12,16,"primary",1.6]
+  ]},
+  {"id":25,"key":"widget.table","name":"Table","commands":[
+    ["rect",3,4,26,24,2,"primary","none",1.8], ["rect",4,5,24,6,1,"none","blue",0], ["line",3,11,29,11,"primary",1.6], ["line",3,19,29,19,"muted",1.6],
+    ["line",11,11,11,28,"primary",1.6], ["line",21,11,21,28,"primary",1.6]
+  ]},
+  {"id":26,"key":"widget.tabview","name":"Tabview","commands":[
+    ["rect",3,9,26,20,2,"primary","none",1.8], ["rect",3,3,9,6,1,"none","accent",0], ["rect",15,3,5,6,1,"muted","none",1.4], ["rect",23,3,6,6,1,"muted","none",1.4],
+    ["rect",7,14,18,4,1,"none","blue",0], ["line",7,23,20,23,"primary",1.6]
+  ]},
+  {"id":27,"key":"widget.textarea","name":"Text area","commands":[
+    ["rect",3,4,26,24,3,"primary","none",1.8], ["line",7,10,23,10,"primary",1.6], ["line",7,15,25,15,"blue",1.6], ["line",7,20,15,20,"primary",1.6],
+    ["line",21,19,21,25,"accent",1.6], ["line",19,19,23,19,"accent",1.6], ["line",19,25,23,25,"accent",1.6], ["line",7,25,13,25,"muted",1.4]
+  ]},
+  {"id":28,"key":"widget.tileview","name":"Tile view","commands":[
+    ["rect",4,4,10,10,2,"primary","none",1.6], ["rect",18,4,10,10,2,"none","blue",0], ["rect",4,18,10,10,2,"muted","none",1.6], ["rect",18,18,10,10,2,"primary","none",1.6],
+    ["polyline",[[22,21],[25,23],[22,25]],"accent",1.8]
+  ]},
+  {"id":29,"key":"widget.window","name":"Window","commands":[
+    ["rect",3,4,26,24,3,"primary","none",1.8], ["rect",4,5,24,6,1,"none","muted",0], ["circle",7,8,1,"none","primary",0], ["circle",11,8,1,"none","primary",0],
+    ["line",23,7,25,9,"accent",1.4], ["line",25,7,23,9,"accent",1.4], ["rect",7,15,7,9,1,"blue","none",1.6], ["line",18,16,25,16,"primary",1.6], ["line",18,22,23,22,"muted",1.6]
+  ]},
+  {"id":30,"key":"widget.textbox","name":"Text box","commands":[
+    ["line",5,5,16,5,"muted",1.6], ["rect",3,10,26,14,3,"primary","none",1.8], ["line",7,17,16,17,"blue",1.8],
+    ["line",22,13,22,21,"accent",1.6], ["line",20,13,24,13,"accent",1.6], ["line",20,21,24,21,"accent",1.6]
+  ]},
+  {"id":31,"key":"widget.layer_view","name":"Layer view","commands":[
+    ["polyline",[[10,3],[29,3],[29,21]],"muted",1.8], ["polyline",[[7,7],[25,7],[25,25]],"blue",1.8], ["rect",3,11,18,18,2,"primary","none",1.8],
+    ["line",7,17,17,17,"accent",1.8], ["line",7,23,14,23,"muted",1.6]
+  ]},
+  {"id":32,"key":"widget.barcode","name":"Barcode","commands":[
+    ["rect",3,5,26,22,2,"primary","none",1.6], ["line",7,9,7,22,"primary",1.4], ["line",11,9,11,22,"accent",2.2], ["line",15,9,15,22,"primary",1.2],
+    ["line",18,9,18,22,"blue",2.2], ["line",22,9,22,22,"primary",1.2], ["line",25,9,25,22,"accent",1.6]
+  ]},
+  {"id":33,"key":"widget.qrcode","name":"QR code","commands":[
+    ["rect",3,3,9,9,0.5,"primary","none",1.6], ["rect",6,6,3,3,0,"none","accent",0], ["rect",20,3,9,9,0.5,"primary","none",1.6], ["rect",23,6,3,3,0,"none","blue",0],
+    ["rect",3,20,9,9,0.5,"primary","none",1.6], ["rect",6,23,3,3,0,"none","accent",0], ["rect",15,15,4,4,0,"none","blue",0], ["rect",23,15,3,4,0,"none","primary",0],
+    ["rect",16,23,3,6,0,"none","accent",0], ["rect",23,23,6,3,0,"none","primary",0], ["rect",27,28,2,2,0,"none","blue",0]
+  ]},
+  {"id":34,"key":"widget.advanced_keyboard","name":"Advanced Keyboard","commands":[
+    ["rect",3,3,8,4,1,"accent","none",1.4], ["rect",14,3,6,4,1,"none","blue",0], ["rect",23,3,6,4,1,"muted","none",1.4], ["rect",3,11,26,18,3,"primary","none",1.8],
+    ["line",7,16,9,16,"blue",1.8], ["line",12,16,14,16,"blue",1.8], ["line",17,16,19,16,"blue",1.8], ["line",22,16,24,16,"blue",1.8],
+    ["line",8,21,10,21,"primary",1.8], ["line",14,21,16,21,"primary",1.8], ["line",20,21,24,21,"primary",1.8], ["line",10,25,22,25,"accent",2]
+  ]}
+]

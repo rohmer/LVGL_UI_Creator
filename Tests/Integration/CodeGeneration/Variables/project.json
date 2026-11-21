@@ -1,0 +1,81 @@
+{
+  "activeScreen": 0,
+  "screens": [
+    {
+      "name": "Controls",
+      "canvas": {"width": 320, "height": 240},
+      "obj": [
+        {"oid": 1, "par": -1, "base": {}, "slider": {"min": 0, "max": 100, "value": 1}},
+        {"oid": 2, "par": -1, "base": {}, "bar": {"min": 0, "max": 100}},
+        {"oid": 3, "par": -1, "base": {}, "text": "Level"},
+        {"oid": 4, "par": -1, "base": {}, "slider": {"min": 0, "max": 100, "value": 7}},
+        {"oid": 5, "par": -1, "base": {}, "slider": {"min": 0, "max": 100}},
+        {"oid": 6, "par": -1, "base": {"events": [{"event": "value_changed", "action": "set_variable", "variable": "caption", "value": "Authored nested", "condition": {"variable": "enabled", "op": "truthy"}}]}, "textarea": {"text": "Name"}},
+        {"oid": 7, "par": -1, "base": {}, "text": "Caption"},
+        {"oid": 9, "par": -1, "base": {}, "switch": {}},
+        {"oid": 10, "par": -1, "base": {}, "cb": {"text": "Enabled"}},
+        {"oid": 11, "par": -1, "base": {}, "text": "Enabled state"},
+        {"oid": 12, "par": -1, "base": {}, "spinbox": {"min": 0, "max": 1000}},
+        {"oid": 13, "par": -1, "base": {"flags": {"checkable": true}}, "button": {}},
+        {"oid": 14, "par": -1, "base": {}, "button": {"toggle": true}},
+        {"oid": 15, "par": -1, "base": {}, "button": {}}
+      ]
+    },
+    {
+      "name": "Monitor",
+      "canvas": {"width": 320, "height": 240},
+      "obj": [
+        {"oid": 1, "par": -1, "base": {}, "bar": {"min": 0, "max": 100}},
+        {"oid": 2, "par": -1, "base": {}, "slider": {"min": 0, "max": 100}},
+        {"oid": 3, "par": -1, "base": {}, "text": "Caption mirror"},
+        {"oid": 4, "par": -1, "base": {}, "text": "Fraction"},
+        {"oid": 5, "par": -1, "base": {}, "bar": {"min": 0, "max": 100}},
+        {"oid": 6, "par": -1, "base": {}, "text": "Byte"},
+        {"oid": 7, "par": -1, "base": {"events": [{"event": "clicked", "action": "set_variable", "variable": "level", "value": 64}]}, "button": {}},
+        {"oid": 8, "par": -1, "base": {"events": [{"event": "clicked", "action": "increment_variable", "variable": "level", "value": 1}]}, "button": {}},
+        {"oid": 9, "par": -1, "base": {"events": [{"event": "clicked", "action": "increment_variable", "variable": "small", "value": -1}]}, "button": {}}
+      ]
+    }
+  ],
+  "variables": [
+    {"var": {"name": "level", "dataType": 1, "default": 10, "history": 3, "value": [11, 12], "code": {"symbol": "application_level", "cType": "int32_t"}, "bindings": [
+      {"screen": 0, "oid": 1, "property": "/slider/value", "direction": "two-way"},
+      {"screen": 0, "oid": 1, "property": "/base/checked", "direction": "two-way"},
+      {"screen": 0, "oid": 2, "property": "/bar/value", "direction": "to-widget"},
+      {"screen": 0, "oid": 3, "property": "/text", "direction": "to-widget"},
+      {"screen": 0, "oid": 4, "property": "/slider/value", "direction": "from-widget"},
+      {"screen": 0, "oid": 5, "property": "/slider/value", "direction": "to-widget"},
+      {"screen": 1, "oid": 1, "property": "/bar/value", "direction": "to-widget"},
+      {"screen": 1, "oid": 2, "property": "/slider/value", "direction": "two-way"}
+    ]}},
+    {"var": {"name": "caption", "dataType": 0, "default": "Default", "history": 2, "code": {"symbol": "application_caption", "cType": "char"}, "bindings": [
+      {"screen": 0, "oid": 6, "property": "/textarea/text", "direction": "two-way"},
+      {"screen": 0, "oid": 7, "property": "/text", "direction": "to-widget"},
+      {"screen": 1, "oid": 3, "property": "/text", "direction": "to-widget"}
+    ]}},
+    {"var": {"name": "enabled", "dataType": 2, "default": false, "history": 2, "code": {"symbol": "application_enabled", "cType": "bool"}, "bindings": [
+      {"screen": 0, "oid": 9, "property": "/switch/checked", "direction": "two-way"},
+      {"screen": 0, "oid": 10, "property": "/cb/checked", "direction": "two-way"},
+      {"screen": 0, "oid": 11, "property": "/text", "direction": "to-widget"},
+      {"screen": 0, "oid": 13, "property": "/base/checked", "direction": "two-way"},
+      {"screen": 0, "oid": 14, "property": "/base/checked", "direction": "two-way"},
+      {"screen": 0, "oid": 15, "property": "/base/checked", "direction": "two-way"}
+    ]}},
+    {"var": {"name": "fraction", "dataType": 3, "default": 0.25, "history": 2, "code": {"symbol": "application_fraction", "cType": "float"}, "bindings": [
+      {"screen": 1, "oid": 4, "property": "/text", "direction": "to-widget"}
+    ]}},
+    {"var": {"name": "small", "dataType": 1, "default": 4, "history": 2, "code": {"symbol": "application_small", "cType": "uint8_t"}, "bindings": [
+      {"screen": 1, "oid": 6, "property": "/text", "direction": "to-widget"},
+      {"screen": 0, "oid": 12, "property": "/spinbox/value", "direction": "two-way"}
+    ]}},
+    {"var": {"name": "legacy", "dataType": 1, "default": 21, "history": 2, "screen": 1, "oid": 5, "property": "/bar/value"}},
+    {"var": {"name": "signed8", "dataType": 1, "default": 0, "code": {"cType": "int8_t"}, "bindings": []}},
+    {"var": {"name": "signed16", "dataType": 1, "default": 0, "code": {"cType": "int16_t"}, "bindings": []}},
+    {"var": {"name": "unsigned16", "dataType": 1, "default": 0, "code": {"cType": "uint16_t"}, "bindings": []}},
+    {"var": {"name": "unsigned32", "dataType": 1, "default": 0, "code": {"cType": "uint32_t"}, "bindings": []}},
+    {"var": {"name": "timestamp", "dataType": 4, "default": 1770000001, "bindings": []}},
+    {"var": {"name": "double", "dataType": 3, "default": 0.5, "bindings": []}},
+    {"var": {"name": "legacy label", "dataType": 1, "default": 1, "bindings": []}},
+    {"var": {"name": "legacy-label", "dataType": 1, "default": 2, "bindings": []}}
+  ]
+}

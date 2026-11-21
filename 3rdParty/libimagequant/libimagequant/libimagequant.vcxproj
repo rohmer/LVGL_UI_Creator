@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64"><Configuration>Debug</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64"><Configuration>Release</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32"><Configuration>Debug</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32"><Configuration>Release</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BBAE7F39-0319-4CB9-958C-93CA9D15B164}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <CargoExecutable Condition="'$(CARGO_HOME)'!=''">$(CARGO_HOME)\bin\cargo.exe</CargoExecutable>
+    <CargoExecutable Condition="'$(CargoExecutable)'=='' and Exists('$(SolutionDir)build\cargo\bin\cargo.exe')">$(SolutionDir)build\cargo\bin\cargo.exe</CargoExecutable>
+    <CargoExecutable Condition="'$(CargoExecutable)'==''">cargo.exe</CargoExecutable>
+    <RustTarget>x86_64-pc-windows-msvc</RustTarget>
+    <VCBuildArchitecture>x64</VCBuildArchitecture>
+    <VCBuildArchitecture Condition="'$(Platform)'=='Win32'">x86</VCBuildArchitecture>
+    <RustTarget Condition="'$(Platform)'=='Win32'">i686-pc-windows-msvc</RustTarget>
+    <RustOutput>$(SolutionDir)build\imagequant-msbuild\$(RustTarget)\release\imagequant_sys.lib</RustOutput>
+    <NMakeOutput>$(SolutionDir)$(Platform)\$(Configuration)\libimagequant.lib</NMakeOutput>
+    <LocalRustEnvironment Condition="Exists('$(SolutionDir)build\rustup\settings.toml')">set &quot;RUSTUP_HOME=$(SolutionDir)build\rustup&quot;
+set &quot;CARGO_HOME=$(SolutionDir)build\cargo&quot;</LocalRustEnvironment>
+    <NMakeBuildCommandLine>powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)..\BuildImageQuant.ps1&quot; -RepositoryRoot &quot;$(SolutionDir).&quot; -CargoExecutable &quot;$(CargoExecutable)&quot; -VcVars &quot;$(VCInstallDir)Auxiliary\Build\vcvarsall.bat&quot; -Architecture $(VCBuildArchitecture) -RustTarget $(RustTarget) -OutputFile &quot;$(NMakeOutput)&quot;</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>$(NMakeBuildCommandLine)</NMakeReBuildCommandLine>
+
+    <NMakeCleanCommandLine>echo Cargo output is shared across configurations.</NMakeCleanCommandLine>
+    <TargetPath>$(NMakeOutput)</TargetPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\Cargo.toml" />
+    <None Include="..\Cargo.lock" />
+    <ClInclude Include="..\imagequant-sys\libimagequant.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

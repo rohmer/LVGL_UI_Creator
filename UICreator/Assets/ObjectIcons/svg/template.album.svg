@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Album</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="4" width="26" height="24" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.6"/>
+  <path d="M3 10L29 10" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <rect x="6" y="13" width="9" height="11" rx="1" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+  <rect x="18" y="13" width="8" height="5" rx="1" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+  <rect x="18" y="21" width="8" height="3" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <circle cx="9" cy="16" r="1" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <polyline points="7,22 10,19 13,22" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+</g>
+</svg>

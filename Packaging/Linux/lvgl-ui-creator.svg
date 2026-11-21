@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>LVGL UI Creator</title>
+  <desc>An editable canvas with mint and blue widgets on a deep navy tile.</desc>
+  <defs>
+    <linearGradient id="tile" x1="24" y1="12" x2="226" y2="248" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#283F68"/>
+      <stop offset="0.58" stop-color="#152745"/>
+      <stop offset="1" stop-color="#0C1930"/>
+    </linearGradient>
+    <linearGradient id="canvas" x1="44" y1="48" x2="205" y2="191" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E4EDF8"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="111" y1="87" x2="202" y2="123" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#45E0BC"/>
+      <stop offset="1" stop-color="#18B89D"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="110" y1="132" x2="151" y2="179" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#72BFFF"/>
+      <stop offset="1" stop-color="#4286EE"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="52" fill="url(#tile)"/>
+  <rect x="13" y="13" width="230" height="230" rx="51" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="2"/>
+  <rect x="40" y="54" width="176" height="148" rx="20" fill="#030C1C" fill-opacity="0.35"/>
+  <rect x="40" y="42" width="176" height="150" rx="19" fill="url(#canvas)"/>
+  <path d="M59 42h138a19 19 0 0 1 19 19v14H40V61a19 19 0 0 1 19-19Z" fill="#344E76"/>
+  <path d="M59 43h138a18 18 0 0 1 18 18" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="2"/>
+  <circle cx="57" cy="59" r="4" fill="#4CE1BD"/>
+  <circle cx="71" cy="59" r="4" fill="#94AFD2"/>
+  <circle cx="85" cy="59" r="4" fill="#94AFD2" fill-opacity="0.55"/>
+  <rect x="54" y="87" width="46" height="91" rx="8" fill="#CFDDED"/>
+  <path d="M66 102h22M66 114h17M66 126h22" fill="none" stroke="#91AAC9" stroke-width="4" stroke-linecap="round"/>
+  <rect x="110" y="87" width="92" height="35" rx="8" fill="url(#mint)"/>
+  <rect x="110" y="132" width="40" height="46" rx="8" fill="url(#blue)"/>
+  <rect x="160" y="132" width="42" height="46" rx="8" fill="#ABCDF0"/>
+  <path d="m157 130 51 42-23 2 12 25-13 6-11-25-16 15Z" fill="#FFFFFF" stroke="#152745" stroke-width="5" stroke-linejoin="round"/>
+</svg>

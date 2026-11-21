@@ -1,0 +1,3 @@
+# Keep the example's factory application large enough for imported trie assets.
+# This layout fits the ESP-IDF default 2 MiB flash; it does not provide OTA slots.
+CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y

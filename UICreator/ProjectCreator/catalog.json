@@ -1,0 +1,4170 @@
+[
+    {
+        "name": "LVGL on Linux",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "CMake",
+            "SDL",
+            "DRM",
+            "Linux"
+        ],
+        "description": "Example project to use LVGL on top of Linux graphics stack. Currently supported backends are either legacy framebuffer (fbdev), modern DRM/KMS, or SDL2.",
+        "shortDescription": "CMake project for Linux devices supporting various display drivers.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/linux/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/linux/logo.svg",
+        "branches": [
+            "release/v9.2"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Color Depth",
+                "options": [
+                    {
+                        "name": "16 (RGB565)",
+                        "value": "16"
+                    },
+                    {
+                        "name": "24 (RGB565)",
+                        "value": "24"
+                    },
+                    {
+                        "name": "32 (RGB565)",
+                        "value": "32"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "LV_COLOR_DEPTH \\d+",
+                        "newContent": "LV_COLOR_DEPTH {value}",
+                        "filePath": "lv_conf.defaults"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "LV_USE_PERF_MONITOR .*",
+                        "newContent": "LV_USE_PERF_MONITOR {value}",
+                        "filePath": "lv_conf.defaults"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Select display driver",
+                "options": [
+                    {
+                        "name": "Linux frame buffer device",
+                        "value": "0",
+                        "default": "true"
+                    },
+                    {
+                        "name": "DRM",
+                        "value": "1"
+                    },
+                    {
+                        "name": "SDL",
+                        "value": "2"
+                    },
+                    {
+                        "name": "Wayland",
+                        "value": "3"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "0",
+                        "toReplace": "LV_USE_LINUX_FBDEV +\\d+",
+                        "newContent": "LV_USE_LINUX_FBDEV 1",
+                        "filePath": "lv_conf.defaults"
+                    },
+                    {
+                        "ifValue": "1",
+                        "toReplace": "LV_USE_LINUX_DRM +\\d+",
+                        "newContent": "LV_USE_LINUX_DRM 1",
+                        "filePath": "lv_conf.defaults"
+                    },
+                    {
+                        "ifValue": "2",
+                        "toReplace": "LV_USE_SDL +\\d+",
+                        "newContent": "LV_USE_SDL 1",
+                        "filePath": "lv_conf.defaults"
+                    },
+                    {
+                        "ifValue": "3",
+                        "toReplace": "LV_USE_WAYLAND +\\d+",
+                        "newContent": "LV_USE_WAYLAND 1",
+                        "filePath": "lv_conf.defaults"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Eclipse Simulator with SDL",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "Eclipse",
+            "SDL"
+        ],
+        "description": "LVGL is written mainly for microcontrollers and embedded systems however you can run the library on your PC as well without any embedded hardware. The code written on PC can be simply copied when your are using an embedded system. The PC simulator is cross platform. Windows, Linux and OSX are supported, however on Windows it's easier to get started with a another simulator project. This project uses Eclipse CDT (as an IDE) and SDL =a low level driver library to open a window, and handle mouse, keyboard etc.)",
+        "shortDescription": "Eclipse-based project to run LVGL on PC.",
+        "urlToClone": "https://github.com/lvgl/lv_port_pc_eclipse",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/eclipse/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/eclipse/logo.svg",
+        "branches": [
+            "release/v9.2"
+        ],
+        "tags": [
+            "master",
+            "v9.2.2"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Color Depth",
+                "options": [
+                    {
+                        "name": "16 (RGB565)",
+                        "value": "16"
+                    },
+                    {
+                        "name": "24 (RGB565)",
+                        "value": "24"
+                    },
+                    {
+                        "name": "32 (RGB565)",
+                        "value": "32"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define LV_COLOR_DEPTH \\d+",
+                        "newContent": "#define LV_COLOR_DEPTH {value}",
+                        "filePath": "lv_conf.h"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "    #define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:17Z"
+    },
+    {
+        "name": "Simulator project for LVGL embedded GUI Library",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "VSCode",
+            "SDL"
+        ],
+        "description": "LVGL is written mainly for microcontrollers and embedded systems, however you can run the library on your PC as well without any embedded hardware. The code written on PC can be simply copied when you are using an embedded system. The project can use SDL but it can be easily replaced by any other built-in LVGL drivers.",
+        "shortDescription": "VSCode-based project to run LVGL on PC.",
+        "urlToClone": "https://github.com/lvgl/lv_port_pc_vscode",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/vscode/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/vscode/logo.svg",
+        "branches": [
+            "release/v9.2"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Color Depth",
+                "options": [
+                    {
+                        "name": "16 (RGB565)",
+                        "value": "16"
+                    },
+                    {
+                        "name": "24 (RGB565)",
+                        "value": "24"
+                    },
+                    {
+                        "name": "32 (RGB565)",
+                        "value": "32"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define LV_COLOR_DEPTH \\d+",
+                        "newContent": "#define LV_COLOR_DEPTH {value}",
+                        "filePath": "lv_conf.h"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "#define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:26Z"
+    },
+    {
+        "name": "Renesas RA8D1-EK",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "e2 studio",
+            "GCC"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MCU": "R7FA8D1BHECBD (Cortex-M85, 480MHz)",
+                "RAM": "1MB internal, 64MB external SDRAM",
+                "Flash": "2MB internal, 64MB External Octo-SPI Flash",
+                "GPU": "Dave2D",
+                "Resolution": "480x854",
+                "Display Size": "4.5\u201d",
+                "Interface": "2-lane MIPI",
+                "Color Depth": "24-bit",
+                "Technology": "IPS",
+                "DPI": "217 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The EK-RA8D1 evaluation kit enables users to effortlessly evaluate the features of the RA8D1 MCU Group and develop embedded systems applications using Renesas\u2019 Flexible Software Package (FSP) and e2 studio IDE. Utilize rich on-board features along with your choice of popular ecosystem add-ons to bring your big ideas to life.  The MCU has a Cortex-M85 core which utilizes the Helium (SIMD) instruction set of Arm. Besides that the chip is equipped with a GPU (called DAVE2D) to off load the MCU.",
+        "shortDescription": "Cortex-M85 based 480 MHz MCU driving a 480x854 display.",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_ek-ra8d1_gcc",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_ek-ra8d1_gcc/master/board_images/renesas-EK-RA8D1.webp",
+        "buy_now_links": [
+            "https://renesas.com/ek-ra8d1"
+        ],
+        "branches": [
+            "master",
+            "release/v9.2"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Rendering mode",
+                "options": [
+                    {
+                        "name": "Partial",
+                        "help": "Faster rendering but with tearing",
+                        "value": "0"
+                    },
+                    {
+                        "name": "Direct",
+                        "help": "Slower but tearing free",
+                        "value": "1",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define DIRECT_MODE \\d+",
+                        "newContent": "#define DIRECT_MODE {value}",
+                        "filePath": "src/board_init.c"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Use Dave2D GPU",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define LV_USE_DRAW_DAVE2D .*",
+                        "newContent": "#define LV_USE_DRAW_DAVE2D {value}",
+                        "filePath": "src/lv_conf_user.h"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "#define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "src/lv_conf_user.h"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-18T09:12:15Z"
+    },
+    {
+        "name": "Renesas EK-RA8D2",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "Mac OS"
+        ],
+        "environment": [
+            "e2 Studio"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Arm Cortex-M85 (1.0 GHz)",
+                "RAM": "1872 KB internal, 128 MB external",
+                "Flash": "1 MB",
+                "Interface": "Parallel RGB",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Renesas EK-RA8D2 is an evaluation board for a high-end 1GHz ARM Cortex-M85 microcontroller with large external memory (128MB). It has a D/AVE 2D graphics accelerator which LVGL supports and is enabled in this project. The included display is 7\" and has a resolution of 1024x600.",
+        "shortDescription": "Renesas EK-RA8D2 high-end MCU with graphics acceleration",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_ek-ra8d2.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_ek-ra8d2/master/board_images/renesas-EK-RA8D2.webp",
+        "buy_now_links": [
+            "https://www.renesas.com/en/design-resources/boards-kits/ek-ra8d2"
+        ],
+        "branches": [
+            "release/v9.3"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md to install e2 studio, get the FSP Packs, and build and debug the project.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show the system monitors",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_SYSMON .*",
+                        "newContent": "    #define LV_USE_SYSMON {value}",
+                        "filePath": "src/lv_conf_user.h"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-18T09:04:23Z"
+    },
+    {
+        "name": "Renesas EK-RA8P1",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "Mac OS"
+        ],
+        "environment": [
+            "e2 Studio"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Arm Cortex-M85 (1.0 GHz)",
+                "RAM": "1872 KB internal, 128 MB external",
+                "Flash": "1 MB",
+                "Interface": "Parallel RGB",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Renesas EK-RA8P1 is an evaluation board for a high-end 1GHz ARM Cortex-M85 microcontroller with large external memory (128MB). It has a D/AVE 2D graphics accelerator which LVGL supports and is enabled in this project. The included display is 7\" and has a resolution of 1024x600. There is an on-chip AI accelerator as well.",
+        "shortDescription": "Renesas EK-RA8P1 high-end MCU with graphics and AI acceleration",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_ek_ra8p1.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_ek_ra8p1/master/board_images/renesas-EK-RA8P1.webp",
+        "buy_now_links": [
+            "https://www.renesas.com/en/design-resources/boards-kits/ek-ra8p1"
+        ],
+        "branches": [
+            "release/v9.3"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md to install e2 studio, get the FSP Packs, and build and debug the project.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show the system monitors",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_SYSMON .*",
+                        "newContent": "    #define LV_USE_SYSMON {value}",
+                        "filePath": "src/lv_conf_user.h"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-07-31T11:43:49Z"
+    },
+    {
+        "name": "Renesas RA6M3G-EK",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "e2 studio",
+            "GCC"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MCU": "R7FA6M3AH3CFC (Cortex-M4, 120MHz)",
+                "RAM": "640kB internal SRAM",
+                "Flash": "2MB internal, 32MB external QSPI Flash",
+                "GPU": "Dave2D",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "Parallel RGB",
+                "Color Depth": "RGB565",
+                "Technology": "TFT-LCD, Transmissive",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The EK-RA6M3G evaluation kit enables users to seamlessly evaluate the features of the RA6M3 MCU Group and develop embedded systems applications using Renesas\u2019 Flexible Software Package (FSP) and e2 studio IDE. Utilize rich on-board features along with your choice of popular ecosystem add-ons to bring your big ideas to life.\n\nThe MCU has a high-performance Arm Cortex-M4 core and offers a TFT controller with 2D accelerator and JPEG decoder. Additionally, it has Ethernet MAC with individual DMA and USB high-speed interface to ensure high data throughput",
+        "shortDescription": "Cortex-M4 based 120 MHz MCU driving a 480x272 display.",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_ek-ra6m3g",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_ek-ra6m3g/master/board_images/renesas-EK-RA6M3G.webp",
+        "buy_now_links": [
+            "https://renesas.com/ek-ra6m3g"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "settings": [],
+        "lastUpdated": "2026-08-05T05:32:42Z"
+    },
+    {
+        "name": "Renesas RX72N Envision Kit",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "e2 studio",
+            "GCC"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MCU": "R5F572NNHDFB (RXv3, 240MHz)",
+                "RAM": "1MB internal SRAM",
+                "Flash": "4MB internal, 32MB external QSPI Flash",
+                "GPU": "Dave2D",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "Parallel RGB",
+                "Color Depth": "RGB565",
+                "Technology": "TFT-LCD, Transmissive",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "Equipped with 32-bit microcomputer, RX family flagship RX72N is an excellent choice for GUI creation using LCD, HMI development such as voice input/output, and IoT device development using Wi-Fi, BLE or Ethernet. By using LVGL's demo repository with Renesas' ecosystem, you can experience immediately and develop quickly. The IC is equipped with the third-generation RX CPU core, the RXv3, and an internal networking of peripheral allowing real-time control high-performance with a single chip. The device also has complete security capability, vital for industrial and consumer equipment today.",
+        "shortDescription": "240 MHz driving a 480x272 display.",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_rx72n-envision-kit",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_rx72n-envision-kit/master/board_images/renesas-rx72n-envision-kit.webp",
+        "buy_now_links": [
+            "https://renesas.com/rx72n-envision-kit"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "settings": [],
+        "lvglVersion": "9.1.1",
+        "lastUpdated": "2026-02-02T20:05:57Z"
+    },
+    {
+        "name": "Renesas EK-RZ/A3M",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "Mac OS"
+        ],
+        "environment": [
+            "e2 Studio"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Arm Cortex-A55 (1.0 GHz)",
+                "RAM": "128 MB internal DDR3L-SDRAM",
+                "Flash": "32 MB QSPI NOR flash or 128 MB external QSPI NAND flash",
+                "Interface": "MIPI",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Renesas EK-RZ/A3M board is an evaluation kit for the RZ/A3M MPU. It is an MPU but it has a focus on baremetal and RTOS applications. It boasts a mighty 1 GHz Cortex-A55 CPU and 128 MB of DDR3L-SDRAM. It is easy to use the low-level IO, of which it provides a lot. The board offers connectivity to many ecosystems like Arduino, Qwiic, Grove, mikroBUS, and Pmod. A 1280x720 display is included in the kit. It mounts to the board via a board-to-board connector.",
+        "shortDescription": "Renesas EK-RZ/A3ML high performance baremetal MPU with abundant IO and peripherals",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas-ek-rz_a3m.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas-ek-rz_a3m/master/board_images/renesas-RZ-A3M.webp",
+        "buy_now_links": [
+            "https://www.renesas.com/en/products/microcontrollers-microprocessors/rz-mpus/ek-rza3m-evaluation-kit-rza3m-mpu"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md to install e2 studio, get the FSP Packs, and build and debug the project.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show the system monitors",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_SYSMON .*",
+                        "newContent": "    #define LV_USE_SYSMON {value}",
+                        "filePath": "src/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-07-31T14:32:57Z"
+    },
+    {
+        "name": "ESP32-S3-EYE",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8 MB external PSRAM",
+                "Flash": "8/16 MB",
+                "GPU": "None",
+                "Resolution": "240x240",
+                "Display Size": "1.3\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "261 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "The ESP32-S3-EYE board consists of two parts: the main board (ESP32-S3-EYE-MB) that integrates the ESP32-S3-WROOM-1 module, camera, uSD card slot, digital microphone, USB port, and function buttons; and the sub board (ESP32-S3-EYE-SUB) that contains an LCD display. The main board and sub board are connected through pin headers.",
+        "shortDescription": "LVGL ported to the ESP32-S3-EYE using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/espressif-ESP32-S3-EYE.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "esp32_s3_eye",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "ESP32-S3-Korvo-2",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8 MB external PSRAM",
+                "Flash": "8/16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.4\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "167 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The ESP32-S3-Korvo-2 is a multimedia development board based on the ESP32-S3 chip. It is equipped with a two-microphone array which is suitable for voice recognition and near/far-field voice wake-up applications. The board integrates multiple peripherals such as LCD, camera, and microSD card. It also supports JPEG video stream processing. With all of its outstanding features, the board is an ideal choice for the development of low-cost and low-power network-connected audio and video products.",
+        "shortDescription": "LVGL ported to the ESP32-S3-Korvo-2 using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/espressif-ESP32-S3-Korvo-2.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "esp32_s3_korvo_2",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "ESP32-S3-LCD-EV-Board",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8/16 MB external PSRAM",
+                "Flash": "2/4/8/16 MB",
+                "GPU": "None",
+                "Resolution": "800x480 / 480x480",
+                "Display Size": "4.3\u201d / 3.95\u201d",
+                "Interface": "RGB LCD",
+                "Color Depth": "24-bit",
+                "Technology": "IPS",
+                "DPI": "216 px/inch / 171 px/inch",
+                "Touch Pad": "Capacitive (GT1151/FT5x06)"
+            }
+        },
+        "description": "ESP32-S3-LCD-EV-Board is a development board for evaluating and verifying ESP32-S3 screen interactive applications. It has the functions of touch screen interaction and voice interaction.",
+        "shortDescription": "LVGL ported to ESP32-S3-LCD-EV-Board using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/espressif-ESP32-S3-LCD-EV-Board.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "esp32_s3_lcd_ev_board",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Display",
+                "options": [
+                    {
+                        "name": "800x480",
+                        "value": "0",
+                        "default": "true"
+                    },
+                    {
+                        "name": "480x480",
+                        "value": "1"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toAppend": "CONFIG_BSP_LCD_SUB_BOARD_480_480=y",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "ESP32-S3-BOX-3",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 16 MB external PSRAM",
+                "Flash": "16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.4\u201d",
+                "Interface": "SPI 40 MHz",
+                "Color Depth": "16-bit",
+                "Technology": "RGB LCD (ILI9341)",
+                "DPI": "166 px/inch",
+                "Touch Pad": "Capacitive (GT911)"
+            }
+        },
+        "description": "Espressif Systems ESP32-S3-BOX-3 Next-Generation Open-Source AIoT Kit is based on the ESP32-S3 Wi-Fi + BLUETOOTH\u00ae 5 (LE) SoC with AI acceleration capabilities. In addition to the ESP32-S3 SoCs 512KB SRAM, the ESP32-S3-BOX-3 comes with 16MB of Quad flash and 16MB of Octal PSRAM. ESP32-S3-BOX-3 features a 2.4-inch (320 x 240) SPI touchscreen, two digital microphones, a speaker, a Type-C port, and a high-density PCIe connector for hardware extensibility. A speech-recognition framework provides users with an offline AI voice assistant with far-field voice interaction, continuous recognition, wake-up interruption, and the ability to recognize over 200 customizable command words. The device can also be transformed into an online AI chatbot using advanced AIGC development platforms like OpenAI.",
+        "shortDescription": "LVGL ported to ESP32-S3-BOX-3 using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/espressif-ESP32-S3-BOX-3.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "esp-box-3",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "ESP32-BOX",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8 MB external PSRAM",
+                "Flash": "8/16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.4\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "167 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "ESP32-BOX is an AI voice development kit that is based on Espressif\u2019s ESP32-S3 with AI capabilities. In addition to the touch screen, it features a dual microphone, a speaker, and two Pmod\u2122-compatible headers which allow for the extensibility of the hardware. It uses a Type-C USB connector that provides 5 V of power input, while also supporting serial and JTAG debugging, as well as a programming interface; all through the same connector.",
+        "shortDescription": "LVGL ported to the ESP32-BOX using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/espressif-ESP32-S3-BOX.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "esp-box",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "ESP32-BOX-Lite",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8 MB external PSRAM",
+                "Flash": "8/16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.4\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "167 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "ESP32-BOX-Lite is an AI voice development kit that is based on Espressif\u2019s ESP32-S3 with AI capabilities. In addition to the touch screen, it features a dual microphone, a speaker, and two Pmod\u2122-compatible headers which allow for the extensibility of the hardware. It uses a Type-C USB connector that provides 5 V of power input, while also supporting serial and JTAG debugging, as well as a programming interface; all through the same connector.",
+        "shortDescription": "LVGL ported to the ESP32-BOX-Lite using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/espressif-ESP32-S3-BOX-Lite.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "esp-box-lite",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "M5SDial",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8 MB external PSRAM",
+                "Flash": "8/16 MB",
+                "GPU": "None",
+                "Resolution": "240x240",
+                "Display Size": "1.28\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "TFT",
+                "DPI": "265 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "As a versatile embedded development board, M5Dial integrates the necessary features and sensors for various smart home control applications. It features a 1.28-inch round TFT touchscreen, a rotary encoder, an RFID detection module, an RTC circuit, a buzzer, and under-screen buttons, enabling users to easily implement a wide range of creative projects.",
+        "shortDescription": "LVGL ported to the M5SDial using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/M5Stack-Dial.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "m5dial",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "M5Stack CoreS3",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8/16 MB external PSRAM",
+                "Flash": "2/4/8/16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.0\u201d",
+                "Interface": "SPI",
+                "Color Depth": "24-bit",
+                "Technology": "LCD",
+                "DPI": "200 px/inch",
+                "Touch Pad": "Capacitive (FT5x06)"
+            }
+        },
+        "description": "CoreS3 is the third generation of the M5Stack Core series. Powered by the ESP32-S3 solution, this kit features a dual-core Xtensa LX7 processor running at 240MHz. CoreS3 comes equipped with built-in Wi-Fi functionality, enabling seamless connectivity. It boasts 16MB of onboard flash memory and 8MB of PSRAM, providing ample space for program storage.",
+        "shortDescription": "LVGL ported to M5Stack CoreS3 using Espressif BSP.",
+        "urlToClone": "https://github.com/lvgl/lv_esp_idf.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_esp_idf/master/board_images/M5Stack-CoreS3.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Set up [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html)\n2. `idf.py -p <COMx or /dev/ttyx> flash monitor`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the BSP dependency",
+                "actions": [
+                    {
+                        "toReplace": "bsp_replaceme",
+                        "newContent": "m5stack_core_s3",
+                        "filePath": "main/idf_component.yml"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "1",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=y",
+                        "filePath": "sdkconfig.defaults"
+                    },
+                    {
+                        "ifValue": "0",
+                        "toReplace": "CONFIG_LV_USE_PERF_MONITOR=.+",
+                        "newContent": "CONFIG_LV_USE_PERF_MONITOR=n",
+                        "filePath": "sdkconfig.defaults"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-10-22T16:17:09Z"
+    },
+    {
+        "name": "NuttX Simulator",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "X11",
+            "Linux"
+        ],
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. This option creates a NuttX project based on the NuttX LVGL defconfig for the simulator and a basic directory structure for your custom LVGL app. This project runs locally and opens an X11 window to display your LVGL app.",
+        "shortDescription": "NuttX RTOS simulator project for X11 on Linux",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Run `./setup.sh`.\n4. Run `cd nuttx/`.\n5. Run `make -j$(nproc)`.\n6. Run `./nuttx`.",
+        "settings": [],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX ESP32-S3-LCD-EV-Board",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 8/16 MB external PSRAM",
+                "Flash": "2/4/8/16 MB",
+                "GPU": "None",
+                "Resolution": "800x480 / 480x480",
+                "Display Size": "4.3\u201d / 3.95\u201d",
+                "Interface": "RGB LCD",
+                "Color Depth": "24-bit",
+                "Technology": "IPS",
+                "DPI": "216 px/inch / 171 px/inch",
+                "Touch Pad": "Capacitive (GT1151/FT5x06)"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The Espressif ESP32-S3-LCD-EV-Board is a devboard with a touchscreen based on the ESP32-S3. This option creates a NuttX project for the Espressif ESP32-S3-LCD-EV-Board based on the NuttX LVGL defconfig for esp32s3-lcd-ev and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for ESP32-S3-LCD-EV-Board with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/espressif-ESP32-S3-LCD-EV-Board.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Install the ESP32-S3 Toolchain: `https://nuttx.apache.org/docs/latest/platforms/xtensa/esp32s3/index.html#esp32-s3-toolchain`.\n4. Run `./setup.sh`.\n5. Run `cd nuttx/`.\n6. Run `make -j$(nproc)`.\n7. Run `make -j$(nproc) flash ESPTOOL_PORT=<port> ESPTOOL_BINDIR=./`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l esp32s3-lcd-ev:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Model",
+                "options": [
+                    {
+                        "name": "v1.5, 480x480",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "ifValue": "0",
+                        "toReplace": "yes '' \\| make oldconfig",
+                        "newContent": "kconfig-tweak --set-val CONFIG_ESP32S3_I2C0_SCLPIN 48\nkconfig-tweak --set-val CONFIG_ESP32S3_I2C0_SDAPIN 47\nkconfig-tweak --set-val CONFIG_ESP32S3_LCD_DATA6_PIN 8\nkconfig-tweak --set-val CONFIG_ESP32S3_LCD_DATA7_PIN 18\nyes '' | make oldconfig",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX ESP32-S3-BOX-3",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32-S3",
+                "RAM": "512 KB internal SRAM, 16 MB external PSRAM",
+                "Flash": "16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.4\u201d",
+                "Interface": "SPI 40 MHz",
+                "Color Depth": "16-bit",
+                "Technology": "LCD (ILI9341)",
+                "DPI": "167 px/inch",
+                "Touch Pad": "Capacitive (GT911)"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The Espressif ESP32-S3-BOX-3 is an AIoT kit based on the ESP32-S3. This option creates a NuttX project for the Espressif ESP32-S3-BOX-3 based on the NuttX LVGL defconfig for esp32s3-box and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for ESP32-S3-BOX-3 with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/espressif-ESP32-S3-BOX-3.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Install the ESP32-S3 Toolchain: `https://nuttx.apache.org/docs/latest/platforms/xtensa/esp32s3/index.html#esp32-s3-toolchain`.\n4. Run `./setup.sh`.\n5. Run `cd nuttx/`.\n6. Run `make -j$(nproc)`.\n7. Run `make -j$(nproc) flash ESPTOOL_PORT=<port> ESPTOOL_BINDIR=./`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig, patch files, and set additional configurations",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "echo -e '\\nCFLAGS += -DLV_COLOR_16_SWAP' >> ../apps/graphics/lvgl/Makefile\nmkdir -p boards/xtensa/esp32s3/esp32s3-box/src/etc/init.d/\ntouch boards/xtensa/esp32s3/esp32s3-box/src/etc/init.d/rcS\necho -e '\\nmy_lvgl_app &' >> boards/xtensa/esp32s3/esp32s3-box/src/etc/init.d/rc.sysinit\necho -e '\\nRCSRCS = etc/init.d/rc.sysinit etc/init.d/rcS' >> boards/xtensa/esp32s3/esp32s3-box/src/Make.defs\n./tools/configure.sh -l esp32s3-box:lvgl-3\nkconfig-tweak --enable CONFIG_FS_ROMFS\nkconfig-tweak --enable CONFIG_ETC_ROMFS",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX ESP-WROVER-KIT",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32",
+                "RAM": "520 KB internal SRAM, 4 MB external PSRAM",
+                "Flash": "16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "3.2\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "125 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The Espressif ESP-WROVER-KIT is a devboard based on the ESP32. This option creates a NuttX project for the Espressif ESP-WROVER-KIT based on the NuttX LVGL defconfig for esp32-wrover-kit and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for ESP-WROVER-KIT with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/espressif-ESP32-Wrover-kit.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Install the ESP32 Toolchain: `https://nuttx.apache.org/docs/latest/platforms/xtensa/esp32/index.html#esp32-toolchain`.\n4. Run `./setup.sh`.\n5. Run `cd nuttx/`.\n6. Run `make -j$(nproc)`.\n7. Run `make -j$(nproc) flash ESPTOOL_PORT=<port> ESPTOOL_BINDIR=./`",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig, patch files, and set additional configurations",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l esp32-wrover-kit:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX MIMXRT1060-EVK",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MCU": "i.MX RT1060",
+                "RAM": "256 MB SRAM",
+                "Flash": "512+64 MB",
+                "GPU": "None",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "RGB parallel",
+                "Color Depth": "24-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The NXP MIMXRT1060-EVK is a devboard with an optional touchscreen. This option creates a NuttX project for the MIMXRT1060-EVK based on the NuttX LVGL defconfig for mimxrt1060-evk and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for MIMXRT1060-EVK with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/NXP-MIMXRT1060-EVK.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Run `./setup.sh`.\n4. Run `cd nuttx/`.\n5. Run `make -j$(nproc)`.\n6. Refer to the docs for flashing and debugging info: `https://nuttx.apache.org/docs/latest/platforms/arm/imxrt/boards/imxrt1060-evk/index.html`.",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l mimxrt1060-evk:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX MIMXRT1064-EVK",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MCU": "i.MX RT1064",
+                "RAM": "256 MB SRAM",
+                "Flash": "512+64 MB",
+                "GPU": "None",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "RGB parallel",
+                "Color Depth": "24-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The NXP MIMXRT1064-EVK is a devboard with an optional touchscreen. This option creates a NuttX project for the MIMXRT1064-EVK based on the NuttX LVGL defconfig for mimxrt1064-evk and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for MIMXRT1064-EVK with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/NXP-MIMXRT1064-EVK.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Run `./setup.sh`.\n4. Run `cd nuttx/`.\n5. Run `make -j$(nproc)`.\n6. Refer to the docs for flashing and debugging info: `https://nuttx.apache.org/docs/latest/platforms/arm/imxrt/boards/imxrt1064-evk/index.html`.",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l mimxrt1064-evk:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX STM32F429I-DISCO",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32F429ZI",
+                "RAM": "256 KB internal SRAM, 8 MB external SDRAM",
+                "Flash": "2 MB",
+                "GPU": "Chrom-ART / DMA2D",
+                "Resolution": "240x320",
+                "Display Size": "2.4\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "QVGA TFT LCD",
+                "DPI": "167 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The STM32F429I-DISCO is a devboard with a touchscreen based on the STM32F429ZI MCU. This option creates a NuttX project for the STM32F429I-DISCO based on the NuttX LVGL defconfig for stm32f429i-disco and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for STM32F429I-DISCO with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/STM32-F429I-DISCO.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Run `./setup.sh`.\n4. Run `cd nuttx/`.\n5. Run `make -j$(nproc)`.\n6. Refer to the docs for flashing and debugging info: `https://nuttx.apache.org/docs/latest/platforms/arm/stm32f4/index.html#flashing-and-debugging`.",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l stm32f429i-disco:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX STM32F746G-DISCO",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32F746NG",
+                "RAM": "340 KB internal SRAM, 8 MB external SDRAM",
+                "Flash": "1 MB",
+                "GPU": "Chrom-ART / DMA2D",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "RGB parallel",
+                "Color Depth": "16-bit",
+                "Technology": "TFT LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The STM32F746G-DISCO is a devboard with a touchscreen based on the STM32F746NG MCU. This option creates a NuttX project for the STM32F746G-DISCO based on the NuttX LVGL defconfig for stm32f746g-disco and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for STM32F746G-DISCO with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/STM32-F746G-DISCO.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Run `./setup.sh`.\n4. Run `cd nuttx/`.\n5. Run `make -j$(nproc)`.\n6. Refer to the docs for flashing and debugging info: `https://nuttx.apache.org/docs/latest/platforms/arm/stm32f7/index.html#flashing-and-debugging`.",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l stm32f746g-disco:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX STM32H745I-DISCO",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32H745XI",
+                "RAM": "1 MB internal SRAM, 8 MB external SDRAM",
+                "Flash": "2 MB",
+                "GPU": "Chrom-ART / DMA2D",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "RGB parallel",
+                "Color Depth": "16-bit",
+                "Technology": "TFT LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The STM32H745I-DISCO is a devboard with a touchscreen based on the STM32H745XI MCU. This option creates a NuttX project for the STM32H745I-DISCO based on the NuttX LVGL defconfig for stm32h745i-disco and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for STM32H745I-DISCO with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/STM32-H745I-DISCO.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Run `./setup.sh`.\n4. Run `cd nuttx/`.\n5. Run `make -j$(nproc)`.\n6. Refer to the docs for flashing and debugging info: `https://nuttx.apache.org/docs/latest/platforms/arm/stm32h7/index.html`.",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l stm32h745i-disco:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "NuttX Waveshare RP2040-LCD-1.28",
+        "maintainer": "NuttX",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "CMake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Raspberry Pi",
+            "manufacturer": "Waveshare",
+            "specs": {
+                "MCU": "RP2040",
+                "RAM": "264 KB internal SRAM",
+                "Flash": "2 MB",
+                "GPU": "None",
+                "Resolution": "240x240",
+                "Display Size": "1.28\u201d diameter",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "IPS (GC9A01A)",
+                "DPI": "188 px/inch",
+                "Touch Pad": "Capacitive (CST816T)"
+            }
+        },
+        "description": "NuttX is a highly configurable RTOS that implements many POSIX standard interfaces for a familliar development experience and well defined boundaries between components. The Waveshare RP2040-LCD-1.28 is a round touch display module powered by a Raspberry Pi RP2040 MCU. This option creates a NuttX project for the Waveshare RP2040-LCD-1.28 based on the NuttX LVGL defconfig for waveshare-rp2040-lcd-1.28 and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "NuttX RTOS project for Waveshare RP2040-LCD-1.28 with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_nuttx.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nuttx/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_nuttx/master/board_images/Raspberry-Pi-RP2040-LCD-1.28.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the NuttX prerequisites and KConfig frontend: `https://nuttx.apache.org/docs/latest/quickstart/install.html`.\n2. Aditionally, install `unzip`.\n3. Install the Raspberry Pi Pico SDK: `https://nuttx.apache.org/docs/latest/platforms/arm/rp2040/index.html#installation`.\n4. Run `./setup.sh`.\n5. Run `cd nuttx/`.\n6. Run `make -j$(nproc)`.\n7. Copy the UF2 file to the device: `https://nuttx.apache.org/docs/latest/platforms/arm/rp2040/index.html#programming`.",
+        "settings": [
+            {
+                "type": "always",
+                "label": "set the defconfig",
+                "actions": [
+                    {
+                        "toReplace": "\\./tools/configure\\.sh -l sim:lvgl_fb",
+                        "newContent": "./tools/configure.sh -l waveshare-rp2040-lcd-1.28:lvgl",
+                        "filePath": "setup.sh"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-06-02T13:01:02Z"
+    },
+    {
+        "name": "Zephyr MIMXRT1170-EVKB",
+        "maintainer": "Zephyr",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "CMake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MCU": "i.MX RT1176xxA",
+                "RAM": "256 MB SRAM",
+                "Flash": "16 MB",
+                "GPU": "PXP",
+                "Resolution": "800x480",
+                "Display Size": "4.3\u201d",
+                "Interface": "MIPI DSI",
+                "Color Depth": "24-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Zephyr RTOS is a open source, highly configurable, scalable, secure, modular and vendor neutral real time operating system. The NXP MIMXRT1170-EVK is a devboard with an optional touchscreen. This option creates a Zephyr project for the MIMXRT1170-EVK based on the Zephyr LVGL for mimxrt1170-evk and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "Zephyr RTOS project for MIMXRT1170-EVK with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_zephyr",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/NXP-MIMXRT1170-EVK.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Build: `west build -p -b mimxrt1170_evk@B/mimxrt1176/cm7 lv_zephyr/application --shield rk055hdmipi4ma0`.\n4. Run `west flash` for flashing and `west debug` for debugging.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-10T11:49:00Z"
+    },
+    {
+        "name": "Zephyr M5Stack Core 2",
+        "maintainer": "Zephyr",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "CMake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Espressif",
+            "specs": {
+                "MCU": "ESP32",
+                "RAM": "8 MB SRAM",
+                "Flash": "16 MB",
+                "GPU": "None",
+                "Resolution": "320x240",
+                "Display Size": "2.1\u201d",
+                "Interface": "Parallell 8080 16bit",
+                "Color Depth": "14-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Zephyr RTOS is a open source, highly configurable, scalable, secure, modular and vendor neutral real time operating system. The M5Stack Core2 is an ESP32-based development kit with a built-in 2\" capacitive touch screen. This option creates a Zephyr project for the M5Stack Core2 based on the Zephyr LVGL module and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "Zephyr RTOS project for M5Stack Core 2 with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_zephyr",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/M5Stack-Core2.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Run `west blobs fetch hal_espressif` (ESP32 binary blobs).\n4. Build: `west build -p -b m5stack_core2/esp32/procpu lv_zephyr/application`.\n5. Run `west flash` for flashing and `west debug` for debugging.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-10T11:49:00Z"
+    },
+    {
+        "name": "Zephyr Renesas RA8D1-EK",
+        "maintainer": "Zephyr",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "cmake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MCU": "R7FA8D1BHECBD (Cortex-M85, 480MHz)",
+                "RAM": "1MB internal, 64MB external SDRAM",
+                "Flash": "2MB internal, 64MB External Octo-SPI Flash",
+                "GPU": "Dave2D",
+                "Resolution": "480x854",
+                "Display Size": "4.5\u201d",
+                "Interface": "2-lane MIPI",
+                "Color Depth": "24-bit",
+                "Technology": "IPS",
+                "DPI": "217 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Zephyr RTOS is a open source, highly configurable, scalable, secure, modular and vendor neutral real time operating system. The EK-RA8D1 evaluation kit enables users to effortlessly evaluate the features of the RA8D1 MCU Group and develop embedded systems applications using Renesas\u2019 Flexible Software Package (FSP) and e2 studio IDE. Utilize rich on-board features along with your choice of popular ecosystem add-ons to bring your big ideas to life.  The MCU has a Cortex-M85 core which utilizes the Helium (SIMD) instruction set of Arm. Besides that the chip is equipped with a GPU (called DAVE2D) to off load the MCU.",
+        "shortDescription": "Zephyr RTOS project for Renesas EK-RA8D1 with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_zephyr",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/ek_ra8d1.jpg",
+        "branches": [
+            "release/v9.2",
+            "release/v9.3",
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Build: `west build -p -b ek_ra8d1 lv_zephyr/application --shield rtkmipilcdb00000be`.\n4. Run `west flash` for flashing and `west debug` for debugging.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-10T11:49:00Z"
+    },
+    {
+        "name": "Zephyr NXP FRDM-MCXN947",
+        "maintainer": "Zephyr",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "cmake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MCU": "MCXN-947",
+                "RAM": "512 KB SRAM",
+                "Flash": "2 MB",
+                "GPU": "None",
+                "Resolution": "480x320",
+                "Display Size": "3.5\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Zephyr RTOS is a open source, highly configurable, scalable, secure, modular and vendor neutral real time operating system. The NXP FRDM-MCXN947 is a devboard with an optional LCD add-on board. This option creates a MCU Expresso with LVGL for FRDM-MCXN947 and a basic directory structure for your custom LVGL app. ",
+        "shortDescription": "Zephyr RTOS project for FRDM-MCXN947 with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_zephyr",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/frdm_mcxn947.webp",
+        "branches": [
+            "release/v9.2",
+            "release/v9.3",
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Build: `west build -p -b frdm_mcxn947/mcxn947/cpu0 lv_zephyr/application --shield lcd_par_s035_8080`.\n4. Run `west flash` for flashing and `west debug` for debugging.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-10T11:49:00Z"
+    },
+    {
+        "name": "Zephyr ST STM32U5G9J-DK2",
+        "maintainer": "Zephyr",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "cmake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32U5G9J (Cotex-M33, 160MHz)",
+                "RAM": "3MB (internal only)",
+                "Flash": "4MB (internal only)",
+                "GPU": "Neo-Chrom (GPU2D), Chrom-Art (DMA2D)",
+                "Resolution": "800x480",
+                "Display Size": "5.0\u201d",
+                "Interface": "RGB",
+                "Color Depth": "24-bit",
+                "DPI": "187 px/inch",
+                "Technology": "LCD",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Zephyr RTOS is a open source, highly configurable, scalable, secure, modular and vendor neutral real time operating system. This STM32U5 series devboard is part of the family of ultra low power ST MCUs. It has a large amount of internal memory and the embedded Neo-Chrom GPU which accelerates LVGL rendering. With such a large internal SRAM, direct double buffering is possible at the great speed of internal SRAM.",
+        "shortDescription": "Zephyr RTOS project for STM32U5G9J-DK2 with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_zephyr",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_zephyr/main/board_images/stm32u5g9j_dk2.webp",
+        "branches": [
+            "release/v9.2",
+            "release/v9.3",
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Install the Zephyr prerequisites, west and the Zephyr SDK: `https://docs.zephyrproject.org/latest/develop/getting_started/index.html`.\n2. From the folder that contains this project run `west init -l lv_zephyr` and `west update`.\n3. Build: `west build -p -b stm32u5g9j_dk2 lv_zephyr/application`.\n4. Run `west flash` for flashing and `west debug` for debugging.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-08-10T11:49:00Z"
+    },
+    {
+        "name": "LV Port ATS3089P-EVB",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux"
+        ],
+        "environment": [
+            "make",
+            "CMake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "Actions Technology",
+            "manufacturer": "Actions Technology",
+            "specs": {
+                "MCU": "ATS3089P",
+                "RAM": "1.1 MB SRAM",
+                "Flash": "8 MB",
+                "GPU": "VGLite",
+                "Resolution": "466x466",
+                "Display Size": "4.3\u201d",
+                "Interface": "MIPI DSI",
+                "Color Depth": "24-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The Actions Technology ATS3089P-EVB is a smartwatch focused development board with round display plus touch, here is a basic directory structure for your custom LVGL app on top of Actions SDK based on Zephyr RTOS.",
+        "shortDescription": "Actions Technology ATS3089P-EVB project with LVGL support",
+        "urlToClone": "https://github.com/lvgl/lv_port_actions_technology",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/zephyr/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_actions_technology/master/board_images/ats3089p-evb.webp",
+        "buy_now_links": [
+            "https://www.actionstech.com/index.php?id=contactus"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.2.2",
+        "lastUpdated": "2025-05-08T18:44:15Z"
+    },
+    {
+        "name": "LV Port FRDM-MCXN947",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "make",
+            "cmake",
+            "Linux"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MCU": "MCXN-947",
+                "RAM": "512 KB SRAM",
+                "Flash": "2 MB",
+                "GPU": "None",
+                "Resolution": "480x320",
+                "Display Size": "3.5\u201d",
+                "Interface": "SPI",
+                "Color Depth": "16-bit",
+                "Technology": "LCD",
+                "DPI": "128 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The NXP FRDM-MCXN947 is a devboard with an optional LCD add-on board. This option creates a MCU Expresso with LVGL for FRDM-MCXN947 and a basic directory structure for your custom LVGL app.",
+        "shortDescription": "FRDM-MCXN947 MCU expresso project with LVGL support",
+        "urlToClone": "https://github.com/lvgl/lv_port_nxp_frdm_mcxn947",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nxp/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_nxp_frdm_mcxn947/master/board_image/frdm_mcxn947.webp",
+        "branches": [
+            "release/v9.2"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2026-11-01T00:18:10Z"
+    },
+    {
+        "name": "Alif E7 AI/ML AppKit",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows"
+        ],
+        "environment": [
+            "VS Code",
+            "Arm CMSIS Solution"
+        ],
+        "hardware": {
+            "chipVendor": "Alif Semiconductor",
+            "manufacturer": "Alif Semiconductor",
+            "specs": {
+                "MCU": "dual Cortex-M55 - 400 MHz, 160 MHz",
+                "RAM": "13.5 internal SRAM, 64 MB external PSRAM",
+                "Flash": "64 MB",
+                "GPU": "DAVE2D",
+                "Resolution": "800x480",
+                "Display Size": "4\u201d",
+                "Interface": "MIPI LCD",
+                "Color Depth": "16-bit",
+                "DPI": "216 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The E7 AI/ML AppKit is a peripheral-rich board with the most powerful Alif Ensemble SOC. It has two MCU cores. One is highly performant while the other is highly efficient. The desired core can be selected in VS Code. There is builtin AI/ML hardware and another pair of cores that can run an OS like Linux. The board features WiFi, BLE, a camera, multiple microphones, a headphone connector, an IMU, navigation buttons, and USB.",
+        "shortDescription": "A VS Code project for Alif E7 AI/ML AppKit with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_alif.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/alif/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_alif/master/board_images/Alif-AK-E7-AIML.webp",
+        "buy_now_links": [
+            "https://www.arrow.com/en/products/ak-e7-aiml/alif-semiconductor",
+            "https://www.mouser.com/ProductDetail/Alif-Semiconductor/AK-E7-AIML?qs=i8QVZAFTkqRflp1UcqlNNQ%3D%3D"
+        ],
+        "branches": [
+            "release/v9.1"
+        ],
+        "getStartedInstructions": "Follow the detailed instructions at `https://docs.lvgl.io/master/details/integration/chip_vendors/alif/overview.html` to get started.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Board Variant",
+                "options": [
+                    {
+                        "name": "Development Kit gen 1, silicon rev A, board rev B/C",
+                        "value": "0"
+                    },
+                    {
+                        "name": "AI/ML Application Kit gen 1, silicon rev A, board rev A",
+                        "value": "1"
+                    },
+                    {
+                        "name": "AI/ML Application Kit gen 1, silicon rev A, board rev B",
+                        "value": "2"
+                    },
+                    {
+                        "name": "Development Kit gen 2, silicon rev B, internal CoB board",
+                        "value": "3"
+                    },
+                    {
+                        "name": "Development Kit gen 2, silicon rev B, board rev A/B/C",
+                        "value": "4",
+                        "default": "true"
+                    },
+                    {
+                        "name": "AI/ML Application gen 2, silicon rev B, board rev A",
+                        "value": "5"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define BOARD_ALIF_DEVKIT_VARIANT\\s+\\d+",
+                        "newContent": "#define BOARD_ALIF_DEVKIT_VARIANT {value}",
+                        "filePath": "app/board.h"
+                    }
+                ]
+            },
+            {
+                "type": "dropdown",
+                "label": "Panel Variant (if unsure, leave default)",
+                "options": [
+                    {
+                        "name": "E43RB_FW405",
+                        "value": "0",
+                        "default": "true"
+                    },
+                    {
+                        "name": "E43GB_MW405",
+                        "value": "1"
+                    },
+                    {
+                        "name": "E50RA_MW550",
+                        "value": "2"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": "#define BOARD_ILI9806E_PANEL_VARIANT\\s+\\d+",
+                        "newContent": "#define BOARD_ILI9806E_PANEL_VARIANT {value}",
+                        "filePath": "app/board.h"
+                    }
+                ]
+            }
+        ],
+        "lastUpdated": "2025-09-15T11:33:10Z"
+    },
+    {
+        "name": "F&S PicoCore\u2122MX93",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "F&S",
+            "specs": {
+                "MPU": "Dual Cortex-A55 @1.7GHz",
+                "MCU": "Cortex-M33 @250MHz",
+                "RAM": "2 GB LPDDR4",
+                "Flash": "64GB eMMC",
+                "GPU": "PXP"
+            }
+        },
+        "description": "The F&S PicoCore\u2122MX93 is a highly capable dual core compact SoM MPU (System-on-Module) which exposes abundant IO through its board-to-board mezzanine connectors. The processor is a dual-core 64-bit ARM Cortex-A55. The evaluation kit comes with a 1024x600 capacitive touch display and an evaluation board for the SoM which breaks-out some common interfaces like USB, Ethernet, serial, GPIO, SD Card, and more.",
+        "shortDescription": "Powerful NXP Cortex\u00ae-A55 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/f_and_s/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_f-and-s_picocoremx93/master/board_images/FS-PicoCore-MX93.png",
+        "buy_now_links": [
+            "https://www.fs-net.de/en/embedded-modules/computer-on-module-picocore/picocoremx93-with-nxp-imx93-cpu"
+        ],
+        "branches": [
+            "release/v9.3"
+        ],
+        "getStartedInstructions": "Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/f-and-s_picocoremx93/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "GLYN UI2 Starter Kit",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto",
+            "CMake"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "GLYN",
+            "specs": {
+                "MPU": "Dual Cortex-A55 @1.2 GHz",
+                "RAM": "1 GB DDR3L",
+                "Flash": "Micro SD Card + 4GB eMMC",
+                "GPU": "Mali-G31"
+            }
+        },
+        "description": "The GLYN UI2 is an evaluation kit for the RZ/G2L MPU. It ships with a display so that you can quickly get started with your UI development.",
+        "shortDescription": "GLYN UI2 evaluation kit for the RZ/G2L MPU",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/glyn_ui2-starter-kit/glyn_logo.webp"
+        ],
+        "buy_now_links": [
+            "https://www.glyn.com/products/computer-on-module/qs-evaluationkits/"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/glyn_ui2-starter-kit/glyn-ui2-starter-kit.jpg",
+        "branches": [
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/glyn_ui2-starter-kit/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "i.MX 93 Evaluation Kit",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MPU": "Dual Cortex-A55 @1.7GHz",
+                "MCU": "Cortex-M33 @250MHz",
+                "RAM": "2 GB LPDDR4X / LPDDR4 16-Bit data bus with inline ECC (3.7 GT/s)",
+                "Flash": "16 GB eMMC5.1 Micro SD Card",
+                "GPU": "PowerVR"
+            }
+        },
+        "description": "The i.MX 93 applications processors are the first in the i.MX portfolio to integrate the scalable Arm Cortex-A55 core, bringing performance and energy efficiency to Linux\u00ae-based edge applications and the Arm Ethos\u2122-U65 microNPU, enabling developers to create more capable, cost-effective and energy-efficient ML applications. The i.MX 93 EVK for 11x11mm sample provides a platform for comprehensive evaluation of the i.MX 93 applications processors and also includes the ability to measure power consumption on the power rails. ",
+        "shortDescription": "Powerful NXP Cortex\u00ae-A55 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nxp/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/nxp_imx93/NXP-imx-93-evaluation-kit.webp",
+        "buy_now_links": [
+            "https://www.nxp.com/design/design-center/development-boards-and-designs/i-mx-evaluation-and-development-boards/i-mx-93-evaluation-kit:i.MX93EVK"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/nxp_imx93/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Renesas RZ/G3E-EVKIT",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto",
+            "CMake"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Quad Cortex-A55 @1.8GHz",
+                "MCU": "Cortex-M33 @200MHz",
+                "RAM": "4 GB LPDDR4",
+                "Flash": "Micro SD Card + 64GB eMMC",
+                "GPU": "Mali-G52"
+            }
+        },
+        "description": "The RZ/G3E-EVKIT is a development kit for the RZ/G3E MPU. It's a SMARC v2.1 System-on-Module (SOM) with a carrier board. It is one of the more powerful MPU boards available and has some specialized applications in mind for use with GStreamer and electrical current measurement.",
+        "shortDescription": "High performance Renesas Cortex\u00ae-A55 based SMARC SoM.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "buy_now_links": [
+            "https://www.renesas.com/en/design-resources/boards-kits/rz-g3e-evkit"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/renesas_rz-g3e-evkit/renesas_rz-g3e-evkit.webp",
+        "branches": [
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/renesas_rz-g3e-evkit/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Renesas RZ/G3L-EVKIT",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "CMake"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Quad Cortex-A55",
+                "MCU": "Cortex-M33",
+                "RAM": "2 GB LPDDR4",
+                "Flash": "64 GB eMMC + 16 MB QSPI + Micro SD Card",
+                "GPU": "Arm Mali (OpenGL ES 3.2)"
+            }
+        },
+        "description": "The RZ/G3L-EVKIT is Renesas' evaluation kit for the RZ/G3L MPU: a quad-core Cortex-A55 with a Cortex-M33 real-time core, an Arm Mali GPU and a video codec engine, built as a SMARC 2.1.1 module on the Common Carrier Board II. Runs LVGL with multi-threaded software rendering or GPU rendering through NanoVG on OpenGL ES, over Wayland or DRM.",
+        "shortDescription": "Renesas RZ/G3L evaluation kit, a Cortex-A55 SMARC SoM for HMI.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "buy_now_links": [
+            "https://www.renesas.com/en/design-resources/boards-kits/rz-g3l-evkit"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/renesas_rz-g3l-evkit/renesas_rz-g3l-evkit.webp",
+        "branches": [
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/renesas_rz-g3l-evkit/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "STM32MP157F-DK2",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "CMake"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MPU": "Dual Cortex-A7 @800 MHz",
+                "RAM": "512 MB DDR3L",
+                "Flash": "Micro SD Card",
+                "GPU": "3D Vivante GPU"
+            }
+        },
+        "description": "A versatile dual ARM Cortex-A7 MPU from ST equipped to run Linux with impressive graphics capabilities and lots of IO.",
+        "shortDescription": "STMicroelectronics MP1 processor devkit with touchscreen",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg"
+        ],
+        "buy_now_links": [
+            "https://www.st.com/en/evaluation-tools/stm32mp157f-dk2.html"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/stm32mp157f-dk/stm32mp157f-dk.avif",
+        "branches": [
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/stm32mp157f-dk/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "STM32MP257F-DK",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "CMake"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MPU": "Dual Cortex-A35 @1.5 GHz",
+                "MCU": "Cortex-M33 @400 MHz",
+                "RAM": "4 GB LPDDR4",
+                "Flash": "8 GB eMMC + Micro SD Card",
+                "GPU": "3D Vivante GC8000UL (OpenGL ES 3.2)",
+                "NPU": "1.35 TOPS"
+            }
+        },
+        "description": "ST's Discovery kit for the STM32MP25 series: a dual Cortex-A35 MPU with a Cortex-M33 real-time core, a Vivante GC8000UL 3D GPU and a 1.35 TOPS NPU. Runs LVGL's 2D and 3D/glTF rendering on Wayland or DRM.",
+        "shortDescription": "STMicroelectronics MP2 processor devkit with 3D GPU and NPU",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg"
+        ],
+        "buy_now_links": [
+            "https://www.st.com/en/evaluation-tools/stm32mp257f-dk.html"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/stm32mp257f-dk/stm32mp257f-dk.png",
+        "branches": [
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/stm32mp257f-dk/README.md)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Texas Instruments SK-AM62B-P1",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto",
+            "Buildroot"
+        ],
+        "hardware": {
+            "chipVendor": "Texas Instruments",
+            "manufacturer": "Texas Instruments",
+            "specs": {
+                "MPU": "AM625 with Quad 64-bit Arm\u00ae Cortex\u00ae-A53 @1.4GHz",
+                "MCU": "Arm\u00ae Cortex\u00ae-M4F MCU",
+                "RAM": "2 GB DDR4 16-Bit data bus with inline ECC (1600 MT/s)",
+                "Flash": "Micro SD Card",
+                "GPU": "PowerVR"
+            }
+        },
+        "description": "The Texas Instruments SK-AM62B-P1 starter kit (SK) evaluation module (EVM) is a stand-alone test and development platform built around the AM62x system-on-a-chip (SoC). AM62x processors are comprised of a quad-core 64-bit Arm\u00ae-Cortex\u00ae-A53 microprocessor and single-core Arm Cortex-M4F MCU. It features an HDMI port for up to 2K 60fps displays and two ethernet ports. It has an embedded PowerVR GPU",
+        "shortDescription": "Powerful Texas Instruments Cortex\u00ae-A53 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/texas_instruments/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/texas-instruments_sk-am62b-p1/ti-sk-am62b-p1.webp",
+        "buy_now_links": [
+            "https://www.ti.com/tool/SK-AM62B-P1"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/texas-instruments_sk-am62b-p1/README.md#getting-started)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Texas Instruments TMDS62LEVM",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto",
+            "Buildroot"
+        ],
+        "hardware": {
+            "chipVendor": "Texas Instruments",
+            "manufacturer": "Texas Instruments",
+            "specs": {
+                "MPU": "AM62L with Dual 64-bit Arm\u00ae Cortex\u00ae-A53 @1.25GHz",
+                "RAM": "2 GB DDR4 16-Bit data bus (1600 MT/s)",
+                "Flash": "Micro SD Card",
+                "GPU": "No GPU"
+            }
+        },
+        "description": "The Texas Instruments TMDS62LEVM evaluation module (EVM) is a stand-alone test and development platform built around the AM62L system-on-a-chip (SoC). AM62L processor is comprised of a dual-core 64-bit Arm\u00ae-Cortex\u00ae-A53 microprocessor. It features an HDMI port for up to 2K 60fps displays and two ethernet ports. It has no GPU yet is fast with LVGL software rendering.",
+        "shortDescription": "Powerful Texas Instruments Cortex\u00ae-A53 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/texas_instruments/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/texas-instruments_sk-am62l/ti-sk-am62l.webp",
+        "buy_now_links": [
+            "https://www.ti.com/tool/TMDS62LEVM"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/tree/master/boards/texas-instruments_sk-am62l/README.md#getting-started)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Texas Instruments SK-AM62P-LP",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Yocto",
+            "Buildroot"
+        ],
+        "hardware": {
+            "chipVendor": "Texas Instruments",
+            "manufacturer": "Texas Instruments",
+            "specs": {
+                "MPU": "AM625P with Quad 64-bit Arm\u00ae Cortex\u00ae-A53 @1.4GHz",
+                "MCU": "two ARM\u00ae Cortex\u00ae-R5F single core up to 800MHz",
+                "RAM": "8 GB LPDDR4 32-Bit data bus with inline ECC (3200 MT/s)",
+                "Flash": "Micro SD Card",
+                "GPU": "PowerVR"
+            }
+        },
+        "description": "The Texas Instruments SK-AM62P-LP starter kit (SK) evaluation module (EVM) is built around the AM62P display processor, which includes scalable Arm\u00ae Cortex\u00ae-A53 performance and embedded features, such as high-performance 3D-GPU, 4K video acceleration, and extensive peripherals. SK-AM62P-LP is for those looking to develop automotive and industrial applications, including automotive digital instrumentation, automotive displays, industrial HMI and more. It features an HDMI port for up to 4K 60fps displays, two ethernet ports, an M.2 expansion port for wireless connectivity or storage, and many other peripherals.",
+        "shortDescription": "Powerful Texas Instruments Cortex\u00ae-A53 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/texas_instruments/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_texas_sk-am62p-lp/master/board_images/ti-sk-am62p-lp.webp",
+        "buy_now_links": [
+            "https://www.ti.com/tool/SK-AM62P-LP"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/blob/master/boards/texas-instruments_sk-am62p-lp/README.md#getting-started)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Toradex Verdin AM62",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Torizon",
+            "Yocto"
+        ],
+        "hardware": {
+            "chipVendor": "Texas Instruments",
+            "manufacturer": "Toradex",
+            "specs": {
+                "MPU": "2 64-bit Arm\u00ae Cortex\u00ae-A53 @1.4GHz",
+                "MCU": "Arm\u00ae Cortex\u00ae-M4F MCU @400MHz",
+                "RAM": "1 GB 16-Bit data bus with inline ECC (1600 MT/s)",
+                "Flash": "8GB eMMC Flash",
+                "GPU": "PowerVR Rogue AXE-1-16M"
+            }
+        },
+        "description": "The Verdin AM62 is a cost-effective Computer on Module (CoM) based on the TI Sitara AM62x processor, offering up to four Cortex-A53 cores. It provides an attractive entry point into the Verdin ecosystem, with scalability through pin-compatibility with the Verdin iMX8M Mini and Plus modules. Featuring integrated Wi-Fi 4 and Bluetooth 5.2, or optional Wi-Fi 6 and Bluetooth 5.3 for custom configurations, it supports Torizon\u2019s OTA updates, device monitoring, and remote access. Designed for power-constrained applications, the Verdin AM62 includes advanced power management and hardware-based security for secure boot and cryptographic acceleration.",
+        "shortDescription": "Powerful Cortex\u00ae-A53 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/texas_instruments/logo.svg",
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/toradex/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/toradex-verdin_am62/toradex-verdin-am62.webp",
+        "buy_now_links": [
+            "https://www.toradex.com/computer-on-modules/verdin-arm-family/ti-am62#buynow"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/blob/master/boards/toradex-verdin_am62/README.md#getting-started)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "Toradex Verdin imx8mm",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "Torizon",
+            "Yocto"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "Toradex",
+            "specs": {
+                "MPU": "4 64-bit Arm\u00ae Cortex\u00ae-A53 @1.8GHz",
+                "MCU": "Arm\u00ae Cortex\u00ae-M4 MCU @400MHz",
+                "RAM": "2 GB LPDDR4 32-Bit data bus with inline ECC (1500 MT/s)",
+                "Flash": "16GB eMMC Flash",
+                "GPU": "2D: Vivante GC320, 3D: Vivante GCNanoUltra"
+            }
+        },
+        "description": "The Verdin imx8m mini is a cost-effective Computer on Module (CoM) based on the NXP imx8m mini processor, offering up to four Cortex-A53 cores. It features integrated Wi-Fi 5 and Bluetooth 5.3, Torizon\u2019s OTA updates, device monitoring, and remote access. Designed for power-constrained applications, the Verdin imx8m mini includes advanced power management and hardware-based security for secure boot and cryptographic acceleration.",
+        "shortDescription": "Powerful Cortex\u00ae-A53 based device for embedded Linux.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nxp/logo.svg",
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/toradex/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_linux/master/boards/toradex-verdin_imx8m-mini/toradex-imx8m.webp",
+        "buy_now_links": [
+            "https://www.toradex.com/computer-on-modules/verdin-arm-family/nxp-imx-8m-mini-nano"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Open the project folder and update the submodules: `git submodule update --init --recursive` \n2. Follow the guide in the [README](https://github.com/lvgl/lv_port_linux/blob/master/boards/toradex-verdin_imx8m-mini/README.md#getting-started)",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:16:09Z"
+    },
+    {
+        "name": "MIMXRT1170-EVKB",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MCUXpresso"
+        ],
+        "hardware": {
+            "chipVendor": "NXP",
+            "manufacturer": "NXP",
+            "specs": {
+                "MCU": "i.MX RT1176xxA",
+                "RAM": "1 MB internal, 32 MB external",
+                "Flash": "16 MB",
+                "GPU": "PXP",
+                "Resolution": "480x800",
+                "Display Size": "7\u201d",
+                "Interface": "MIPI DSI",
+                "Color Depth": "32-bit",
+                "Technology": "IPS",
+                "DPI": "133 px/inch",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The NXP MIMXRT1170-EVK is a devboard with an optional touchscreen.",
+        "shortDescription": "MIMXRT1170-EVK with LVGL",
+        "urlToClone": "https://github.com/lvgl/lv_port_nxp_imxrt1170-evkb.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/nxp/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_nxp_imxrt1170-evkb/master/board_images/NXP-MIMXRT1170-EVK.webp",
+        "branches": [
+            "release/v9.4"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md under \"Run the project\".",
+        "settings": [],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:17:26Z"
+    },
+    {
+        "name": "Riverdi STM32U5 Embedded 5\u201d",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "CubeIDE"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "Riverdi",
+            "specs": {
+                "MCU": "STM32U599NJH6Q/STM32U5A9NJH6Q  (Cotex-M33, 160MHz)",
+                "RAM": "2.5MB (internal only)",
+                "Flash": "4MB (internal only)",
+                "GPU": "Neo-Chrom (GPU2D), Chrom-Art (DMA2D), Chrom-GRC (GFXMMU)",
+                "Resolution": "800x480",
+                "Display Size": "5.0\u201d",
+                "Interface": "RGB LCD",
+                "Color Depth": "24-bit",
+                "DPI": "166 px/inch",
+                "Technology": "IPS",
+                "Touch Pad": " Projected Capacitive"
+            }
+        },
+        "description": "STM32 Embedded 5\u201d display is all-in-one complete and open-platform solution being able to independently handle the visual layer of devices with the need for high computing performance. The 5-inch STM32 Embedded Displays series are industrial-quality LCD-TFT solutions based on the STM32U599NJH6Q or STM32U5A9NJH6Q microcontroller. It has been designed in a way that allows to meet most of the hardware and programming challenges faced by engineers, including access to all interfaces.",
+        "shortDescription": "STM32U5 with NeoChrome on a 800x480 screen.",
+        "urlToClone": "https://github.com/lvgl/lv_port_riverdi_stm32u5.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg",
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/riverdi/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_riverdi_stm32u5/master/board_images/riverdi-stmu5.webp",
+        "buy_now_links": [
+            "https://riverdi.com/product/5-inch-lcd-display-capacitive-touch-panel-optical-bonding-uxtouch-stm32u5-rvt50hqsnwc00-b"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Connect a 6-48V power supply to the POWER header on the board using the supplied cable. \n2. Connect a debug probe to the SWD header using the supplied cable.\n 3. Install [STM32 CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)\n4. Open STM32CubeIDE and import project:` File => Open Projects from File System... => Directory => Select the \"STM32CubeIde\" folder => Finish`\n5. Click the Run button to flash the project",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "    #define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "Middlewares/Third_Party/LVGL/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:17:59Z"
+    },
+    {
+        "name": "Riverdi STM32H7 Embedded 7\u201d",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "CubeIDE"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "Riverdi",
+            "specs": {
+                "MCU": "STM32H757XIH6  (Cortex-M7 480MHz, Cortex-M4 240MHz)",
+                "RAM": "8MB external, 1MB internal",
+                "Flash": "64MB external, 2MB internal",
+                "GPU": "Chrom-Art (DMA2D)",
+                "Resolution": "1024x600",
+                "Display Size": "7.0\u201d",
+                "Interface": "RGB LCD",
+                "Color Depth": "24-bit",
+                "DPI": "170 px/inch",
+                "Technology": "IPS TFT",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "STM32 Embedded 7\u201d display is all-in-one complete and open-platform solution being able to independently handle the visual layer of devices with the need for high computing performance. The 7-inch STM32 Embedded Displays series are industrial-quality LCD-TFT solutions based on the STM32H757XIH6 microcontroller. It has been designed in a way that allows to meet most of the hardware and programming challenges faced by engineers, including access to all interfaces.",
+        "shortDescription": "STM32H7 on a 1024x600 screen.",
+        "urlToClone": "https://github.com/lvgl/lv_port_riverdi_70-stm32h7.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg",
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/riverdi/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_riverdi_70-stm32h7/master/board_images/riverdi-7-inch-STM32.webp",
+        "buy_now_links": [
+            "https://riverdi.com/product/7-inch-lcd-display-capacitive-touch-panel-optical-bonding-uxtouch-stm32h7-rvt70hssnwc00-b"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Connect a 6-48V power supply to the POWER header on the board using the supplied cable. \n2. Connect a debug probe to the SWD header using the supplied cable.\n 3. Install [STM32 CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)\n4. Open STM32CubeIDE and import project:` File => Open Projects from File System... => Directory => Select the \"STM32CubeIde\" folder => Finish`\n5. Click the Run button to flash the project",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "    #define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "Middlewares/Third_Party/LVGL/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:18:10Z"
+    },
+    {
+        "name": "Riverdi STM32H7 Embedded 10.1\u201d",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "CubeIDE"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "Riverdi",
+            "specs": {
+                "MCU": "STM32H757XIH6  (Cortex-M7 480MHz, Cortex-M4 240MHz)",
+                "RAM": "8MB external, 1MB internal",
+                "Flash": "64MB external, 2MB internal",
+                "GPU": "Chrom-Art (DMA2D)",
+                "Resolution": "1080x800",
+                "Display Size": "10.1\u201d",
+                "Interface": "RGB LCD",
+                "Color Depth": "24-bit",
+                "DPI": "133 px/inch",
+                "Technology": "IPS TFT",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "STM32 Embedded 10.1\u201d display is all-in-one complete and open-platform solution being able to independently handle the visual layer of devices with the need for high computing performance. The 10.1-inch STM32 Embedded Displays series are industrial-quality LCD-TFT solutions based on the STM32H757XIH6 microcontroller. It has been designed in a way that allows to meet most of the hardware and programming challenges faced by engineers, including access to all interfaces.",
+        "shortDescription": "STM32H7 on a 1080x800 screen.",
+        "urlToClone": "https://github.com/lvgl/lv_port_riverdi_101-stm32h7.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg",
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/riverdi/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_riverdi_101-stm32h7/refs/heads/master/board_images/riverdi-10.1-inch-STM32.webp",
+        "buy_now_links": [
+            "https://riverdi.com/product/10-1-inch-lcd-display-capacitive-touch-panel-optical-bonding-uxtouch-stm32h7-rvt101hvsnwc00-b"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Connect a 6-48V power supply to the POWER header on the board using the supplied cable. \n2. Connect a debug probe to the SWD header using the supplied cable.\n 3. Install [STM32 CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)\n4. Open STM32CubeIDE and import project:` File => Open Projects from File System... => Directory => Select the \"STM32CubeIde\" folder => Finish`\n5. Click the Run button to flash the project",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "    #define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "Middlewares/Third_Party/LVGL/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:18:05Z"
+    },
+    {
+        "name": "Viewe ESP32 S3 Smart Display",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Viewe",
+            "specs": {
+                "MCU": "ESP32-S3 (240MHz)",
+                "RAM": "512 KB (internal), 8MB (external)",
+                "Flash": "16 MB",
+                "GPU": "None",
+                "Resolution": "800x480",
+                "Display Size": "7.0\u201d",
+                "Interface": "RGB LCD",
+                "Color Depth": "24-bit",
+                "Technology": "TN",
+                "DPI": "133 px/inch",
+                "Touch Pad": "Capacitive (GT911)"
+            }
+        },
+        "description": "The Viewe ESP32 S3 Smart Display, designed and developed by Viewe Display, features an 800\u00d7480 resolution with 300 cd/m\u00b2 brightness and multi-point capacitive touch. Powered by an ESP32-S3 (240MHz) with 8MB RAM and 16MB Flash, it supports Wi-Fi, BLE 5, and BLE Mesh. Designed for Arduino, ESP-IDF, and LVGL platforms, it offers UART and USB interfaces for versatile IoT and AIoT applications.",
+        "shortDescription": "Viewe ESP32 S3 Smart Display project with LVGL support",
+        "urlToClone": "https://github.com/lvgl/lv_port_viewe_7_espidf",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_viewe_7_espidf/master/board_images/board.png",
+        "buy_now_links": [
+            "https://viewedisplay.com/iot_aiot-smart-display/"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.3.0",
+        "lastUpdated": "2025-04-10T11:50:04Z"
+    },
+    {
+        "name": "Renesas RZ/G2L-EVKIT",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Arm Cortex-A55 (1.2 GHz)",
+                "RAM": "2GB DDR4 SDRAM",
+                "Flash": "Micro SD card, 64GB eMMC, 64MB QSPI flash",
+                "GPU": "Arm Mali-G31 (has 3D acceleration)",
+                "Interface": "Micro-HDMI",
+                "Touch Pad": "USB touch input"
+            }
+        },
+        "description": "The Renesas RZ/G2L is a general-purpose MPU with a Cortex-A55 (1.2 GHz) and a 3D GPU with video codecs. The RZ/G2L in this evaluation kit is on a SoM, which itself is on a carrier board. The carrier board features IO useful for MPU applications such as Micro-HDMI, 2 ethernet ports, headphone and microphone jacks, USB serial terminal, USB host, camera input, an additional Micro SD card slot, and exposed GPIO headers.",
+        "shortDescription": "Renesas RZ/G2L general-purpose SoM and carrier board with peripherals.",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_rz-g2l-evkit.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_rz-g2l-evkit/master/board_images/board.webp",
+        "buy_now_links": [
+            "https://www.renesas.com/en/products/microcontrollers-microprocessors/rz-mpus/rzg2l-evkit-evaluation-board-kit-rzg2l-mpu",
+            "https://www.mouser.com/ProductDetail/Renesas-Electronics/RTK9744L23S01000BE?qs=7D1LtPJG0i2Uv%2FGoPVv6xw%3D%3D",
+            "https://www.digikey.com/en/products/detail/renesas-electronics-corporation/RTK9744L23S01000BE/15290121"
+        ],
+        "branches": [
+            "v8.3-with-v9-benchmark"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md to set up the board, install the cross-compile toolchain, and build the demo. Also refer to [the official guide](https://renesas-rz.github.io/rzg_hmi_sdk/latest/getting_started/) for additional info",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "    #define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "8.3.11",
+        "lastUpdated": "2025-08-15T19:27:22Z"
+    },
+    {
+        "name": "Renesas RZ/G2UL-EVKIT",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux"
+        ],
+        "environment": [
+            "make"
+        ],
+        "hardware": {
+            "chipVendor": "Renesas",
+            "manufacturer": "Renesas",
+            "specs": {
+                "MPU": "Arm Cortex-A55 (1.0 GHz)",
+                "RAM": "1GB DDR4 SDRAM",
+                "Flash": "Micro SD card, 64GB eMMC, 16MB QSPI flash",
+                "Interface": "Micro-HDMI",
+                "Touch Pad": "USB touch input"
+            }
+        },
+        "description": "The Renesas RZ/G2UL is a general-purpose MPU with a Cortex-A55 (1.0 GHz). This evaluation kit consists of both a SoM (System on Module) which carries the RZ/G2UL MPU, as well as a carrier board which carries the SoM. The SoM complies with the SMARC v2.1 stardard. The carrier board features IO useful for MPU applications such as a display interface (Parallel-IF) and included parallel-to-Micro-HDMI bridge, 2 ethernet ports, headphone and microphone jacks, USB serial terminal, USB host, camera input, an additional Micro SD card slot, and exposed GPIO headers.",
+        "shortDescription": "Renesas RZ/G2UL general-purpose SoM and carrier board with peripherals.",
+        "urlToClone": "https://github.com/lvgl/lv_port_renesas_rz-g2ul-evkit.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/renesas/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_renesas_rz-g2ul-evkit/master/board_images/renesas-RZ-G2UL-EVKIT.webp",
+        "buy_now_links": [
+            "https://www.renesas.com/en/products/microcontrollers-microprocessors/rz-mpus/rzg2ul-evkit-evaluation-board-kit-rzg2ul-mpu",
+            "https://www.mouser.com/ProductDetail/Renesas-Electronics/RTK9743U11S01000BE?qs=vvQtp7zwQdM9TF1mvTYlYA%3D%3D",
+            "https://www.digikey.com/en/products/detail/renesas-electronics-corporation/RTK9743U11S01000BE/18099644"
+        ],
+        "branches": [
+            "v8.3-with-v9-benchmark"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md to set up the board, install the cross-compile toolchain, and build the demo. Also refer to [the official guide](https://renesas-rz.github.io/rzg_hmi_sdk/latest/getting_started/) for additional info",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_PERF_MONITOR .*",
+                        "newContent": "    #define LV_USE_PERF_MONITOR {value}",
+                        "filePath": "lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:17:34Z"
+    },
+    {
+        "name": "iCOP QEC-PPC-M-090T",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows"
+        ],
+        "environment": [
+            "Arduino"
+        ],
+        "hardware": {
+            "chipVendor": "DM&P Electronics",
+            "manufacturer": "iCOP",
+            "specs": {
+                "CPU": "533 MHz Vortex86EX2 32-bit x86 CPU",
+                "RAM": "512MB/1GB DDR3",
+                "Flash": "2GB SLC eMMC, 32MB SPI Flash",
+                "Resolution": "1024x600",
+                "Display Size": "9\u201d",
+                "Interface": "VGA",
+                "Color Depth": "16-bit",
+                "Technology": "TFT",
+                "DPI": "132 px/inch",
+                "Touch Pad": "Resistive"
+            }
+        },
+        "description": "The iCOP QEC-PPC-M-090T is a capable, fully-featured industrial HMI. It has a specialized 533 MHz (plus a 400 MHz core) 32-bit x86 CPU. The programming environment is Arduino. The fusion of the mature x86 architecture with the Arduino ecosystem opens up powerful application opportunities. There is a separate dedicated core for EtherCAT.",
+        "shortDescription": "iCOP QEC-PPC-M-090T Arduino industrial HMI.",
+        "urlToClone": "https://github.com/lvgl/lv_port_icop_qec_ppc_m_090t.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/icop/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_icop_qec_ppc_m_090t/refs/heads/master/board_images/iCOP_QEC-PPC-M-090T.webp",
+        "buy_now_links": [],
+        "branches": [
+            "v9.2"
+        ],
+        "getStartedInstructions": "Follow the instructions in README.md to set up the device, install the 86Duino IDE and libraries, and upload the program.",
+        "settings": [],
+        "lastUpdated": "2025-08-15T19:27:01Z"
+    },
+    {
+        "name": "STM32U5G9J-DK2",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "CubeIDE"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32U5G9J (Cotex-M33, 160MHz)",
+                "RAM": "3MB (internal only)",
+                "Flash": "4MB (internal only)",
+                "GPU": "Neo-Chrom (GPU2D), Chrom-Art (DMA2D)",
+                "Resolution": "800x480",
+                "Display Size": "5.0\u201d",
+                "Interface": "RGB",
+                "Color Depth": "24-bit",
+                "DPI": "187 px/inch",
+                "Technology": "LCD",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "This STM32U5 series devboard is part of the family of ultra low power ST MCUs. It has a large amount of internal memory and the embedded Neo-Chrom GPU which accelerates LVGL rendering. With such a large internal SRAM, direct double buffering is possible at the great speed of internal SRAM.",
+        "shortDescription": "STM32U5 with NeoChrome on a 800x480 screen.",
+        "urlToClone": "https://github.com/lvgl/lv_port_stm32u5g9j-dk2.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_stm32u5g9j-dk2/master/board_images/stm32u5g9j-dk2.webp",
+        "buy_now_links": [
+            "https://estore.st.com/en/stm32u5g9j-dk2-cpn.html"
+        ],
+        "branches": [
+            "release/v9.2"
+        ],
+        "getStartedInstructions": "1. Connect a USB-C cable to the USB-C port labeled STLINK USB CN8 and your PC. \n2. Install [STM32 CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html)\n3. Open STM32CubeIDE and open project:` File => Open Projects from File System... => Directory => Select the \"STM32CubeIde\" folder => Finish`\n4. Click the Run button to flash the project",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_SYSMON .*",
+                        "newContent": "    #define LV_USE_SYSMON {value}",
+                        "filePath": "Core/Inc/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "10.0.0",
+        "lastUpdated": "2026-11-15T00:18:38Z"
+    },
+    {
+        "name": "Viewe ESP32 S3 Touch Knob Display",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "ESP-IDF"
+        ],
+        "hardware": {
+            "chipVendor": "Espressif",
+            "manufacturer": "Viewe",
+            "specs": {
+                "MCU": "ESP32-S3 (240MHz)",
+                "RAM": "512 KB (internal), 8MB (external)",
+                "Flash": "16 MB",
+                "GPU": "None",
+                "Resolution": "466x466",
+                "Display Size": "1.5\u201d",
+                "Interface": "QSPI",
+                "Color Depth": "16-bit",
+                "Technology": "AMOLED",
+                "DPI": "439 px/inch",
+                "Touch Pad": "Capacitive (CST816S)"
+            }
+        },
+        "description": "The Viewe Touch Knob Display features a 466x466 AMOLED screen with 1000\u202fcd/m\u00b2 brightness, a rotary knob with push button, and capacitive touch. Powered by an ESP32-S3, it supports Wi-Fi, BLE 5, and BLE Mesh. Ideal for Arduino, ESP-IDF, and LVGL, it\u2019s perfect for smart interfaces and control panels in IoT and AIoT applications.",
+        "shortDescription": "Viewe ESP32 S3 Touch Knob Display project with LVGL support",
+        "urlToClone": "https://github.com/lvgl/lv_port_viewe_knob_15_espidf",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/espressif/logo.svg"
+        ],
+        "branches": [
+            "release/v9.3"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_viewe_knob_15_espidf/master/board_images/board.png",
+        "buy_now_links": [
+            "https://viewedisplay.com/iot_aiot-smart-display/"
+        ],
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.3.0",
+        "lastUpdated": "2025-06-27T07:20:26Z"
+    },
+    {
+        "name": "STM32MP135F-DK",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "CubeIDE"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32MP135F (Cortex-A7, 1 GHz)",
+                "RAM": "168KB internal, 512MB external",
+                "Flash": "Micro SD Card",
+                "Resolution": "480x272",
+                "Display Size": "4.3\u201d",
+                "Interface": "RGB",
+                "Color Depth": "16-bit",
+                "DPI": "128 px/inch",
+                "Technology": "LCD",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "The STM32MP series of processors are MPUs with MMUs capable of running Linux. The STM32MP135F-DK is a devkit for the 1 GHz Cortex-A7 STM32MP135F MPU. It has a display and lots of high-level IO such as four USB ports and dual ethernet ports. The external SDRAM chip on the board is 512 MB.",
+        "shortDescription": "STM32MP1 microprocessor devkit with 480x272 touch display and high-level IO.",
+        "urlToClone": "https://github.com/lvgl/lv_port_stm32mp135f_disco_bm.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg"
+        ],
+        "buy_now_links": [
+            "https://www.st.com/en/microcontrollers-microprocessors/stm32mp135f.html"
+        ],
+        "branches": [
+            "release/v9.3"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_stm32mp135f_disco_bm/refs/heads/master/stm32mp135f-dk.png",
+        "getStartedInstructions": "Follow the instructions in README.md to compile and flash the device.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_SYSMON .*",
+                        "newContent": "    #define LV_USE_SYSMON {value}",
+                        "filePath": "LVGL/Target/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.4.0",
+        "lastUpdated": "2026-03-16T10:00:43Z"
+    },
+    {
+        "name": "STM32H7S78-DK",
+        "maintainer": "LVGL",
+        "hostOperatingsystem": [
+            "Linux",
+            "Windows",
+            "MacOS"
+        ],
+        "environment": [
+            "CubeIDE"
+        ],
+        "hardware": {
+            "chipVendor": "ST",
+            "manufacturer": "ST",
+            "specs": {
+                "MCU": "STM32H7S7L8 (Cotex-M7, 600MHz)",
+                "RAM": "620KB internal, 32MB external",
+                "Flash": "64KB internal, 128MB External",
+                "GPU": "Neo-Chrom (GPU2D), Chrom-Art (DMA2D)",
+                "Resolution": "800x480",
+                "Display Size": "5.0\u201d",
+                "Interface": "RGB",
+                "Color Depth": "24-bit",
+                "DPI": "187 px/inch",
+                "Technology": "LCD",
+                "Touch Pad": "Capacitive"
+            }
+        },
+        "description": "This is an H7 series board, touted for \"MPU UIs on an MCU\". It has a 600MHz ARM Cortex-M7 MCU with a memory protection unit. There is an unusually small internal flash and SRAM for such a powerful MCU, but it's compensated by 128MB flash and 32MB PSRAM. A very simple bootloader is needed to jump from the internal flash to the external flash at reset.",
+        "shortDescription": "Fast H7 with flexible boot options.",
+        "urlToClone": "https://github.com/lvgl/lv_port_stm32h7s78-dk.git",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/project-creator/master/meta/images/st/logo.svg"
+        ],
+        "buy_now_links": [
+            "https://www.st.com/en/evaluation-tools/stm32h7s78-dk.html"
+        ],
+        "branches": [
+            "release/v9.4"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_port_stm32h7s78-dk/refs/heads/master/stm32h7s78-dk.png",
+        "getStartedInstructions": "- In STM32CubeIDE, click **File > Open Projects from File System**, click **Directory**, choose the cloned repo, and then click **Finish**.\n- You will need to build and upload the bootloader just once, unless you modify it.\n  - Click to highlight STM32H7S78-DK_Boot in the Project Explorer side panel\n  - Click the hammer icon to build the bootloader.\n  - Click the play icon to upload the bootloader to the board.\n- Click to highlight STM32H7S78-DK_Appli in the Project Explorer side panel\n- Click the hammer icon to build the application. The \"Debug\" build mode is used, even though full optimization is enabled.\n- Click the play icon to upload the application to the board.\n- After the application has been uploaded, press the black reset button (B1/U6) and the application will run.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ],
+                "actions": [
+                    {
+                        "toReplace": " *#define LV_USE_SYSMON .*",
+                        "newContent": "    #define LV_USE_SYSMON {value}",
+                        "filePath": "STM32CubeIDE/Appli/lv_conf.h"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.5.0",
+        "lastUpdated": "2026-03-16T11:55:41Z"
+    },
+    {
+        "name": "GigaDevice GD32C231C-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32C231 (Cortex-M23, 48MHz)",
+                "RAM": "12KB internal SRAM",
+                "Flash": "64KB internal",
+                "GPU": "None",
+                "Resolution": "240*320",
+                "Display Size": "2.2 inch",
+                "Interface": "SPI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "180 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "The GigaDevice GD32C231C-EVAL is an evaluation board based on a 48MHz ARM Cortex-M23 GD32C231C8 microcontroller. This project uses 64KB internal flash and 12KB internal SRAM. LVGL renders to the board's 240x320 TFT display through the SPI interface, using DMA to transfer the rendered pixels to the display.",
+        "shortDescription": "GigaDevice GD32C231C-EVAL entry-level MCU with 240*320 SPI display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32C231EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32C231C_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32c231c-eval?variant=53039847211340"
+        ],
+        "branches": [
+            "release/v8.3"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "8.3.11",
+        "lastUpdated": "2026-11-13T07:47:24Z"
+    },
+    {
+        "name": "GigaDevice GD32F470I-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32F470 (Cortex-M4, 240MHz)",
+                "RAM": "192KB internal SRAM, 64KB TCM SRAM, 32768KB external SDRAM",
+                "Flash": "3072KB internal",
+                "GPU": "IPA",
+                "Resolution": "480*272",
+                "Display Size": "4.3 inch",
+                "Interface": "TLI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "130 px/inch",
+                "Touch Pad": "Resistive touch (SPI)"
+            }
+        },
+        "description": "The GigaDevice GD32F470I-EVAL is an evaluation board based on a 240MHz ARM Cortex-M4 GD32F470IK microcontroller with FPU and DSP instructions. This project uses 3MB internal flash, 192KB internal SRAM, 64KB TCM SRAM, and 32MB external SDRAM. LVGL renders to the board's 480x272 TFT display through the TLI RGB parallel display controller, using the IPA image processing accelerator for graphics operations.",
+        "shortDescription": "GigaDevice GD32F470I-EVAL Cortex-M4 board with 480x272 RGB display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32F470_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32F470I_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32f470i-eval?variant=58578013159756"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-11-13T07:45:55Z"
+    },
+    {
+        "name": "GigaDevice GD32F503V-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32F503 (Cortex-M33, 252MHz)",
+                "RAM": "128KB internal SRAM",
+                "Flash": "1024KB internal",
+                "GPU": "None",
+                "Resolution": "240*320",
+                "Display Size": "3.2 inch",
+                "Interface": "8080",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "130 px/inch",
+                "Touch Pad": "Resistive touch (SPI)"
+            }
+        },
+        "description": "The GigaDevice GD32F503V-EVAL is an evaluation board based on a 252MHz ARM Cortex-M33 GD32F503VG microcontroller with FPU and DSP instructions. This project uses 1MB internal flash and 128KB internal SRAM. LVGL runs bare metal and renders to the board's 240x320 TFT display through the EXMC 16-bit parallel bus, using DMA to transfer the rendered frames to the display GRAM.",
+        "shortDescription": "GigaDevice GD32F503V-EVAL Cortex-M33 board with 240x320 parallel display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32F503_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32F503V_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32f503v-eval?variant=58576795599180"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0",
+                        "default": "true"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-10-28T06:52:50Z"
+    },
+    {
+        "name": "GigaDevice GD32F527I-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32F527 (Cortex-M33, 200MHz)",
+                "RAM": "512KB internal SRAM, 64KB TCM SRAM, 32768KB external SDRAM",
+                "Flash": "7680KB internal",
+                "GPU": "IPA",
+                "Resolution": "480*272",
+                "Display Size": "4.3 inch",
+                "Interface": "TLI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "130 px/inch",
+                "Touch Pad": "Resistive touch (SPI)"
+            }
+        },
+        "description": "The GigaDevice GD32F527I-EVAL is an evaluation board based on a 200MHz ARM Cortex-M33 GD32F527 microcontroller. This project uses 7.5MB internal flash, 512KB internal SRAM, 64KB TCM SRAM, and 32MB external SDRAM. LVGL renders to the board's 480x272 TFT display through the TLI RGB parallel display controller, using the IPA image processing accelerator for graphics operations.",
+        "shortDescription": "GigaDevice GD32F527I-EVAL Cortex-M33 board with 480x272 RGB display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32F527_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32F527I_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32f527i-eval?variant=56862408212812"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-11-11T03:33:32Z"
+    },
+    {
+        "name": "GigaDevice GD32F5HCR-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32F5HC (Cortex-M33, 200MHz)",
+                "RAM": "320KB internal SRAM",
+                "Flash": "2048KB internal",
+                "GPU": "None",
+                "Resolution": "240*320",
+                "Display Size": "2.2 inch",
+                "Interface": "SPI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "180 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "The GigaDevice GD32F5HCR-EVAL is an evaluation board based on a 200MHz ARM Cortex-M33 GD32F5HCRI microcontroller with FPU and DSP instructions. This project uses 2MB internal flash and 320KB internal SRAM. LVGL renders to the board's 240x320 TFT display through the SPI interface, using DMA to transfer the rendered pixels to the display.",
+        "shortDescription": "GigaDevice GD32F5HCR-EVAL Cortex-M33 board with 240*320 SPI display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32F5HC_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32F5HCR_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32f5hcr-eval?variant=58577539301708"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-11-06T09:37:06Z"
+    },
+    {
+        "name": "GigaDevice GD32H759I-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32H759 (Cortex-M7, 600MHz)",
+                "RAM": "1024KB internal SRAM, 32768KB external SDRAM",
+                "Flash": "3840KB internal",
+                "GPU": "IPA",
+                "Resolution": "480*272",
+                "Display Size": "4.3 inch",
+                "Interface": "TLI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "130 px/inch",
+                "Touch Pad": "Capacitive touch(I2C)"
+            }
+        },
+        "description": "The GigaDevice GD32H759I-EVAL is an evaluation board based on a 600MHz ARM Cortex-M7 GD32H759I microcontroller with FPU and DSP instructions. This project uses 3840KB internal flash, 1024KB internal SRAM, and 32MB external SDRAM. LVGL V8.3 renders to the board's 480x272 TFT display through the TLI RGB parallel display controller, using the IPA image processing accelerator for graphics operations.",
+        "shortDescription": "GigaDevice GD32H759I-EVAL Cortex-M7 board with 480*272 RGB  display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32H759_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32H759I_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32h759i-eval?variant=57778290491724"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-11-10T07:38:34Z"
+    },
+    {
+        "name": "GigaDevice GD32VW553H-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32VW553 (RISC-V, 160MHz)",
+                "RAM": "320KB internal SRAM",
+                "Flash": "4096KB internal",
+                "GPU": "None",
+                "Resolution": "320*240",
+                "Display Size": "2.2 inch",
+                "Interface": "SPI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "180 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "The GigaDevice GD32VW553H-EVAL is an evaluation board based on a 160MHz RISC-V GD32VW553HMQ7 microcontroller with Wi-Fi 6 and BLE 5.2 connectivity. This project uses 4MB on-chip flash and 320KB on-chip SRAM. LVGL renders to the board's 320x240 ILI9341 TFT display over SPI1 with DMA-based pixel streaming.",
+        "shortDescription": "GigaDevice GD32VW553H-EVAL RISC-V board with 320x240 SPI display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32VW553_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32VW553H_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32vw553h-eval?variant=53011048759628"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are IAR Embedded Workbench for RISC-V and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-11-13T07:46:47Z"
+    },
+    {
+        "name": "GigaDevice GD32W515P-EVAL",
+        "maintainer": "GigaDevice",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "MDK",
+            "IAR",
+            "GD32EmbeddedBuilder"
+        ],
+        "hardware": {
+            "chipVendor": "GigaDevice",
+            "manufacturer": "GigaDevice",
+            "specs": {
+                "MCU": "GD32W515 (Cortex-M33, 180MHz)",
+                "RAM": "448KB internal SRAM",
+                "Flash": "2048KB internal",
+                "GPU": "None",
+                "Resolution": "320*240",
+                "Display Size": "2.2 inch",
+                "Interface": "SPI",
+                "Color Depth": "16-bit RGB565",
+                "Technology": "a-Si TFT",
+                "DPI": "180 px/inch",
+                "Touch Pad": "None"
+            }
+        },
+        "description": "The GigaDevice GD32W515P-EVAL is an evaluation board based on a 180MHz ARM Cortex-M33 GD32W515PIQ6 microcontroller with FPU and DSP instructions. This project uses 2MB internal flash and 448KB internal SRAM. LVGL renders to the board's 320x240 TFT display through the SPI interface, using DMA to transfer the rendered pixels to the display.",
+        "shortDescription": "GigaDevice GD32W515P-EVAL Cortex-M33 board with SPI display",
+        "urlToClone": "https://github.com/GigaDevice-GD32-MCU/GD32W515_EVAL_LVGL",
+        "logos": [
+            "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/logo_images/logo.svg"
+        ],
+        "image": "https://raw.githubusercontent.com/lvgl/lv_gigadevice/master/board_images/GD32W515P_EVAL.webp",
+        "buy_now_links": [
+            "https://gigadevice.eu/products/gd32w515p-eval?variant=53011037716812"
+        ],
+        "branches": [
+            "release/v8.3",
+            "release/v9.6"
+        ],
+        "getStartedInstructions": "1. Install an IDE. The supported IDEs are MDK, IAR and GD32EmbeddedBuilder. 2. Clone the source code from the corresponding Git repository. 3. Build the code with the IDE and download it to the development board.",
+        "settings": [
+            {
+                "type": "dropdown",
+                "label": "Show performance monitor",
+                "options": [
+                    {
+                        "name": "Yes",
+                        "value": "1",
+                        "default": "true"
+                    },
+                    {
+                        "name": "No",
+                        "value": "0"
+                    }
+                ]
+            }
+        ],
+        "lvglVersion": "9.6.0",
+        "lastUpdated": "2026-11-12T08:06:29Z"
+    },
+    {
+        "name": "Raspberry Pi - Linux",
+        "maintainer": "LVGL UI Creator",
+        "uicreatorTemplate": "raspberry-pi-linux",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "CMake",
+            "Linux",
+            "SDL3"
+        ],
+        "hardware": {
+            "chipVendor": "Raspberry Pi",
+            "manufacturer": "Raspberry Pi",
+            "specs": {
+                "Operating system": "Raspberry Pi OS 64-bit / Linux",
+                "Build": "Native CMake C/C++17",
+                "Display": "SDL3 window or application-supplied board callback"
+            }
+        },
+        "description": "Create an offline Linux application for Raspberry Pi or a Linux desktop. The current screen is included as Protobuf with a project-specific LVGL 9.6 runtime, Advanced Keyboard and only its required widgets, fonts and codecs. Build natively on the target Linux system; SDL3 sources are bundled.",
+        "shortDescription": "Linux CMake build with SDL3 and a minimum LVGL 9.6 runtime for the current screen.",
+        "urlToClone": "https://github.com/lvgl/lv_port_linux",
+        "branches": [],
+        "uiFolderPath": "ui",
+        "settings": [],
+        "lvglVersion": "9.6.0",
+        "getStartedInstructions": "1. Copy the generated folder to Raspberry Pi OS 64-bit or a Linux machine with CMake 3.24+, Ninja, Python 3 and a C/C++17 compiler. Python checks the embedded profile inputs during CMake configuration. Install the graphics/input development packages for your Linux desktop; SDL3 source is included.\n2. Configure: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release\n3. Build: cmake --build build --parallel\n4. Run: build/platform/Runtime/linux/lvgl-pb-viewer ui/project.pb\n5. For a custom display transport, configure -DLVGL_PB_WITH_SDL=OFF and use the board callback API described in platform/Runtime/linux/README.md.\nRegenerate after changing the UI so its minimum runtime includes any new widgets or assets. Building from source on the target selects its native architecture and ABI. Physical display and touch-controller drivers remain application-specific."
+    }
+]

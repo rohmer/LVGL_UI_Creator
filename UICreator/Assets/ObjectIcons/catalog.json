@@ -1,0 +1,684 @@
+{
+  "viewBox": 32,
+  "colors": {
+    "none": "none",
+    "primary": "#D6E5F5",
+    "accent": "#45D6B3",
+    "blue": "#65AFFF",
+    "muted": "#8FA8C4"
+  },
+  "icons": [
+    {
+      "family": "widgets",
+      "id": 0,
+      "key": "widget.arc",
+      "name": "Arc",
+      "primitives": 3,
+      "svg": "svg/widget.arc.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 1,
+      "key": "widget.bar",
+      "name": "Bar",
+      "primitives": 3,
+      "svg": "svg/widget.bar.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 2,
+      "key": "widget.button",
+      "name": "Button",
+      "primitives": 4,
+      "svg": "svg/widget.button.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 3,
+      "key": "widget.button_matrix",
+      "name": "Button matrix",
+      "primitives": 7,
+      "svg": "svg/widget.button_matrix.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 4,
+      "key": "widget.calendar",
+      "name": "Calendar",
+      "primitives": 9,
+      "svg": "svg/widget.calendar.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 5,
+      "key": "widget.canvas",
+      "name": "Canvas",
+      "primitives": 8,
+      "svg": "svg/widget.canvas.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 6,
+      "key": "widget.checkbox",
+      "name": "Check box",
+      "primitives": 3,
+      "svg": "svg/widget.checkbox.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 7,
+      "key": "widget.chart",
+      "name": "Chart",
+      "primitives": 9,
+      "svg": "svg/widget.chart.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 8,
+      "key": "widget.container",
+      "name": "Container",
+      "primitives": 11,
+      "svg": "svg/widget.container.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 9,
+      "key": "widget.dropdown",
+      "name": "Drop down list",
+      "primitives": 7,
+      "svg": "svg/widget.dropdown.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 10,
+      "key": "widget.gauge",
+      "name": "Gauge",
+      "primitives": 7,
+      "svg": "svg/widget.gauge.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 11,
+      "key": "widget.image",
+      "name": "Image",
+      "primitives": 6,
+      "svg": "svg/widget.image.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 12,
+      "key": "widget.image_button",
+      "name": "Image button",
+      "primitives": 6,
+      "svg": "svg/widget.image_button.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 13,
+      "key": "widget.keyboard",
+      "name": "Keyboard",
+      "primitives": 10,
+      "svg": "svg/widget.keyboard.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 14,
+      "key": "widget.label",
+      "name": "Label",
+      "primitives": 4,
+      "svg": "svg/widget.label.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 15,
+      "key": "widget.led",
+      "name": "LED",
+      "primitives": 10,
+      "svg": "svg/widget.led.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 16,
+      "key": "widget.line",
+      "name": "Line",
+      "primitives": 3,
+      "svg": "svg/widget.line.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 17,
+      "key": "widget.line_meter",
+      "name": "Line meter",
+      "primitives": 9,
+      "svg": "svg/widget.line_meter.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 18,
+      "key": "widget.message_box",
+      "name": "Message box",
+      "primitives": 8,
+      "svg": "svg/widget.message_box.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 19,
+      "key": "widget.page",
+      "name": "Page",
+      "primitives": 10,
+      "svg": "svg/widget.page.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 20,
+      "key": "widget.preloader",
+      "name": "Preloader",
+      "primitives": 7,
+      "svg": "svg/widget.preloader.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 21,
+      "key": "widget.roller",
+      "name": "Roller",
+      "primitives": 9,
+      "svg": "svg/widget.roller.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 22,
+      "key": "widget.slider",
+      "name": "Slider",
+      "primitives": 5,
+      "svg": "svg/widget.slider.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 23,
+      "key": "widget.spinbox",
+      "name": "Spinbox",
+      "primitives": 12,
+      "svg": "svg/widget.spinbox.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 24,
+      "key": "widget.switch",
+      "name": "Switch",
+      "primitives": 3,
+      "svg": "svg/widget.switch.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 25,
+      "key": "widget.table",
+      "name": "Table",
+      "primitives": 6,
+      "svg": "svg/widget.table.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 26,
+      "key": "widget.tabview",
+      "name": "Tabview",
+      "primitives": 6,
+      "svg": "svg/widget.tabview.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 27,
+      "key": "widget.textarea",
+      "name": "Text area",
+      "primitives": 8,
+      "svg": "svg/widget.textarea.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 28,
+      "key": "widget.tileview",
+      "name": "Tile view",
+      "primitives": 6,
+      "svg": "svg/widget.tileview.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 29,
+      "key": "widget.window",
+      "name": "Window",
+      "primitives": 9,
+      "svg": "svg/widget.window.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 30,
+      "key": "widget.textbox",
+      "name": "Text box",
+      "primitives": 6,
+      "svg": "svg/widget.textbox.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 31,
+      "key": "widget.layer_view",
+      "name": "Layer view",
+      "primitives": 7,
+      "svg": "svg/widget.layer_view.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 32,
+      "key": "widget.barcode",
+      "name": "Barcode",
+      "primitives": 7,
+      "svg": "svg/widget.barcode.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 33,
+      "key": "widget.qrcode",
+      "name": "QR code",
+      "primitives": 11,
+      "svg": "svg/widget.qrcode.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 34,
+      "key": "widget.advanced_keyboard",
+      "name": "Advanced Keyboard",
+      "primitives": 12,
+      "svg": "svg/widget.advanced_keyboard.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 0,
+      "key": "bootstrap.accordion",
+      "name": "Accordion",
+      "primitives": 14,
+      "svg": "svg/bootstrap.accordion.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 1,
+      "key": "bootstrap.alert",
+      "name": "Alert",
+      "primitives": 6,
+      "svg": "svg/bootstrap.alert.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 2,
+      "key": "bootstrap.badge",
+      "name": "Badge",
+      "primitives": 4,
+      "svg": "svg/bootstrap.badge.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 3,
+      "key": "bootstrap.breadcrumb",
+      "name": "Breadcrumb",
+      "primitives": 12,
+      "svg": "svg/bootstrap.breadcrumb.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 4,
+      "key": "bootstrap.primary_button",
+      "name": "Primary button",
+      "primitives": 4,
+      "svg": "svg/bootstrap.primary_button.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 5,
+      "key": "bootstrap.button_group",
+      "name": "Button group",
+      "primitives": 7,
+      "svg": "svg/bootstrap.button_group.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 6,
+      "key": "bootstrap.card",
+      "name": "Card",
+      "primitives": 10,
+      "svg": "svg/bootstrap.card.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 7,
+      "key": "bootstrap.carousel",
+      "name": "Carousel",
+      "primitives": 13,
+      "svg": "svg/bootstrap.carousel.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 8,
+      "key": "bootstrap.close_button",
+      "name": "Close button",
+      "primitives": 3,
+      "svg": "svg/bootstrap.close_button.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 9,
+      "key": "bootstrap.collapse",
+      "name": "Collapse",
+      "primitives": 9,
+      "svg": "svg/bootstrap.collapse.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 10,
+      "key": "bootstrap.dropdown",
+      "name": "Dropdown",
+      "primitives": 9,
+      "svg": "svg/bootstrap.dropdown.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 11,
+      "key": "bootstrap.list_group",
+      "name": "List group",
+      "primitives": 10,
+      "svg": "svg/bootstrap.list_group.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 12,
+      "key": "bootstrap.modal",
+      "name": "Modal",
+      "primitives": 8,
+      "svg": "svg/bootstrap.modal.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 13,
+      "key": "bootstrap.navbar",
+      "name": "Navbar",
+      "primitives": 7,
+      "svg": "svg/bootstrap.navbar.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 14,
+      "key": "bootstrap.navs_tabs",
+      "name": "Navs and tabs",
+      "primitives": 6,
+      "svg": "svg/bootstrap.navs_tabs.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 15,
+      "key": "bootstrap.offcanvas",
+      "name": "Offcanvas",
+      "primitives": 8,
+      "svg": "svg/bootstrap.offcanvas.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 16,
+      "key": "bootstrap.pagination",
+      "name": "Pagination",
+      "primitives": 12,
+      "svg": "svg/bootstrap.pagination.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 17,
+      "key": "bootstrap.placeholder",
+      "name": "Placeholder",
+      "primitives": 4,
+      "svg": "svg/bootstrap.placeholder.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 18,
+      "key": "bootstrap.popover",
+      "name": "Popover",
+      "primitives": 15,
+      "svg": "svg/bootstrap.popover.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 19,
+      "key": "bootstrap.progress",
+      "name": "Progress",
+      "primitives": 6,
+      "svg": "svg/bootstrap.progress.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 20,
+      "key": "bootstrap.scrollspy",
+      "name": "Scrollspy",
+      "primitives": 11,
+      "svg": "svg/bootstrap.scrollspy.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 21,
+      "key": "bootstrap.spinner",
+      "name": "Spinner",
+      "primitives": 2,
+      "svg": "svg/bootstrap.spinner.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 22,
+      "key": "bootstrap.toast",
+      "name": "Toast",
+      "primitives": 8,
+      "svg": "svg/bootstrap.toast.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 23,
+      "key": "bootstrap.tooltip",
+      "name": "Tooltip",
+      "primitives": 6,
+      "svg": "svg/bootstrap.tooltip.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 24,
+      "key": "bootstrap.form_controls",
+      "name": "Form controls",
+      "primitives": 6,
+      "svg": "svg/bootstrap.form_controls.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 25,
+      "key": "bootstrap.input_group",
+      "name": "Input group",
+      "primitives": 7,
+      "svg": "svg/bootstrap.input_group.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 26,
+      "key": "bootstrap.floating_label",
+      "name": "Floating label",
+      "primitives": 8,
+      "svg": "svg/bootstrap.floating_label.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 27,
+      "key": "bootstrap.checks_radios",
+      "name": "Checks and radios",
+      "primitives": 7,
+      "svg": "svg/bootstrap.checks_radios.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 28,
+      "key": "bootstrap.range",
+      "name": "Range",
+      "primitives": 8,
+      "svg": "svg/bootstrap.range.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 29,
+      "key": "bootstrap.validation",
+      "name": "Validation",
+      "primitives": 6,
+      "svg": "svg/bootstrap.validation.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 30,
+      "key": "bootstrap.data_table",
+      "name": "Data table",
+      "primitives": 9,
+      "svg": "svg/bootstrap.data_table.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 31,
+      "key": "bootstrap.sidebar",
+      "name": "Sidebar",
+      "primitives": 10,
+      "svg": "svg/bootstrap.sidebar.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 32,
+      "key": "bootstrap.statistic_card",
+      "name": "Statistic card",
+      "primitives": 10,
+      "svg": "svg/bootstrap.statistic_card.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 33,
+      "key": "bootstrap.line_chart",
+      "name": "Line chart",
+      "primitives": 11,
+      "svg": "svg/bootstrap.line_chart.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 34,
+      "key": "bootstrap.bar_chart",
+      "name": "Bar chart",
+      "primitives": 5,
+      "svg": "svg/bootstrap.bar_chart.svg"
+    },
+    {
+      "family": "bootstrap",
+      "id": 35,
+      "key": "bootstrap.activity_feed",
+      "name": "Activity feed",
+      "primitives": 9,
+      "svg": "svg/bootstrap.activity_feed.svg"
+    },
+    {
+      "family": "templates",
+      "id": 36,
+      "key": "template.admin-dashboard",
+      "name": "Admin dashboard",
+      "primitives": 11,
+      "svg": "svg/template.admin-dashboard.svg"
+    },
+    {
+      "family": "templates",
+      "id": 37,
+      "key": "template.analytics-dashboard",
+      "name": "Analytics dashboard",
+      "primitives": 11,
+      "svg": "svg/template.analytics-dashboard.svg"
+    },
+    {
+      "family": "templates",
+      "id": 38,
+      "key": "template.commerce-dashboard",
+      "name": "Commerce dashboard",
+      "primitives": 7,
+      "svg": "svg/template.commerce-dashboard.svg"
+    },
+    {
+      "family": "templates",
+      "id": 39,
+      "key": "template.user-management",
+      "name": "User management",
+      "primitives": 8,
+      "svg": "svg/template.user-management.svg"
+    },
+    {
+      "family": "templates",
+      "id": 40,
+      "key": "template.settings-page",
+      "name": "Settings page",
+      "primitives": 9,
+      "svg": "svg/template.settings-page.svg"
+    },
+    {
+      "family": "templates",
+      "id": 41,
+      "key": "template.sign-in",
+      "name": "Sign in",
+      "primitives": 7,
+      "svg": "svg/template.sign-in.svg"
+    },
+    {
+      "family": "templates",
+      "id": 42,
+      "key": "template.checkout",
+      "name": "Checkout",
+      "primitives": 10,
+      "svg": "svg/template.checkout.svg"
+    },
+    {
+      "family": "templates",
+      "id": 43,
+      "key": "template.pricing",
+      "name": "Pricing",
+      "primitives": 10,
+      "svg": "svg/template.pricing.svg"
+    },
+    {
+      "family": "templates",
+      "id": 44,
+      "key": "template.album",
+      "name": "Album",
+      "primitives": 8,
+      "svg": "svg/template.album.svg"
+    },
+    {
+      "family": "templates",
+      "id": 45,
+      "key": "template.blog",
+      "name": "Blog",
+      "primitives": 8,
+      "svg": "svg/template.blog.svg"
+    },
+    {
+      "family": "templates",
+      "id": 46,
+      "key": "template.product",
+      "name": "Product",
+      "primitives": 13,
+      "svg": "svg/template.product.svg"
+    },
+    {
+      "family": "templates",
+      "id": 47,
+      "key": "template.cover",
+      "name": "Cover",
+      "primitives": 8,
+      "svg": "svg/template.cover.svg"
+    },
+    {
+      "family": "templates",
+      "id": 48,
+      "key": "template.component-gallery",
+      "name": "Component gallery",
+      "primitives": 9,
+      "svg": "svg/template.component-gallery.svg"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Preloader</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M26 16A10 10 0 0 1 23.6604 22.4279" fill="none" stroke="#45D6B3" stroke-width="2.4"/>
+  <path d="M21 24.6603A10 10 0 0 1 14.2635 25.8481" fill="none" stroke="#65AFFF" stroke-width="2.4"/>
+  <path d="M11 24.6603A10 10 0 0 1 6.60307 19.4202" fill="none" stroke="#D6E5F5" stroke-width="2.4"/>
+  <path d="M6 16A10 10 0 0 1 8.33956 9.57212" fill="none" stroke="#8FA8C4" stroke-width="2.4"/>
+  <path d="M11 7.33975A10 10 0 0 1 17.7365 6.15192" fill="none" stroke="#8FA8C4" stroke-width="2.4"/>
+  <path d="M21 7.33975A10 10 0 0 1 25.3969 12.5798" fill="none" stroke="#D6E5F5" stroke-width="2.4"/>
+  <circle cx="16" cy="16" r="1.5" fill="#65AFFF" stroke="none" stroke-width="0"/>
+</g>
+</svg>

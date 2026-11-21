@@ -92,7 +92,6 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
-*.obj.d
 
 # Chutzpah Test files
 _Chutzpah*
@@ -349,3 +348,16 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+/build/*
+!3rdParty/lv_font_conv/lib/freetype/build/
+!3rdParty/lv_font_conv/lib/freetype/build/ft_render.js
+
+# Local generated workspaces and native build intermediates
+*.obj.d
+/Win32/
+/.cr/
+/language-model-editor-work/
+/menu-editor-work/
+/cmake-project/
+/idf-project/
+/arduino-project/

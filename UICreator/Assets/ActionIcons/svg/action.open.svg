@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Open project</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="3,26 3,7 12,7 15,10 28,10 28,26 3,26" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="3,26 8,15 29,15 25,26" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M11 21L21 21" fill="none" stroke="#65AFFF" stroke-width="2"/>
+</g>
+</svg>

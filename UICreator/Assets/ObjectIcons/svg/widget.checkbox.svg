@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Check box</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="5" y="5" width="22" height="22" rx="4" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="10,16 14,20 23,11" fill="none" stroke="#45D6B3" stroke-width="2.4"/>
+</g>
+</svg>

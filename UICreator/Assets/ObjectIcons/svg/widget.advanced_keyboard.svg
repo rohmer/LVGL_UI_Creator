@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Advanced Keyboard</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="8" height="4" rx="1" fill="none" stroke="#45D6B3" stroke-width="1.4"/>
+  <rect x="14" y="3" width="6" height="4" rx="1" fill="#65AFFF" stroke="none" stroke-width="0"/>
+  <rect x="23" y="3" width="6" height="4" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.4"/>
+  <rect x="3" y="11" width="26" height="18" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M7 16L9 16" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+  <path d="M12 16L14 16" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+  <path d="M17 16L19 16" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+  <path d="M22 16L24 16" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+  <path d="M8 21L10 21" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M14 21L16 21" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M20 21L24 21" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M10 25L22 25" fill="none" stroke="#45D6B3" stroke-width="2"/>
+</g>
+</svg>

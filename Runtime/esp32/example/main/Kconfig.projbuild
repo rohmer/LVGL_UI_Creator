@@ -1,0 +1,37 @@
+menu "Protobuf display example"
+config EXAMPLE_PB_PROJECT_NAME
+    string "Embedded project name (empty selects the first bundled project)"
+    default ""
+config EXAMPLE_LCD_WIDTH
+    int "Display horizontal pixels"
+    range 1 1024
+    default 240
+config EXAMPLE_LCD_HEIGHT
+    int "Display vertical pixels"
+    range 1 1024
+    default 320
+config EXAMPLE_LCD_MOSI
+    int "SPI MOSI pin"
+    default 23
+config EXAMPLE_LCD_CLOCK
+    int "SPI clock pin"
+    default 18
+config EXAMPLE_LCD_CS
+    int "SPI chip-select pin"
+    default 5
+config EXAMPLE_LCD_DC
+    int "LCD data/command pin"
+    default 21
+config EXAMPLE_LCD_RESET
+    int "LCD reset pin (-1 if not connected)"
+    default 22
+config EXAMPLE_LCD_BACKLIGHT
+    int "Backlight pin (-1 if always enabled)"
+    default 4
+config EXAMPLE_LCD_SWAP_XY
+    bool "Swap panel axes"
+    default n
+config EXAMPLE_LCD_INVERT
+    bool "Invert panel colors"
+    default y
+endmenu

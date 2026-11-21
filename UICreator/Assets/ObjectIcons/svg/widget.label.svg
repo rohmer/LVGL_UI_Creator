@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Label</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="6,26 16,5 26,26" fill="none" stroke="#D6E5F5" stroke-width="2.2"/>
+  <path d="M10 19L22 19" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <path d="M4 29L28 29" fill="none" stroke="#8FA8C4" stroke-width="1.4"/>
+</g>
+</svg>

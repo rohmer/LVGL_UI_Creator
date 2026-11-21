@@ -1,0 +1,47 @@
+Android Build
+=============
+
+
+Quick info
+
+	First compile DirectFB for the host (to be sure that all headers
+	and flux generated files are created)
+
+	Then in this directory:
+
+	Run
+		./prepare.sh
+
+	to fetch and unpack the required freetype2 sources
+
+	Now make sure that the DirectFB-examples folder is in the same
+        folder then this DirectFB tree:
+
+       ~|-- whatever
+              |-- DirectFB
+              |-- DirectFB-examples
+
+
+	Then go to the df_andi or df_window subfolders located in build-android and type
+		./prepare.sh
+		ndk-build
+		ant debug
+
+	to get an .apk in bin/.
+
+	You can install it on the device by doing
+
+		ant debug install
+
+
+	The examples will need their files in /mnt/sdcard/directfb on your device. Do this:
+
+	        adb shell
+	        mkdir /mnt/sdcard/directfb
+	        ^D
+
+	go to your DirectFB-examples folder and type
+
+		adb push data /mnt/sdcard/directfb/
+
+Now you should be ready to run df_andi and/or df_window on your android device!

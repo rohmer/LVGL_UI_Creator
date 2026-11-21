@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+launcher_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+app_dir="$launcher_dir/../lib/lvgl-ui-creator"
+export LD_LIBRARY_PATH="$app_dir/lib:$app_dir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$app_dir/@UICREATOR_LAUNCH_TARGET@" "$@"

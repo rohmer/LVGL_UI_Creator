@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Pricing</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="9" width="7" height="17" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <rect x="12" y="5" width="8" height="22" rx="1" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <rect x="22" y="9" width="7" height="17" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M12 11L20 11" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <circle cx="16" cy="16" r="2" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+  <path d="M15 22L17 22" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M5 14L8 14" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M5 18L8 18" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M24 14L27 14" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M24 18L27 18" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+</g>
+</svg>

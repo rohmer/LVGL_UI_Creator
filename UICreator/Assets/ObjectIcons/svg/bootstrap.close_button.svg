@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Close button</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="16" cy="16" r="12" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M11 11L21 21" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <path d="M21 11L11 21" fill="none" stroke="#45D6B3" stroke-width="2"/>
+</g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Scrollspy</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="26" height="26" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="4" y="4" width="7" height="24" rx="1" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <path d="M6 8L9 8" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <path d="M6 15L9 15" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M6 22L9 22" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M14 7L23 7" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M14 11L20 11" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M14 18L23 18" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M14 22L20 22" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M26 7L26 24" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <circle cx="26" cy="14" r="1.5" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+</g>
+</svg>

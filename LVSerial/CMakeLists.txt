@@ -1,0 +1,63 @@
+add_subdirectory(Device)
+file(GLOB_RECURSE serialization_sources CONFIGURE_DEPENDS "*.cpp")
+option(LVSERIAL_MINIMAL_RUNTIME "Build the embedded loader with project-selected LVGL widgets" OFF)
+set(advanced_keyboard_default ON)
+if(LVSERIAL_MINIMAL_RUNTIME OR (DEFINED LVGL_RUNTIME_TARGET AND NOT LVGL_RUNTIME_TARGET STREQUAL "9.6"))
+    set(advanced_keyboard_default OFF)
+endif()
+option(LVSERIAL_USE_ADVANCED_KEYBOARD "Build the portable ESPOS Advanced Keyboard for LVGL 9.6" ${advanced_keyboard_default})
+set(prediction_default ${LVSERIAL_USE_ADVANCED_KEYBOARD})
+if(LVSERIAL_MINIMAL_RUNTIME)
+    set(prediction_default OFF)
+endif()
+option(LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION "Build the optional ESPOS trie prediction/autocorrect engine" ${prediction_default})
+option(LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE "Include the built-in English prediction model" ${LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION})
+if(LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION AND NOT LVSERIAL_USE_ADVANCED_KEYBOARD)
+    message(FATAL_ERROR "Prediction requires LVSERIAL_USE_ADVANCED_KEYBOARD=ON")
+endif()
+list(FILTER serialization_sources EXCLUDE REGEX "/Widgets/AdvancedKeyboard/")
+if(LVSERIAL_USE_ADVANCED_KEYBOARD)
+    if(DEFINED LVGL_RUNTIME_TARGET AND NOT LVGL_RUNTIME_TARGET STREQUAL "9.6")
+        message(FATAL_ERROR "Advanced Keyboard requires the LVGL 9.6 backend")
+    endif()
+    list(APPEND serialization_sources
+        Widgets/AdvancedKeyboard/Key.cpp
+        Widgets/AdvancedKeyboard/Keyboard.cpp
+        Widgets/AdvancedKeyboard/TypingView.cpp
+        Widgets/AdvancedKeyboard/SuggestionText.cpp
+        Widgets/AdvancedKeyboard/Utf8Fold.cpp
+        Widgets/AdvancedKeyboard/AdvancedKeyboard.cpp
+        Widgets/AdvancedKeyboard/KeyboardFont.c)
+    if(LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION)
+        list(APPEND serialization_sources Widgets/AdvancedKeyboard/PredictionModel.cpp
+            Widgets/AdvancedKeyboard/PredictionPrefix.cpp Widgets/AdvancedKeyboard/Prediction.cpp)
+    endif()
+endif()
+if(LVSERIAL_MINIMAL_RUNTIME)
+    list(FILTER serialization_sources EXCLUDE REGEX "/(PNGToArray|lodepng)\\.cpp$")
+endif()
+
+add_library(LVSerial STATIC ${serialization_sources})
+target_compile_features(LVSerial PUBLIC cxx_std_17)
+set_target_properties(LVSerial PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON)
+if(MSVC)
+    target_compile_options(LVSerial PRIVATE /utf-8)
+endif()
+target_compile_definitions(LVSerial PUBLIC LVSERIAL_USE_ADVANCED_KEYBOARD=$<BOOL:${LVSERIAL_USE_ADVANCED_KEYBOARD}>)
+target_compile_definitions(LVSerial PUBLIC
+    LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION=$<BOOL:${LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION}>
+    LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE=$<BOOL:${LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE}>)
+target_include_directories(LVSerial PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Widgets/AdvancedKeyboard/include")
+if(LVSERIAL_USE_ADVANCED_KEYBOARD)
+    target_include_directories(LVSerial PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Widgets/AdvancedKeyboard")
+endif()
+if(LVSERIAL_MINIMAL_RUNTIME)
+    target_compile_definitions(LVSerial PUBLIC LVSERIAL_MINIMAL_RUNTIME=1 LVSERIAL_EMBEDDED_RUNTIME=1)
+endif()
+target_link_libraries(LVSerial PUBLIC LVSerialDevice)
+target_include_directories(LVSerial PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+if(UICREATOR_USE_LVGL9)
+    target_link_libraries(LVSerial PUBLIC lvgl::lvgl)
+else()
+    target_link_libraries(LVSerial PUBLIC LVGL)
+endif()

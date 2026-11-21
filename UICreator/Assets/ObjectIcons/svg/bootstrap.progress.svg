@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Progress</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="11" width="26" height="10" rx="5" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="4" y="12" width="17" height="8" rx="4" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <path d="M21 13L21 19" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <path d="M4 25L4 27" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M16 25L16 27" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M28 25L28 27" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+</g>
+</svg>

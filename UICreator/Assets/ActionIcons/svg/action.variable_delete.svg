@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Remove variable</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="12,4 8,4 8,12 4,16 8,20 8,28 12,28" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="20,4 24,4 24,12 28,16 24,20 24,28 20,28" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M12 16L20 16" fill="none" stroke="#45D6B3" stroke-width="2"/>
+</g>
+</svg>

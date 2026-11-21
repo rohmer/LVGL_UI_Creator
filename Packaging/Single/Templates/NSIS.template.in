@@ -1,0 +1,121 @@
+; One verified architecture, packaged by CPack. No architecture selection page.
+Unicode true
+!include "MUI2.nsh"
+!include "Sections.nsh"
+!include "LogicLib.nsh"
+!include "FileFunc.nsh"
+!include "x64.nsh"
+!define ARCH "@CPACK_UICREATOR_ARCHITECTURE@"
+!define INST_DIR "@CPACK_TEMPORARY_DIRECTORY@"
+!define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\LVGL UI Creator ${ARCH}"
+Name "@CPACK_NSIS_PACKAGE_NAME@"
+OutFile "@CPACK_TOPLEVEL_DIRECTORY@/@CPACK_OUTPUT_FILE_NAME@"
+InstallDir "$LOCALAPPDATA\Programs\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
+RequestExecutionLevel user
+SetCompressor @CPACK_NSIS_COMPRESSOR@
+ShowInstDetails show
+ShowUninstDetails show
+BrandingText "LVGL UI Creator"
+@CPACK_NSIS_INSTALLER_MUI_ICON_CODE@
+@CPACK_NSIS_INSTALLER_ICON_CODE@
+@CPACK_NSIS_MANIFEST_DPI_AWARE_CODE@
+VIProductVersion "@CPACK_PACKAGE_VERSION@.0"
+VIAddVersionKey "ProductName" "LVGL UI Creator ${ARCH}"
+VIAddVersionKey "FileDescription" "LVGL UI Creator Windows ${ARCH} installer"
+VIAddVersionKey "FileVersion" "@CPACK_PACKAGE_VERSION@"
+Var TestMode
+Var CommandLine
+Var OptionValue
+@CPACK_NSIS_SECTION_SELECTED_VARS@
+!define MUI_ABORTWARNING
+!insertmacro MUI_PAGE_WELCOME
+@CPACK_NSIS_LICENSE_PAGE@
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_LANGUAGE "English"
+
+Section "-Prepare installation"
+    IfFileExists "$INSTDIR\installation.ini" 0 preparation_done
+    ReadINIStr $0 "$INSTDIR\installation.ini" "install" "architecture"
+    ${If} $0 != "${ARCH}"
+        MessageBox MB_ICONSTOP "This folder contains another application architecture. Choose a separate folder." /SD IDOK
+        SetErrorLevel 2
+        Quit
+    ${EndIf}
+    IfFileExists "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe" 0 preparation_done
+    ExecWait '$\"$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe$\" /S _?=$INSTDIR' $0
+    ${If} $0 != 0
+        MessageBox MB_ICONSTOP "The previous installation could not be removed. Close the application and try again." /SD IDOK
+        SetErrorLevel 3
+        Quit
+    ${EndIf}
+    preparation_done:
+SectionEnd
+@CPACK_NSIS_COMPONENT_SECTIONS@
+
+Function .onInit
+    SetShellVarContext current
+    SetRegView 32
+    StrCpy $TestMode "0"
+    ${GetParameters} $CommandLine
+    ClearErrors
+    ${GetOptions} $CommandLine "/TESTMODE=" $OptionValue
+    ${IfNot} ${Errors}
+        ${If} $OptionValue == "1"
+            StrCpy $TestMode "1"
+        ${EndIf}
+    ${EndIf}
+    !if "${ARCH}" == "x64"
+        ${IfNot} ${RunningX64}
+            MessageBox MB_ICONSTOP "This package requires 64-bit Windows. Download the x86 package for 32-bit Windows." /SD IDOK
+            SetErrorLevel 2
+            Quit
+        ${EndIf}
+    !endif
+FunctionEnd
+
+Section "-Registration"
+    SetOutPath "$INSTDIR"
+    WriteINIStr "$INSTDIR\installation.ini" "install" "architecture" "${ARCH}"
+    WriteINIStr "$INSTDIR\installation.ini" "install" "version" "@CPACK_PACKAGE_VERSION@"
+    WriteINIStr "$INSTDIR\installation.ini" "install" "testMode" "$TestMode"
+    WriteUninstaller "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe"
+    ${If} $TestMode != "1"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "@CPACK_NSIS_DISPLAY_NAME@"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "@CPACK_PACKAGE_VERSION@"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "@CPACK_PACKAGE_VENDOR@"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\UICreator.exe"
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '$\"$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe$\"'
+        WriteRegStr HKCU "${UNINSTALL_KEY}" "QuietUninstallString" '$\"$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe$\" /S'
+        WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoModify" 1
+        WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoRepair" 1
+        CreateDirectory "$SMPROGRAMS\LVGL UI Creator ${ARCH}"
+        CreateShortCut "$SMPROGRAMS\LVGL UI Creator ${ARCH}\LVGL UI Creator.lnk" "$INSTDIR\UICreator.exe" "" "$INSTDIR\UICreator.exe"
+        CreateShortCut "$SMPROGRAMS\LVGL UI Creator ${ARCH}\Uninstall.lnk" "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe"
+    ${EndIf}
+SectionEnd
+Function un.onInit
+    SetShellVarContext current
+    SetRegView 32
+    ReadINIStr $TestMode "$INSTDIR\installation.ini" "install" "testMode"
+FunctionEnd
+Section "Uninstall"
+@CPACK_NSIS_DELETE_FILES@
+@CPACK_NSIS_DELETE_DIRECTORIES@
+    Delete "$INSTDIR\installation.ini"
+    Delete "$INSTDIR\@CPACK_NSIS_UNINSTALL_NAME@.exe"
+    ${If} $TestMode != "1"
+        ReadRegStr $0 HKCU "${UNINSTALL_KEY}" "InstallLocation"
+        ${If} $0 == $INSTDIR
+            DeleteRegKey HKCU "${UNINSTALL_KEY}"
+            Delete "$SMPROGRAMS\LVGL UI Creator ${ARCH}\LVGL UI Creator.lnk"
+            Delete "$SMPROGRAMS\LVGL UI Creator ${ARCH}\Uninstall.lnk"
+            RMDir "$SMPROGRAMS\LVGL UI Creator ${ARCH}"
+        ${EndIf}
+    ${EndIf}
+    RMDir "$INSTDIR"
+SectionEnd

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Theme gallery</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="17,3 24,5 29,11 28,18 23,22 18,21 15,24 10,28 5,25 3,19 4,11 9,5 17,3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <circle cx="10" cy="11" r="2" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+  <circle cx="17" cy="8" r="2" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <circle cx="24" cy="12" r="2" fill="#8FA8C4" stroke="none" stroke-width="1.6"/>
+  <circle cx="23" cy="18" r="2" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+  <circle cx="9" cy="21" r="2" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+</g>
+</svg>

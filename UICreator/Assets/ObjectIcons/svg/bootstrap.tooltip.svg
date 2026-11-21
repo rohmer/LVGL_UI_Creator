@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Tooltip</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="4" y="4" width="24" height="10" rx="3" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M8 9L24 9" fill="none" stroke="#D6E5F5" stroke-width="2"/>
+  <polygon points="13,14 19,14 16,18" fill="#45D6B3"/>
+  <polyline points="12,20 12,29 16,26 20,29" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+</g>
+</svg>

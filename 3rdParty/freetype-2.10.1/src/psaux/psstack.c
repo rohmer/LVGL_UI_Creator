@@ -37,7 +37,7 @@
 
 
 #include "psft.h"
-#include FT_INTERNAL_DEBUG_H
+#include <freetype/internal/ftdebug.h>
 
 #include "psglue.h"
 #include "psfont.h"
@@ -54,20 +54,18 @@
                   FT_Error*  e,
                   FT_UInt    stackSize )
   {
-    FT_Error  error = FT_Err_Ok;     /* for FT_NEW */
-
+    FT_Error   error;        /* for FT_QNEW */
     CF2_Stack  stack = NULL;
 
 
-    if ( !FT_NEW( stack ) )
-    {
-      /* initialize the structure; FT_NEW zeroes it */
-      stack->memory = memory;
-      stack->error  = e;
-    }
+    if ( FT_QNEW( stack ) )
+      return NULL;
+
+    stack->memory = memory;
+    stack->error  = e;
 
     /* allocate the stack buffer */
-    if ( FT_NEW_ARRAY( stack->buffer, stackSize ) )
+    if ( FT_QNEW_ARRAY( stack->buffer, stackSize ) )
     {
       FT_FREE( stack );
       return NULL;
@@ -213,7 +211,7 @@
                      CF2_UInt   idx,
                      CF2_Fixed  val )
   {
-    if ( idx > cf2_stack_count( stack ) )
+    if ( idx >= cf2_stack_count( stack ) )
     {
       CF2_SET_ERROR( stack->error, Stack_Overflow );
       return;
@@ -247,6 +245,7 @@
     CF2_StackNumber  last = { { 0 }, CF2_NumberInt };
 
     CF2_Int  start_idx, idx, i;
+    CF2_Int  offset;
 
 
     if ( count < 2 )
@@ -257,6 +256,8 @@
       CF2_SET_ERROR( stack->error, Stack_Overflow );
       return;
     }
+
+    offset = (CF2_Int)cf2_stack_count( stack ) - count;
 
     /* before C99 it is implementation-defined whether    */
     /* the result of `%' is negative if the first operand */
@@ -305,7 +306,7 @@
       {
         start_idx++;
         idx  = start_idx;
-        last = stack->buffer[idx];
+        last = stack->buffer[idx + offset];
       }
 
       idx += shift;
@@ -314,9 +315,9 @@
       else if ( idx < 0 )
         idx += count;
 
-      tmp                = stack->buffer[idx];
-      stack->buffer[idx] = last;
-      last               = tmp;
+      tmp                         = stack->buffer[idx + offset];
+      stack->buffer[idx + offset] = last;
+      last                        = tmp;
     }
   }
 

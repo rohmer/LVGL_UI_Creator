@@ -1,0 +1,1108 @@
+#pragma once
+#include <lvgl.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+/* LVGL 8.3 backend: API/asset translation and composite equivalents of the
+ * newer tab view, message box, and scale contracts used by generated projects. */
+typedef lv_img_dsc_t lv_image_dsc_t;
+typedef lv_disp_t lv_display_t;
+typedef lv_imgbtn_state_t lv_imagebutton_state_t;
+typedef lv_btnmatrix_ctrl_t lv_buttonmatrix_ctrl_t;
+typedef lv_point_t lv_point_precise_t;
+#define LV_IMAGEBUTTON_STATE_NUM _LV_IMGBTN_STATE_NUM
+#define LV_IMAGEBUTTON_STATE_RELEASED LV_IMGBTN_STATE_RELEASED
+#define LV_IMAGEBUTTON_STATE_PRESSED LV_IMGBTN_STATE_PRESSED
+#define LV_IMAGEBUTTON_STATE_DISABLED LV_IMGBTN_STATE_DISABLED
+#define LV_IMAGEBUTTON_STATE_CHECKED_RELEASED LV_IMGBTN_STATE_CHECKED_RELEASED
+#define LV_IMAGEBUTTON_STATE_CHECKED_PRESSED LV_IMGBTN_STATE_CHECKED_PRESSED
+#define LV_IMAGEBUTTON_STATE_CHECKED_DISABLED LV_IMGBTN_STATE_CHECKED_DISABLED
+#define LV_STYLE_IMAGE_RECOLOR LV_STYLE_IMG_RECOLOR
+#define LV_STYLE_IMAGE_RECOLOR_OPA LV_STYLE_IMG_RECOLOR_OPA
+#define LV_STYLE_IMAGE_OPA LV_STYLE_IMG_OPA
+#define LV_USE_IMAGE LV_USE_IMG
+#define LV_USE_IMAGEBUTTON LV_USE_IMGBTN
+#define LV_USE_BUTTON LV_USE_BTN
+#define LV_USE_BUTTONMATRIX LV_USE_BTNMATRIX
+#define LV_USE_SCALE 1
+#define LV_USE_FLEX 1
+#define LV_USE_GRID 1
+#define LV_LABEL_LONG_MODE_WRAP LV_LABEL_LONG_WRAP
+#define LV_LABEL_LONG_MODE_DOTS LV_LABEL_LONG_DOT
+#define LV_LABEL_LONG_MODE_SCROLL LV_LABEL_LONG_SCROLL
+#define LV_LABEL_LONG_MODE_SCROLL_CIRCULAR LV_LABEL_LONG_SCROLL_CIRCULAR
+#define LV_LABEL_LONG_MODE_CLIP LV_LABEL_LONG_CLIP
+#define lv_free lv_mem_free
+#define lv_realloc lv_mem_realloc
+#define lv_event_get_target_obj(event) ((lv_obj_t *)lv_event_get_target(event))
+#define lv_timer_get_user_data(timer) ((timer)->user_data)
+#define lv_obj_send_event lv_event_send
+#define lv_obj_set_style_anim_duration lv_obj_set_style_anim_time
+#define lv_obj_set_style_arc_image_src lv_obj_set_style_arc_img_src
+#define lv_obj_set_style_bitmap_mask_src(object, source, selector) ((void)0)
+#define lv_imagebutton_create lv_imgbtn_create
+#define lv_imagebutton_set_src lv_imgbtn_set_src
+#define lv_imagebutton_get_src_left lv_imgbtn_get_src_left
+#define lv_imagebutton_get_src_middle lv_imgbtn_get_src_middle
+#define lv_imagebutton_get_src_right lv_imgbtn_get_src_right
+#define lv_obj_get_child_count lv_obj_get_child_cnt
+#define lv_calendar_add_header_arrow lv_calendar_header_arrow_create
+#define lv_chart_set_axis_range lv_chart_set_range
+#define lv_chart_get_series_x_array lv_chart_get_x_array
+#define lv_chart_get_series_y_array lv_chart_get_y_array
+#define lv_table_set_cell_ctrl lv_table_add_cell_ctrl
+#define lv_image_set_scale_x lv_img_set_zoom
+#define lv_image_set_scale_y lv_img_set_zoom
+static inline char *lv_strdup(const char *text)
+{
+    size_t size = strlen(text) + 1;
+    char *copy = (char *)lv_mem_alloc(size);
+    if (copy)
+        memcpy(copy, text, size);
+    return copy;
+}
+static inline void lv_obj_set_state(lv_obj_t *object, lv_state_t state, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, state);
+    else
+        lv_obj_clear_state(object, state);
+}
+static inline bool lv_obj_is_checked(const lv_obj_t *object)
+{
+    return lv_obj_has_state(object, LV_STATE_CHECKED);
+}
+static inline void lv_table_set_selected_cell(lv_obj_t *object, uint16_t row, uint16_t column)
+{
+    lv_table_t *table = (lv_table_t *)object;
+    table->row_act = row;
+    table->col_act = column;
+    lv_obj_invalidate(object);
+}
+static inline void lv_arc_set_knob_offset(lv_obj_t *object, int offset)
+{
+    (void)object;
+    (void)offset;
+}
+static inline void lv_slider_set_orientation(lv_obj_t *object, int orientation)
+{
+    (void)object;
+    (void)orientation;
+}
+static inline void lv_bar_set_orientation(lv_obj_t *object, int orientation)
+{
+    (void)object;
+    (void)orientation;
+}
+static inline void lv_image_set_blend_mode(lv_obj_t *object, int mode)
+{
+    lv_obj_set_style_blend_mode(object, (lv_blend_mode_t)mode, 0);
+}
+
+typedef struct
+{
+    lv_img_dsc_t image;
+} lv_draw_buf_t;
+static inline void lv_draw_buf_init(lv_draw_buf_t *buffer, uint32_t w, uint32_t h, int cf, uint32_t stride,
+                                    void *data, uint32_t size)
+{
+    (void)cf;
+    (void)stride;
+    memset(buffer, 0, sizeof *buffer);
+    buffer->image.header.w = w;
+    buffer->image.header.h = h;
+    buffer->image.header.cf = LV_IMG_CF_TRUE_COLOR_ALPHA;
+    buffer->image.data = (const uint8_t *)data;
+    buffer->image.data_size = size;
+}
+static inline void lv_canvas_set_draw_buf(lv_obj_t *canvas, lv_draw_buf_t *buffer)
+{
+    lv_canvas_set_buffer(canvas, (void *)buffer->image.data, buffer->image.header.w, buffer->image.header.h,
+                         LV_IMG_CF_TRUE_COLOR_ALPHA);
+}
+#define lv_obj_delete lv_obj_del
+#define lv_obj_delete_async lv_obj_del_async
+#define lv_obj_remove_flag lv_obj_clear_flag
+#define lv_obj_remove_state lv_obj_clear_state
+#define lv_indev_active lv_indev_get_act
+#define lv_screen_active lv_scr_act
+#define lv_display_delete lv_disp_remove
+#define lv_display_set_default lv_disp_set_default
+#define lv_display_get_default lv_disp_get_default
+#define lv_display_get_next lv_disp_get_next
+#define lv_display_set_rotation lv_disp_set_rotation
+#define lv_display_get_horizontal_resolution lv_disp_get_hor_res
+#define lv_display_get_vertical_resolution lv_disp_get_ver_res
+#define lv_display_get_physical_horizontal_resolution lv_disp_get_physical_hor_res
+#define lv_display_get_physical_vertical_resolution lv_disp_get_physical_ver_res
+#define lv_display_get_offset_x lv_disp_get_offset_x
+#define lv_display_get_offset_y lv_disp_get_offset_y
+#define lv_display_get_rotation lv_disp_get_rotation
+#define lv_display_get_dpi lv_disp_get_dpi
+#define lv_display_get_antialiasing lv_disp_get_antialiasing
+#define lv_display_flush_ready lv_disp_flush_ready
+#define lv_display_flush_is_last lv_disp_flush_is_last
+#define lv_display_get_screen_active lv_disp_get_scr_act
+#define lv_display_get_screen_prev lv_disp_get_scr_prev
+#define lv_screen_load lv_disp_load_scr
+#define lv_screen_load_anim lv_scr_load_anim
+#define lv_display_get_layer_top lv_disp_get_layer_top
+#define lv_display_get_layer_sys lv_disp_get_layer_sys
+#define lv_display_set_theme lv_disp_set_theme
+#define lv_display_get_theme lv_disp_get_theme
+#define lv_display_get_inactive_time lv_disp_get_inactive_time
+#define lv_display_trigger_activity lv_disp_trig_activity
+#define lv_display_enable_invalidation lv_disp_enable_invalidation
+#define lv_display_is_invalidation_enabled lv_disp_is_invalidation_enabled
+#define lv_timer_delete lv_timer_del
+#define lv_anim_delete lv_anim_del
+#define lv_anim_delete_all lv_anim_del_all
+#define lv_anim_set_completed_cb lv_anim_set_ready_cb
+#define lv_group_delete lv_group_del
+#define lv_text_get_size lv_txt_get_size
+#define lv_text_get_width lv_txt_get_width
+#define lv_image_create lv_img_create
+#define lv_image_set_src lv_img_set_src
+#define lv_image_set_offset_x lv_img_set_offset_x
+#define lv_image_set_offset_y lv_img_set_offset_y
+#define lv_image_set_rotation lv_img_set_angle
+#define lv_image_set_pivot lv_img_set_pivot
+#define lv_image_set_scale lv_img_set_zoom
+#define lv_image_set_antialias lv_img_set_antialias
+#define lv_image_get_src lv_img_get_src
+#define lv_image_get_offset_x lv_img_get_offset_x
+#define lv_image_get_offset_y lv_img_get_offset_y
+#define lv_image_get_rotation lv_img_get_angle
+#define lv_image_get_pivot lv_img_get_pivot
+#define lv_image_get_scale lv_img_get_zoom
+#define lv_image_get_antialias lv_img_get_antialias
+#define lv_list_get_button_text lv_list_get_btn_text
+#define lv_list_add_button lv_list_add_btn
+#define lv_button_create lv_btn_create
+#define lv_buttonmatrix_create lv_btnmatrix_create
+#define lv_buttonmatrix_set_map lv_btnmatrix_set_map
+#define lv_buttonmatrix_set_ctrl_map lv_btnmatrix_set_ctrl_map
+#define lv_buttonmatrix_set_selected_button lv_btnmatrix_set_selected_btn
+#define lv_buttonmatrix_set_button_ctrl lv_btnmatrix_set_btn_ctrl
+#define lv_buttonmatrix_clear_button_ctrl lv_btnmatrix_clear_btn_ctrl
+#define lv_buttonmatrix_set_button_ctrl_all lv_btnmatrix_set_btn_ctrl_all
+#define lv_buttonmatrix_clear_button_ctrl_all lv_btnmatrix_clear_btn_ctrl_all
+#define lv_buttonmatrix_set_button_width lv_btnmatrix_set_btn_width
+#define lv_buttonmatrix_set_one_checked lv_btnmatrix_set_one_checked
+#define lv_buttonmatrix_get_map lv_btnmatrix_get_map
+#define lv_buttonmatrix_get_selected_button lv_btnmatrix_get_selected_btn
+#define lv_buttonmatrix_get_button_text lv_btnmatrix_get_btn_text
+#define lv_buttonmatrix_get_one_checked lv_btnmatrix_get_one_checked
+#define lv_tabview_get_tab_bar lv_tabview_get_tab_btns
+#define lv_tabview_get_tab_active lv_tabview_get_tab_act
+#define lv_tabview_set_active lv_tabview_set_act
+#define lv_tileview_get_tile_active lv_tileview_get_tile_act
+#define lv_tileview_set_tile_by_index lv_obj_set_tile_id
+#define lv_tileview_set_tile lv_obj_set_tile
+#define lv_roller_get_option_count lv_roller_get_option_cnt
+#define lv_table_set_column_count lv_table_set_col_cnt
+#define lv_table_set_row_count lv_table_set_row_cnt
+#define lv_table_get_column_count lv_table_get_col_cnt
+#define lv_table_get_row_count lv_table_get_row_cnt
+#define lv_table_set_column_width lv_table_set_col_width
+#define lv_table_get_column_width lv_table_get_col_width
+#define lv_dropdown_get_option_count lv_dropdown_get_option_cnt
+#define lv_obj_get_display lv_obj_get_disp
+#define lv_obj_get_style_anim_duration lv_obj_get_style_anim_time
+#define lv_obj_get_style_image_opa lv_obj_get_style_img_opa
+#define lv_obj_get_style_image_recolor lv_obj_get_style_img_recolor
+#define lv_obj_get_style_image_recolor_filtered lv_obj_get_style_img_recolor_filtered
+#define lv_obj_get_style_image_recolor_opa lv_obj_get_style_img_recolor_opa
+#define lv_obj_get_style_shadow_offset_x lv_obj_get_style_shadow_ofs_x
+#define lv_obj_get_style_shadow_offset_y lv_obj_get_style_shadow_ofs_y
+#define lv_obj_get_style_transform_rotation lv_obj_get_style_transform_angle
+#define lv_obj_get_style_bg_image_src lv_obj_get_style_bg_img_src
+#define lv_obj_get_style_bg_image_recolor lv_obj_get_style_bg_img_recolor
+#define lv_obj_get_style_bg_image_recolor_opa lv_obj_get_style_bg_img_recolor_opa
+#define lv_obj_set_style_image_opa lv_obj_set_style_img_opa
+#define lv_obj_set_style_image_recolor lv_obj_set_style_img_recolor
+#define lv_obj_set_style_image_recolor_opa lv_obj_set_style_img_recolor_opa
+#define lv_obj_set_style_shadow_offset_x lv_obj_set_style_shadow_ofs_x
+#define lv_obj_set_style_shadow_offset_y lv_obj_set_style_shadow_ofs_y
+#define lv_obj_set_style_transform_scale lv_obj_set_style_transform_zoom
+#define lv_obj_set_style_transform_rotation lv_obj_set_style_transform_angle
+#define lv_obj_set_style_bg_image_src lv_obj_set_style_bg_img_src
+#define lv_obj_set_style_bg_image_recolor lv_obj_set_style_bg_img_recolor
+#define lv_obj_set_style_bg_image_recolor_opa lv_obj_set_style_bg_img_recolor_opa
+#define lv_style_set_anim_duration lv_style_set_anim_time
+#define lv_style_set_image_opa lv_style_set_img_opa
+#define lv_style_set_image_recolor lv_style_set_img_recolor
+#define lv_style_set_image_recolor_opa lv_style_set_img_recolor_opa
+#define lv_style_set_shadow_offset_x lv_style_set_shadow_ofs_x
+#define lv_style_set_shadow_offset_y lv_style_set_shadow_ofs_y
+#define lv_style_set_transform_rotation lv_style_set_transform_angle
+#define lv_style_set_transform_scale lv_style_set_transform_zoom
+#define lv_style_set_bg_image_src lv_style_set_bg_img_src
+#define lv_style_set_bg_image_recolor lv_style_set_bg_img_recolor
+#define lv_style_set_bg_image_recolor_opa lv_style_set_bg_img_recolor_opa
+static inline void lv_obj_set_hidden(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_HIDDEN);
+}
+static inline void lv_obj_set_clickable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_CLICKABLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_CLICKABLE);
+}
+static inline void lv_obj_set_click_focusable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+}
+static inline void lv_obj_set_checkable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_CHECKABLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_CHECKABLE);
+}
+static inline void lv_obj_set_scrollable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLLABLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLLABLE);
+}
+static inline void lv_obj_set_scroll_elastic(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_ELASTIC);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_ELASTIC);
+}
+static inline void lv_obj_set_scroll_momentum(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_MOMENTUM);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_MOMENTUM);
+}
+static inline void lv_obj_set_scroll_one(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_ONE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_ONE);
+}
+static inline void lv_obj_set_scroll_chain_hor(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+}
+static inline void lv_obj_set_scroll_chain_ver(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+}
+static inline void lv_obj_set_scroll_on_focus(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+}
+static inline void lv_obj_set_scroll_with_arrow(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+}
+static inline void lv_obj_set_snappable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SNAPPABLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_SNAPPABLE);
+}
+static inline void lv_obj_set_press_lock(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_PRESS_LOCK);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_PRESS_LOCK);
+}
+static inline void lv_obj_set_event_bubble(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_EVENT_BUBBLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_EVENT_BUBBLE);
+}
+static inline void lv_obj_set_gesture_bubble(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_GESTURE_BUBBLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_GESTURE_BUBBLE);
+}
+static inline void lv_obj_set_adv_hittest(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_ADV_HITTEST);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_ADV_HITTEST);
+}
+static inline void lv_obj_set_ignore_layout(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_IGNORE_LAYOUT);
+}
+static inline void lv_obj_set_floating(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_FLOATING);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_FLOATING);
+}
+static inline void lv_obj_set_overflow_visible(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+}
+static inline void lv_obj_set_flex_in_new_track(lv_obj_t *object, bool enabled)
+{
+    if (!lv_obj_get_parent(object))
+        return;
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    else
+        lv_obj_clear_flag(object, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+}
+static inline void lv_obj_set_checked(lv_obj_t *object, bool enabled)
+{
+    lv_obj_set_state(object, LV_STATE_CHECKED, enabled);
+}
+static inline void lv_obj_set_disabled(lv_obj_t *object, bool enabled)
+{
+    lv_obj_set_state(object, LV_STATE_DISABLED, enabled);
+}
+static inline void lv_obj_set_state_user_1(lv_obj_t *object, bool enabled)
+{
+    lv_obj_set_state(object, LV_STATE_USER_1, enabled);
+}
+static inline void lv_obj_set_state_user_2(lv_obj_t *object, bool enabled)
+{
+    lv_obj_set_state(object, LV_STATE_USER_2, enabled);
+}
+static inline void lv_obj_set_state_user_3(lv_obj_t *object, bool enabled)
+{
+    lv_obj_set_state(object, LV_STATE_USER_3, enabled);
+}
+static inline void lv_obj_set_state_user_4(lv_obj_t *object, bool enabled)
+{
+    lv_obj_set_state(object, LV_STATE_USER_4, enabled);
+}
+/* Composite ownership stays independent of lv_obj user_data. */
+typedef struct ui_compat_base
+{
+    lv_obj_t *object;
+    int kind;
+    struct ui_compat_base *next;
+} ui_compat_base;
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+    extern ui_compat_base *ui_compat_states;
+#ifdef __cplusplus
+}
+#endif
+static void ui_compat_deleted(lv_event_t *event)
+{
+    ui_compat_base *state = (ui_compat_base *)lv_event_get_user_data(event);
+    ui_compat_base **item = &ui_compat_states;
+    while (*item && *item != state)
+        item = &(*item)->next;
+    if (*item)
+        *item = state->next;
+    lv_mem_free(state);
+}
+static void *ui_compat_allocate(lv_obj_t *object, size_t size, int kind)
+{
+    ui_compat_base *state = (ui_compat_base *)lv_mem_alloc(size);
+    if (!state)
+        return NULL;
+    memset(state, 0, size);
+    state->object = object;
+    state->kind = kind;
+    state->next = ui_compat_states;
+    ui_compat_states = state;
+    lv_obj_add_event_cb(object, ui_compat_deleted, LV_EVENT_DELETE, state);
+    return state;
+}
+static void *ui_compat_find(lv_obj_t *object, int kind)
+{
+    ui_compat_base *state;
+    for (state = ui_compat_states; state; state = state->next)
+        if (state->object == object && state->kind == kind)
+            return state;
+    return NULL;
+}
+static void ui_compat_free_data(lv_event_t *event)
+{
+    lv_mem_free(lv_event_get_user_data(event));
+}
+static lv_obj_t *ui_compat_panel(lv_obj_t *parent)
+{
+    lv_obj_t *panel = lv_obj_create(parent);
+    lv_obj_set_style_pad_all(panel, 0, 0);
+    lv_obj_set_style_border_width(panel, 0, 0);
+    lv_obj_set_style_bg_opa(panel, LV_OPA_TRANSP, 0);
+    return panel;
+}
+
+/* Tabs retain distinct button objects and the same content-parent structure. */
+typedef struct
+{
+    ui_compat_base base;
+    lv_obj_t *bar;
+    lv_obj_t *content;
+    uint32_t active;
+    int position, bar_size;
+} ui_tab8;
+typedef struct
+{
+    lv_obj_t *owner;
+    uint32_t index;
+} ui_tab8_button;
+static void ui_tab8_set_active(lv_obj_t *object, uint32_t active, lv_anim_enable_t animation)
+{
+    ui_tab8 *state = (ui_tab8 *)ui_compat_find(object, 1);
+    uint32_t i;
+    (void)animation;
+    if (!state)
+        return;
+    state->active = active;
+    for (i = 0; i < lv_obj_get_child_cnt(state->content); ++i)
+    {
+        lv_obj_t *panel = lv_obj_get_child(state->content, i);
+        if (i == active)
+            lv_obj_clear_flag(panel, LV_OBJ_FLAG_HIDDEN);
+        else
+            lv_obj_add_flag(panel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_state(lv_obj_get_child(state->bar, i), LV_STATE_CHECKED, i == active);
+    }
+}
+static void ui_tab8_clicked(lv_event_t *event)
+{
+    ui_tab8_button *button = (ui_tab8_button *)lv_event_get_user_data(event);
+    if (lv_event_get_code(event) == LV_EVENT_DELETE)
+    {
+        lv_mem_free(button);
+        return;
+    }
+    ui_tab8_set_active(button->owner, button->index, LV_ANIM_OFF);
+    lv_event_send(button->owner, LV_EVENT_VALUE_CHANGED, NULL);
+}
+static void ui_tab8_layout(ui_tab8 *state)
+{
+    bool vertical = state->position == LV_DIR_LEFT || state->position == LV_DIR_RIGHT;
+    lv_obj_set_flex_flow(state->base.object, vertical ? LV_FLEX_FLOW_ROW : LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_flow(state->bar, vertical ? LV_FLEX_FLOW_COLUMN : LV_FLEX_FLOW_ROW);
+    lv_obj_set_size(state->bar, vertical ? state->bar_size : LV_PCT(100),
+                    vertical ? LV_PCT(100) : state->bar_size);
+    lv_obj_set_size(state->content, vertical ? 0 : LV_PCT(100), vertical ? LV_PCT(100) : 0);
+    lv_obj_set_flex_grow(state->content, 1);
+    lv_obj_move_to_index(state->bar,
+                         state->position == LV_DIR_RIGHT || state->position == LV_DIR_BOTTOM ? 1 : 0);
+}
+static lv_obj_t *ui_tab8_create(lv_obj_t *parent)
+{
+    lv_obj_t *object = ui_compat_panel(parent);
+    ui_tab8 *state = (ui_tab8 *)ui_compat_allocate(object, sizeof *state, 1);
+    if (!state)
+    {
+        lv_obj_del(object);
+        return NULL;
+    }
+    lv_obj_set_size(object, LV_PCT(100), LV_PCT(100));
+    state->bar = ui_compat_panel(object);
+    state->content = ui_compat_panel(object);
+    state->position = LV_DIR_TOP;
+    state->bar_size = 40;
+    ui_tab8_layout(state);
+    return object;
+}
+static lv_obj_t *ui_tab8_add(lv_obj_t *object, const char *name)
+{
+    ui_tab8 *state = (ui_tab8 *)ui_compat_find(object, 1);
+    lv_obj_t *panel = ui_compat_panel(state->content);
+    lv_obj_t *button = lv_btn_create(state->bar);
+    lv_obj_t *label = lv_label_create(button);
+    ui_tab8_button *binding = (ui_tab8_button *)lv_mem_alloc(sizeof *binding);
+    lv_label_set_text(label, name);
+    lv_obj_center(label);
+    lv_obj_set_flex_grow(button, 1);
+    lv_obj_set_size(panel, LV_PCT(100), LV_PCT(100));
+    binding->owner = object;
+    binding->index = lv_obj_get_child_cnt(state->content) - 1;
+    lv_obj_add_event_cb(button, ui_tab8_clicked, LV_EVENT_CLICKED, binding);
+    lv_obj_add_event_cb(button, ui_compat_free_data, LV_EVENT_DELETE, binding);
+    ui_tab8_set_active(object, state->active, LV_ANIM_OFF);
+    return panel;
+}
+static lv_obj_t *ui_tab8_bar(lv_obj_t *object)
+{
+    return ((ui_tab8 *)ui_compat_find(object, 1))->bar;
+}
+static lv_obj_t *ui_tab8_content(lv_obj_t *object)
+{
+    return ((ui_tab8 *)ui_compat_find(object, 1))->content;
+}
+static lv_obj_t *ui_tab8_button_at(lv_obj_t *object, uint32_t index)
+{
+    return lv_obj_get_child(ui_tab8_bar(object), index);
+}
+static void ui_tab8_position(lv_obj_t *object, int position)
+{
+    ui_tab8 *state = (ui_tab8 *)ui_compat_find(object, 1);
+    state->position = position;
+    ui_tab8_layout(state);
+}
+static void ui_tab8_size(lv_obj_t *object, int size)
+{
+    ui_tab8 *state = (ui_tab8 *)ui_compat_find(object, 1);
+    state->bar_size = size;
+    ui_tab8_layout(state);
+}
+#define lv_tabview_create ui_tab8_create
+#define lv_tabview_add_tab ui_tab8_add
+#undef lv_tabview_get_tab_bar
+#define lv_tabview_get_tab_bar ui_tab8_bar
+#define lv_tabview_get_content ui_tab8_content
+#define lv_tabview_get_tab_button ui_tab8_button_at
+#undef lv_tabview_set_active
+#define lv_tabview_set_active ui_tab8_set_active
+#define lv_tabview_set_tab_bar_position ui_tab8_position
+#define lv_tabview_set_tab_bar_size ui_tab8_size
+
+/* Message boxes use ordinary LVGL 8 children for the newer header/footer API. */
+typedef struct
+{
+    ui_compat_base base;
+    lv_obj_t *header;
+    lv_obj_t *content;
+    lv_obj_t *footer;
+} ui_msg8;
+static lv_obj_t *ui_msg8_create(lv_obj_t *parent)
+{
+    lv_obj_t *object = lv_obj_create(parent);
+    ui_msg8 *state = (ui_msg8 *)ui_compat_allocate(object, sizeof *state, 2);
+    if (!state)
+    {
+        lv_obj_del(object);
+        return NULL;
+    }
+    lv_obj_set_size(object, 300, LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(object, LV_FLEX_FLOW_COLUMN);
+    state->header = ui_compat_panel(object);
+    state->content = ui_compat_panel(object);
+    state->footer = ui_compat_panel(object);
+    lv_obj_set_size(state->header, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_size(state->content, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_size(state->footer, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_set_flex_flow(state->header, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_flow(state->content, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_flow(state->footer, LV_FLEX_FLOW_ROW);
+    return object;
+}
+static lv_obj_t *ui_msg8_header(lv_obj_t *object)
+{
+    return ((ui_msg8 *)ui_compat_find(object, 2))->header;
+}
+static lv_obj_t *ui_msg8_content(lv_obj_t *object)
+{
+    return ((ui_msg8 *)ui_compat_find(object, 2))->content;
+}
+static lv_obj_t *ui_msg8_footer(lv_obj_t *object)
+{
+    return ((ui_msg8 *)ui_compat_find(object, 2))->footer;
+}
+static lv_obj_t *ui_msg8_title(lv_obj_t *object, const char *text)
+{
+    lv_obj_t *label = lv_label_create(ui_msg8_header(object));
+    lv_label_set_text(label, text);
+    lv_obj_set_flex_grow(label, 1);
+    return label;
+}
+static lv_obj_t *ui_msg8_add_button(lv_obj_t *parent, const char *text)
+{
+    lv_obj_t *button = lv_btn_create(parent);
+    lv_obj_t *label = lv_label_create(button);
+    lv_label_set_text(label, text ? text : "");
+    lv_obj_center(label);
+    return button;
+}
+static lv_obj_t *ui_msg8_footer_button(lv_obj_t *object, const char *text)
+{
+    return ui_msg8_add_button(ui_msg8_footer(object), text);
+}
+static lv_obj_t *ui_msg8_header_button(lv_obj_t *object, const void *source)
+{
+    lv_obj_t *button = ui_msg8_add_button(ui_msg8_header(object), "");
+    if (source)
+    {
+        lv_obj_t *image = lv_img_create(button);
+        lv_img_set_src(image, source);
+        lv_obj_center(image);
+    }
+    return button;
+}
+static void ui_msg8_close_event(lv_event_t *event)
+{
+    lv_obj_del((lv_obj_t *)lv_event_get_user_data(event));
+}
+static lv_obj_t *ui_msg8_close(lv_obj_t *object)
+{
+    lv_obj_t *button = ui_msg8_add_button(ui_msg8_header(object), LV_SYMBOL_CLOSE);
+    lv_obj_add_event_cb(button, ui_msg8_close_event, LV_EVENT_CLICKED, object);
+    return button;
+}
+#define lv_msgbox_create ui_msg8_create
+#define lv_msgbox_get_header ui_msg8_header
+#define lv_msgbox_get_content ui_msg8_content
+#define lv_msgbox_get_footer ui_msg8_footer
+#define lv_msgbox_add_title ui_msg8_title
+#define lv_msgbox_add_footer_button ui_msg8_footer_button
+#define lv_msgbox_add_header_button ui_msg8_header_button
+#define lv_msgbox_add_close_button ui_msg8_close
+
+/* Scales are drawn with LVGL lines and labels on versions without lv_scale. */
+typedef struct
+{
+    ui_compat_base base;
+    lv_obj_t *drawing;
+    int32_t minimum, maximum;
+    uint32_t ticks, major, angle;
+    int rotation, mode;
+    bool labels, updating;
+} ui_scale8;
+static void ui_scale8_line(lv_obj_t *parent, int x1, int y1, int x2, int y2, int width, lv_color_t color)
+{
+    lv_obj_t *line = lv_line_create(parent);
+    lv_point_t *points = (lv_point_t *)lv_mem_alloc(2 * sizeof *points);
+    points[0].x = x1;
+    points[0].y = y1;
+    points[1].x = x2;
+    points[1].y = y2;
+    lv_line_set_points(line, points, 2);
+    lv_obj_set_style_line_width(line, width, 0);
+    lv_obj_set_style_line_color(line, color, 0);
+    lv_obj_add_event_cb(line, ui_compat_free_data, LV_EVENT_DELETE, points);
+    lv_obj_add_flag(line, LV_OBJ_FLAG_IGNORE_LAYOUT);
+}
+static int ui_scale8_cos(int angle, int radius)
+{
+    return (lv_trigo_sin((int16_t)((angle + 90) % 360)) * radius) >> LV_TRIGO_SHIFT;
+}
+static int ui_scale8_sin(int angle, int radius)
+{
+    return (lv_trigo_sin((int16_t)(angle % 360)) * radius) >> LV_TRIGO_SHIFT;
+}
+static void ui_scale8_refresh(ui_scale8 *state)
+{
+    uint32_t i;
+    int w, h;
+    if (state->updating)
+        return;
+    state->updating = true;
+    lv_obj_update_layout(state->base.object);
+    w = lv_obj_get_content_width(state->base.object);
+    h = lv_obj_get_content_height(state->base.object);
+    lv_obj_clean(state->drawing);
+    lv_obj_set_size(state->drawing, LV_PCT(100), LV_PCT(100));
+    for (i = 0; i < state->ticks; ++i)
+    {
+        bool major = state->major && i % state->major == 0;
+        int x, y, x2, y2;
+        int length = major ? 10 : 5;
+        int angle = state->rotation + (state->ticks > 1 ? (int)(i * state->angle / (state->ticks - 1)) : 0);
+        if (state->mode == 8 || state->mode == 16)
+        {
+            int radius = (w < h ? w : h) / 2 - 18;
+            x = w / 2 + ui_scale8_cos(angle, radius);
+            y = h / 2 + ui_scale8_sin(angle, radius);
+            x2 = w / 2 + ui_scale8_cos(angle, radius - length);
+            y2 = h / 2 + ui_scale8_sin(angle, radius - length);
+        }
+        else if (state->mode == 2 || state->mode == 4)
+        {
+            y = y2 = state->ticks > 1 ? (int)(i * (h - 20) / (state->ticks - 1)) + 10 : 10;
+            x = state->mode == 2 ? w - 1 : 0;
+            x2 = x + (state->mode == 2 ? -length : length);
+        }
+        else
+        {
+            x = x2 = state->ticks > 1 ? (int)(i * (w - 20) / (state->ticks - 1)) + 10 : 10;
+            y = state->mode == 0 ? h - 1 : 0;
+            y2 = y + (state->mode == 0 ? -length : length);
+        }
+        ui_scale8_line(state->drawing, x, y, x2, y2, 1, lv_obj_get_style_line_color(state->base.object, 0));
+        if (major && state->labels)
+        {
+            lv_obj_t *label = lv_label_create(state->drawing);
+            int32_t value =
+                state->minimum + (state->ticks > 1 ? (int32_t)(((int64_t)state->maximum - state->minimum) *
+                                                               i / (state->ticks - 1))
+                                                   : 0);
+            lv_label_set_text_fmt(label, "%ld", (long)value);
+            lv_obj_set_pos(label, x2, y2);
+        }
+    }
+    state->updating = false;
+}
+static void ui_scale8_size_changed(lv_event_t *event)
+{
+    ui_scale8_refresh((ui_scale8 *)lv_event_get_user_data(event));
+}
+static lv_obj_t *ui_scale8_create(lv_obj_t *parent)
+{
+    lv_obj_t *object = ui_compat_panel(parent);
+    ui_scale8 *state = (ui_scale8 *)ui_compat_allocate(object, sizeof *state, 3);
+    if (!state)
+    {
+        lv_obj_del(object);
+        return NULL;
+    }
+    state->minimum = 0;
+    state->maximum = 100;
+    state->ticks = 11;
+    state->major = 5;
+    state->angle = 270;
+    state->rotation = 135;
+    state->mode = 8;
+    state->labels = true;
+    state->drawing = ui_compat_panel(object);
+    lv_obj_add_flag(state->drawing, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_clear_flag(state->drawing, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_size(object, 180, 180);
+    lv_obj_add_event_cb(object, ui_scale8_size_changed, LV_EVENT_SIZE_CHANGED, state);
+    return object;
+}
+static void ui_scale8_mode(lv_obj_t *object, int mode)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->mode = mode;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_range(lv_obj_t *object, int32_t minimum, int32_t maximum)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->minimum = minimum;
+    state->maximum = maximum;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_ticks(lv_obj_t *object, uint32_t value)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->ticks = value > 1000 ? 1000 : value;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_major(lv_obj_t *object, uint32_t value)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->major = value;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_rotation(lv_obj_t *object, int value)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->rotation = value;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_angle(lv_obj_t *object, uint32_t value)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->angle = value;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_labels(lv_obj_t *object, bool value)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    state->labels = value;
+    ui_scale8_refresh(state);
+}
+static void ui_scale8_needle(lv_obj_t *object, lv_obj_t *needle, int length, int32_t value)
+{
+    ui_scale8 *state = (ui_scale8 *)ui_compat_find(object, 3);
+    lv_point_t *points = (lv_point_t *)lv_mem_alloc(2 * sizeof *points);
+    int angle =
+        state->rotation +
+        (state->maximum != state->minimum
+             ? (int)(((int64_t)value - state->minimum) * state->angle / (state->maximum - state->minimum))
+             : 0);
+    points[0].x = lv_obj_get_content_width(object) / 2;
+    points[0].y = lv_obj_get_content_height(object) / 2;
+    points[1].x = points[0].x + ui_scale8_cos(angle, length);
+    points[1].y = points[0].y + ui_scale8_sin(angle, length);
+    lv_line_set_points(needle, points, 2);
+    lv_obj_add_event_cb(needle, ui_compat_free_data, LV_EVENT_DELETE, points);
+}
+#define lv_scale_create ui_scale8_create
+#define lv_scale_set_mode ui_scale8_mode
+#define lv_scale_set_range ui_scale8_range
+#define lv_scale_set_total_tick_count ui_scale8_ticks
+#define lv_scale_set_major_tick_every ui_scale8_major
+#define lv_scale_set_rotation ui_scale8_rotation
+#define lv_scale_set_angle_range ui_scale8_angle
+#define lv_scale_set_label_show ui_scale8_labels
+#define lv_scale_set_line_needle_value ui_scale8_needle
+
+typedef struct
+{
+    ui_compat_base base;
+    uint32_t arc;
+} ui_spinner8;
+static void ui_spinner8_angle(void *object, int32_t angle)
+{
+    ui_spinner8 *state = (ui_spinner8 *)ui_compat_find((lv_obj_t *)object, 4);
+    if (state)
+        lv_arc_set_angles((lv_obj_t *)object, (uint16_t)angle, (uint16_t)(angle + state->arc));
+}
+static lv_obj_t *ui_spinner8_create(lv_obj_t *parent)
+{
+    return lv_spinner_create(parent, 1000, 60);
+}
+static void ui_spinner8_params(lv_obj_t *object, uint32_t time, uint32_t arc)
+{
+    lv_anim_t animation;
+    ui_spinner8 *state = (ui_spinner8 *)ui_compat_find((lv_obj_t *)object, 4);
+    if (!state)
+        state = (ui_spinner8 *)ui_compat_allocate(object, sizeof *state, 4);
+    if (!state)
+        return;
+    state->arc = arc;
+    lv_anim_del(object, NULL);
+    lv_anim_init(&animation);
+    lv_anim_set_var(&animation, object);
+    lv_anim_set_exec_cb(&animation, ui_spinner8_angle);
+    lv_anim_set_values(&animation, 0, 360);
+    lv_anim_set_time(&animation, time ? time : 1);
+    lv_anim_set_repeat_count(&animation, LV_ANIM_REPEAT_INFINITE);
+    lv_anim_start(&animation);
+}
+#define lv_spinner_create ui_spinner8_create
+#define lv_spinner_set_anim_params ui_spinner8_params
+
+/* A composite image supplies the 9.x alignment contract using an 8.3 image. */
+typedef struct
+{
+    ui_compat_base base;
+    lv_obj_t *image;
+    const void *source;
+    int align, scale, offset_x, offset_y;
+    bool updating;
+} ui_image8;
+static void ui_image8_layout(ui_image8 *state)
+{
+    lv_img_header_t info;
+    int w, h, sw, sh, zoom, x, y;
+    if (state->updating || !state->source)
+        return;
+    state->updating = true;
+    lv_obj_update_layout(state->base.object);
+    w = lv_obj_get_content_width(state->base.object);
+    h = lv_obj_get_content_height(state->base.object);
+    if (lv_img_decoder_get_info(state->source, &info) != LV_RES_OK)
+    {
+        state->updating = false;
+        return;
+    }
+    sw = info.w;
+    sh = info.h;
+    if (sw <= 0 || sh <= 0)
+    {
+        state->updating = false;
+        return;
+    }
+    zoom = state->scale;
+    if (state->align == 13 || state->align == 14 || state->align == 15)
+    {
+        int sx = w * 256 / sw, sy = h * 256 / sh;
+        zoom = state->align == 15 ? (sx > sy ? sx : sy) : (sx < sy ? sx : sy);
+        if (state->align == 14 && zoom > 256)
+            zoom = 256;
+        if (zoom < 1)
+            zoom = 1;
+    }
+    lv_img_set_zoom(state->image, (uint16_t)zoom);
+    lv_img_set_size_mode(state->image, LV_IMG_SIZE_MODE_REAL);
+    sw = sw * zoom / 256;
+    sh = sh * zoom / 256;
+    x = 0;
+    y = 0;
+    if (state->align == 2 || state->align == 5 || state->align == 9 || state->align >= 13)
+        x = (w - sw) / 2;
+    else if (state->align == 3 || state->align == 6 || state->align == 8)
+        x = w - sw;
+    if (state->align == 4 || state->align == 5 || state->align == 6)
+        y = h - sh;
+    else if (state->align == 7 || state->align == 8 || state->align == 9 || state->align >= 13)
+        y = (h - sh) / 2;
+    lv_obj_set_pos(state->image, x + state->offset_x, y + state->offset_y);
+    lv_obj_set_style_img_opa(state->image, lv_obj_get_style_img_opa(state->base.object, 0), 0);
+    lv_obj_set_style_img_recolor(state->image, lv_obj_get_style_img_recolor(state->base.object, 0), 0);
+    lv_obj_set_style_img_recolor_opa(state->image, lv_obj_get_style_img_recolor_opa(state->base.object, 0),
+                                     0);
+    state->updating = false;
+}
+static void ui_image8_changed(lv_event_t *event)
+{
+    ui_image8_layout((ui_image8 *)lv_event_get_user_data(event));
+}
+static lv_obj_t *ui_image8_create(lv_obj_t *parent)
+{
+    lv_obj_t *object = ui_compat_panel(parent);
+    ui_image8 *state = (ui_image8 *)ui_compat_allocate(object, sizeof *state, 5);
+    if (!state)
+    {
+        lv_obj_del(object);
+        return NULL;
+    }
+    state->image = lv_img_create(object);
+    state->scale = 256;
+    lv_obj_add_flag(state->image, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_clear_flag(state->image, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(object, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_size(object, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_add_event_cb(object, ui_image8_changed, LV_EVENT_SIZE_CHANGED, state);
+    lv_obj_add_event_cb(object, ui_image8_changed, LV_EVENT_STYLE_CHANGED, state);
+    return object;
+}
+static void ui_image8_source(lv_obj_t *object, const void *source)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    if (!state)
+    {
+        lv_img_set_src(object, source);
+        return;
+    }
+    state->source = source;
+    lv_img_set_src(state->image, source);
+    {
+        lv_img_header_t header;
+        if (source && lv_img_decoder_get_info(source, &header) == LV_RES_OK)
+        {
+            if (lv_obj_get_style_width(object, 0) == LV_SIZE_CONTENT)
+                lv_obj_set_width(object, header.w);
+            if (lv_obj_get_style_height(object, 0) == LV_SIZE_CONTENT)
+                lv_obj_set_height(object, header.h);
+        }
+    }
+    ui_image8_layout(state);
+}
+static const void *ui_image8_get_source(lv_obj_t *object)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    return state ? state->source : lv_img_get_src(object);
+}
+static void ui_image8_align(lv_obj_t *object, int align)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    if (state)
+    {
+        state->align = align;
+        ui_image8_layout(state);
+    }
+}
+static void ui_image8_scale(lv_obj_t *object, int scale)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    if (state)
+    {
+        state->scale = scale;
+        ui_image8_layout(state);
+    }
+    else
+        lv_img_set_zoom(object, scale);
+}
+static void ui_image8_offset_x(lv_obj_t *object, int offset)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    if (state)
+    {
+        state->offset_x = offset;
+        ui_image8_layout(state);
+    }
+    else
+        lv_img_set_offset_x(object, offset);
+}
+static void ui_image8_offset_y(lv_obj_t *object, int offset)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    if (state)
+    {
+        state->offset_y = offset;
+        ui_image8_layout(state);
+    }
+    else
+        lv_img_set_offset_y(object, offset);
+}
+static void ui_image8_pivot(lv_obj_t *object, int x, int y)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    lv_img_set_pivot(state ? state->image : object, x, y);
+}
+static void ui_image8_rotation(lv_obj_t *object, int rotation)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    lv_img_set_angle(state ? state->image : object, rotation);
+}
+static void ui_image8_antialias(lv_obj_t *object, bool enabled)
+{
+    ui_image8 *state = (ui_image8 *)ui_compat_find(object, 5);
+    lv_img_set_antialias(state ? state->image : object, enabled);
+}
+#undef lv_image_create
+#undef lv_image_set_src
+#undef lv_image_get_src
+#undef lv_image_set_scale_x
+#undef lv_image_set_scale_y
+#undef lv_image_set_offset_x
+#undef lv_image_set_offset_y
+#undef lv_image_set_pivot
+#undef lv_image_set_rotation
+#undef lv_image_set_antialias
+#undef lv_image_create
+#define lv_image_create ui_image8_create
+#undef lv_image_set_src
+#define lv_image_set_src ui_image8_source
+#undef lv_image_get_src
+#define lv_image_get_src ui_image8_get_source
+#define lv_image_set_inner_align ui_image8_align
+#undef lv_image_set_scale_x
+#define lv_image_set_scale_x ui_image8_scale
+#undef lv_image_set_scale_y
+#define lv_image_set_scale_y ui_image8_scale
+#undef lv_image_set_offset_x
+#define lv_image_set_offset_x ui_image8_offset_x
+#undef lv_image_set_offset_y
+#define lv_image_set_offset_y ui_image8_offset_y
+#undef lv_image_set_pivot
+#define lv_image_set_pivot ui_image8_pivot
+#undef lv_image_set_rotation
+#define lv_image_set_rotation ui_image8_rotation
+#undef lv_image_set_antialias
+#define lv_image_set_antialias ui_image8_antialias

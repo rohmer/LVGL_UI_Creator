@@ -1,0 +1,44 @@
+{
+  "unigrams": [
+    {
+      "tokens": [
+        "f\u00FCnf"
+      ],
+      "count": 2,
+      "weight": 0.3333333333333333
+    },
+    {
+      "tokens": [
+        "stra\u00DFe"
+      ],
+      "count": 2,
+      "weight": 0.3333333333333333
+    },
+    {
+      "tokens": [
+        "\u00E4pfel"
+      ],
+      "count": 2,
+      "weight": 0.3333333333333333
+    }
+  ],
+  "bigrams": [
+    {
+      "tokens": [
+        "f\u00FCnf",
+        "f\u00FCnf"
+      ],
+      "count": 1,
+      "weight": 1
+    },
+    {
+      "tokens": [
+        "\u00E4pfel",
+        "\u00E4pfel"
+      ],
+      "count": 1,
+      "weight": 1
+    }
+  ],
+  "trigrams": []
+}

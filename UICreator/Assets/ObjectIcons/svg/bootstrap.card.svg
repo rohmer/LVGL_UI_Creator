@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Card</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="5" y="3" width="22" height="26" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="6" y="4" width="20" height="10" rx="2" fill="#65AFFF" stroke="none" stroke-width="1.6"/>
+  <polyline points="8,12 12,7 16,11 19,8 24,12" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+  <circle cx="22" cy="7" r="1" fill="#D6E5F5" stroke="none" stroke-width="1.6"/>
+  <path d="M8 18L23 18" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M8 22L18 22" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M19 25.5L23 25.5" fill="none" stroke="#45D6B3" stroke-width="2"/>
+</g>
+</svg>

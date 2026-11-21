@@ -1,0 +1,25 @@
+{
+  "activeScreen": 0,
+  "screens": [
+    {
+      "name": "Form",
+      "canvas": {"width": 320, "height": 240},
+      "transition": {"type": "fade", "duration": 80},
+      "obj": [
+        {"oid": 1, "par": -1, "base": {"accessibility": {"tabIndex": 2}}, "button": {}},
+        {"oid": 2, "par": -1, "base": {"accessibility": {"tabIndex": 0}}, "button": {}},
+        {"oid": 3, "par": -1, "base": {"accessibility": {"tabIndex": -1}}, "textBox": {"title": "Excluded internal controls"}},
+        {"oid": 4, "par": -1, "base": {}, "button": {}}
+      ]
+    },
+    {
+      "name": "Details",
+      "canvas": {"width": 320, "height": 240},
+      "transition": {"type": "slide_left", "duration": 80},
+      "obj": [
+        {"oid": 5, "par": -1, "base": {"accessibility": {"tabIndex": 1}}, "button": {}},
+        {"oid": 6, "par": -1, "base": {"accessibility": {"tabIndex": 0}}, "textarea": {"text": "Target"}}
+      ]
+    }
+  ]
+}

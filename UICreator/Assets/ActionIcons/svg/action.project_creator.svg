@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Create project</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="3,26 3,7 12,7 15,10 28,10 28,26 3,26" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <circle cx="23" cy="23" r="6" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M20 23L26 23" fill="none" stroke="#D6E5F5" stroke-width="2"/>
+  <path d="M23 20L23 26" fill="none" stroke="#D6E5F5" stroke-width="2"/>
+  <path d="M7 15L14 15" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+</g>
+</svg>

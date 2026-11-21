@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Paste</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="6" y="6" width="21" height="23" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="11" y="3" width="11" height="6" rx="2" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M11 15L22 15" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M11 20L22 20" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+  <path d="M11 25L18 25" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+</g>
+</svg>

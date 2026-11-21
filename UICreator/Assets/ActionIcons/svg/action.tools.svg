@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Tools panel</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="8,4 5,4 3,7 4,12 8,14 12,13 25,27 28,24 14,11 15,7 12,4 11,8 8,9 6,7 8,4" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <circle cx="25" cy="24" r="1" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+</g>
+</svg>

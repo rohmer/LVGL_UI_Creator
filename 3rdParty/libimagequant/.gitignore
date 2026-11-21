@@ -1,0 +1,17 @@
+imagequant.pc
+*.lo
+*.o
+*.a
+*.so.0
+*.so
+*.bz2
+*.dylib
+*.dylib.0
+*.jnilib
+*.dSYM
+org/pngquant/*.class
+org/pngquant/*.h
+target/
+quantized_example.png
+example
+lodepng.?

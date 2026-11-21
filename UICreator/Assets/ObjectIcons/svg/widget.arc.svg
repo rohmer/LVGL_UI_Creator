@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Arc</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8.22183 23.7782A11 11 0 1 1 23.7782 23.7782" fill="none" stroke="#8FA8C4" stroke-width="2"/>
+  <path d="M8.22183 23.7782A11 11 0 0 1 23.7782 8.22183" fill="none" stroke="#45D6B3" stroke-width="2.4"/>
+  <circle cx="23.8" cy="8.2" r="2" fill="#D6E5F5" stroke="none" stroke-width="0"/>
+</g>
+</svg>

@@ -3,61 +3,136 @@
 #
 # https://www.msweet.org/mxml
 #
-# Copyright © 2003-2019 by Michael R Sweet.
+# Copyright © 2003-2025 by Michael R Sweet.
 #
 # Licensed under Apache License v2.0.  See the file "LICENSE" for more
 # information.
 #
 
 #
-# Compiler tools definitions...
+# This is a POSIX makefile
+#
+
+.POSIX:
+
+
+#
+# Mini-XML version...
+#
+
+MXML_VERSION	=	@MXML_VERSION@
+
+
+#
+# Programs...
 #
 
 AR		=	@AR@
-ARFLAGS		=	@ARFLAGS@
-ARCHFLAGS	=	@ARCHFLAGS@
 CC		=	@CC@
-CFLAGS		=	$(OPTIM) $(ARCHFLAGS) @CFLAGS@ @CPPFLAGS@ @PTHREAD_FLAGS@
-CP		=	@CP@
 DSO		=	@DSO@
-DSOFLAGS	=	@DSOFLAGS@
-LDFLAGS		=	$(OPTIM) $(ARCHFLAGS) @LDFLAGS@
 INSTALL		=	@INSTALL@
-LIBMXML		=	@LIBMXML@
-LIBS		=	@LIBS@ @PTHREAD_LIBS@
-LN		=	@LN@ -s
-MKDIR		=	@MKDIR@
-OPTIM		=	@OPTIM@
+LN		=	@LN@ -sf
+MKDIR           =       @MKDIR@ -p
 RANLIB		=	@RANLIB@
 RM		=	@RM@ -f
+RMDIR		=	@RMDIR@
 SHELL		=	/bin/sh
 
 
 #
-# Configured directories...
+# Installation programs...
 #
 
-prefix		=	@prefix@
-exec_prefix	=	@exec_prefix@
+INSTALL_BIN	=	$(INSTALL) -c -m 755
+INSTALL_DATA	=	$(INSTALL) -c -m 444
+INSTALL_DIR	=	$(INSTALL) -d -m 755
+INSTALL_LIB	=	$(INSTALL) -c -m 755
+INSTALL_MAN	=	$(INSTALL) -c -m 444
+
+
+#
+# Libraries...
+#
+
+LIBMXML		=	@LIBMXML@
+LIBMXML_BASE	=	@LIBMXML_BASE@
+LIBMXML_STATIC	=	@LIBMXML_STATIC@
+MXML_MAN	=	@MXML_MAN@
+MXML_PC		=	@MXML_PC@
+
+
+#
+# Install static libraries?
+#
+
+INSTALL_STATIC	=	@INSTALL_STATIC@
+
+
+#
+# Code signing...
+#
+
+CODE_SIGN	=	@CODE_SIGN@
+CODESIGN_IDENTITY =	-
+CSFLAGS		=	-s "$(CODESIGN_IDENTITY)" @CSFLAGS@ --timestamp
+
+
+#
+# Library archiver...
+#
+
+ARFLAGS		=	@ARFLAGS@
+
+
+#
+# C compiler and preprocessor...
+#
+
+CFLAGS		=	@CFLAGS@ $(CPPFLAGS) $(OPTIM) $(WARNINGS)
+CPPFLAGS	=	@CPPFLAGS@
+WARNINGS	=	@WARNINGS@
+
+
+#
+# Linker options...
+#
+
+DSOFLAGS	=	@DSOFLAGS@ $(OPTIM)
+LDFLAGS		=	@LDFLAGS@ $(OPTIM)
+LIBS		=	@LIBS@ -lm
+
+
+#
+# Optimization and architecture options for both the compiler and linker.
+#
+
+OPTIM		=	@OPTIM@
+
+
+#
+# Directories...
+#
+
 bindir		=	@bindir@
+datadir		=	@datadir@
 datarootdir	=	@datarootdir@
-includedir	=	@includedir@
-libdir		=	@libdir@
-mandir		=	@mandir@
 docdir		=	@docdir@
-BUILDROOT	=	$(DSTROOT)
+exec_prefix	=	@exec_prefix@
+includedir	=	@includedir@
+infodir		=	@infodir@
+libdir		=	@libdir@
+libexecdir	=	@libexecdir@
+localstatedir	=	@localstatedir@
+mandir		=	@mandir@
+oldincludedir	=	@oldincludedir@
+prefix		=	@prefix@
+sbindir		=	@sbindir@
+sharedstatedir	=	@sharedstatedir@
+srcdir		=	@srcdir@
+sysconfdir	=	@sysconfdir@
+top_srcdir	=	@top_srcdir@
 
-
-#
-# Install commands...
-#
-
-INSTALL_BIN	=	$(LIBTOOL) $(INSTALL) -m 755
-INSTALL_DATA	=	$(INSTALL) -m 644
-INSTALL_DIR	=	$(INSTALL) -d
-INSTALL_LIB	=	$(LIBTOOL) $(INSTALL) -m 755
-INSTALL_MAN	=	$(INSTALL) -m 644
-INSTALL_SCRIPT	=	$(INSTALL) -m 755
+BUILDROOT	=	$(DSTROOT)$(DESTDIR)
 
 
 #
@@ -77,9 +152,9 @@ INSTALL_SCRIPT	=	$(INSTALL) -m 755
 
 DOCFILES	=	doc/mxml.epub doc/mxml.html doc/mxml-cover.png \
 			CHANGES.md LICENSE NOTICE README.md
-PUBLIBOBJS	=	mxml-attr.o mxml-entity.o mxml-file.o mxml-get.o \
-			mxml-index.o mxml-node.o mxml-search.o mxml-set.o
-LIBOBJS		=	$(PUBLIBOBJS) mxml-private.o mxml-string.o
+PUBLIBOBJS	=	mxml-attr.o mxml-file.o mxml-get.o mxml-index.o \
+			mxml-node.o mxml-options.o mxml-search.o mxml-set.o
+LIBOBJS		=	$(PUBLIBOBJS) mxml-private.o
 OBJS		=	testmxml.o $(LIBOBJS)
 ALLTARGETS	=	$(LIBMXML) testmxml
 CROSSTARGETS	=	$(LIBMXML)
@@ -100,11 +175,18 @@ all:		$(TARGETS)
 clean:
 	echo Cleaning build files...
 	$(RM) $(OBJS) $(ALLTARGETS)
-	$(RM) mxml1.dll
 	$(RM) libmxml.a
-	$(RM) libmxml.so.1.6
-	$(RM) libmxml.sl.1
-	$(RM) libmxml.1.dylib
+	$(RM) libmxml.dll
+	$(RM) libmxml.so
+	$(RM) libmxml.so.2
+	$(RM) libmxml.2.dylib
+	$(RM) libmxml.dylib
+	$(RM) libmxml4.a
+	$(RM) libmxml4.dll
+	$(RM) libmxml4.so
+	$(RM) libmxml4.so.2
+	$(RM) libmxml4.2.dylib
+	$(RM) libmxml4.dylib
 
 
 #
@@ -114,7 +196,10 @@ clean:
 distclean:	clean
 	echo Cleaning distribution files...
 	$(RM) config.cache config.log config.status
-	$(RM) Makefile config.h
+	$(RM) Makefile config.h mxml.pc
+	$(RM) test.xmlfd
+	$(RM) temp1.xml temp1.xmlfd temp1s.xml
+	$(RM) temp2.xml temp2s.xml
 	$(RM) -r autom4te*.cache
 	$(RM) *.bck *.bak
 	$(RM) -r clang
@@ -124,7 +209,9 @@ distclean:	clean
 # Install everything...
 #
 
-install:	$(TARGETS) install-$(LIBMXML) install-libmxml.a
+.NOTPARALLEL: install install-$(LIBMXML) $(INSTALL_STATIC)
+
+install:	$(TARGETS) install-$(LIBMXML) $(INSTALL_STATIC)
 	echo Installing documentation in $(BUILDROOT)$(docdir)...
 	$(INSTALL_DIR) $(BUILDROOT)$(docdir)
 	for file in $(DOCFILES); do \
@@ -135,10 +222,10 @@ install:	$(TARGETS) install-$(LIBMXML) install-libmxml.a
 	$(INSTALL_DATA) mxml.h $(BUILDROOT)$(includedir)
 	echo Installing pkgconfig files in $(BUILDROOT)$(libdir)/pkgconfig...
 	$(INSTALL_DIR) $(BUILDROOT)$(libdir)/pkgconfig
-	$(INSTALL_DATA) mxml.pc $(BUILDROOT)$(libdir)/pkgconfig
+	$(INSTALL_DATA) mxml4.pc $(BUILDROOT)$(libdir)/pkgconfig/$(MXML_PC)
 	echo Installing man pages in $(BUILDROOT)$(mandir)...
 	$(INSTALL_DIR) $(BUILDROOT)$(mandir)/man3
-	$(INSTALL_MAN) doc/mxml.3 $(BUILDROOT)$(mandir)/man3/mxml.3
+	$(INSTALL_MAN) doc/mxml.3 $(BUILDROOT)$(mandir)/man3/$(MXML_MAN)
 
 install-libmxml.a:	libmxml.a
 	echo Installing libmxml.a to $(BUILDROOT)$(libdir)...
@@ -146,53 +233,141 @@ install-libmxml.a:	libmxml.a
 	$(INSTALL_LIB) libmxml.a $(BUILDROOT)$(libdir)
 	$(RANLIB) $(BUILDROOT)$(libdir)/libmxml.a
 
-install-libmxml.so.1.6:	libmxml.so.1.6
+install-libmxml.dll:	libmxml.dll
+	echo Installing libmxml.dll to $(BUILDROOT)$(bindir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(bindir)
+	$(INSTALL_LIB) libmxml.dll $(BUILDROOT)$(bindir)
+	echo Installing libmxml.a to $(BUILDROOT)$(libdir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml.a $(BUILDROOT)$(libdir)
+
+install-libmxml.so.2:	libmxml.so.2
 	echo Installing libmxml.so to $(BUILDROOT)$(libdir)...
 	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
-	$(INSTALL_LIB) libmxml.so.1.6 $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml.so.2 $(BUILDROOT)$(libdir)
 	$(RM) $(BUILDROOT)$(libdir)/libmxml.so
-	$(LN) libmxml.so.1.6 $(BUILDROOT)$(libdir)/libmxml.so
-	$(RM) $(BUILDROOT)$(libdir)/libmxml.so.1
-	$(LN) libmxml.so.1.6 $(BUILDROOT)$(libdir)/libmxml.so.1
+	$(LN) libmxml.so.2 $(BUILDROOT)$(libdir)/libmxml.so
 	$(LDCONFIG)
 
-install-libmxml.1.dylib: libmxml.1.dylib
+install-libmxml.2.dylib: libmxml.2.dylib
 	echo Installing libmxml.dylib to $(BUILDROOT)$(libdir)...
 	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
-	$(INSTALL_LIB) libmxml.1.dylib $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml.2.dylib $(BUILDROOT)$(libdir)
 	$(RM) $(BUILDROOT)$(libdir)/libmxml.dylib
-	$(LN) libmxml.1.dylib $(BUILDROOT)$(libdir)/libmxml.dylib
+	$(LN) libmxml.2.dylib $(BUILDROOT)$(libdir)/libmxml.dylib
+
+install-libmxml4.a:	libmxml4.a
+	echo Installing libmxml4.a to $(BUILDROOT)$(libdir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml4.a $(BUILDROOT)$(libdir)
+	$(RANLIB) $(BUILDROOT)$(libdir)/libmxml4.a
+
+install-libmxml4.dll:	libmxml4.dll
+	echo Installing libmxml4.dll to $(BUILDROOT)$(bindir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(bindir)
+	$(INSTALL_LIB) libmxml4.dll $(BUILDROOT)$(bindir)
+	echo Installing libmxml4.a to $(BUILDROOT)$(libdir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml4.a $(BUILDROOT)$(libdir)
+
+install-libmxml4.so.2:	libmxml4.so.2
+	echo Installing libmxml4.so to $(BUILDROOT)$(libdir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml4.so.2 $(BUILDROOT)$(libdir)
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.so
+	$(LN) libmxml4.so.2 $(BUILDROOT)$(libdir)/libmxml4.so
+	$(LDCONFIG)
+
+install-libmxml4.2.dylib: libmxml4.2.dylib
+	echo Installing libmxml4.dylib to $(BUILDROOT)$(libdir)...
+	$(INSTALL_DIR) $(BUILDROOT)$(libdir)
+	$(INSTALL_LIB) libmxml4.2.dylib $(BUILDROOT)$(libdir)
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.dylib
+	$(LN) libmxml4.2.dylib $(BUILDROOT)$(libdir)/libmxml4.dylib
 
 
 #
 # Uninstall everything...
 #
 
-uninstall: uninstall-$(LIBMXML) uninstall-libmxml.a
+uninstall: uninstall-$(LIBMXML) @UNINSTALL_STATIC@
 	echo Uninstalling documentation from $(BUILDROOT)$(docdir)...
 	$(RM) -r $(BUILDROOT)$(docdir)
 	echo Uninstalling headers from $(BUILDROOT)$(includedir)...
 	$(RM) $(BUILDROOT)$(includedir)/mxml.h
 	echo Uninstalling pkgconfig files from $(BUILDROOT)$(libdir)/pkgconfig...
-	$(RM) $(BUILDROOT)$(libdir)/pkgconfig/mxml.pc
+	$(RM) $(BUILDROOT)$(libdir)/pkgconfig/$(MXML_PC)
 	echo Uninstalling man pages from $(BUILDROOT)$(mandir)...
-	$(RM) $(BUILDROOT)$(mandir)/man3/mxml.3
+	$(RM) $(BUILDROOT)$(mandir)/man3/$(MXML_MAN)
 
 uninstall-libmxml.a:
 	echo Uninstalling libmxml.a from $(BUILDROOT)$(libdir)...
 	$(RM) $(BUILDROOT)$(libdir)/libmxml.a
 
-uninstall-libmxml.so.1.6:
+uninstall-libmxml.dll:
+	echo Uninstalling libmxml.dll from $(BUILDROOT)$(bindir)...
+	$(RM) $(BUILDROOT)$(bindir)/libmxml.dll
+
+uninstall-libmxml.so.2:
 	echo Uninstalling libmxml.so from $(BUILDROOT)$(libdir)...
 	$(RM) $(BUILDROOT)$(libdir)/libmxml.so
-	$(RM) $(BUILDROOT)$(libdir)/libmxml.so.1
-	$(RM) $(BUILDROOT)$(libdir)/libmxml.so.1.6
+	$(RM) $(BUILDROOT)$(libdir)/libmxml.so.2
 	$(LDCONFIG)
 
-uninstall-libmxml.1.dylib:
+uninstall-libmxml.2.dylib:
 	echo Uninstalling libmxml.dylib from $(BUILDROOT)$(libdir)...
 	$(RM) $(BUILDROOT)$(libdir)/libmxml.dylib
-	$(RM) $(BUILDROOT)$(libdir)/libmxml.1.dylib
+	$(RM) $(BUILDROOT)$(libdir)/libmxml.2.dylib
+
+uninstall-libmxml4.a:
+	echo Uninstalling libmxml4.a from $(BUILDROOT)$(libdir)...
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.a
+
+uninstall-libmxml4.dll:
+	echo Uninstalling libmxml4.dll from $(BUILDROOT)$(bindir)...
+	$(RM) $(BUILDROOT)$(bindir)/libmxml4.dll
+
+uninstall-libmxml4.so.2:
+	echo Uninstalling libmxml4.so from $(BUILDROOT)$(libdir)...
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.so
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.so.2
+	$(LDCONFIG)
+
+uninstall-libmxml4.2.dylib:
+	echo Uninstalling libmxml4.dylib from $(BUILDROOT)$(libdir)...
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.dylib
+	$(RM) $(BUILDROOT)$(libdir)/libmxml4.2.dylib
+
+
+#
+# Test everything...
+#
+
+test:	testmxml
+	@echo Testing library...
+	./testmxml test.xml temp1s.xml >temp1.xml
+	./testmxml temp1.xml temp2s.xml >temp2.xml
+	@if cmp temp1.xml temp2.xml; then \
+		echo Stdio file test passed!; \
+		$(RM) temp2.xml temp2s.xml; \
+	else \
+		echo Stdio file test failed!; \
+		exit 1; \
+	fi
+	@if cmp temp1.xml temp1s.xml; then \
+		echo String test passed!; \
+		$(RM) temp1.xml temp1s.xml; \
+	else \
+		echo String test failed!; \
+		exit 1; \
+	fi
+	@if cmp test.xml test.xmlfd; then \
+		echo File descriptor test passed!; \
+		$(RM) test.xmlfd temp1.xmlfd; \
+	else \
+		echo File descriptor test failed!; \
+		exit 1; \
+	fi
 
 
 #
@@ -211,86 +386,95 @@ sloc:
 # libmxml.a
 #
 
-libmxml.a:	$(LIBOBJS)
+libmxml.a libmxml4.a:	$(LIBOBJS)
 	echo Creating $@...
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 	$(RANLIB) $@
 
-$(LIBOBJS):	mxml.h
-mxml-entity.o mxml-file.o mxml-private.o: mxml-private.h
+$(LIBOBJS):	mxml.h mxml-private.h
 
 
 #
-# mxml1.dll
+# libmxml2.dll
 #
 
-mxml1.dll:	$(LIBOBJS)
+libmxml.dll libmxml4.dll:	$(LIBOBJS)
 	echo Creating $@...
-	$(DSO) $(DSOFLAGS) $(LDFLAGS) -o $@ $(LIBOBJS) $(LIBS)
+	$(DSO) $(DSOFLAGS) -o $@ $(LIBOBJS) $(LIBS)
 
 
 #
-# libmxml.so.1.6
+# libmxml.so.2
 #
 
-libmxml.so.1.6:	$(LIBOBJS)
+libmxml.so.2 libmxml4.so.2:	$(LIBOBJS)
 	echo Creating $@...
-	$(DSO) $(DSOFLAGS) $(LDFLAGS) -o libmxml.so.1.6 $(LIBOBJS) $(LIBS)
-	$(RM) libmxml.so libmxml.so.1
-	$(LN) libmxml.so.1.6 libmxml.so
-	$(LN) libmxml.so.1.6 libmxml.so.1
+	$(DSO) $(DSOFLAGS) -o $@ $(LIBOBJS) $(LIBS)
+	$(RM) `basename $@ .2`
+	$(LN) $@ `basename $@ .2`
 
 
 #
-# libmxml.1.dylib
+# libmxml.2.dylib
 #
 
-libmxml.1.dylib:	$(LIBOBJS)
+libmxml.2.dylib libmxml4.2.dylib:	$(LIBOBJS)
 	echo Creating $@...
-	$(DSO) $(DSOFLAGS) $(LDFLAGS) -o libmxml.1.dylib \
-		-install_name $(libdir)/libmxml.dylib \
-		-current_version 1.6.0 \
-		-compatibility_version 1.0.0 \
+	$(DSO) $(DSOFLAGS) -o $@ \
+		-install_name $(libdir)/`basename $@ .2.dylib`.dylib  \
+		-current_version 2.0.0 \
+		-compatibility_version 2.0.0 \
 		$(LIBOBJS) $(LIBS)
-	$(RM) libmxml.dylib
-	$(LN) libmxml.1.dylib libmxml.dylib
+	$(RM) `basename $@ .2.dylib`.dylib
+	$(LN) $@ `basename $@ .2.dylib`.dylib
 
 
 #
 # testmxml
 #
 
-testmxml:	libmxml.a testmxml.o
+testmxml:	$(LIBMXML_STATIC) testmxml.o
 	echo Linking $@...
-	$(CC) $(LDFLAGS) -o $@ testmxml.o libmxml.a $(LIBS)
-	@echo Testing library...
-	./testmxml test.xml temp1s.xml >temp1.xml
-	./testmxml temp1.xml temp2s.xml >temp2.xml
-	@if cmp temp1.xml temp2.xml; then \
-		echo Stdio file test passed!; \
-		$(RM) temp2.xml temp2s.xml; \
-	else \
-		echo Stdio file test failed!; \
-	fi
-	@if cmp temp1.xml temp1s.xml; then \
-		echo String test passed!; \
-		$(RM) temp1.xml temp1s.xml; \
-	else \
-		echo String test failed!; \
-	fi
-	@if cmp test.xml test.xmlfd; then \
-		echo File descriptor test passed!; \
-		$(RM) test.xmlfd; \
-	else \
-		echo File descriptor test failed!; \
-	fi
+	$(CC) $(LDFLAGS) -o $@ testmxml.o $(LIBMXML_STATIC) $(LIBS)
 
 testmxml-vg:	$(LIBOBJS) testmxml.o
 	echo Linking $@...
 	$(CC) $(LDFLAGS) -o $@ testmxml.o $(LIBOBJS) $(LIBS)
 
 testmxml.o:	mxml.h
+
+
+#
+# Fuzz-test the library <>
+#
+
+.PHONY: afl
+afl:
+	$(MAKE) -$(MAKEFLAGS) CC="afl-clang-fast" COMMONFLAGS="-g" clean all
+	test afl-output || rm -rf afl-output
+	afl-fuzz -x xml.dict -i afl-input -o afl-output -V 600 -e xml -t 5000 ./testmxml @@ temps.xml
+
+
+#
+# Analyze code with the Clang static analyzer <https://clang-analyzer.llvm.org>
+#
+
+.PHONY: clang
+clang:
+	clang $(CPPFLAGS) --analyze $(OBJS:.o=.c) 2>clang.log
+	rm -rf $(OBJS:.o=.plist)
+	test -s clang.log && (echo "$(GHA_ERROR)Clang detected issues."; echo ""; cat clang.log; exit 1) || exit 0
+
+
+#
+# Analyze code using Cppcheck <http://cppcheck.sourceforge.net>
+#
+
+.PHONY: cppcheck
+cppcheck:
+	cppcheck $(CPPFLAGS) --template=gcc --suppressions-list=.cppcheck $(OBJS:.o=.c) 2>cppcheck.log
+	test -s cppcheck.log && (echo "$(GHA_ERROR)Cppcheck detected issues."; echo ""; cat cppcheck.log; exit 1) || exit 0
 
 
 #

@@ -1,0 +1,60 @@
+{
+  "unigrams": [
+    {
+      "tokens": [
+        "the"
+      ],
+      "count": 6,
+      "weight": 0.35294117647058826
+    },
+    {
+      "tokens": [
+        "world"
+      ],
+      "count": 6,
+      "weight": 0.35294117647058826
+    },
+    {
+      "tokens": [
+        "hello"
+      ],
+      "count": 2,
+      "weight": 0.11764705882352941
+    },
+    {
+      "tokens": [
+        "in"
+      ],
+      "count": 2,
+      "weight": 0.11764705882352941
+    },
+    {
+      "tokens": [
+        "help"
+      ],
+      "count": 1,
+      "weight": 0.058823529411764705
+    }
+  ],
+  "bigrams": [
+    {
+      "tokens": [
+        "the",
+        "world"
+      ],
+      "count": 5,
+      "weight": 1
+    }
+  ],
+  "trigrams": [
+    {
+      "tokens": [
+        "in",
+        "the",
+        "world"
+      ],
+      "count": 2,
+      "weight": 1
+    }
+  ]
+}

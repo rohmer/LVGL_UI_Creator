@@ -1,0 +1,38 @@
+{
+  "formatVersion": 2,
+  "activeScreen": 0,
+  "screens": [
+    {
+      "name": "Form",
+      "canvas": {"width": 320, "height": 240},
+      "obj": [
+        {"oid": 7, "par": -1, "base": {"coords": {"x": 10, "y": 10, "width": 100, "height": 48}, "events": [
+          {"event": "clicked", "action": "validate", "targetOid": 9, "required": true, "min": 10, "max": 20},
+          {"event": "clicked", "action": "increment_variable", "variable": "count", "value": 2, "condition": {"variable": "enabled", "op": "truthy"}},
+          {"event": "clicked", "action": "set_variable", "variable": "caption", "value": "After"},
+          {"event": "clicked", "action": "set_variable", "variable": "temperature", "value": 0.5},
+          {"event": "clicked", "action": "increment_variable", "variable": "temperature", "value": 0.25},
+          {"event": "clicked", "action": "hide", "targetOid": 10},
+          {"event": "value_changed", "action": "set_variable", "variable": "caption", "value": "Compared", "condition": {"variable": "count", "op": "gt", "value": 1.5}}
+        ]}, "button": {}},
+        {"oid": 9, "par": -1, "base": {"coords": {"x": 10, "y": 70, "width": 140, "height": 48}}, "textarea": {"text": ""}},
+        {"oid": 10, "par": -1, "base": {"coords": {"x": 170, "y": 70, "width": 100, "height": 48}}, "text": "Before"},
+        {"oid": 11, "par": -1, "base": {"coords": {"x": 10, "y": 130, "width": 140, "height": 48}, "events": [{"event": "ready", "action": "navigate", "screen": 1}]}, "button": {}}
+      ]
+    },
+    {
+      "name": "Result",
+      "canvas": {"width": 320, "height": 240},
+      "obj": [{"oid": 20, "par": -1, "base": {"coords": {"x": 10, "y": 10, "width": 100, "height": 48}, "events": [
+        {"event": "clicked", "action": "show", "targetScreen": 0, "targetOid": 10},
+        {"event": "clicked", "action": "navigate", "screen": 0}
+      ]}, "button": {}}]
+    }
+  ],
+  "variables": [
+    {"var": {"name": "count", "dataType": 1, "default": 0, "history": 5, "oid": -1, "property": ""}},
+    {"var": {"name": "enabled", "dataType": 2, "default": true, "history": 5, "oid": -1, "property": ""}},
+    {"var": {"name": "caption", "dataType": 0, "default": "Before", "history": 5, "oid": 10, "screen": 0, "property": "text"}},
+    {"var": {"name": "temperature", "dataType": 3, "default": 0.0, "history": 5, "oid": -1, "property": ""}}
+  ]
+}

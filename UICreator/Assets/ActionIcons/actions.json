@@ -1,0 +1,1072 @@
+[
+  {
+    "id": 0,
+    "key": "action.new",
+    "name": "New project",
+    "aliases": ["new"],
+    "commands": [
+      ["polyline",[[7,3],[20,3],[26,9],[26,29],[7,29],[7,3]],"primary",1.8],
+      ["polyline",[[20,3],[20,9],[26,9]],"blue",1.8],
+      ["line",11,17,22,17,"accent",2],
+      ["line",16.5,11.5,16.5,22.5,"accent",2]
+    ]
+  },
+  {
+    "id": 1,
+    "key": "action.open",
+    "name": "Open project",
+    "aliases": ["open"],
+    "commands": [
+      ["polyline",[[3,26],[3,7],[12,7],[15,10],[28,10],[28,26],[3,26]],"primary",1.8],
+      ["polyline",[[3,26],[8,15],[29,15],[25,26]],"accent",1.8],
+      ["line",11,21,21,21,"blue",2]
+    ]
+  },
+  {
+    "id": 2,
+    "key": "action.save",
+    "name": "Save",
+    "aliases": ["save"],
+    "commands": [
+      ["polyline",[[5,3],[24,3],[29,8],[29,29],[3,29],[3,5],[5,3]],"primary",1.8],
+      ["rect",8,4,14,8,1,"accent","blue",1.8],
+      ["rect",8,19,16,9,1,"primary","none",1.8],
+      ["line",18,5,18,10,"primary",1.8]
+    ]
+  },
+  {
+    "id": 3,
+    "key": "action.save_as",
+    "name": "Save as",
+    "aliases": ["save-as"],
+    "commands": [
+      ["polyline",[[4,4],[23,4],[27,8],[27,19]],"primary",1.8],
+      ["polyline",[[4,4],[4,28],[15,28]],"primary",1.8],
+      ["rect",8,5,12,7,1,"accent","blue",1.8],
+      ["polyline",[[17,24],[25,16],[29,20],[21,28],[16,29],[17,24]],"accent",1.8],
+      ["line",23,18,27,22,"blue",1.8]
+    ]
+  },
+  {
+    "id": 4,
+    "key": "action.exit",
+    "name": "Exit",
+    "aliases": ["exit"],
+    "commands": [
+      ["polyline",[[14,4],[5,4],[5,28],[14,28]],"primary",1.8],
+      ["line",13,16,29,16,"accent",2],
+      ["polyline",[[23,10],[29,16],[23,22]],"accent",2]
+    ]
+  },
+  {
+    "id": 5,
+    "key": "action.undo",
+    "name": "Undo",
+    "aliases": ["undo"],
+    "commands": [
+      ["polyline",[[4,12],[11,5],[11,10]],"accent",2],
+      ["polyline",[[4,12],[18,12]],"accent",2],
+      ["arc",18,19,7,270,360,"primary",1.8],
+      ["arc",18,19,7,0,90,"primary",1.8],
+      ["line",18,26,11,26,"primary",1.8]
+    ]
+  },
+  {
+    "id": 6,
+    "key": "action.redo",
+    "name": "Redo",
+    "aliases": ["redo"],
+    "commands": [
+      ["polyline",[[28,12],[21,5],[21,10]],"accent",2],
+      ["line",14,12,28,12,"accent",2],
+      ["arc",14,19,7,90,270,"primary",1.8],
+      ["line",14,26,21,26,"primary",1.8]
+    ]
+  },
+  {
+    "id": 7,
+    "key": "action.duplicate",
+    "name": "Duplicate",
+    "aliases": ["duplicate"],
+    "commands": [
+      ["rect",3,3,18,19,2,"muted","none",1.8],
+      ["rect",10,10,19,19,2,"primary","none",1.8],
+      ["line",15,20,24,20,"accent",2],
+      ["line",19.5,15.5,19.5,24.5,"accent",2]
+    ]
+  },
+  {
+    "id": 8,
+    "key": "action.delete",
+    "name": "Delete",
+    "aliases": ["delete","variable-remove"],
+    "commands": [
+      ["polyline",[[7,9],[8,28],[24,28],[25,9]],"primary",1.8],
+      ["line",4,8,28,8,"accent",2],
+      ["rect",11,3,10,4,1,"accent","none",1.8],
+      ["line",12,13,12,23,"muted",1.8],
+      ["line",20,13,20,23,"muted",1.8]
+    ]
+  },
+  {
+    "id": 9,
+    "key": "action.copy",
+    "name": "Copy",
+    "aliases": ["copy"],
+    "commands": [
+      ["rect",3,3,18,20,2,"muted","none",1.8],
+      ["rect",10,10,19,19,2,"primary","none",1.8],
+      ["line",14,16,25,16,"blue",1.8],
+      ["line",14,21,22,21,"muted",1.8]
+    ]
+  },
+  {
+    "id": 10,
+    "key": "action.paste",
+    "name": "Paste",
+    "aliases": ["paste"],
+    "commands": [
+      ["rect",6,6,21,23,2,"primary","none",1.8],
+      ["rect",11,3,11,6,2,"accent","blue",1.8],
+      ["line",11,15,22,15,"muted",1.8],
+      ["line",11,20,22,20,"muted",1.8],
+      ["line",11,25,18,25,"muted",1.8]
+    ]
+  },
+  {
+    "id": 11,
+    "key": "action.move_up",
+    "name": "Move up",
+    "aliases": ["move-up"],
+    "commands": [
+      ["line",16,27,16,5,"accent",2],
+      ["polyline",[[8,13],[16,5],[24,13]],"primary",2]
+    ]
+  },
+  {
+    "id": 12,
+    "key": "action.move_down",
+    "name": "Move down",
+    "aliases": ["move-down"],
+    "commands": [
+      ["line",16,5,16,27,"accent",2],
+      ["polyline",[[8,19],[16,27],[24,19]],"primary",2]
+    ]
+  },
+  {
+    "id": 13,
+    "key": "action.events",
+    "name": "Events and actions",
+    "aliases": ["events-editor"],
+    "commands": [
+      ["circle",6,7,3,"primary","blue",1.8],
+      ["circle",26,25,3,"primary","blue",1.8],
+      ["polyline",[[9,7],[19,7],[19,25],[23,25]],"muted",1.8],
+      ["polyline",[[17,11],[12,18],[17,18],[14,24],[23,15],[18,15],[21,11]],"accent",1.8]
+    ]
+  },
+  {
+    "id": 14,
+    "key": "action.layout",
+    "name": "Layout designer",
+    "aliases": ["layout-designer"],
+    "commands": [
+      ["rect",3,3,26,26,3,"primary","none",1.8],
+      ["rect",6,6,7,20,1,"accent","blue",1.8],
+      ["rect",17,6,9,8,1,"primary","none",1.8],
+      ["rect",17,18,9,8,1,"muted","none",1.8]
+    ]
+  },
+  {
+    "id": 15,
+    "key": "action.property_search",
+    "name": "Find property",
+    "aliases": ["property-search"],
+    "commands": [
+      ["line",4,6,18,6,"muted",1.8],
+      ["line",4,12,13,12,"muted",1.8],
+      ["line",4,18,10,18,"muted",1.8],
+      ["circle",20,19,7,"primary","none",1.8],
+      ["line",25,24,29,28,"accent",2],
+      ["line",17,19,23,19,"blue",1.8]
+    ]
+  },
+  {
+    "id": 16,
+    "key": "action.align_left",
+    "name": "Align left",
+    "aliases": ["align-left"],
+    "commands": [
+      ["line",4,3,4,29,"accent",2],
+      ["rect",8,6,19,7,1,"primary","none",1.8],
+      ["rect",8,19,12,7,1,"blue","blue",1.8]
+    ]
+  },
+  {
+    "id": 17,
+    "key": "action.align_hcenter",
+    "name": "Align horizontal centers",
+    "aliases": ["align-hcenter"],
+    "commands": [
+      ["line",16,3,16,29,"accent",2],
+      ["rect",4,6,24,7,1,"primary","none",1.8],
+      ["rect",9,19,14,7,1,"blue","blue",1.8]
+    ]
+  },
+  {
+    "id": 18,
+    "key": "action.align_right",
+    "name": "Align right",
+    "aliases": ["align-right"],
+    "commands": [
+      ["line",28,3,28,29,"accent",2],
+      ["rect",5,6,19,7,1,"primary","none",1.8],
+      ["rect",12,19,12,7,1,"blue","blue",1.8]
+    ]
+  },
+  {
+    "id": 19,
+    "key": "action.align_top",
+    "name": "Align top",
+    "aliases": ["align-top"],
+    "commands": [
+      ["line",3,4,29,4,"accent",2],
+      ["rect",6,8,7,19,1,"primary","none",1.8],
+      ["rect",19,8,7,12,1,"blue","blue",1.8]
+    ]
+  },
+  {
+    "id": 20,
+    "key": "action.align_vcenter",
+    "name": "Align vertical centers",
+    "aliases": ["align-vcenter"],
+    "commands": [
+      ["line",3,16,29,16,"accent",2],
+      ["rect",6,4,7,24,1,"primary","none",1.8],
+      ["rect",19,9,7,14,1,"blue","blue",1.8]
+    ]
+  },
+  {
+    "id": 21,
+    "key": "action.align_bottom",
+    "name": "Align bottom",
+    "aliases": ["align-bottom"],
+    "commands": [
+      ["line",3,28,29,28,"accent",2],
+      ["rect",6,5,7,19,1,"primary","none",1.8],
+      ["rect",19,12,7,12,1,"blue","blue",1.8]
+    ]
+  },
+  {
+    "id": 22,
+    "key": "action.distribute_horizontal",
+    "name": "Distribute horizontally",
+    "aliases": ["distribute-horizontal"],
+    "commands": [
+      ["line",3,5,3,27,"muted",1.8],
+      ["line",29,5,29,27,"muted",1.8],
+      ["rect",6,10,4,12,1,"primary","none",1.8],
+      ["rect",14,7,4,18,1,"accent","blue",1.8],
+      ["rect",22,10,4,12,1,"primary","none",1.8]
+    ]
+  },
+  {
+    "id": 23,
+    "key": "action.distribute_vertical",
+    "name": "Distribute vertically",
+    "aliases": ["distribute-vertical"],
+    "commands": [
+      ["line",5,3,27,3,"muted",1.8],
+      ["line",5,29,27,29,"muted",1.8],
+      ["rect",10,6,12,4,1,"primary","none",1.8],
+      ["rect",7,14,18,4,1,"accent","blue",1.8],
+      ["rect",10,22,12,4,1,"primary","none",1.8]
+    ]
+  },
+  {
+    "id": 24,
+    "key": "action.commands",
+    "name": "Commands",
+    "aliases": ["commands"],
+    "commands": [
+      ["rect",3,5,26,23,3,"primary","none",1.8],
+      ["polyline",[[8,11],[13,16],[8,21]],"accent",2],
+      ["line",17,22,24,22,"blue",2],
+      ["line",4,9,28,9,"muted",1.6]
+    ]
+  },
+  {
+    "id": 25,
+    "key": "action.device_previews",
+    "name": "Device previews",
+    "aliases": ["device-previews"],
+    "commands": [
+      ["rect",3,3,18,25,3,"primary","none",1.8],
+      ["line",9,24,15,24,"muted",1.8],
+      ["rect",18,11,11,18,2,"accent","blue",1.8],
+      ["line",22,25,25,25,"primary",1.6]
+    ]
+  },
+  {
+    "id": 26,
+    "key": "action.screen_flow",
+    "name": "Screens and navigation",
+    "aliases": ["screen-flow"],
+    "commands": [
+      ["rect",3,4,12,9,2,"primary","none",1.8],
+      ["rect",17,19,12,9,2,"accent","blue",1.8],
+      ["polyline",[[9,13],[9,23],[17,23]],"muted",1.8],
+      ["polyline",[[13,19],[17,23],[13,27]],"accent",1.8]
+    ]
+  },
+  {
+    "id": 27,
+    "key": "action.problems",
+    "name": "Problems",
+    "aliases": ["problems"],
+    "commands": [
+      ["rect",3,3,26,26,3,"primary","none",1.8],
+      ["circle",9,10,3,"accent","blue",1.8],
+      ["line",9,8.5,9,10,"primary",1.6],
+      ["circle",9,12,0.6,"none","primary",1.6],
+      ["line",16,8,25,8,"primary",1.8],
+      ["line",16,12,22,12,"muted",1.8],
+      ["line",7,20,25,20,"muted",1.8],
+      ["line",7,25,20,25,"muted",1.8]
+    ]
+  },
+  {
+    "id": 28,
+    "key": "action.fit_canvas",
+    "name": "Fit canvas",
+    "aliases": ["fit-canvas","center-canvas"],
+    "commands": [
+      ["polyline",[[3,10],[3,3],[10,3]],"primary",1.8],
+      ["polyline",[[22,3],[29,3],[29,10]],"primary",1.8],
+      ["polyline",[[3,22],[3,29],[10,29]],"primary",1.8],
+      ["polyline",[[22,29],[29,29],[29,22]],"primary",1.8],
+      ["rect",10,10,12,12,1,"accent","blue",1.8]
+    ]
+  },
+  {
+    "id": 29,
+    "key": "action.zoom_reset",
+    "name": "Actual size",
+    "aliases": ["zoom-reset"],
+    "commands": [
+      ["circle",13,13,8,"primary","none",1.8],
+      ["line",19,19,28,28,"accent",2],
+      ["polyline",[[9,12],[9,9],[12,9]],"blue",1.8],
+      ["polyline",[[14,9],[17,9],[17,12]],"blue",1.8],
+      ["polyline",[[9,14],[9,17],[12,17]],"blue",1.8],
+      ["polyline",[[14,17],[17,17],[17,14]],"blue",1.8]
+    ]
+  },
+  {
+    "id": 30,
+    "key": "action.zoom_in",
+    "name": "Zoom in",
+    "aliases": ["zoom-in"],
+    "commands": [
+      ["circle",13,13,8,"primary","none",1.8],
+      ["line",19,19,28,28,"accent",2],
+      ["line",9,13,17,13,"blue",2],
+      ["line",13,9,13,17,"blue",2]
+    ]
+  },
+  {
+    "id": 31,
+    "key": "action.zoom_out",
+    "name": "Zoom out",
+    "aliases": ["zoom-out"],
+    "commands": [
+      ["circle",13,13,8,"primary","none",1.8],
+      ["line",19,19,28,28,"accent",2],
+      ["line",9,13,17,13,"blue",2]
+    ]
+  },
+  {
+    "id": 32,
+    "key": "action.view_all",
+    "name": "Show all panels",
+    "aliases": ["view:all","submenu:Show panel"],
+    "commands": [
+      ["rect",3,3,26,26,3,"primary","none",1.8],
+      ["line",11,4,11,28,"primary",1.8],
+      ["line",12,12,28,12,"accent",1.8],
+      ["line",12,21,28,21,"muted",1.8],
+      ["line",22,13,22,20,"blue",1.8]
+    ]
+  },
+  {
+    "id": 33,
+    "key": "action.preferences",
+    "name": "Workspace preferences",
+    "aliases": ["preferences"],
+    "commands": [
+      ["line",4,8,28,8,"muted",1.8],
+      ["line",4,16,28,16,"muted",1.8],
+      ["line",4,24,28,24,"muted",1.8],
+      ["circle",10,8,3,"primary","blue",1.8],
+      ["circle",22,16,3,"accent","blue",1.8],
+      ["circle",14,24,3,"primary","blue",1.8]
+    ]
+  },
+  {
+    "id": 34,
+    "key": "action.screens",
+    "name": "Screens panel",
+    "aliases": ["view:screens"],
+    "reuse": "widget.page"
+  },
+  {
+    "id": 35,
+    "key": "action.widgets",
+    "name": "Widgets panel",
+    "aliases": ["view:widgets"],
+    "commands": [
+      ["rect",4,4,9,9,2,"primary","blue",1.8],
+      ["circle",23,8.5,4.5,"accent","none",1.8],
+      ["triangle",[[4,27],[8.5,18],[13,27]],"accent"],
+      ["rect",18,18,10,10,1,"muted","none",1.8]
+    ]
+  },
+  {
+    "id": 36,
+    "key": "action.hierarchy",
+    "name": "Hierarchy panel",
+    "aliases": ["view:hierarchy"],
+    "reuse": "widget.layer_view"
+  },
+  {
+    "id": 37,
+    "key": "action.properties",
+    "name": "Properties panel",
+    "aliases": ["view:properties"],
+    "commands": [
+      ["rect",3,4,26,24,2,"primary","none",1.8],
+      ["rect",6,8,4,3,1,"none","blue",1.6],
+      ["line",14,9.5,25,9.5,"primary",1.8],
+      ["rect",6,15,4,3,1,"none","blue",1.6],
+      ["line",14,16.5,25,16.5,"muted",1.8],
+      ["rect",6,22,4,3,1,"none","blue",1.6],
+      ["line",14,23.5,22,23.5,"muted",1.8]
+    ]
+  },
+  {
+    "id": 38,
+    "key": "action.tools",
+    "name": "Tools panel",
+    "aliases": ["view:tools"],
+    "commands": [
+      ["polyline",[[8,4],[5,4],[3,7],[4,12],[8,14],[12,13],[25,27],[28,24],[14,11],[15,7],[12,4],[11,8],[8,9],[6,7],[8,4]],"primary",1.8],
+      ["circle",25,24,1,"none","accent",1.6]
+    ]
+  },
+  {
+    "id": 39,
+    "key": "action.simulator",
+    "name": "Simulator preview",
+    "aliases": ["view:simulator"],
+    "commands": [
+      ["rect",3,4,26,20,3,"primary","none",1.8],
+      ["line",16,24,16,28,"muted",1.8],
+      ["line",10,28,22,28,"muted",1.8],
+      ["triangle",[[13,9],[13,19],[22,14]],"accent"]
+    ]
+  },
+  {
+    "id": 40,
+    "key": "action.themes",
+    "name": "Theme gallery",
+    "aliases": ["theme-gallery"],
+    "commands": [
+      ["polyline",[[17,3],[24,5],[29,11],[28,18],[23,22],[18,21],[15,24],[10,28],[5,25],[3,19],[4,11],[9,5],[17,3]],"primary",1.8],
+      ["circle",10,11,2,"none","accent",1.6],
+      ["circle",17,8,2,"none","blue",1.6],
+      ["circle",24,12,2,"none","muted",1.6],
+      ["circle",23,18,2,"none","accent",1.6],
+      ["circle",9,21,2,"blue","none",1.8]
+    ]
+  },
+  {
+    "id": 41,
+    "key": "action.components",
+    "name": "Component library",
+    "aliases": ["component-library"],
+    "commands": [
+      ["rect",3,4,11,11,2,"accent","blue",1.8],
+      ["rect",18,4,11,11,2,"primary","none",1.8],
+      ["rect",3,19,11,10,2,"primary","none",1.8],
+      ["polyline",[[18,19],[29,19],[29,29],[18,29],[18,19]],"muted",1.8],
+      ["line",21,24,26,24,"accent",1.8],
+      ["line",23.5,21.5,23.5,26.5,"accent",1.8]
+    ]
+  },
+  {
+    "id": 42,
+    "key": "action.fonts",
+    "name": "Project fonts",
+    "aliases": ["font-manager"],
+    "commands": [
+      ["polyline",[[5,26],[13,5],[21,26]],"primary",2],
+      ["line",8,18,18,18,"accent",2],
+      ["line",3,28,10,28,"muted",1.8],
+      ["line",18,28,25,28,"muted",1.8],
+      ["line",25,8,29,8,"blue",1.8],
+      ["line",27,6,27,10,"blue",1.8]
+    ]
+  },
+  {
+    "id": 43,
+    "key": "action.images",
+    "name": "Project images",
+    "aliases": ["image-manager"],
+    "reuse": "widget.image"
+  },
+  {
+    "id": 44,
+    "key": "action.font_converter",
+    "name": "Convert font",
+    "aliases": ["font-converter"],
+    "commands": [
+      ["polyline",[[5,25],[12,6],[19,25]],"primary",2],
+      ["line",8,18,16,18,"accent",2],
+      ["line",21,16,29,16,"accent",2],
+      ["polyline",[[25,12],[29,16],[25,20]],"accent",2]
+    ]
+  },
+  {
+    "id": 45,
+    "key": "action.image_converter",
+    "name": "Convert images",
+    "aliases": ["image-converter"],
+    "commands": [
+      ["rect",3,5,21,22,2,"primary","none",1.8],
+      ["circle",9,11,2,"blue","blue",1.8],
+      ["polyline",[[6,23],[12,16],[16,20],[20,15]],"muted",1.8],
+      ["line",20,16,29,16,"accent",2],
+      ["polyline",[[25,12],[29,16],[25,20]],"accent",2]
+    ]
+  },
+  {
+    "id": 46,
+    "key": "action.model_playground",
+    "name": "Model playground",
+    "aliases": ["model-playground"],
+    "commands": [
+      ["polyline",[[5,4],[27,4],[29,6],[29,19],[26,22],[17,22],[11,28],[11,22],[5,22],[3,20],[3,6],[5,4]],"primary",1.8],
+      ["circle",10,12,2,"accent","blue",1.8],
+      ["circle",22,12,2,"accent","blue",1.8],
+      ["line",12,12,20,12,"muted",1.8],
+      ["line",16,12,16,17,"muted",1.8],
+      ["circle",16,18,1.5,"none","blue",1.6]
+    ]
+  },
+  {
+    "id": 47,
+    "key": "action.model_generator",
+    "name": "Generate language model",
+    "aliases": ["language-model-generator"],
+    "commands": [
+      ["line",16,8,16,13,"muted",1.8],
+      ["polyline",[[7,22],[7,16],[25,16],[25,22]],"muted",1.8],
+      ["line",16,16,16,23,"muted",1.8],
+      ["circle",16,5,3,"accent","blue",1.8],
+      ["circle",7,25,3,"primary","none",1.8],
+      ["circle",16,25,3,"primary","none",1.8],
+      ["circle",25,25,3,"primary","none",1.8]
+    ]
+  },
+  {
+    "id": 48,
+    "key": "action.model_load",
+    "name": "Load language model",
+    "aliases": ["language-model-load"],
+    "commands": [
+      ["circle",8,6,3,"primary","blue",1.8],
+      ["polyline",[[8,9],[8,19],[5,19]],"muted",1.8],
+      ["circle",5,22,3,"primary","none",1.8],
+      ["circle",14,22,3,"primary","none",1.8],
+      ["line",8,14,14,14,"muted",1.8],
+      ["line",14,14,14,19,"muted",1.8],
+      ["line",25,4,25,21,"accent",2],
+      ["polyline",[[21,17],[25,21],[29,17]],"accent",1.8],
+      ["polyline",[[20,26],[20,29],[29,29],[29,26]],"primary",1.8]
+    ]
+  },
+  {
+    "id": 49,
+    "key": "action.export_protobuf",
+    "name": "Export Protobuf",
+    "aliases": ["export-protobuf"],
+    "commands": [
+      ["polyline",[[7,3],[20,3],[26,9],[26,29],[7,29],[7,3]],"primary",1.8],
+      ["polyline",[[20,3],[20,9],[26,9]],"blue",1.8],
+      ["circle",12,12,1.5,"accent","blue",1.8],
+      ["circle",21,20,1.5,"accent","blue",1.8],
+      ["polyline",[[13.5,12],[17,12],[17,20],[19.5,20]],"muted",1.8],
+      ["line",19,25.5,29,25.5,"accent",2],
+      ["polyline",[[25,22],[29,25.5],[25,29]],"accent",1.8]
+    ]
+  },
+  {
+    "id": 50,
+    "key": "action.export_c",
+    "name": "Export C",
+    "aliases": ["export-c"],
+    "commands": [
+      ["polyline",[[7,3],[20,3],[26,9],[26,29],[7,29],[7,3]],"primary",1.8],
+      ["polyline",[[20,3],[20,9],[26,9]],"blue",1.8],
+      ["polyline",[[13,12],[10,16],[13,20]],"blue",1.8],
+      ["polyline",[[20,12],[23,16],[20,20]],"blue",1.8],
+      ["line",19,25.5,29,25.5,"accent",2],
+      ["polyline",[[25,22],[29,25.5],[25,29]],"accent",1.8]
+    ]
+  },
+  {
+    "id": 51,
+    "key": "action.project_creator",
+    "name": "Create project",
+    "aliases": ["project-creator","project-creator-linux"],
+    "commands": [
+      ["polyline",[[3,26],[3,7],[12,7],[15,10],[28,10],[28,26],[3,26]],"primary",1.8],
+      ["circle",23,23,6,"accent","blue",1.8],
+      ["line",20,23,26,23,"primary",2],
+      ["line",23,20,23,26,"primary",2],
+      ["line",7,15,14,15,"muted",1.8]
+    ]
+  },
+  {
+    "id": 52,
+    "key": "action.device_tools",
+    "name": "Build, flash and serial",
+    "aliases": ["device-tools"],
+    "commands": [
+      ["rect",7,5,18,22,2,"primary","none",1.8],
+      ["rect",12,10,8,11,1,"accent","blue",1.8],
+      ["line",3,10,7,10,"muted",1.8],
+      ["line",3,16,7,16,"muted",1.8],
+      ["line",3,22,7,22,"muted",1.8],
+      ["line",25,10,29,10,"muted",1.8],
+      ["line",25,16,29,16,"muted",1.8],
+      ["line",25,22,29,22,"muted",1.8],
+      ["line",13,25,19,25,"blue",1.8]
+    ]
+  },
+  {
+    "id": 53,
+    "key": "action.run",
+    "name": "Run",
+    "aliases": ["run-toggle","run-application"],
+    "commands": [
+      ["triangle",[[9,4],[28,16],[9,28]],"accent"]
+    ]
+  },
+  {
+    "id": 54,
+    "key": "action.stop",
+    "name": "Stop",
+    "aliases": ["run-stop"],
+    "commands": [
+      ["rect",6,6,20,20,3,"primary","blue",1.8]
+    ]
+  },
+  {
+    "id": 55,
+    "key": "action.performance",
+    "name": "Performance",
+    "aliases": ["performance"],
+    "commands": [
+      ["arc",16,18,11,180,360,"primary",2],
+      ["line",16,7,16,10,"blue",1.8],
+      ["line",5,18,8,18,"blue",1.8],
+      ["line",24,18,27,18,"blue",1.8],
+      ["line",16,18,22,11,"accent",2],
+      ["circle",16,18,2,"none","accent",0],
+      ["line",7,26,25,26,"muted",1.8]
+    ]
+  },
+  {
+    "id": 56,
+    "key": "action.validate",
+    "name": "Validate screen",
+    "aliases": ["validate-screen","export-preflight"],
+    "commands": [
+      ["rect",3,4,24,19,3,"primary","none",1.8],
+      ["line",10,28,18,28,"muted",1.8],
+      ["line",14,23,14,28,"muted",1.8],
+      ["circle",24,24,5,"accent","blue",1.8],
+      ["polyline",[[21,24],[23,26],[27,21]],"primary",1.8]
+    ]
+  },
+  {
+    "id": 57,
+    "key": "action.debug",
+    "name": "Debug screen",
+    "aliases": ["debug-screen"],
+    "commands": [
+      ["rect",3,4,26,20,3,"primary","none",1.8],
+      ["line",16,24,16,28,"muted",1.8],
+      ["line",10,28,22,28,"muted",1.8],
+      ["rect",11,10,10,10,4,"accent","blue",1.8],
+      ["circle",16,8,2,"primary","none",1.8],
+      ["line",8,12,11,13,"muted",1.8],
+      ["line",8,18,11,17,"muted",1.8],
+      ["line",21,13,24,12,"muted",1.8],
+      ["line",21,17,24,18,"muted",1.8],
+      ["line",16,11,16,19,"primary",1.6]
+    ]
+  },
+  {
+    "id": 58,
+    "key": "action.debug_stop",
+    "name": "Stop debug viewer",
+    "aliases": ["debug-stop"],
+    "commands": [
+      ["circle",12,7,3,"primary","none",1.8],
+      ["rect",7,10,10,14,5,"primary","none",1.8],
+      ["line",4,12,7,14,"muted",1.8],
+      ["line",4,21,7,19,"muted",1.8],
+      ["line",17,14,20,12,"muted",1.8],
+      ["line",17,19,20,21,"muted",1.8],
+      ["rect",21,21,8,8,1,"accent","blue",1.8]
+    ]
+  },
+  {
+    "id": 59,
+    "key": "action.welcome",
+    "name": "Welcome",
+    "aliases": ["welcome"],
+    "commands": [
+      ["polyline",[[3,14],[16,3],[29,14]],"primary",2],
+      ["polyline",[[6,12],[6,28],[26,28],[26,12]],"primary",1.8],
+      ["rect",13,18,6,10,1,"accent","blue",1.8],
+      ["line",7,4,7,7,"blue",1.8],
+      ["line",5.5,5.5,8.5,5.5,"blue",1.8]
+    ]
+  },
+  {
+    "id": 60,
+    "key": "action.shortcuts",
+    "name": "Keyboard shortcuts",
+    "aliases": ["shortcuts"],
+    "reuse": "widget.keyboard"
+  },
+  {
+    "id": 61,
+    "key": "action.diagnostics",
+    "name": "Diagnostics",
+    "aliases": ["diagnostics"],
+    "commands": [
+      ["rect",3,4,26,23,3,"primary","none",1.8],
+      ["polyline",[[6,18],[10,18],[13,10],[17,23],[20,14],[23,18],[26,18]],"accent",2],
+      ["line",7,8,11,8,"muted",1.6]
+    ]
+  },
+  {
+    "id": 62,
+    "key": "action.about",
+    "name": "About",
+    "aliases": ["about"],
+    "commands": [
+      ["circle",16,16,12,"primary","none",1.8],
+      ["circle",16,9,1.4,"none","accent",1.6],
+      ["line",16,14,16,24,"blue",2],
+      ["line",13,24,19,24,"blue",2]
+    ]
+  },
+  {
+    "id": 63,
+    "key": "action.screen_add",
+    "name": "Add screen",
+    "aliases": ["screen-add"],
+    "commands": [
+      ["rect",3,4,24,20,3,"primary","none",1.8],
+      ["line",10,28,18,28,"muted",1.8],
+      ["line",14,24,14,28,"muted",1.8],
+      ["circle",24,24,5,"accent","blue",1.8],
+      ["line",21,24,27,24,"primary",1.8],
+      ["line",24,21,24,27,"primary",1.8]
+    ]
+  },
+  {
+    "id": 64,
+    "key": "action.select_screen",
+    "name": "Select screen",
+    "aliases": ["select-screen"],
+    "commands": [
+      ["rect",3,4,26,20,3,"primary","none",1.8],
+      ["line",16,24,16,28,"muted",1.8],
+      ["line",10,28,22,28,"muted",1.8],
+      ["polyline",[[9,8],[9,19],[13,16],[17,21],[20,19],[16,14],[21,13],[9,8]],"accent",1.8]
+    ]
+  },
+  {
+    "id": 65,
+    "key": "action.grid_decrease",
+    "name": "Decrease grid spacing",
+    "aliases": ["grid-decrease"],
+    "commands": [
+      ["rect",3,3,24,24,1,"primary","none",1.8],
+      ["line",11,4,11,26,"muted",1.8],
+      ["line",19,4,19,26,"muted",1.8],
+      ["line",4,11,26,11,"muted",1.8],
+      ["line",4,19,26,19,"muted",1.8],
+      ["circle",24,24,5,"accent","blue",1.8],
+      ["line",21,24,27,24,"primary",1.8]
+    ]
+  },
+  {
+    "id": 66,
+    "key": "action.grid_increase",
+    "name": "Increase grid spacing",
+    "aliases": ["grid-increase"],
+    "commands": [
+      ["rect",3,3,24,24,1,"primary","none",1.8],
+      ["line",11,4,11,26,"muted",1.8],
+      ["line",19,4,19,26,"muted",1.8],
+      ["line",4,11,26,11,"muted",1.8],
+      ["line",4,19,26,19,"muted",1.8],
+      ["circle",24,24,5,"accent","blue",1.8],
+      ["line",21,24,27,24,"primary",1.8],
+      ["line",24,21,24,27,"primary",1.8]
+    ]
+  },
+  {
+    "id": 67,
+    "key": "action.variable_add",
+    "name": "Add variable",
+    "aliases": ["variable-add"],
+    "commands": [
+      ["polyline",[[12,4],[8,4],[8,12],[4,16],[8,20],[8,28],[12,28]],"primary",1.8],
+      ["polyline",[[20,4],[24,4],[24,12],[28,16],[24,20],[24,28],[20,28]],"muted",1.8],
+      ["line",12,16,20,16,"accent",2],
+      ["line",16,12,16,20,"accent",2]
+    ]
+  },
+  {
+    "id": 68,
+    "key": "action.variable_delete",
+    "name": "Remove variable",
+    "aliases": ["variable-delete"],
+    "commands": [
+      ["polyline",[[12,4],[8,4],[8,12],[4,16],[8,20],[8,28],[12,28]],"primary",1.8],
+      ["polyline",[[20,4],[24,4],[24,12],[28,16],[24,20],[24,28],[20,28]],"muted",1.8],
+      ["line",12,16,20,16,"accent",2]
+    ]
+  },
+  {
+    "id": 69,
+    "key": "action.minimize",
+    "name": "Minimize",
+    "aliases": ["minimize"],
+    "commands": [
+      ["line",6,24,26,24,"primary",2]
+    ]
+  },
+  {
+    "id": 70,
+    "key": "action.restore",
+    "name": "Restore window",
+    "aliases": ["restore"],
+    "commands": [
+      ["polyline",[[11,10],[11,4],[28,4],[28,21],[22,21]],"muted",1.8],
+      ["rect",4,10,18,18,1,"primary","none",1.8],
+      ["line",5,15,21,15,"blue",1.8]
+    ]
+  },
+  {
+    "id": 71,
+    "key": "action.close",
+    "name": "Close",
+    "aliases": ["close"],
+    "commands": [
+      ["line",7,7,25,25,"primary",2],
+      ["line",25,7,7,25,"accent",2]
+    ]
+  },
+  {
+    "id": 72,
+    "key": "action.settings",
+    "name": "Settings",
+    "aliases": ["settings"],
+    "commands": [
+      ["circle",16,16,8.5,"none","blue",1.6],
+      ["polyline",[[26,16],[25.8079,17.9509],[27.0866,20.5922],[25.9776,22.6668],[23.0711,23.0711],[21.5557,24.3147],[20.5922,27.0866],[18.3411,27.7694],[16,26],[14.0491,25.8079],[11.4078,27.0866],[9.3332,25.9776],[8.9289,23.0711],[7.6853,21.5557],[4.9134,20.5922],[4.2306,18.3411],[6,16],[6.1921,14.0491],[4.9134,11.4078],[6.0224,9.3332],[8.9289,8.9289],[10.4443,7.6853],[11.4078,4.9134],[13.6589,4.2306],[16,6],[17.9509,6.1921],[20.5922,4.9134],[22.6668,6.0224],[23.0711,8.9289],[24.3147,10.4443],[27.0866,11.4078],[27.7694,13.6589],[26,16]],"primary",1.8],
+      ["circle",16,16,3.5,"accent","none",1.8]
+    ]
+  },
+  {
+    "id": 73,
+    "key": "action.add",
+    "name": "Add",
+    "aliases": ["add"],
+    "commands": [
+      ["line",5,16,27,16,"accent",2],
+      ["line",16,5,16,27,"primary",2]
+    ]
+  },
+  {
+    "id": 74,
+    "key": "action.remove",
+    "name": "Remove",
+    "aliases": ["remove"],
+    "commands": [
+      ["line",5,16,27,16,"accent",2]
+    ]
+  },
+  {
+    "id": 75,
+    "key": "action.file_menu",
+    "name": "File",
+    "aliases": ["menu:File"],
+    "commands": [
+      ["polyline",[[3,26],[3,7],[12,7],[15,10],[28,10],[28,26],[3,26]],"primary",1.8],
+      ["line",8,16,23,16,"blue",1.8],
+      ["line",8,21,19,21,"muted",1.8]
+    ]
+  },
+  {
+    "id": 76,
+    "key": "action.edit_menu",
+    "name": "Edit",
+    "aliases": ["menu:Edit"],
+    "commands": [
+      ["polyline",[[5,21],[22,4],[28,10],[11,27],[4,28],[5,21]],"primary",1.8],
+      ["line",19,7,25,13,"accent",2],
+      ["line",6,21,11,26,"blue",1.8],
+      ["line",4,29,17,29,"muted",1.8]
+    ]
+  },
+  {
+    "id": 77,
+    "key": "action.assets_menu",
+    "name": "Assets",
+    "aliases": ["menu:Assets"],
+    "commands": [
+      ["rect",4,4,10,10,2,"accent","blue",1.8],
+      ["circle",24,9,4,"primary","none",1.8],
+      ["polyline",[[4,28],[9,19],[14,28],[4,28]],"blue",1.8],
+      ["rect",19,19,9,9,1,"muted","none",1.8]
+    ]
+  },
+  {
+    "id": 78,
+    "key": "action.language_models_menu",
+    "name": "Language models",
+    "aliases": ["menu:Language Models"],
+    "commands": [
+      ["circle",16,6,3,"accent","blue",1.8],
+      ["polyline",[[7,22],[7,15],[25,15],[25,22]],"muted",1.8],
+      ["line",16,9,16,15,"muted",1.8],
+      ["circle",7,25,3,"primary","none",1.8],
+      ["circle",25,25,3,"primary","none",1.8],
+      ["line",13,25,19,25,"blue",1.8]
+    ]
+  },
+  {
+    "id": 79,
+    "key": "action.export_menu",
+    "name": "Export",
+    "aliases": ["menu:Export"],
+    "commands": [
+      ["polyline",[[4,19],[4,28],[28,28],[28,19]],"primary",1.8],
+      ["line",16,24,16,4,"accent",2],
+      ["polyline",[[9,11],[16,4],[23,11]],"accent",2]
+    ]
+  },
+  {
+    "id": 80,
+    "key": "action.debug_menu",
+    "name": "Debug",
+    "aliases": ["menu:Debug"],
+    "commands": [
+      ["circle",16,7,3,"accent","none",1.8],
+      ["rect",10,10,12,17,6,"primary","blue",1.8],
+      ["line",16,11,16,26,"primary",1.8],
+      ["line",5,12,10,15,"muted",1.8],
+      ["line",4,20,10,20,"muted",1.8],
+      ["line",6,28,11,24,"muted",1.8],
+      ["line",22,15,27,12,"muted",1.8],
+      ["line",22,20,28,20,"muted",1.8],
+      ["line",21,24,26,28,"muted",1.8]
+    ]
+  },
+  {
+    "id": 81,
+    "key": "action.help_menu",
+    "name": "Help",
+    "aliases": ["menu:Help","help"],
+    "commands": [
+      ["circle",16,16,12,"primary","none",1.8],
+      ["arc",15,12,4,185,360,"accent",2],
+      ["arc",15,12,4,0,90,"accent",2],
+      ["line",15,16,15,20,"accent",2],
+      ["circle",15,25,1,"none","blue",1.6]
+    ]
+  },
+  {
+    "id": 82,
+    "key": "action.recent",
+    "name": "Recent projects",
+    "aliases": ["submenu:Recent projects"],
+    "prefixes": ["recent:"],
+    "commands": [
+      ["polyline",[[3,26],[3,7],[12,7],[15,10],[28,10],[28,26],[3,26]],"primary",1.8],
+      ["circle",23,23,6,"accent","blue",1.8],
+      ["polyline",[[23,19],[23,23],[26,24]],"primary",1.8]
+    ]
+  },
+  {
+    "id": 83,
+    "key": "action.align_menu",
+    "name": "Align objects",
+    "aliases": ["submenu:Align"],
+    "commands": [
+      ["line",4,3,4,29,"accent",2],
+      ["rect",8,5,19,6,1,"primary","none",1.8],
+      ["rect",8,14,12,6,1,"blue","blue",1.8],
+      ["rect",8,23,16,5,1,"muted","none",1.8]
+    ]
+  },
+  {
+    "id": 84,
+    "key": "action.distribute_menu",
+    "name": "Distribute objects",
+    "aliases": ["submenu:Distribute"],
+    "commands": [
+      ["line",3,5,3,27,"muted",1.8],
+      ["line",29,5,29,27,"muted",1.8],
+      ["rect",6,10,4,12,1,"primary","none",1.8],
+      ["rect",14,7,4,18,1,"accent","blue",1.8],
+      ["rect",22,10,4,12,1,"primary","none",1.8],
+      ["line",11,26,21,26,"blue",1.6]
+    ]
+  },
+  {
+    "id": 85,
+    "key": "action.view_menu",
+    "name": "View",
+    "aliases": ["menu:View"],
+    "commands": [
+      ["polyline",[[3,16],[8,9],[16,6],[24,9],[29,16],[24,23],[16,26],[8,23],[3,16]],"primary",1.8],
+      ["circle",16,16,5,"accent","blue",1.8],
+      ["circle",16,16,1.5,"none","primary",1.6]
+    ]
+  },
+  {
+    "id": 86,
+    "key": "action.screen_home",
+    "name": "Start screen",
+    "aliases": ["screen-home"],
+    "commands": [
+      ["rect",3,4,26,20,3,"primary","none",1.8],
+      ["line",16,24,16,28,"muted",1.8],
+      ["line",10,28,22,28,"muted",1.8],
+      ["polyline",[[9,14],[16,8],[23,14]],"accent",1.8],
+      ["polyline",[[11,13],[11,20],[21,20],[21,13]],"accent",1.8],
+      ["rect",14,16,4,4,0.5,"none","blue",1.6]
+    ]
+  }
+]

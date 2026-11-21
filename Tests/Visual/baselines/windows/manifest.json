@@ -1,0 +1,349 @@
+{
+  "cases": [
+    {
+      "file": "slate-light-320x240.png",
+      "height": 240,
+      "id": "slate-light-320x240",
+      "pixelHash": 10779021071411544270,
+      "theme": "slate-light",
+      "width": 320
+    },
+    {
+      "file": "slate-light-480x320.png",
+      "height": 320,
+      "id": "slate-light-480x320",
+      "pixelHash": 3781696724873106032,
+      "theme": "slate-light",
+      "width": 480
+    },
+    {
+      "file": "slate-light-800x480.png",
+      "height": 480,
+      "id": "slate-light-800x480",
+      "pixelHash": 11296698068284634220,
+      "theme": "slate-light",
+      "width": 800
+    },
+    {
+      "file": "slate-dark-320x240.png",
+      "height": 240,
+      "id": "slate-dark-320x240",
+      "pixelHash": 4260107256884658970,
+      "theme": "slate-dark",
+      "width": 320
+    },
+    {
+      "file": "slate-dark-480x320.png",
+      "height": 320,
+      "id": "slate-dark-480x320",
+      "pixelHash": 12716803028625548054,
+      "theme": "slate-dark",
+      "width": 480
+    },
+    {
+      "file": "slate-dark-800x480.png",
+      "height": 480,
+      "id": "slate-dark-800x480",
+      "pixelHash": 7474273057808123106,
+      "theme": "slate-dark",
+      "width": 800
+    },
+    {
+      "file": "ocean-light-320x240.png",
+      "height": 240,
+      "id": "ocean-light-320x240",
+      "pixelHash": 18409662696887807078,
+      "theme": "ocean-light",
+      "width": 320
+    },
+    {
+      "file": "ocean-light-480x320.png",
+      "height": 320,
+      "id": "ocean-light-480x320",
+      "pixelHash": 3857075781589211571,
+      "theme": "ocean-light",
+      "width": 480
+    },
+    {
+      "file": "ocean-light-800x480.png",
+      "height": 480,
+      "id": "ocean-light-800x480",
+      "pixelHash": 17963019746361125121,
+      "theme": "ocean-light",
+      "width": 800
+    },
+    {
+      "file": "ocean-dark-320x240.png",
+      "height": 240,
+      "id": "ocean-dark-320x240",
+      "pixelHash": 5699221582648721491,
+      "theme": "ocean-dark",
+      "width": 320
+    },
+    {
+      "file": "ocean-dark-480x320.png",
+      "height": 320,
+      "id": "ocean-dark-480x320",
+      "pixelHash": 4917568513231020034,
+      "theme": "ocean-dark",
+      "width": 480
+    },
+    {
+      "file": "ocean-dark-800x480.png",
+      "height": 480,
+      "id": "ocean-dark-800x480",
+      "pixelHash": 7243512371624740330,
+      "theme": "ocean-dark",
+      "width": 800
+    },
+    {
+      "file": "forest-light-320x240.png",
+      "height": 240,
+      "id": "forest-light-320x240",
+      "pixelHash": 14288702983788520908,
+      "theme": "forest-light",
+      "width": 320
+    },
+    {
+      "file": "forest-light-480x320.png",
+      "height": 320,
+      "id": "forest-light-480x320",
+      "pixelHash": 19071084149235778,
+      "theme": "forest-light",
+      "width": 480
+    },
+    {
+      "file": "forest-light-800x480.png",
+      "height": 480,
+      "id": "forest-light-800x480",
+      "pixelHash": 4036800278213721194,
+      "theme": "forest-light",
+      "width": 800
+    },
+    {
+      "file": "forest-dark-320x240.png",
+      "height": 240,
+      "id": "forest-dark-320x240",
+      "pixelHash": 13782703121338519104,
+      "theme": "forest-dark",
+      "width": 320
+    },
+    {
+      "file": "forest-dark-480x320.png",
+      "height": 320,
+      "id": "forest-dark-480x320",
+      "pixelHash": 9463360868721111015,
+      "theme": "forest-dark",
+      "width": 480
+    },
+    {
+      "file": "forest-dark-800x480.png",
+      "height": 480,
+      "id": "forest-dark-800x480",
+      "pixelHash": 3749869660705527719,
+      "theme": "forest-dark",
+      "width": 800
+    },
+    {
+      "file": "amber-light-320x240.png",
+      "height": 240,
+      "id": "amber-light-320x240",
+      "pixelHash": 14233425114900620004,
+      "theme": "amber-light",
+      "width": 320
+    },
+    {
+      "file": "amber-light-480x320.png",
+      "height": 320,
+      "id": "amber-light-480x320",
+      "pixelHash": 6081362918368075640,
+      "theme": "amber-light",
+      "width": 480
+    },
+    {
+      "file": "amber-light-800x480.png",
+      "height": 480,
+      "id": "amber-light-800x480",
+      "pixelHash": 16250693458951398188,
+      "theme": "amber-light",
+      "width": 800
+    },
+    {
+      "file": "amber-dark-320x240.png",
+      "height": 240,
+      "id": "amber-dark-320x240",
+      "pixelHash": 17631285913311009293,
+      "theme": "amber-dark",
+      "width": 320
+    },
+    {
+      "file": "amber-dark-480x320.png",
+      "height": 320,
+      "id": "amber-dark-480x320",
+      "pixelHash": 307664225718481143,
+      "theme": "amber-dark",
+      "width": 480
+    },
+    {
+      "file": "amber-dark-800x480.png",
+      "height": 480,
+      "id": "amber-dark-800x480",
+      "pixelHash": 15565912669412544768,
+      "theme": "amber-dark",
+      "width": 800
+    },
+    {
+      "file": "violet-light-320x240.png",
+      "height": 240,
+      "id": "violet-light-320x240",
+      "pixelHash": 1537739432277040392,
+      "theme": "violet-light",
+      "width": 320
+    },
+    {
+      "file": "violet-light-480x320.png",
+      "height": 320,
+      "id": "violet-light-480x320",
+      "pixelHash": 6197470113399195431,
+      "theme": "violet-light",
+      "width": 480
+    },
+    {
+      "file": "violet-light-800x480.png",
+      "height": 480,
+      "id": "violet-light-800x480",
+      "pixelHash": 5090567524075056657,
+      "theme": "violet-light",
+      "width": 800
+    },
+    {
+      "file": "violet-dark-320x240.png",
+      "height": 240,
+      "id": "violet-dark-320x240",
+      "pixelHash": 13400695577180150588,
+      "theme": "violet-dark",
+      "width": 320
+    },
+    {
+      "file": "violet-dark-480x320.png",
+      "height": 320,
+      "id": "violet-dark-480x320",
+      "pixelHash": 2427740470934218619,
+      "theme": "violet-dark",
+      "width": 480
+    },
+    {
+      "file": "violet-dark-800x480.png",
+      "height": 480,
+      "id": "violet-dark-800x480",
+      "pixelHash": 11362387384468906225,
+      "theme": "violet-dark",
+      "width": 800
+    },
+    {
+      "file": "rose-light-320x240.png",
+      "height": 240,
+      "id": "rose-light-320x240",
+      "pixelHash": 18417645098244871664,
+      "theme": "rose-light",
+      "width": 320
+    },
+    {
+      "file": "rose-light-480x320.png",
+      "height": 320,
+      "id": "rose-light-480x320",
+      "pixelHash": 7909821005293295239,
+      "theme": "rose-light",
+      "width": 480
+    },
+    {
+      "file": "rose-light-800x480.png",
+      "height": 480,
+      "id": "rose-light-800x480",
+      "pixelHash": 5839094435941030128,
+      "theme": "rose-light",
+      "width": 800
+    },
+    {
+      "file": "rose-dark-320x240.png",
+      "height": 240,
+      "id": "rose-dark-320x240",
+      "pixelHash": 7939194788511929833,
+      "theme": "rose-dark",
+      "width": 320
+    },
+    {
+      "file": "rose-dark-480x320.png",
+      "height": 320,
+      "id": "rose-dark-480x320",
+      "pixelHash": 4632497074908956790,
+      "theme": "rose-dark",
+      "width": 480
+    },
+    {
+      "file": "rose-dark-800x480.png",
+      "height": 480,
+      "id": "rose-dark-800x480",
+      "pixelHash": 16296137259060674471,
+      "theme": "rose-dark",
+      "width": 800
+    },
+    {
+      "file": "mono-light-320x240.png",
+      "height": 240,
+      "id": "mono-light-320x240",
+      "pixelHash": 15516309041141001496,
+      "theme": "mono-light",
+      "width": 320
+    },
+    {
+      "file": "mono-light-480x320.png",
+      "height": 320,
+      "id": "mono-light-480x320",
+      "pixelHash": 14975160757227697805,
+      "theme": "mono-light",
+      "width": 480
+    },
+    {
+      "file": "mono-light-800x480.png",
+      "height": 480,
+      "id": "mono-light-800x480",
+      "pixelHash": 2377815788545981745,
+      "theme": "mono-light",
+      "width": 800
+    },
+    {
+      "file": "mono-dark-320x240.png",
+      "height": 240,
+      "id": "mono-dark-320x240",
+      "pixelHash": 6343130856984315581,
+      "theme": "mono-dark",
+      "width": 320
+    },
+    {
+      "file": "mono-dark-480x320.png",
+      "height": 320,
+      "id": "mono-dark-480x320",
+      "pixelHash": 9648103840514965676,
+      "theme": "mono-dark",
+      "width": 480
+    },
+    {
+      "file": "mono-dark-800x480.png",
+      "height": 480,
+      "id": "mono-dark-800x480",
+      "pixelHash": 4967643505441583851,
+      "theme": "mono-dark",
+      "width": 800
+    }
+  ],
+  "environment": {
+    "font": "LV_FONT_DEFAULT (built-in)",
+    "lvglVersion": "9.6.0",
+    "platform": "Windows",
+    "sdlVersion": 3004020,
+    "videoDriver": "dummy"
+  },
+  "format": "lvgl-visual-fixtures",
+  "version": 1
+}

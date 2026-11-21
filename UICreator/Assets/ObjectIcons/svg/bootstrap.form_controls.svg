@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Form controls</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M3 4L12 4" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <rect x="3" y="7" width="26" height="8" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M7 11L17 11" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <path d="M3 20L12 20" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <rect x="3" y="23" width="26" height="6" rx="2" fill="#65AFFF" stroke="#45D6B3" stroke-width="1.8"/>
+  <path d="M8 25L8 27" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+</g>
+</svg>

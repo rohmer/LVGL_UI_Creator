@@ -77,17 +77,17 @@ extern char	*_mxml_strdup(const char *);
 #  endif /* !HAVE_STRDUP */
 
 #  ifndef HAVE_STRLCAT
-extern size_t	_mxml_strlcat(char *, const char *, size_t);
+extern size_t _mxml_strlcat(char*, const char*, size_t);
 #    define strlcat _mxml_strlcat
 #  endif /* !HAVE_STRLCAT */
 
 #  ifndef HAVE_STRLCPY
-extern size_t	_mxml_strlcpy(char *, const char *, size_t);
+extern size_t _mxml_strlcpy(char*, const char*, size_t);
 #    define strlcpy _mxml_strlcpy
 #  endif /* !HAVE_STRLCPY */
 
-extern char	*_mxml_strdupf(const char *, ...);
-extern char	*_mxml_vstrdupf(const char *, va_list);
+extern char* _mxml_strdupf(const char*, ...);
+extern char* _mxml_vstrdupf(const char*, va_list);
 
 #  ifndef HAVE_SNPRINTF
 extern int	_mxml_snprintf(char *, size_t, const char *, ...);

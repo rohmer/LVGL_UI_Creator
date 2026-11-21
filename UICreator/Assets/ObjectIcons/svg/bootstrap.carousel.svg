@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Carousel</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="8" width="3" height="14" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <rect x="26" y="8" width="3" height="14" rx="1" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <rect x="6" y="4" width="20" height="21" rx="3" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <polyline points="10,11 8,14 10,17" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <polyline points="22,11 24,14 22,17" fill="none" stroke="#45D6B3" stroke-width="1.8"/>
+  <polyline points="12,18 15,13 18,17 20,14" fill="none" stroke="#65AFFF" stroke-width="2"/>
+  <circle cx="12" cy="29" r="1" fill="#45D6B3" stroke="none" stroke-width="1.6"/>
+  <circle cx="16" cy="29" r="1" fill="#8FA8C4" stroke="none" stroke-width="1.6"/>
+  <circle cx="20" cy="29" r="1" fill="#8FA8C4" stroke="none" stroke-width="1.6"/>
+</g>
+</svg>

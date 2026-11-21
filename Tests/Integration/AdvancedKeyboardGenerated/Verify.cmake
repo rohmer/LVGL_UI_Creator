@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.24)
+file(MAKE_DIRECTORY "${BINARY_DIR}")
+function(run_step name)
+    execute_process(COMMAND ${ARGN} RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE errors)
+    file(WRITE "${BINARY_DIR}/${name}.log" "${output}\n${errors}")
+    if(NOT result STREQUAL "0")
+        message(FATAL_ERROR "Advanced Keyboard C export ${name} failed (${result})\n${output}\n${errors}")
+    endif()
+endfunction()
+find_library(lvgl_archive NAMES lvgl PATHS "${LVGL_BUILD_DIR}" "${LVGL_BUILD_DIR}/Release" NO_DEFAULT_PATH REQUIRED)
+run_step(configure "${CMAKE_COMMAND}" -S "${SOURCE_ROOT}/Tests/Integration/AdvancedKeyboardGenerated" -B "${BINARY_DIR}/build"
+    -G "${PARENT_GENERATOR}" -DCMAKE_BUILD_TYPE=Release "-DEXPORTED_DIR=${EXPORTED_DIR}"
+    "-DLVGL_SOURCE_DIR=${SOURCE_ROOT}/3rdParty/LVGL/lvgl" "-DLVGL_ARCHIVE=${lvgl_archive}")
+run_step(build "${CMAKE_COMMAND}" --build "${BINARY_DIR}/build" --config Release --parallel 6)
+run_step(consumer "${CMAKE_CTEST_COMMAND}" --test-dir "${BINARY_DIR}/build" -C Release --output-on-failure)

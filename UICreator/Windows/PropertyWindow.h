@@ -1,5 +1,7 @@
 #pragma once
 #include <any>
+#include <algorithm>
+#include "../Utils/EditorEvents.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -12,130 +14,173 @@
 #include "../Widgets/TreeView.h"
 #include "../Widgets/ColorPicker.h"
 #include "UIObjectData.h"
-#include "../JSON/json.hpp"
-#include "../Serialization/LVObject.h"
-#include "../Serialization/Style.h"
+#include "PropertyWindows/PropertyControls.h"
+#include "PropertyWindows/BaseProperties.h"
+#include "PropertyWindows/ArcProperties.h"
+#include "PropertyWindows/BarProperties.h"
+#include "PropertyWindows/BtnProperties.h"
+#include "PropertyWindows/BtnmProperties.h"
+#include "../../3rdParty/JSON/json.hpp"
+#include <Serialization/ObjectSerializer.h>
+#include <Serialization/Style.h>
 #include <spdlog/spdlog.h>
+#include "../Fonts/FontLibrary.h"
+#include "../Images/ImageLibrary.h"
+#include "../Widgets/TrieLibrary.h"
 
-using json=nlohmann::json;
+using json = nlohmann::json;
 
 class PropertyWindow
 {
 public:
-	PropertyWindow(SimWindow *simWindow, int screenWidth, int screenHeight);
-	TreeView *GetObjectTree();
-	void SetSelectedObject(lv_obj_t *object);
-	void AddStyle(json styleJson);
-	lv_obj_t *GetSelectedObject();
-	
+    PropertyWindow(lv_indev_t* kb_indev, SimWindow* simWindow, int screenWidth, int screenHeight);
+    TreeView* GetObjectTree();
+    void SetSelectedObject(lv_obj_t* object, bool synchronizeTree = true, bool preserveSelection = false);
+    void SetSelection(const std::vector<lv_obj_t*>& objects);
+    std::function<void()> onSelectionChanged;
+    const std::vector<lv_obj_t*>& SelectedObjects() const { return selectedObjects; }
+    std::vector<lv_obj_t*> SelectionRoots() const;
+    void AddStyle(json styleJson);
+    lv_obj_t* GetSelectedObject();
+    ImageLibrary& Images() { return images; }
+    FontLibrary& Fonts() { return fonts; }
+    TrieLibrary& Tries() { return tries; }
+    lv_obj_t* ProjectScreen() { return simWindow->GetDrawSurface(); }
+    void AddFontSelector();
+    void DeleteSelectedObject();
+    bool RenameSelected(const std::string& name);
+    void ForgetObject(lv_obj_t* object) {
+        selectedObjects.erase(std::remove(selectedObjects.begin(), selectedObjects.end(), object), selectedObjects.end());
+        if(selectedObject == object)selectedObject = nullptr;
+    }
+
+    lv_group_t* GetKBGroup()
+    {
+        return kbGroup;
+    }
+
+    lv_indev_t* GetKBInDev()
+    {
+        return kbIndev;
+    }
+
+    bool Drawing()
+    {
+        return drawing;
+    }
+
+    void Drawing(bool val)
+    {
+        drawing = val;
+    }
+
+    CollapsableWindowManager* GetCWM()
+    {
+        return cwm;
+    }
+
+    CollapsableWindow* ObjectPropWin()
+    {
+        return objProps;
+    }
+
+    lv_obj_t* GetWindow()
+    {
+        return propertyWin;
+    }
+
+    struct sOData
+    {
+        PropertyWindow* pw;
+        std::string objName;
+    };
+
+    struct sPropChange
+    {
+        PropertyWindow* pw;
+        std::string propertyPath;
+    };
+
+    enum eObjType
+    {
+        ARC,
+        BAR,
+        BUTTON,
+        BUTTONMATRIX,
+        CALENDAR,
+        CANVAS,
+        CHECKBOX,
+        CHART,
+        CONTAINER,
+        DROPDOWN,
+        GAUGE,
+        IMAGE,
+        IMAGEBUTTON,
+        KEYBOARD,
+        LABEL,
+        LED,
+        LINE,
+        LIST,
+        LINEMETER,
+        MESSAGEBOX,
+        PAGE,
+        PRELOADER,
+        ROLLER,
+        SLIDER,
+        SPINBOX,
+        SWITCH,
+        TABLE,
+        TABVIEW,
+        TEXTAREA,
+        TILEVIEW,
+        WINDOW,
+        NONE
+    };
+
+    eObjType CurrentlyLoadedProp = NONE;
+    std::map<std::string, json> Styles;
+    std::map<std::string, lv_style_t*> StylePtrs;
+
 private:
-	enum eObjType
-	{
-		ARC,
-		BAR,
-		BUTTON,
-		BUTTONMATRIX,
-		CALENDAR,
-		CANVAS,
-		CHECKBOX,
-		CHART,
-		CONTAINER,
-		DROPDOWN,
-		GAUGE,
-		IMAGE,
-		IMAGEBUTTON,
-		KEYBOARD,
-		LABEL,
-		LED,
-		LINE,
-		LIST,
-		LINEMETER,
-		MESSAGEBOX,
-		PAGE,
-		PRELOADER,
-		ROLLER,
-		SLIDER,
-		SPINBOX,
-		SWITCH,
-		TABLE,
-		TABVIEW,
-		TEXTAREA,
-		TILEVIEW,
-		WINDOW,
-		NONE
-	};
-	
-	MinimizableWindow *minWin;
-	SimWindow *simWindow;
-	lv_obj_t* propertyWin;
-	int screenX, screenY;
-	bool globalExpanded;
-	CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
-	CollapsableWindowManager *cwm;
-	TreeView *treeView;
-	static lv_theme_t *activeTheme;
-	static std::vector<lv_theme_t *> themes;
+    FontLibrary fonts;
+    ImageLibrary images;
+    TrieLibrary tries;
+    lv_obj_t* fontSelectorRow = nullptr;
 
-	lv_obj_t *selectedObject;
+    MinimizableWindow* minWin;
+    SimWindow* simWindow;
+    lv_obj_t* propertyWin;
+    int screenX, screenY;
+    bool globalExpanded;
+    CollapsableWindow *globalProps, *baseObjProps, *treeWin, *objProps;
+    CollapsableWindowManager* cwm;
+    TreeView* treeView;
+    static lv_theme_t* activeTheme;
+    static std::vector<lv_theme_t *> themes;
 
-#pragma region Global Property Inputs
-	// Position/Area
-	lv_obj_t *taX, *taY, *taWidth, *taHeight;
-	lv_obj_t *styleDD;
-	lv_obj_t *hidden, *click, *top, *parentEvent, *opaScaleEnable, *opaScale;
-	lv_obj_t *drag, *dragDir, *dragThrow, *dragParent;
-	lv_obj_t *protNone, *protPos, *protFollow, *protParent, *protPressLost, *protClickFocus, *protChildChg;	
-#pragma endregion
+    std::vector<lv_obj_t*> selectedObjects;
+    lv_obj_t* selectedObject = nullptr;
 
-#pragma region Arc Properties
-	lv_obj_t *arcStartTA, *arcEndTA, *arcLineWidth, *arcLineRound;
-#pragma endregion
-	struct sInp
-	{
-		std::string name;
-		PropertyWindow *pw;
-	};
-	
-	std::map<std::string, json> styles;
-	
-	static void initializeThemes(uint16_t hue);
-	void createPropertyWin();
-	void createGlobalProps();
-	void createBaseObjProps();
-	void createObjProps();
-	void createTreeView();
-	void updateGlobalProps();
+    struct sInp
+    {
+        std::string name;
+        PropertyWindow* pw;
+    };
 
-	struct sOData
-	{
-		PropertyWindow *pw;
-		std::string objName;
-	};
+    static void initializeThemes(uint16_t hue);
+    void createPropertyWin();
+    void createGlobalProps();
+    void createObjProps();
+    void createTreeView();
+    void initStyles();
 
-	struct sPropChange
-	{
-		PropertyWindow *pw;
-		std::string propertyPath;
-	};
-	
-	static void assignColor(lv_color_t color, std::any objData);
-	lv_obj_t *createNumericEntry(lv_obj_t *parent, const std::string labelTxt, const std::string propertyPath);
-	void initStyles();
+    static void objSelectCB(TreeNode* node);
+    static void deleteCB(TreeNode* node);
+    static void theme_select_event_handler(lv_obj_t* roller, EditorEventCode event);
+    static void hue_select_event_cb(lv_obj_t* roller, EditorEventCode event);
+    static bool drawing;
 
-	static void objSelectCB(TreeNode *node);
-	static void deleteCB(TreeNode *node);	
-	static void theme_select_event_handler(lv_obj_t * roller, lv_event_t event);
-	static void hue_select_event_cb(lv_obj_t * roller, lv_event_t event);
-	static void numericEntryCB(lv_obj_t *obj, lv_event_t event);
-	static void ddListCB(lv_obj_t *obj, lv_event_t event);
-	static void textBoxCB(lv_obj_t *obj, lv_event_t event);
-	static void checkBoxCB(lv_obj_t *obj, lv_event_t event);
-	static void createStyleCB(lv_obj_t *obj, lv_event_t event);
-	eObjType currentlyLoadedProp = eObjType::NONE;
-	static bool drawing;
-	
-#pragma region Properties by Type
-	void updateArcProperties();
-	void createArcProperties();
-#pragma endregion
+    static lv_group_t* kbGroup;
+    lv_indev_t* kbIndev;
 };
+

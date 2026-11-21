@@ -4,7 +4,7 @@
  *
  *   Type 1 parser (body).
  *
- * Copyright (C) 1996-2019 by
+ * Copyright (C) 1996-2026 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -33,10 +33,9 @@
    */
 
 
-#include <ft2build.h>
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_STREAM_H
-#include FT_INTERNAL_POSTSCRIPT_AUX_H
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/internal/psaux.h>
 
 #include "t1parse.h"
 
@@ -222,7 +221,7 @@
     else
     {
       /* read segment in memory -- this is clumsy, but so does the format */
-      if ( FT_ALLOC( parser->base_dict, size )       ||
+      if ( FT_QALLOC( parser->base_dict, size )      ||
            FT_STREAM_READ( parser->base_dict, size ) )
         goto Exit;
       parser->base_len = size;
@@ -269,33 +268,34 @@
 
     if ( parser->in_pfb )
     {
-      /* in the case of the PFB format, the private dictionary can be  */
-      /* made of several segments.  We thus first read the number of   */
-      /* segments to compute the total size of the private dictionary  */
-      /* then re-read them into memory.                                */
-      FT_ULong   start_pos = FT_STREAM_POS();
+      /* in the case of the PFB format, the private dictionary can be */
+      /* made of several adjacent segments.                           */
       FT_UShort  tag;
+      FT_Byte*   priv_dict = NULL;
+      FT_ULong   priv_len  = 0;
 
 
-      parser->private_len = 0;
       for (;;)
       {
         error = read_pfb_tag( stream, &tag, &size );
         if ( error )
-          goto Fail;
-
-        if ( tag != 0x8002U )
           break;
 
-        parser->private_len += size;
+        if ( tag != 0x8002U || size > stream->size - stream->pos )
+          break;
 
-        if ( FT_STREAM_SKIP( size ) )
-          goto Fail;
+        if ( FT_QREALLOC( priv_dict, priv_len, priv_len + size ) ||
+             FT_STREAM_READ( priv_dict + priv_len, size )        )
+          break;
+
+        priv_len += size;
       }
 
+      parser->private_dict = priv_dict;
+      parser->private_len  = priv_len;
+
       /* Check that we have a private dictionary there */
-      /* and allocate private dictionary buffer        */
-      if ( parser->private_len == 0 )
+      if ( priv_len == 0 )
       {
         FT_ERROR(( "T1_Get_Private_Dict:"
                    " invalid private dictionary section\n" ));
@@ -303,26 +303,8 @@
         goto Fail;
       }
 
-      if ( FT_STREAM_SEEK( start_pos )                           ||
-           FT_ALLOC( parser->private_dict, parser->private_len ) )
-        goto Fail;
-
-      parser->private_len = 0;
-      for (;;)
-      {
-        error = read_pfb_tag( stream, &tag, &size );
-        if ( error || tag != 0x8002U )
-        {
-          error = FT_Err_Ok;
-          break;
-        }
-
-        if ( FT_STREAM_READ( parser->private_dict + parser->private_len,
-                             size ) )
-          goto Fail;
-
-        parser->private_len += size;
-      }
+      /* discard any errors from truncated files */
+      error = FT_Err_Ok;
     }
     else
     {
@@ -331,50 +313,22 @@
       /* the private dict.  Otherwise, simply overwrite into the base  */
       /* dictionary block in the heap.                                 */
 
-      /* first of all, look at the `eexec' keyword */
+      /* First look for the `eexec' keyword. Ensure `eexec' is real -- */
+      /* it could be in a comment or string (as e.g. in u003043t.gsf   */
+      /* from ghostscript).                                            */
       FT_Byte*    cur   = parser->base_dict;
       FT_Byte*    limit = cur + parser->base_len;
       FT_Pointer  pos_lf;
       FT_Bool     test_cr;
 
 
-    Again:
-      for (;;)
-      {
-        if ( cur[0] == 'e'   &&
-             cur + 9 < limit )      /* 9 = 5 letters for `eexec' + */
-                                    /* whitespace + 4 chars        */
-        {
-          if ( cur[1] == 'e' &&
-               cur[2] == 'x' &&
-               cur[3] == 'e' &&
-               cur[4] == 'c' )
-            break;
-        }
-        cur++;
-        if ( cur >= limit )
-        {
-          FT_ERROR(( "T1_Get_Private_Dict:"
-                     " could not find `eexec' keyword\n" ));
-          error = FT_THROW( Invalid_File_Format );
-          goto Exit;
-        }
-      }
-
-      /* check whether `eexec' was real -- it could be in a comment */
-      /* or string (as e.g. in u003043t.gsf from ghostscript)       */
-
-      parser->root.cursor = parser->base_dict;
-      /* set limit to `eexec' + whitespace + 4 characters */
-      parser->root.limit  = cur + 10;
-
-      cur   = parser->root.cursor;
-      limit = parser->root.limit;
+      parser->root.cursor = cur;
+      parser->root.limit  = limit;
 
       while ( cur < limit )
       {
-        if ( cur[0] == 'e'   &&
-             cur + 5 < limit )
+        /* 9 = 5 letters for `eexec' + whitespace + 4 chars */
+        if ( cur[0] == 'e' && cur + 9 < limit )
         {
           if ( cur[1] == 'e' &&
                cur[2] == 'x' &&
@@ -390,21 +344,9 @@
         cur = parser->root.cursor;
       }
 
-      /* we haven't found the correct `eexec'; go back and continue */
-      /* searching                                                  */
-
-      cur   = limit;
-      limit = parser->base_dict + parser->base_len;
-
-      if ( cur >= limit )
-      {
-        FT_ERROR(( "T1_Get_Private_Dict:"
-                   " premature end in private dictionary\n" ));
-        error = FT_THROW( Invalid_File_Format );
-        goto Exit;
-      }
-
-      goto Again;
+      FT_ERROR(( "T1_Get_Private_Dict: could not find `eexec' keyword\n" ));
+      error = FT_THROW( Invalid_File_Format );
+      goto Exit;
 
       /* now determine where to write the _encrypted_ binary private  */
       /* dictionary.  We overwrite the base dictionary for disk-based */
@@ -451,7 +393,7 @@
       if ( parser->in_memory )
       {
         /* note that we allocate one more byte to put a terminating `0' */
-        if ( FT_ALLOC( parser->private_dict, size + 1 ) )
+        if ( FT_QALLOC( parser->private_dict, size + 1 ) )
           goto Fail;
         parser->private_len = size;
       }

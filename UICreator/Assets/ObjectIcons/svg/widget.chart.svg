@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Chart</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="4,4 4,27 29,27" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="8" y="20" width="4" height="4" rx="0.5" fill="#65AFFF" stroke="none" stroke-width="0"/>
+  <rect x="16" y="16" width="4" height="8" rx="0.5" fill="#8FA8C4" stroke="none" stroke-width="0"/>
+  <rect x="24" y="10" width="3" height="14" rx="0.5" fill="#65AFFF" stroke="none" stroke-width="0"/>
+  <polyline points="8,17 13,11 19,14 26,6" fill="none" stroke="#45D6B3" stroke-width="2"/>
+  <circle cx="19" cy="14" r="1.5" fill="#D6E5F5" stroke="none" stroke-width="0"/>
+</g>
+</svg>

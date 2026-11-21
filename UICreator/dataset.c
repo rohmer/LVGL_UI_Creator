@@ -24,11 +24,11 @@
 
 typedef struct _widget_deque_t_
 {
-    lv_obj_t * widget;
-    struct _widget_deque_t_ * next, * prev;
-}widget_deque_t;
+    lv_obj_t* widget;
+    struct _widget_deque_t_ *next, *prev;
+} widget_deque_t;
 
-const char * widget_type_name[10] =     //This array binds with WIDGET_TYPE_X
+const char* widget_type_name[10] = //This array binds with WIDGET_TYPE_X
 {
     "obj",
     "label",
@@ -43,11 +43,10 @@ const char * widget_type_name[10] =     //This array binds with WIDGET_TYPE_X
 
 typedef struct _widget_tree_node_t_
 {
-    lv_obj_t * widget;
+    lv_obj_t* widget;
     // lv_obj_t * layer;
-    struct _widget_tree_node_t_ * next, * child;
-}widget_tree_node_t;
-
+    struct _widget_tree_node_t_ *next, *child;
+} widget_tree_node_t;
 
 
 /**********************
@@ -114,7 +113,7 @@ typedef struct _widget_tree_node_t_
 //         new_tail->prev = wdeque_tail;
 //         wdeque_tail = new_tail;
 //     }
-    
+
 // }
 
 // lv_obj_t * wdeque_popback(void)
@@ -156,23 +155,20 @@ typedef struct _widget_tree_node_t_
 //     return data;
 // }
 
-const char * widget_get_type_name(widget_type_t type)
+const char* widget_get_type_name(widget_type_t type)
 {
     return widget_type_name[type];
 }
 
-void widget_set_info(lv_obj_t * obj, widget_type_t t)
+void widget_set_info(lv_obj_t* obj, widget_type_t t)
 {
-    widget_info_t * info = (widget_info_t *)malloc(sizeof(widget_info_t));
+    widget_info_t* info = static_cast<widget_info_t *>(malloc(sizeof(widget_info_t)));
     info->type = t;
     strncpy(info->id, widget_get_type_name(t), 15);
     lv_obj_set_user_data(obj, info);
 }
 
 
-
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-
-

@@ -1,0 +1,270 @@
+#pragma once
+#include <lvgl.h>
+#include <stdbool.h>
+#include <stdlib.h>
+/* Generated compatibility glue for LVGL 9.1 through 9.5. */
+#if LVGL_VERSION_MINOR < 3
+#define LV_LABEL_LONG_MODE_WRAP LV_LABEL_LONG_WRAP
+#define LV_LABEL_LONG_MODE_DOTS LV_LABEL_LONG_DOT
+#define LV_LABEL_LONG_MODE_SCROLL LV_LABEL_LONG_SCROLL
+#define LV_LABEL_LONG_MODE_SCROLL_CIRCULAR LV_LABEL_LONG_SCROLL_CIRCULAR
+#define LV_LABEL_LONG_MODE_CLIP LV_LABEL_LONG_CLIP
+#endif
+static inline bool lv_obj_is_checked(const lv_obj_t *object)
+{
+    return lv_obj_has_state(object, LV_STATE_CHECKED);
+}
+#if LVGL_VERSION_MINOR < 4
+static inline lv_obj_t *lv_tabview_get_tab_button(lv_obj_t *object, uint32_t index)
+{
+    return lv_obj_get_child(lv_tabview_get_tab_bar(object), index);
+}
+#endif
+#if LVGL_VERSION_MINOR < 3
+#define lv_calendar_add_header_arrow lv_calendar_header_arrow_create
+#define lv_chart_set_axis_range lv_chart_set_range
+#define lv_chart_get_series_x_array lv_chart_get_x_array
+#define lv_chart_get_series_y_array lv_chart_get_y_array
+#define lv_table_set_cell_ctrl lv_table_add_cell_ctrl
+#endif
+static inline void lv_obj_set_hidden(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+}
+static inline void lv_obj_set_clickable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_CLICKABLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_CLICKABLE);
+}
+static inline void lv_obj_set_click_focusable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+}
+static inline void lv_obj_set_checkable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_CHECKABLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_CHECKABLE);
+}
+static inline void lv_obj_set_scrollable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLLABLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLLABLE);
+}
+static inline void lv_obj_set_scroll_elastic(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_ELASTIC);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_ELASTIC);
+}
+static inline void lv_obj_set_scroll_momentum(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_MOMENTUM);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_MOMENTUM);
+}
+static inline void lv_obj_set_scroll_one(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_ONE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_ONE);
+}
+static inline void lv_obj_set_scroll_chain_hor(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+}
+static inline void lv_obj_set_scroll_chain_ver(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+}
+static inline void lv_obj_set_scroll_on_focus(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+}
+static inline void lv_obj_set_scroll_with_arrow(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLL_WITH_ARROW);
+}
+static inline void lv_obj_set_snappable(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SNAPPABLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SNAPPABLE);
+}
+static inline void lv_obj_set_press_lock(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_PRESS_LOCK);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_PRESS_LOCK);
+}
+static inline void lv_obj_set_event_bubble(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_EVENT_BUBBLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_EVENT_BUBBLE);
+}
+static inline void lv_obj_set_gesture_bubble(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_GESTURE_BUBBLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_GESTURE_BUBBLE);
+}
+static inline void lv_obj_set_adv_hittest(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_ADV_HITTEST);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_ADV_HITTEST);
+}
+static inline void lv_obj_set_ignore_layout(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_IGNORE_LAYOUT);
+}
+static inline void lv_obj_set_floating(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_FLOATING);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_FLOATING);
+}
+static inline void lv_obj_set_send_draw_task_events(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_SEND_DRAW_TASK_EVENTS);
+}
+static inline void lv_obj_set_overflow_visible(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+}
+static inline void lv_obj_set_event_trickle(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_EVENT_TRICKLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_EVENT_TRICKLE);
+}
+static inline void lv_obj_set_state_trickle(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_STATE_TRICKLE);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_STATE_TRICKLE);
+}
+static inline void lv_obj_set_flex_in_new_track(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_flag(object, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    else
+        lv_obj_remove_flag(object, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+}
+static inline void lv_obj_set_checked(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, LV_STATE_CHECKED);
+    else
+        lv_obj_remove_state(object, LV_STATE_CHECKED);
+}
+static inline void lv_obj_set_disabled(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, LV_STATE_DISABLED);
+    else
+        lv_obj_remove_state(object, LV_STATE_DISABLED);
+}
+static inline void lv_obj_set_state_user_1(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, LV_STATE_USER_1);
+    else
+        lv_obj_remove_state(object, LV_STATE_USER_1);
+}
+static inline void lv_obj_set_state_user_2(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, LV_STATE_USER_2);
+    else
+        lv_obj_remove_state(object, LV_STATE_USER_2);
+}
+static inline void lv_obj_set_state_user_3(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, LV_STATE_USER_3);
+    else
+        lv_obj_remove_state(object, LV_STATE_USER_3);
+}
+static inline void lv_obj_set_state_user_4(lv_obj_t *object, bool enabled)
+{
+    if (enabled)
+        lv_obj_add_state(object, LV_STATE_USER_4);
+    else
+        lv_obj_remove_state(object, LV_STATE_USER_4);
+}
+#if LVGL_VERSION_MINOR < 4
+static inline void lv_obj_set_radio_button(lv_obj_t *object, bool enabled)
+{
+    (void)object;
+    (void)enabled; /* rejected by target validator when enabled */
+}
+#endif
+
+#if LVGL_VERSION_MINOR < 3
+/* These releases choose slider orientation from geometry. The generator
+ * rejects forced orientations rather than changing the design's size. */
+static inline void lv_slider_set_orientation(lv_obj_t *object, int orientation)
+{
+    (void)object;
+    (void)orientation;
+}
+#endif
+#if LVGL_VERSION_MINOR < 2
+static inline void lv_bar_set_orientation(lv_obj_t *object, int orientation)
+{
+    (void)object;
+    (void)orientation;
+}
+static inline void lv_table_set_selected_cell(lv_obj_t *object, uint32_t row, uint32_t column)
+{
+    lv_table_t *table = (lv_table_t *)object;
+    table->row_act = row;
+    table->col_act = column;
+    lv_obj_invalidate(object);
+}
+#endif
