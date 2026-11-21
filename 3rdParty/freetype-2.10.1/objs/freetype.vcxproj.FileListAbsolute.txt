@@ -1,0 +1,1 @@
+E:\source\LVGL_UI_Creator\3rdParty\freetype-2.10.1\objs\x64\Release\freetype.dll
