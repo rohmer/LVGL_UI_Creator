@@ -1,10 +1,36 @@
 #include "ui.h"
+#include "ui_requirements.h"
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 #define CHECK(value) do { if (!(value)) { fprintf(stderr,"Variable binding check %d failed: %s\n",__LINE__,#value); return 1; } } while(0)
 extern bool check_cpp_variable_bindings(void);
+static bool fail_copy,fail_reserve;
+static size_t copies_live,last_reserve_bytes,reserve_calls;
+static char *copies[128];
+char *ui_test_strdup(const char *text)
+{
+    char *copy;size_t index;
+    if(fail_copy) {fail_copy=false;return NULL;}
+    copy=lv_strdup(text);
+    if(copy) for(index=0;index<sizeof copies/sizeof copies[0];++index) if(!copies[index]) {copies[index]=copy;++copies_live;return copy;}
+    if(copy) {lv_free(copy);return NULL;}
+    return copy;
+}
+void *ui_test_realloc(void *memory,size_t size)
+{
+    last_reserve_bytes=size;
+    ++reserve_calls;
+    if(fail_reserve) {fail_reserve=false;return NULL;}
+    return lv_realloc(memory,size);
+}
+void ui_test_free(void *memory)
+{
+    size_t index;
+    if(memory) for(index=0;index<sizeof copies/sizeof copies[0];++index) if(copies[index]==memory) {copies[index]=NULL;--copies_live;break;}
+    lv_free(memory);
+}
 #if LVGL_VERSION_MAJOR >= 9
 static void flush(lv_display_t *display,const lv_area_t *area,uint8_t *pixels) { (void)area;(void)pixels;lv_display_flush_ready(display); }
 #else
@@ -29,7 +55,7 @@ static bool all_levels(int32_t value)
 }
 int main(void)
 {
-    unsigned cycle;size_t count;int64_t entry;
+    unsigned cycle;size_t count;int64_t entry;const char *saved_text;
     int32_t level=42,replacement=81;uint8_t small=8;bool enabled=true;float fraction=0.125f;
     char caption[16]="Application";char invalid[3]={'b','a','d'};
     int8_t signed8=INT8_MIN;int16_t signed16=INT16_MIN;uint16_t unsigned16=UINT16_MAX;uint32_t unsigned32=UINT32_MAX;
@@ -47,6 +73,41 @@ int main(void)
     for(cycle=0;cycle<3;++cycle) {
         level=42;small=8;enabled=true;fraction=0.125f;strcpy(caption,"Application");
         CHECK(ui_init());CHECK(ui_init());CHECK(all_levels(12));CHECK(ui_history_v_level_count()==2);
+        CHECK(ui_history_v_caption_count()==0);CHECK(!strcmp(ui_variables.v_caption,"Default"));
+        CHECK(ui_set_v_caption("First"));CHECK(ui_set_v_caption("Second"));
+        CHECK(ui_history_v_caption_get(0,&saved_text));CHECK(!strcmp(saved_text,"First"));
+        CHECK(ui_set_v_caption(saved_text)); /* Evict the same allocation passed as input. */
+        CHECK(ui_history_v_caption_count()==2);
+        CHECK(ui_history_v_caption_get(0,&saved_text));CHECK(!strcmp(saved_text,"Second"));
+        CHECK(ui_history_v_caption_get(1,&saved_text));CHECK(!strcmp(saved_text,"First"));
+        CHECK(saved_text==ui_variables.v_caption); /* Current shares its newest history string. */
+        CHECK(!ui_history_v_caption_get(2,&saved_text));CHECK(!ui_history_v_caption_get(0,NULL));
+        saved_text=ui_variables.v_caption;count=copies_live;fail_copy=true;
+        CHECK(!ui_set_v_caption("Allocation failure"));CHECK(!fail_copy);
+        CHECK(ui_variables.v_caption==saved_text);CHECK(copies_live==count);
+        CHECK(ui_history_v_caption_count()==2);
+        CHECK(ui_history_v_unlimited_caption_count()==0);
+        CHECK(!strcmp(ui_variables.v_unlimited_caption,"Unbounded default"));
+        count=copies_live;fail_reserve=true;
+        CHECK(!ui_set_v_unlimited_caption("Reserve failure"));CHECK(!fail_reserve);
+        CHECK(copies_live==count);CHECK(ui_history_v_unlimited_caption_count()==0);
+        CHECK(!strcmp(ui_variables.v_unlimited_caption,"Unbounded default"));
+        {
+            unsigned item;char text[16];
+            for(item=0;item<25;++item) {snprintf(text,sizeof text,"Unbounded %u",item);CHECK(ui_set_v_unlimited_caption(text));}
+            CHECK(ui_history_v_unlimited_caption_count()==25);
+            CHECK(ui_history_v_unlimited_caption_get(0,&saved_text));CHECK(!strcmp(saved_text,"Unbounded 0"));
+            CHECK(ui_history_v_unlimited_caption_get(24,&saved_text));CHECK(!strcmp(saved_text,"Unbounded 24"));
+            CHECK(saved_text==ui_variables.v_unlimited_caption);
+            CHECK(copies_live==count+25); /* Exactly one retained allocation per recorded string. */
+        }
+        count=reserve_calls;
+        CHECK(ui_history_v_single_caption_count()==0);CHECK(!strcmp(ui_variables.v_single_caption,"Single default"));
+        CHECK(ui_set_v_single_caption("Single one"));CHECK(ui_set_v_single_caption("Single two"));
+        CHECK(ui_set_v_single_caption(ui_variables.v_single_caption));
+        CHECK(reserve_calls==count);CHECK(ui_history_v_single_caption_count()==1);
+        CHECK(ui_history_v_single_caption_get(0,&saved_text));CHECK(!strcmp(saved_text,"Single two"));
+        CHECK(saved_text==ui_variables.v_single_caption);CHECK(!ui_history_v_single_caption_get(1,&saved_text));
         CHECK(lv_slider_get_value(ui_get_object(0,4))==7);
         CHECK(ui_bind_v_level(&level));CHECK(level==42);CHECK(all_levels(42));CHECK(ui_history_v_level_count()==3);
         count=ui_history_v_level_count();CHECK(ui_sync_v_level());CHECK(ui_history_v_level_count()==count);
@@ -85,16 +146,22 @@ int main(void)
         lv_obj_remove_state(ui_get_object(0,13),LV_STATE_CHECKED);event(ui_get_object(0,13));CHECK(!enabled);CHECK(!lv_obj_has_state(ui_get_object(0,9),LV_STATE_CHECKED));
         lv_obj_add_state(ui_get_object(0,14),LV_STATE_CHECKED);event(ui_get_object(0,14));CHECK(enabled);CHECK(lv_obj_has_state(ui_get_object(0,10),LV_STATE_CHECKED));
         lv_obj_remove_state(ui_get_object(0,9),LV_STATE_CHECKED);event(ui_get_object(0,9));CHECK(!enabled);CHECK(!lv_obj_has_state(ui_get_object(0,10),LV_STATE_CHECKED));CHECK(!strcmp(lv_label_get_text(ui_get_object(0,11)),"false"));
-        CHECK(ui_bind_v_fraction(&fraction));CHECK(ui_set_v_fraction(0.1));CHECK(fraction==0.1f);CHECK(ui_variables.v_fraction==(double)fraction);
+        CHECK(ui_bind_v_fraction(&fraction));CHECK(last_reserve_bytes==2*sizeof(float));
+        CHECK(ui_set_v_fraction(0.1));CHECK(fraction==0.1f);CHECK(ui_variables.v_fraction==(double)fraction);
         count=ui_history_v_fraction_count();CHECK(ui_sync_v_fraction());CHECK(ui_history_v_fraction_count()==count);
         CHECK(!ui_set_v_fraction(DBL_MAX));CHECK(!ui_set_v_fraction(NAN));CHECK(!ui_set_v_fraction(INFINITY));
         fraction=0.75f;CHECK(ui_sync_v_fraction());CHECK(ui_variables.v_fraction==0.75);
-        CHECK(ui_bind_v_small(&small));CHECK(!ui_set_v_small(-1));CHECK(!ui_set_v_small(256));CHECK(small==8);
+        CHECK(ui_bind_v_small(&small));CHECK(last_reserve_bytes==2*sizeof(uint8_t));
+        CHECK(!ui_set_v_small(-1));CHECK(!ui_set_v_small(256));CHECK(small==8);
         lv_spinbox_set_value(ui_get_object(0,12),300);event(ui_get_object(0,12));CHECK(small==8);CHECK(lv_spinbox_get_value(ui_get_object(0,12))==8);
         CHECK(ui_set_v_small(255));CHECK(small==255);CHECK(!strcmp(lv_label_get_text(ui_get_object(1,6)),"255"));
         lv_obj_send_event(ui_get_object(1,9),LV_EVENT_CLICKED,NULL);CHECK(small==254);CHECK(ui_variables.v_small==254);
 
         CHECK(ui_bind_v_signed8(&signed8));CHECK(ui_variables.v_signed8==INT8_MIN);CHECK(!ui_set_v_signed8(128));
+        count=reserve_calls;CHECK(ui_set_v_signed8(1));CHECK(reserve_calls==count);
+        CHECK(ui_history_v_signed8_count()==1);CHECK(ui_history_v_signed8_get(0,&entry));CHECK(entry==1);
+        ui_variables.v_signed8=7;CHECK(ui_history_v_signed8_get(0,&entry));CHECK(entry==1);
+        CHECK(ui_set_v_signed8(INT8_MIN));
         CHECK(ui_bind_v_signed16(&signed16));CHECK(ui_variables.v_signed16==INT16_MIN);CHECK(!ui_set_v_signed16(32768));
         CHECK(ui_bind_v_unsigned16(&unsigned16));CHECK(ui_variables.v_unsigned16==UINT16_MAX);CHECK(!ui_set_v_unsigned16(-1));
         CHECK(ui_bind_v_unsigned32(&unsigned32));CHECK(ui_variables.v_unsigned32==UINT32_MAX);CHECK(!ui_set_v_unsigned32(INT64_MAX));
@@ -105,9 +172,37 @@ int main(void)
         lv_bar_set_value(ui_get_object(1,5),32,LV_ANIM_OFF);event(ui_get_object(1,5));CHECK(legacy==32);
         CHECK(ui_sync_variables());CHECK(check_cpp_variable_bindings());
 
+        /* Bounded histories wrap without changing oldest-first public reads. */
+        CHECK(ui_set_v_level(90));CHECK(ui_set_v_level(91));CHECK(ui_set_v_level(92));CHECK(ui_set_v_level(93));
+        CHECK(ui_history_v_level_count()==3);
+        CHECK(ui_history_v_level_get(0,&entry));CHECK(entry==91);
+        CHECK(ui_history_v_level_get(1,&entry));CHECK(entry==92);
+        CHECK(ui_history_v_level_get(2,&entry));CHECK(entry==93);
+        CHECK(ui_set_v_level(93)); /* Explicit repeated values still record history. */
+        CHECK(ui_history_v_level_get(0,&entry));CHECK(entry==92);
+        CHECK(ui_history_v_level_get(1,&entry));CHECK(entry==93);
+        CHECK(ui_history_v_level_get(2,&entry));CHECK(entry==93);
+        CHECK(!ui_history_v_level_get(3,&entry));CHECK(!ui_history_v_level_get(0,NULL));
+        CHECK(ui_set_v_small(230));CHECK(ui_set_v_small(231));CHECK(ui_set_v_small(232));
+        CHECK(ui_history_v_small_get(0,&entry));CHECK(entry==231);
+        CHECK(ui_history_v_small_get(1,&entry));CHECK(entry==232);
+        {
+            double sample;
+            CHECK(ui_set_v_fraction(0.1));CHECK(ui_set_v_fraction(0.2));CHECK(ui_set_v_fraction(0.3));
+            CHECK(ui_history_v_fraction_get(0,&sample));CHECK(sample==(double)0.2f);
+            CHECK(ui_history_v_fraction_get(1,&sample));CHECK(sample==(double)0.3f);
+        }
+        {
+            unsigned item;
+            for(item=0;item<25;++item) CHECK(ui_set_v_legacy_label_14(item));
+            CHECK(ui_history_v_legacy_label_14_count()==26);
+            CHECK(ui_history_v_legacy_label_14_get(0,&entry));CHECK(entry==20);
+            CHECK(ui_history_v_legacy_label_14_get(25,&entry));CHECK(entry==24);
+        }
+
         lv_obj_delete(ui_get_object(0,2));CHECK(!ui_get_object(0,2));CHECK(ui_set_v_level(70));
-        ui_deinit();CHECK(!ui_sync_variables());CHECK(!ui_set_v_level(1));CHECK(caption[0]);
-        level=91;CHECK(ui_init());CHECK(ui_set_v_level(12));CHECK(level==91);CHECK(ui_history_v_caption_count()==0);ui_deinit();
+        ui_deinit();CHECK(copies_live==0);CHECK(!ui_sync_variables());CHECK(!ui_set_v_level(1));CHECK(caption[0]);
+        level=91;CHECK(ui_init());CHECK(ui_set_v_level(12));CHECK(level==91);CHECK(ui_history_v_caption_count()==0);ui_deinit();CHECK(copies_live==0);
         legacy=31;
     }
 #if LVGL_VERSION_MAJOR >= 9

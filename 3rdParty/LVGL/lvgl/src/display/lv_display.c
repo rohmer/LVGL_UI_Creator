@@ -1677,13 +1677,15 @@ static lv_load_screen_result_t load_new_screen(lv_obj_t * scr)
 
     if(scr) {
         lv_obj_invalidate(scr);
-        lv_obj_remove_event_cb(scr, screen_event_delete_cb);
+        /* Linkers can merge identical callbacks. Match the temporary stack
+         * slot too, so an application's persistent tracker is preserved. */
+        lv_obj_remove_event_cb_with_user_data(scr, screen_event_delete_cb, &scr);
     }
 
     if(!old_scr) {
         return scr ? LV_LOAD_SCREEN_RESULT_OLD_SCREEN_DELETED : LV_LOAD_SCREEN_RESULT_BOTH_SCREENS_DELETED;
     }
-    lv_obj_remove_event_cb(old_scr, screen_event_delete_cb);
+    lv_obj_remove_event_cb_with_user_data(old_scr, screen_event_delete_cb, &old_scr);
     return scr ? LV_LOAD_SCREEN_RESULT_OK : LV_LOAD_SCREEN_RESULT_NEW_SCREEN_DELETED;
 }
 

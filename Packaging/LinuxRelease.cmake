@@ -46,11 +46,12 @@ foreach(pair "lvgl-ui-creator|UICreator" "lvgl-compiler|LVGLCompiler" "uicreator
 endforeach()
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/Linux/lvgl-ui-creator.desktop" DESTINATION share/applications)
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/Linux/lvgl-ui-creator.svg" DESTINATION share/icons/hicolor/scalable/apps)
-foreach(helper font-converter image-converter project-creator language-models python-runtime)
+foreach(helper font-converter image-converter project-creator language-models python-runtime integrations)
     install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${helper}" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}" USE_SOURCE_PERMISSIONS)
 endforeach()
 foreach(pair "esp32|LVGLProtobuf-ESP32-Toolkit.zip"
              "arduino|LVGLProtobuf-Arduino-Toolkit.zip"
+             "pico|LVGLProtobuf-Pico-Toolkit.zip"
              "windows|LVGLProtobufDisplay-windows.zip" "linux|LVGLProtobuf-Linux-Toolkit.zip"
              "linux|LVGLProtobuf-Linux-Keyboard-Profile.zip" "linux|LVGLProtobuf-Linux-aarch64-keyboard.tar.gz"
              "linux|LVGLProtobuf-Linux-x86_64.tar.gz")
@@ -83,7 +84,9 @@ install(FILES "${PROJECT_SOURCE_DIR}/ImgLib/stb_image.h" "${PROJECT_SOURCE_DIR}/
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard/" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/AdvancedKeyboard"
     FILES_MATCHING PATTERN "*LICENSE*" PATTERN "README.md" PATTERN "PROVENANCE.md")
 foreach(document BUILD.md EDITOR_WORKFLOWS.md Packaging/RELEASE_NOTES.md Packaging/LINUX.md
-        Runtime/PERFORMANCE.md Runtime/INTERACTIONS.md UICreator/README.md UICreator/SESSION.md UICreator/AdvancedKeyboard.md
+        Runtime/PERFORMANCE.md Runtime/INTERACTIONS.md Runtime/pico/README.md CodeGeneration/PERFORMANCE.md
+        CodeGeneration/MicroPython/README.md CodeGeneration/XML.md LVSerial/Serialization/Xml.md
+        Integrations/Figma/README.md UICreator/README.md UICreator/SESSION.md UICreator/AdvancedKeyboard.md
         UICreator/Bootstrap.md UICreator/Codes.md Docs/Themes-and-components.md Docs/Responsive-previews.md Docs/Professional-workflows.md
         Runtime/README.md Runtime/linux/README.md Runtime/arduino/README.md Runtime/esp32/README.md Runtime/windows/README.md
         UICreator/ProjectCreator/README.md UICreator/Devices/README.md UICreator/Validation/README.md Tests/README.md)
@@ -93,7 +96,7 @@ endforeach()
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Linux/CollectDependencies.cmake.in" "${PROJECT_BINARY_DIR}/LinuxCollectDependencies.cmake" @ONLY)
 install(SCRIPT "${PROJECT_BINARY_DIR}/LinuxCollectDependencies.cmake")
-set(UICREATOR_LINUX_PACKAGE_INPUTS "$<TARGET_FILE:UICreator>;$<TARGET_FILE:UICreatorViewer>;$<TARGET_FILE:LVGLCompiler>;$<TARGET_FILE:UICreatorCodeGen>;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/font-converter;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image-converter;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/python-runtime")
+set(UICREATOR_LINUX_PACKAGE_INPUTS "$<TARGET_FILE:UICreator>;$<TARGET_FILE:UICreatorViewer>;$<TARGET_FILE:LVGLCompiler>;$<TARGET_FILE:UICreatorCodeGen>;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/font-converter;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image-converter;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/python-runtime;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations")
 file(GENERATE OUTPUT "${PROJECT_BINARY_DIR}/LinuxPackageInputs-$<CONFIG>.cmake" CONTENT "set(UICREATOR_LINUX_PACKAGE_INPUTS \"${UICREATOR_LINUX_PACKAGE_INPUTS}\")\n")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Linux/CPackConfig.cmake.in" "${PROJECT_BINARY_DIR}/LinuxCPackConfig.cmake" @ONLY)
 set(CPACK_PROJECT_CONFIG_FILE "${PROJECT_BINARY_DIR}/LinuxCPackConfig.cmake")

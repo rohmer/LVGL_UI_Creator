@@ -1,4 +1,4 @@
-The native editor integration executable accepts `--visual-baselines <output-directory>`. It renders 14 project themes at 320x240, 480x320 and 800x480 into isolated native LVGL framebuffers. The fixtures use the configured built-in LVGL font, static control state, and no installed system fonts or animated caret. The authored project is unchanged. The capture manifest records SDL/platform/LVGL/font configuration and every named case.
+The native editor integration executable accepts `--visual-baselines <output-directory>`. It renders 28 project themes at 320x240, 480x320 and 800x480 into isolated native LVGL framebuffers. The fixtures use the configured built-in LVGL font, static control state, and no installed system fonts or animated caret. The authored project is unchanged. The capture manifest records SDL/platform/LVGL/font configuration and every named case.
 
 Run a capture and exact comparison on the same host configuration:
 

@@ -5,6 +5,8 @@
 #include "../Utils/ObjectIcons.h"
 #include "../../3rdParty/LVGL/lvgl/include/lvgl/widgets/lv_bootstrap.h"
 #include "../../CodeGeneration/CCodeGenerator.h"
+#include "../../CodeGeneration/MicroPythonCodeGenerator.h"
+#include "../../CodeGeneration/XmlCodeGenerator.h"
 #include <SDL3/SDL.h>
 #include <filesystem>
 #include <fstream>
@@ -132,7 +134,7 @@ void ProductWindows::Welcome(const std::vector<std::string>& recent, std::functi
             Button(content, path.c_str(), [route, path] { route("recent:" + path); });
         }
     }
-    Text(content, "1. Add controls from the widget palette.\n2. Edit layout and appearance in Properties.\n3. Save your project, then use Export for C, Protobuf or a firmware project.");
+    Text(content, "1. Add controls from the widget palette.\n2. Edit layout and appearance in Properties.\n3. Save your project, then use Export for C, MicroPython, Protobuf or a firmware project.");
     Button(content, "Continue editing", [] { Close(); });
 }
 void ProductWindows::Diagnostics(const json& document)
@@ -175,4 +177,37 @@ void ProductWindows::ExportSuccess(const std::string& path, bool cProject)
     const auto folder = cProject ? path : std::filesystem::u8path(path).parent_path().u8string();
     Button(content, "Open output folder", [folder] { OpenFolder(folder); });
     Button(content, "Close", [] { Close(); });
+}
+std::string ProductWindows::MicroPythonPreflight(const json& document, const std::string& sourceDirectory)
+{
+    MicroPythonCodeGenerator generator;
+    generator.SetSourceDirectory(sourceDirectory);
+    json summary;
+    if (!generator.LoadProject(document) || !generator.Preflight(summary))
+        return "Export blocked: " + generator.GetLastError();
+    return "Ready for MicroPython / LVGL 9.3.0: " + std::to_string(summary.value("files", size_t(0))) +
+        " files. Initialize your display and input drivers, then call ui.create(). See README.md for setup and export-manifest.json for firmware requirements.";
+}
+void ProductWindows::MicroPythonExportSuccess(const std::string& path)
+{
+    auto* content = Create("Export complete", 360);
+    Text(content, "MicroPython project exported to\n" + path);
+    Text(content, "Use LVGL-enabled MicroPython from lvgl/lv_binding_micropython. Initialize your display and input drivers, then call ui.create(). See the exported README.md for setup.");
+    Button(content, "Open output folder", [path] { OpenFolder(path); });
+    Button(content, "Close", [] { Close(); });
+}
+std::string ProductWindows::XmlPreflight(const json& document, const std::string& target, const std::string& sourceDirectory)
+{
+    XmlCodeGenerator generator;generator.SetSourceDirectory(sourceDirectory);generator.SetTargetVersion(target);json summary;
+    if(!generator.LoadProject(document)||!generator.Preflight(summary))return "Export blocked: "+generator.GetLastError();
+    return "Ready for UI Creator XML / LVGL "+target+": "+std::to_string(summary.value("sourceBytes",size_t(0)))+
+        " bytes. The file embeds widgets, variables and assets for the UI Creator runtime.";
+}
+void ProductWindows::XmlExportSuccess(const std::string& path)
+{
+    auto* content=Create("Export complete",330);
+    Text(content,"UI Creator XML exported to\n"+path);
+    Text(content,"Load this file with the UI Creator runtime's lvgl_runtime_load_file() or lvgl_runtime_load_memory(). Its typed XML uses the same project model as Protobuf.");
+    const auto folder=std::filesystem::u8path(path).parent_path().u8string();
+    Button(content,"Open output folder",[folder]{OpenFolder(folder);});Button(content,"Close",[]{Close();});
 }

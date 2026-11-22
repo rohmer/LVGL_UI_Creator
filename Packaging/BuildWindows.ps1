@@ -26,7 +26,7 @@ foreach($arch in $architectures){
     $stage=Join-Path $StageRoot $arch
     New-Item -ItemType Directory -Force -Path $buildDir,(Join-Path $buildDir 'packages') | Out-Null
     if(Test-Path -LiteralPath $SdkDirectory){
-        foreach($sdk in @('LVGLProtobuf-ESP32-Toolkit.zip','LVGLProtobuf-Arduino-Toolkit.zip','LVGLProtobuf-Linux-Toolkit.zip','LVGLProtobuf-Linux-Keyboard-Profile.zip','LVGLProtobuf-Linux-x86_64.tar.gz','LVGLProtobuf-Linux-aarch64-keyboard.tar.gz')){
+        foreach($sdk in @('LVGLProtobuf-ESP32-Toolkit.zip','LVGLProtobuf-Arduino-Toolkit.zip','LVGLProtobuf-Pico-Toolkit.zip','LVGLProtobuf-Linux-Toolkit.zip','LVGLProtobuf-Linux-Keyboard-Profile.zip','LVGLProtobuf-Linux-x86_64.tar.gz','LVGLProtobuf-Linux-aarch64-keyboard.tar.gz')){
             $source=Join-Path $SdkDirectory $sdk;$target=Join-Path (Join-Path $buildDir 'packages') $sdk
             if((Test-Path -LiteralPath $source) -and [IO.Path]::GetFullPath($source) -ne [IO.Path]::GetFullPath($target)){Copy-Item -LiteralPath $source -Destination $target -Force}
         }

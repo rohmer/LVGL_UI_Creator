@@ -1,7 +1,11 @@
 #include "CCodeGenerator.h"
+#include "MicroPythonCodeGenerator.h"
+#include "XmlCodeGenerator.h"
 #include "ProjectAssets.h"
 #include "Targets/Target.h"
 #include <Serialization/Protobuf.h>
+#include <Serialization/RuntimeFeatures.h>
+#include <Serialization/Xml.h>
 #include <Serialization/ProjectFonts.h>
 #include <Serialization/ProjectImages.h>
 #include <Serialization/LVVariable.h>
@@ -14,10 +18,11 @@ namespace {
 using json=nlohmann::json;
 void Usage(std::ostream& out) {
     out<<"LVGLCompiler - compile LVGL UI Creator projects for LVGL 9.6\n"
-       <<"Usage: LVGLCompiler project.json|project.pb --format c|protobuf --output path\n"
-       <<"  -f, --format c|protobuf  Output format (default: c; pb is an alias)\n"
-       <<"  -o, --output path       C source directory or Protobuf output file\n"
+       <<"Usage: LVGLCompiler project.json|project.pb|project.xml --format c|protobuf|micropython|xml --output path\n"
+       <<"  -f, --format FORMAT     c, protobuf (pb alias), micropython, xml (default: c)\n"
+       <<"  -o, --output path       Source directory or Protobuf output file\n"
        <<"  --target VERSION        LVGL target: 9.6, 9.5, 9.3, 9.2, 9.1, 8.3 (default 9.6)\n"
+       <<"                          MicroPython is fixed to the official binding's LVGL 9.3\n"
        <<"  -h, --help              Show this help\n";
 }
 json Load(const std::filesystem::path& path) {
@@ -28,6 +33,14 @@ json Load(const std::filesystem::path& path) {
         Serialization::Binary bytes((std::istreambuf_iterator<char>(file)),{});auto record=Serialization::Protobuf::Decode(bytes);
         if(record.kind!=Serialization::EntityKind::Project||record.type!="project")throw std::invalid_argument("Input must be a project Protobuf record");
         project=std::move(record.data);
+    }else if(extension==".xml") {
+#if LVSERIAL_USE_XML
+        const std::string bytes((std::istreambuf_iterator<char>(file)),{});auto record=Serialization::Xml::Decode(bytes.data(),bytes.size());
+        if(record.kind!=Serialization::EntityKind::Project||record.type!="project")throw std::invalid_argument("Input must be a UI Creator XML project");
+        project=std::move(record.data);
+#else
+        throw std::invalid_argument("XML support is disabled in this build");
+#endif
     }else project=json::parse(file);
     if(!project.is_object())throw std::invalid_argument("Project must be a JSON object");
     const auto version=project.value("formatVersion",1);if(version<1||version>2)throw std::invalid_argument("Unsupported project format version");
@@ -43,26 +56,35 @@ json Load(const std::filesystem::path& path) {
     return project;
 }
 int Run(const std::vector<std::string>& args) {
-    std::string format="c",output,target="9.6";std::vector<std::string> positional;bool options=true;
+    std::string format="c",output,target="9.6";std::vector<std::string> positional;bool options=true,targetSelected=false;
     for(size_t i=1;i<args.size();++i) {
         const auto& arg=args[i];
         if(options&&(arg=="--help"||arg=="-h")){Usage(std::cout);return 0;}
         if(options&&arg=="--"){options=false;continue;}
         if(options&&(arg=="--target"||arg=="--format"||arg=="-f"||arg=="--output"||arg=="-o")) {
             if(i+1==args.size()){std::cerr<<"Missing value for "<<arg<<'\n';return 2;}
-            if(arg=="--target")target=args[++i];else if(arg=="--format"||arg=="-f")format=args[++i];else {if(!output.empty()){std::cerr<<"Specify output once\n";return 2;}output=args[++i];}continue;
+            if(arg=="--target"){target=args[++i];targetSelected=true;}else if(arg=="--format"||arg=="-f")format=args[++i];else {if(!output.empty()){std::cerr<<"Specify output once\n";return 2;}output=args[++i];}continue;
         }
         if(options&&!arg.empty()&&arg[0]=='-'){std::cerr<<"Unknown option: "<<arg<<'\n';return 2;}
         positional.push_back(arg);
     }
     if(positional.size()==2&&output.empty()){output=positional.back();positional.pop_back();}
-    if(positional.size()!=1||output.empty()||(format!="c"&&format!="protobuf"&&format!="pb")){Usage(std::cerr);return 2;}
+    if(positional.size()!=1||output.empty()||(format!="c"&&format!="protobuf"&&format!="pb"&&format!="micropython"&&format!="xml")){Usage(std::cerr);return 2;}
     try {
         CGeneration::ValidateTarget(target);
         auto input=std::filesystem::u8path(positional[0]),destination=std::filesystem::u8path(output);
         std::error_code error;if(std::filesystem::equivalent(input,destination,error))throw std::invalid_argument("Output cannot overwrite the input project");
         auto project=Load(input);
-        if(format=="c") {
+        if(format=="xml") {
+            XmlCodeGenerator generator;generator.SetTargetVersion(target);generator.SetSourceDirectory(std::filesystem::absolute(input).parent_path().u8string());
+            if(!generator.LoadProject(std::move(project))||!generator.ExportProject(output))throw std::runtime_error(generator.GetLastError());
+            std::cout<<"Generated UI Creator XML project in "<<output<<'\n';
+        }else if(format=="micropython") {
+            if(targetSelected&&target!="9.3")throw std::invalid_argument("MicroPython uses the official binding's LVGL 9.3 target");
+            MicroPythonCodeGenerator generator;generator.SetSourceDirectory(std::filesystem::absolute(input).parent_path().u8string());
+            if(!generator.LoadProject(std::move(project))||!generator.ExportProject(output))throw std::runtime_error(generator.GetLastError());
+            std::cout<<"Generated MicroPython project in "<<output<<'\n';
+        }else if(format=="c") {
             CCodeGenerator generator;generator.SetTargetVersion(target);generator.SetSourceDirectory(std::filesystem::absolute(input).parent_path().u8string());
             if(!generator.LoadProject(std::move(project))||!generator.ExportProject(output))throw std::runtime_error(generator.GetLastError());
             std::cout<<"Generated C project in "<<output<<'\n';

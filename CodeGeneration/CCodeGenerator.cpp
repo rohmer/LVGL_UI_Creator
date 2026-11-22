@@ -76,6 +76,8 @@ struct Generator {
     std::filesystem::path source;
     std::set<std::string> requirements;
     std::map<std::string,std::string> assetCache,fontCache;
+    std::map<std::pair<std::string,bool>,std::string> byteCache;
+    std::map<std::pair<std::string,std::string>,std::string> arrayCache;
     std::map<std::pair<size_t,int>,std::string> handles,types;
     std::map<std::pair<size_t,int>,json> variableWidgetRecords;
     struct ActionVariable { std::string field; Serialization::VariableData definition; };
@@ -103,6 +105,13 @@ struct Generator {
     void text(const json& d,const std::string& key,const std::string& fn,const std::string& o) {
         if(d.contains(key)) call(fn,o,d.at(key).is_null()?"NULL":quote(d.at(key).get<std::string>()));
     }
+    void literalText(const json& d,const std::string& key,const std::string& fn,const std::string& o) {
+        if(!d.contains(key)) return;
+        if(d.at(key).is_null()) {text(d,key,fn,o);return;}
+        const auto fixed=fn=="lv_label_set_text"?"ui_label_set_fixed_text":
+                         fn=="lv_checkbox_set_text"?"ui_checkbox_set_fixed_text":"ui_dropdown_set_fixed_options";
+        text(d,key,fixed,o);
+    }
     void linkKeyboards() {
         for(const auto& keyboard:keyboards) {
             const int id=keyboard.settings.value("targetOid",-1);
@@ -125,16 +134,23 @@ struct Generator {
         }
     }
     std::string bytes(const std::string& data,bool writable=false,bool exported=false) {
+        const auto key=std::make_pair(data,exported);
+        if(!writable) {const auto cached=byteCache.find(key);if(cached!=byteCache.end())return cached->second;}
         auto name=unique("bytes"); assets << (exported?"":"static ") << "LV_ATTRIBUTE_MEM_ALIGN " << (writable?"":"const ") << "uint8_t " << name << "[] = {";
         size_t count=0; for(unsigned char c:data) {if(count++%24==0) assets<<"\n    ";assets<<unsigned(c)<<',';}
         if(data.empty()) assets<<'0'; assets<<"\n};\n";
         if(exported)assetHeader<<"extern const uint8_t "<<name<<"[];\n";
+        if(!writable)byteCache.emplace(key,name);
         return name;
     }
     std::string array(const json& data,const std::string& type,const std::string& end="") {
-        auto name=unique("array"); assets<<"static const "<<type<<' '<<name<<"[] = {";
-        for(const auto& item:data) assets<<number(item)<<',';
-        assets<<end; if(data.empty()&&end.empty()) assets<<'0'; assets<<"};\n";return name;
+        std::string values;
+        for(const auto& item:data) values+=number(item)+',';
+        values+=end; if(data.empty()&&end.empty())values+='0';
+        const auto key=std::make_pair(type,values);
+        const auto cached=arrayCache.find(key);if(cached!=arrayCache.end())return cached->second;
+        auto name=unique("array"); assets<<"static const "<<type<<' '<<name<<"[] = {"<<values<<"};\n";
+        arrayCache.emplace(key,name);return name;
     }
     struct Image {std::string expression="NULL",frames,delays;size_t count=0;};
     Image image(const json& record) {
@@ -156,9 +172,11 @@ struct Generator {
                 manifest["images"].push_back({{"symbol",frame},{"width",width},{"height",height},{"colorFormat",cf},{"flags",flags},{"bytes",raw.size()}});
             }
             result={"&"+frames[0],name+"_frames",name+"_delays",frames.size()};
-            assets<<"const lv_image_dsc_t *const "<<result.frames<<"[] = {";for(auto& f:frames)assets<<'&'<<f<<',';assets<<"};\nconst uint32_t "<<result.delays<<"[] = {";
-            for(size_t n=0;n<frames.size();++n)assets<<(asset.contains("delays")&&n<asset["delays"].size()?std::max(20u,asset["delays"][n].get<uint32_t>()):100u)<<',';assets<<"};\n";
-            assetHeader<<"extern const lv_image_dsc_t *const "<<result.frames<<"[];\nextern const uint32_t "<<result.delays<<"[];\n";
+            if(frames.size()>1) {
+                assets<<"const lv_image_dsc_t *const "<<result.frames<<"[] = {";for(auto& f:frames)assets<<'&'<<f<<',';assets<<"};\nconst uint32_t "<<result.delays<<"[] = {";
+                for(size_t n=0;n<frames.size();++n)assets<<(asset.contains("delays")&&n<asset["delays"].size()?std::max(20u,asset["delays"][n].get<uint32_t>()):100u)<<',';assets<<"};\n";
+                assetHeader<<"extern const lv_image_dsc_t *const "<<result.frames<<"[];\nextern const uint32_t "<<result.delays<<"[];\n";
+            }
             assetCache[key]=json::array({result.expression,result.frames,result.delays,result.count}).dump();return result;
         }
         if(d.value("kind",std::string{})=="text") {
@@ -204,9 +222,11 @@ struct Generator {
             assetHeader<<"extern const lv_image_dsc_t "<<frame<<";\n";
         }
         result.expression="&"+frames[0];result.count=frames.size();result.frames=name+"_frames";result.delays=name+"_delays";
-        assets<<"const lv_image_dsc_t *const "<<result.frames<<"[] = {";for(auto& f:frames) assets<<'&'<<f<<',';assets<<"};\n";
-        assets<<"const uint32_t "<<result.delays<<"[] = {";for(auto t:delays) assets<<std::max(20u,t)<<',';assets<<"};\n";
-        assetHeader<<"extern const lv_image_dsc_t *const "<<result.frames<<"[];\nextern const uint32_t "<<result.delays<<"[];\n";
+        if(frames.size()>1) {
+            assets<<"const lv_image_dsc_t *const "<<result.frames<<"[] = {";for(auto& f:frames) assets<<'&'<<f<<',';assets<<"};\n";
+            assets<<"const uint32_t "<<result.delays<<"[] = {";for(auto t:delays) assets<<std::max(20u,t)<<',';assets<<"};\n";
+            assetHeader<<"extern const lv_image_dsc_t *const "<<result.frames<<"[];\nextern const uint32_t "<<result.delays<<"[];\n";
+        }
         manifest["images"].push_back({{"symbol",frames[0]},{"width",width},{"height",height},{"frames",frames.size()}});
         assetCache[key]=json::array({result.expression,result.frames,result.delays,result.count}).dump();return result;
     }
@@ -280,7 +300,7 @@ struct Generator {
         }
     }
     void gradient(const std::string& o,const json& d,const std::string& sel);
-    std::string object(const json& r,const std::string& parent,const std::string& requested="");
+    std::string object(const json& r,const std::string& parent,const std::string& requested="",bool temporary=false);
     void children(const json& d,const char* key,const std::string& parent) {if(d.contains(key)) for(const auto& r:d.at(key)) object(r,parent);}
     void matrix(const std::string& o,const json& d);
     void custom(const std::string& o,const std::string& type,const json& d);
@@ -368,9 +388,12 @@ void Generator::matrix(const std::string& o,const json& d) {
     if(d.contains("btnStyles")) {const char* selectors[]={"LV_PART_ITEMS","(lv_style_selector_t)LV_PART_ITEMS | LV_STATE_PRESSED","(lv_style_selector_t)LV_PART_ITEMS | LV_STATE_CHECKED","(lv_style_selector_t)LV_PART_ITEMS | LV_STATE_CHECKED | LV_STATE_PRESSED","(lv_style_selector_t)LV_PART_ITEMS | LV_STATE_DISABLED"};for(size_t i=0;i<std::min(size_t(5),d["btnStyles"].size());++i)legacyStyle(o,d["btnStyles"][i],selectors[i]);}
 }
 
-std::string Generator::object(const json& r,const std::string& parent,const std::string& requested) {
+std::string Generator::object(const json& r,const std::string& parent,const std::string& requested,bool temporary) {
     const auto t=kind(r);const auto& d=section(r,kinds.at(t).c_str());auto o=requested.empty()?unique("object"):requested;
-    if(requested.empty()) globals<<"static lv_obj_t *"<<o<<";\n";
+    if(requested.empty()) {
+        if(temporary)line("lv_obj_t *"+o+";");
+        else globals<<"static lv_obj_t *"<<o<<";\n";
+    }
     focusOwner(o,section(r,"base"));
     static const std::map<std::string,std::string> ctor={{"buttonMatrix","buttonmatrix"},{"messagebox","msgbox"},{"textBox","obj"},{"layerView","obj"},{"window","obj"},{"page","obj"},{"object","obj"},{"advancedKeyboard","advanced_keyboard"}};
     const auto native=ctor.count(t)?ctor.at(t):t;
@@ -382,7 +405,7 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
         line(o+" = "+(cc=="messageboxFooterButton"?"lv_msgbox_add_footer_button(":close?"lv_msgbox_add_close_button(":"lv_msgbox_add_header_button(")+owner+(close?")":" , NULL)")+";");
         call("lv_obj_clean",o,"");
     } else line(o+" = lv_"+native+"_create("+parent+");");
-    line("ui_track_object("+o+", &"+o+");");
+    if(!temporary)line("ui_track_object("+o+", &"+o+");");
     if(t=="textarea")textTargets.emplace_back(authoringScreen,o);
     if(t=="advancedKeyboard") {
         usesAdvancedKeyboard=true;
@@ -449,22 +472,23 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
         if(t=="bar"){prop(d,"animT","lv_obj_set_style_anim_duration",o,", LV_PART_MAIN");legacyStyle(o,section(d,"styleBG"));legacyStyle(o,section(d,"styleInd"),"LV_PART_INDICATOR");}
     } else if(t=="button") {
         prop(d,"toggle","lv_obj_set_checkable",o);
-        if(d.contains("text") && (!r.contains("contentChildren") || r["contentChildren"].empty())) {auto label=object({{"base",json::object()},{"text",d["text"]}},o);call("lv_obj_center",label,"");}
+        if(d.contains("text") && (!r.contains("contentChildren") || r["contentChildren"].empty())) {auto label=object({{"base",json::object()},{"text",d["text"]}},o,"",true);call("lv_obj_center",label,"");}
         const int layout=d.value("layout",0);if(layout) {requirements.insert("FLEX");call("lv_obj_set_flex_flow",o,layout>=2&&layout<=4?"LV_FLEX_FLOW_COLUMN":layout>=8?"LV_FLEX_FLOW_ROW_WRAP":"LV_FLEX_FLOW_ROW");call("lv_obj_set_flex_align",o,std::string(layout==1?"LV_FLEX_ALIGN_CENTER":"LV_FLEX_ALIGN_START")+", "+(layout==1||layout==3||layout==6?"LV_FLEX_ALIGN_CENTER":layout==4||layout==7?"LV_FLEX_ALIGN_END":"LV_FLEX_ALIGN_START")+", LV_FLEX_ALIGN_START");}
         for(auto s:{std::make_pair("rel","0"),{"pr","LV_STATE_PRESSED"},{"ina","LV_STATE_DISABLED"},{"tglRel","LV_STATE_CHECKED"},{"tglPr","LV_STATE_CHECKED | LV_STATE_PRESSED"}})legacyStyle(o,section(section(d,"styles"),s.first),s.second);
     } else if(t=="label") {
-        text(r,"text","lv_label_set_text",o);
+        if(r.value("longmode",0)==2)text(r,"text","lv_label_set_text",o);
+        else literalText(r,"text","lv_label_set_text",o);
         if(r.contains("longmode")){const char* modes[]={"LV_LABEL_LONG_MODE_WRAP","LV_LABEL_LONG_MODE_WRAP","LV_LABEL_LONG_MODE_DOTS","LV_LABEL_LONG_MODE_SCROLL","LV_LABEL_LONG_MODE_SCROLL_CIRCULAR","LV_LABEL_LONG_MODE_CLIP"};const auto mode=r["longmode"].get<int>();if(mode<0||mode>5)throw std::runtime_error("Invalid label long mode");call("lv_label_set_long_mode",o,modes[mode]);}
         if(!Serialization::HasNativeStyleSnapshot(section(r,"base")) && r.contains("textalign")){const char* align[]={"LV_TEXT_ALIGN_LEFT","LV_TEXT_ALIGN_CENTER","LV_TEXT_ALIGN_RIGHT"};const auto index=r["textalign"].get<int>();if(index<0||index>2)throw std::runtime_error("Invalid label alignment");call("lv_obj_set_style_text_align",o,std::string(align[index])+", LV_PART_MAIN");}
         if(!Serialization::HasNativeStyleSnapshot(section(r,"base")) && r.contains("drawback"))call("lv_obj_set_style_bg_opa",o,std::string(r.value("drawback",false)?"LV_OPA_COVER":"LV_OPA_TRANSP")+", LV_PART_MAIN");
     } else if(t=="checkbox"||t=="switch") {
-        if(t=="checkbox")text(d,"text","lv_checkbox_set_text",o);
+        if(t=="checkbox")literalText(d,"text","lv_checkbox_set_text",o);
         prop(d,"checked","lv_obj_set_checked",o);prop(d,"inact","lv_obj_set_disabled",o);
         if(t=="checkbox")for(auto s:{std::make_pair("bg","LV_PART_MAIN"),{"rel","LV_PART_INDICATOR"},{"pr","LV_PART_INDICATOR | LV_STATE_PRESSED"},{"tglRel","LV_PART_INDICATOR | LV_STATE_CHECKED"},{"tglPr","LV_PART_INDICATOR | LV_STATE_CHECKED | LV_STATE_PRESSED"},{"ina","LV_PART_INDICATOR | LV_STATE_DISABLED"}})legacyStyle(o,section(section(d,"style"),s.first),s.second);
     } else if(t=="buttonMatrix")matrix(o,d);
     else if(t=="keyboard") {prop(d,"mode","lv_keyboard_set_mode",o);prop(d,"popovers","lv_keyboard_set_popovers",o);matrix(o,section(d,"buttons"));}
     else if(t=="dropdown") {
-        text(d,"options","lv_dropdown_set_options",o);prop(d,"selected","lv_dropdown_set_selected",o);prop(d,"direction","lv_dropdown_set_dir",o);text(d,"text","lv_dropdown_set_text",o);text(d,"symbol","lv_dropdown_set_symbol",o);prop(d,"highlight","lv_dropdown_set_selected_highlight",o);
+        literalText(d,"options","lv_dropdown_set_options",o);prop(d,"selected","lv_dropdown_set_selected",o);prop(d,"direction","lv_dropdown_set_dir",o);text(d,"text","lv_dropdown_set_text",o);text(d,"symbol","lv_dropdown_set_symbol",o);prop(d,"highlight","lv_dropdown_set_selected_highlight",o);
     } else if(t=="roller") {
         call("lv_roller_set_options",o,quote(d.value("options",std::string{}))+", "+std::to_string(d.value("mode",0)));prop(d,"visibleRows","lv_roller_set_visible_row_count",o);prop(d,"selected","lv_roller_set_selected",o,", LV_ANIM_OFF");
     } else if(t=="spinbox") {
@@ -788,7 +812,11 @@ void Generator::variables(const json& records) {
         variableNames.push_back(n);
         auto literal=[&](const json& value){if(string)return quote(value.get<std::string>());if(value.is_number_unsigned()&&value.get<uint64_t>()>INT64_MAX&&v.type!=Serialization::VariableType::Float)throw std::runtime_error("Variable exceeds int64_t: "+v.name);auto s=number(value);if(type==std::string("int64_t")){if(s=="-9223372036854775808")return std::string("INT64_MIN");return "INT64_C("+s+")";}return s;};
         auto current="ui_variables."+n, history="ui_storage_"+n;fields<<"    "<<type<<' '<<n<<";\n";
-        globals<<"static "<<type<<" *"<<history<<";\nstatic size_t "<<history<<"_count, "<<history<<"_capacity;\n";
+        const auto historyType=string?std::string(type):storageType;
+        const bool singleHistory=v.history==1;
+        if(singleHistory)globals<<"static "<<historyType<<' '<<history<<";\nstatic bool "<<history<<"_count;\n";
+        else globals<<"static "<<historyType<<" *"<<history<<";\nstatic size_t "<<history<<"_count, "<<history<<"_capacity;\n";
+        if(v.history>1)globals<<"static size_t "<<history<<"_head;\n";
         globals<<"static "<<storageType<<" *"<<external<<";\n";
         if(string)globals<<"static size_t "<<external<<"_capacity;\n";
         header<<"bool ui_set_"<<n<<'('<<type<<" value);\nsize_t ui_history_"<<n<<"_count(void);\nbool ui_history_"<<n<<"_get(size_t index, "<<type<<" *value);\n";
@@ -798,7 +826,7 @@ void Generator::variables(const json& records) {
                            {"bindings",json::array()}};
         if(!codeSymbol.empty())metadata["symbol"]=codeSymbol;
         std::vector<std::pair<std::string,std::string>> outputs,inputs;
-        bool needsLVGLNumber=false;
+        bool needsLVGLNumber=false, needsText=false;
         for(const auto& target:Serialization::LVVariable::Bindings(v)) {
             auto ref=std::make_pair(target.screen,target.objectId);if(!handles.count(ref))throw std::runtime_error("Variable references a missing widget: "+v.name);
             auto object=handles.at(ref);const auto& widget=types.at(ref);auto path=target.property;
@@ -808,15 +836,14 @@ void Generator::variables(const json& records) {
             auto slash=path.find_last_of('/');auto property=slash==std::string::npos?path:path.substr(slash+1);
             if(property=="text" && (widget=="label"||widget=="textarea"||widget=="checkbox")) {
                 if(string)binding="lv_"+widget+"_set_text("+object+", value);";
-                else {auto format=v.type==Serialization::VariableType::Float?"\"%.17g\", value":v.type==Serialization::VariableType::Boolean?"\"%s\", value ? \"true\" : \"false\"":"\"%\" PRId64, value";binding="{ char text[64]; snprintf(text, sizeof text, "+std::string(format)+"); lv_"+widget+"_set_text("+object+", text); }";}
+                else binding="lv_"+widget+"_set_text("+object+", text);";
                 if(string&&widget=="textarea")getter="lv_textarea_get_text("+object+")";
             } else if(widget=="advancedKeyboard" && property=="text") {
                 if(string) {
                     binding="lv_advanced_keyboard_set_text("+object+", value);";
                     getter="lv_advanced_keyboard_get_text("+object+")";
                 } else {
-                    const auto format=v.type==Serialization::VariableType::Float?"\"%.17g\", value":v.type==Serialization::VariableType::Boolean?"\"%s\", value ? \"true\" : \"false\"":"\"%\" PRId64, value";
-                    binding="{ char text[64]; snprintf(text, sizeof text, "+std::string(format)+"); lv_advanced_keyboard_set_text("+object+", text); }";
+                    binding="lv_advanced_keyboard_set_text("+object+", text);";
                 }
             } else if(!string&&(property=="checked"||property=="hidden"||property=="disabled")) {
                 binding="lv_obj_set_"+property+"("+object+", value != 0);";if(property=="checked")getter="lv_obj_is_checked("+object+")";
@@ -842,6 +869,7 @@ void Generator::variables(const json& records) {
             else if(target.direction==Serialization::VariableBindingDirection::FromWidget)throw std::runtime_error("Variable input needs an interactive readable property: "+v.name+" -> "+path);
             if(toWidget) {
                 outputs.emplace_back(object,binding);
+                if(!string&&property=="text")needsText=true;
                 if(property!="text"&&property!="checked"&&property!="hidden"&&property!="disabled")needsLVGLNumber=true;
             }
             metadata["bindings"].push_back(Serialization::LVVariable::BindingToJSON(target));
@@ -849,10 +877,14 @@ void Generator::variables(const json& records) {
         manifest["variables"].push_back(std::move(metadata));
         auto& out=variableCode;
         out<<"static void ui_apply_"<<n<<'('<<type<<" value) {\n    (void)value; if (ui_syncing_vars) return; ui_syncing_vars=true;\n";
+        if(needsText) {
+            if(v.type==Serialization::VariableType::Boolean)out<<"    const char *text=value ? \"true\" : \"false\";\n";
+            else out<<"    char text[64]; snprintf(text, sizeof text, "<<(v.type==Serialization::VariableType::Float?"\"%.17g\", value":"\"%\" PRId64, value")<<");\n";
+        }
         for(const auto& binding:outputs)out<<"    if ("<<binding.first<<") { "<<binding.second<<" }\n";
         out<<"    ui_syncing_vars=false;\n}\n";
         out<<"bool ui_set_"<<n<<'('<<type<<" value) {\n    if (!ui_ready || ui_syncing_vars) return false;\n";
-        if(string)out<<"    char *copy, *history_copy; size_t length; if (!value) return false; length=strlen(value); if ("<<external<<" && length >= "<<external<<"_capacity) return false; copy=lv_strdup(value); if (!copy) return false; history_copy=lv_strdup(value); if (!history_copy) { lv_free(copy); return false; }\n";
+        if(string)out<<"    char *copy; size_t length; if (!value) return false; length=strlen(value); if ("<<external<<" && length >= "<<external<<"_capacity) return false; copy=lv_strdup(value); if (!copy) return false;\n";
         else if(v.type==Serialization::VariableType::Float) {
             out<<"    if (!isfinite(value)) return false;\n";
             if(storageType=="float")out<<"    if (value < -FLT_MAX || value > FLT_MAX) return false; value=(double)(float)value;\n";
@@ -863,14 +895,31 @@ void Generator::variables(const json& records) {
             const auto bounds=limits.at(storageType);out<<"    if (value < "<<bounds.first<<" || value > "<<bounds.second<<") return false;\n";
         }
         if(needsLVGLNumber&&v.type!=Serialization::VariableType::Boolean)out<<"    if (value < INT32_MIN || value > INT32_MAX) return false;\n";
-        out<<"    if (!ui_reserve((void**)&"<<history<<", &"<<history<<"_capacity, "<<history<<"_count, "<<v.history<<", sizeof *"<<history<<")) {"<<(string?"lv_free(copy); lv_free(history_copy);":"")<<"return false;}\n";
-        if(v.history)out<<"    if ("<<history<<"_count == "<<v.history<<") { "<<(string?"lv_free((void*)"+history+"[0]); ":"")<<"memmove("<<history<<", "<<history<<"+1, (--"<<history<<"_count)*sizeof *"<<history<<"); }\n";
-        if(string)out<<"    lv_free((void*)"<<current<<"); "<<current<<" = copy; value=copy; "<<history<<'['<<history<<"_count++] = history_copy;\n";
-        else out<<"    "<<current<<" = value; "<<history<<'['<<history<<"_count++] = value;\n";
+        if(!singleHistory)out<<"    "<<historyType<<" *next=("<<historyType<<"*)ui_reserve("<<history<<", &"<<history<<"_capacity, "<<history<<"_count, "<<v.history<<", sizeof *"<<history<<"); if (!next) {"<<(string?"lv_free(copy);":"")<<"return false;} "<<history<<"=next;\n";
+        if(singleHistory) {
+            if(string)out<<"    if ("<<history<<"_count) lv_free((void*)"<<history<<");\n";
+            out<<"    "<<history<<"_count=true;\n";
+        } else if(v.history) {
+            out<<"    size_t slot;\n    if ("<<history<<"_count == "<<v.history<<") { ";
+            if(v.history>1)out<<"slot="<<history<<"_head; "<<history<<"_head=("<<history<<"_head+1)%"<<v.history<<"; ";
+            else out<<"slot=0; ";
+            if(string)out<<"lv_free((void*)"<<history<<"[slot]); ";
+            out<<"} else slot="<<history<<"_count++;\n";
+        } else out<<"    size_t slot="<<history<<"_count++;\n";
+        const auto entry=history+(singleHistory?"":"[slot]");
+        if(string)out<<"    "<<current<<" = copy; value=copy; "<<entry<<" = copy;\n";
+        else out<<"    "<<current<<" = value; "<<entry<<" = ("<<historyType<<")value;\n";
         if(string)out<<"    if ("<<external<<") memmove("<<external<<", value, length+1);\n";
         else out<<"    if ("<<external<<") *"<<external<<"=("<<storageType<<")value;\n";
         out<<"    ui_apply_"<<n<<"(value);\n";
-        out<<"    return true;\n}\nsize_t ui_history_"<<n<<"_count(void) { return "<<history<<"_count; }\nbool ui_history_"<<n<<"_get(size_t index, "<<type<<" *value) { if (!value || index >= "<<history<<"_count) return false; *value="<<history<<"[index]; return true; }\n";
+        out<<"    return true;\n}\nsize_t ui_history_"<<n<<"_count(void) { return "<<history<<"_count; }\nbool ui_history_"<<n<<"_get(size_t index, "<<type<<" *value) { if (!value || index >= "<<history<<"_count) return false; *value="<<history;
+        if(!singleHistory) {
+            out<<'[';
+            if(v.history>1)out<<'('<<history<<"_head+index)%"<<v.history;
+            else out<<"index";
+            out<<']';
+        }
+        out<<"; return true; }\n";
         out<<"bool ui_sync_"<<n<<"(void) {\n    if (!ui_ready) return false; if (!"<<external<<") return true;\n";
         if(string)out<<"    if (!memchr("<<external<<", '\\0', "<<external<<"_capacity)) return false; if ("<<current<<" && strcmp("<<current<<", "<<external<<")==0) return true; return ui_set_"<<n<<'('<<external<<");\n";
         else out<<"    if ("<<current<<" == ("<<type<<")*"<<external<<") return true; return ui_set_"<<n<<"(("<<type<<")*"<<external<<");\n";
@@ -883,13 +932,21 @@ void Generator::variables(const json& records) {
             out<<"static void "<<callback<<"(lv_event_t *event) { (void)event; if (ui_ready && "<<input.first<<" && !ui_syncing_vars) { if (!ui_set_"<<n<<"("<<input.second<<")) ui_apply_"<<n<<'('<<current<<"); } }\n";
             variableInit<<"    lv_obj_add_event_cb("<<input.first<<", "<<callback<<", LV_EVENT_VALUE_CHANGED, NULL);\n";
         }
-        variableInit<<"    if (!ui_set_"<<n<<'('<<literal(v.defaultValue)<<")) { ui_deinit(); return false; }\n";
-        // Defaults establish the current value, but are not an entry in saved history.
-        if(string)variableInit<<"    lv_free((void*)"<<history<<"[0]);\n";
-        variableInit<<"    "<<history<<"_count=0;\n";
+        // Defaults establish the current value without allocating or recording
+        // history. Immutable string defaults stay in the generated constant pool.
+        variableInit<<"    "<<current<<" = "<<(v.type==Serialization::VariableType::Float&&storageType=="float"?"(double)(float)":"")<<literal(v.defaultValue)<<";\n";
+        if(needsLVGLNumber&&v.type!=Serialization::VariableType::Boolean)
+            variableInit<<"    if ("<<current<<" < INT32_MIN || "<<current<<" > INT32_MAX) { ui_deinit(); return false; }\n";
+        variableInit<<"    ui_apply_"<<n<<'('<<current<<");\n";
         for(auto& value:v.values)variableInit<<"    if (!ui_set_"<<n<<'('<<literal(value)<<")) { ui_deinit(); return false; }\n";
-        if(string)variableFree<<"    { size_t i; for (i=0;i<"<<history<<"_count;++i) lv_free((void*)"<<history<<"[i]); } lv_free((void*)"<<current<<"); "<<current<<"=NULL;\n";
-        variableFree<<"    lv_free("<<history<<"); "<<history<<"=NULL; "<<history<<"_count=0; "<<history<<"_capacity=0;\n";
+        if(singleHistory) {
+            if(string)variableFree<<"    if ("<<history<<"_count) lv_free((void*)"<<history<<"); "<<current<<"=NULL; "<<history<<"=NULL;\n";
+            variableFree<<"    "<<history<<"_count=false;\n";
+        } else {
+            if(string)variableFree<<"    { size_t i; for (i=0;i<"<<history<<"_count;++i) lv_free((void*)"<<history<<"[i]); } "<<current<<"=NULL;\n";
+            variableFree<<"    lv_free("<<history<<"); "<<history<<"=NULL; "<<history<<"_count=0; "<<history<<"_capacity=0;\n";
+        }
+        if(v.history>1)variableFree<<"    "<<history<<"_head=0;\n";
         variableFree<<"    ui_unbind_"<<n<<"();\n";
         const auto symbol=codeSymbol.empty()?"application_"+n:codeSymbol;
         if(codeSymbol.empty())
@@ -1012,6 +1069,18 @@ std::map<std::string,std::string> Generator::files(const json& input) {
     }
     screens(project);linkKeyboards();variables(project.value("variables",json::array()));interactions(project);
     std::ostringstream requirementsFile;requirementsFile<<"#pragma once\n#include <lvgl.h>\n#if LVGL_VERSION_MAJOR != 9 || LVGL_VERSION_MINOR != 6\n#error This project requires LVGL 9.6.x\n#endif\n";
+    requirementsFile<<"#ifndef UI_USE_STATIC_TEXT\n#define UI_USE_STATIC_TEXT 1\n#endif\n";
+    requirementsFile<<R"TEXT(
+#if UI_USE_STATIC_TEXT && !LV_USE_ARABIC_PERSIAN_CHARS
+#define ui_label_set_fixed_text lv_label_set_text_static
+#define ui_checkbox_set_fixed_text lv_checkbox_set_text_static
+#define ui_dropdown_set_fixed_options lv_dropdown_set_options_static
+#else
+#define ui_label_set_fixed_text lv_label_set_text
+#define ui_checkbox_set_fixed_text lv_checkbox_set_text
+#define ui_dropdown_set_fixed_options lv_dropdown_set_options
+#endif
+)TEXT";
     for(auto& r:requirements) {const auto macro=r=="BIN_DECODER_RAM_LOAD"?"LV_BIN_DECODER_RAM_LOAD":r=="FLEX"||r=="GRID"?"LV_USE_"+r:r=="DRAW_SW_COMPLEX_GRADIENTS"?"LV_DRAW_SW_COMPLEX_GRADIENTS":"LV_USE_"+r;requirementsFile<<"#if !"<<macro<<"\n#error Enable "<<macro<<" in lv_conf.h for this project\n#endif\n";}
     std::string h="#pragma once\n#include <lvgl.h>\n#include <stdbool.h>\n#include <stdint.h>\n#include <stddef.h>\n#ifdef __cplusplus\nextern \"C\" {\n#endif\nbool ui_init(void);\nvoid ui_deinit(void);\nsize_t ui_screen_count(void);\nlv_obj_t *ui_get_screen(size_t index);\nlv_obj_t *ui_get_object(size_t screen, int32_t object_id);\nbool ui_show_screen(size_t index);\n"+header.str()+"#ifdef __cplusplus\n}\n#endif\n";
     std::ostringstream c;c<<"/* Generated by LVGL UI Creator. LVGL and your display/input drivers must be initialized first. */\n#include \"ui.h\"\n#include \"ui_assets.h\"\n#include \"ui_requirements.h\"\n#include <math.h>\n#include <float.h>\n";
@@ -1063,7 +1132,39 @@ static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
         c<<"    default: lv_screen_load(screen); break;\n    }\n";
     }else c<<"    lv_screen_load(screen);\n";
     c<<"    return true;\n}\nlv_obj_t *ui_get_object(size_t screen, int32_t object_id) {\n";
-    for(auto& hnd:handles)c<<"    if (screen == "<<hnd.first.first<<" && object_id == "<<hnd.first.second<<") return "<<hnd.second<<";\n";c<<"    return NULL;\n}\n";
+    if(handles.size()>32) {
+        // Parallel immutable arrays avoid per-entry structure padding. Only the
+        // existing handle slots are mutable; lookup adds no RAM allocation.
+        c<<"    static const int32_t ui_object_ids[] = {";
+        for(const auto& handle:handles)c<<handle.first.second<<',';
+        c<<"};\n    static lv_obj_t **const ui_object_slots[] = {";
+        for(const auto& handle:handles)c<<'&'<<handle.second<<',';
+        c<<"};\n    static const size_t ui_object_offsets[] = {0,";
+        size_t offset=0;auto handle=handles.begin();
+        for(size_t screen=0;screen<screenCount;++screen) {
+            while(handle!=handles.end()&&handle->first.first==screen){++offset;++handle;}
+            c<<offset<<',';
+        }
+        c<<"};\n";
+        c<<"    size_t first, last, end;\n    if (screen >= "<<screenCount<<") return NULL;\n"
+            "    first=ui_object_offsets[screen]; end=ui_object_offsets[screen+1]; last=end;\n"
+            "    while (first < last) { size_t middle=first+(last-first)/2;\n"
+            "        if (ui_object_ids[middle] < object_id) first=middle+1; else last=middle;\n    }\n"
+            "    return first < end && ui_object_ids[first] == object_id ? *ui_object_slots[first] : NULL;\n}\n";
+    } else {
+        c<<"    switch (screen) {\n";
+        auto object=handles.begin();
+        while(object!=handles.end()) {
+            const auto screen=object->first.first;
+            c<<"    case "<<screen<<":\n        switch (object_id) {\n";
+            do {
+                c<<"        case "<<object->first.second<<": return "<<object->second<<";\n";
+                ++object;
+            } while(object!=handles.end()&&object->first.first==screen);
+            c<<"        default: return NULL;\n        }\n";
+        }
+        c<<"    default: return NULL;\n    }\n}\n";
+    }
     c<<"void ui_deinit(void) {\n    size_t i; lv_obj_t *active=lv_screen_active();\n";
     if(usesTransitions)c<<"    ui_cancel_legacy_screen_transition(active);\n";
     if(usesTransitions)c<<"    /* Cancel a pending first-screen transition even before it becomes active. */\n    if (active && active==ui_previous_screen) {\n        lv_obj_t *guard=lv_obj_create(NULL);\n        if (guard) {lv_screen_load(guard);lv_screen_load(ui_previous_screen);lv_obj_delete(guard);}\n    }\n";
@@ -1078,6 +1179,33 @@ static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
     const std::string cmake="cmake_minimum_required(VERSION 3.24)\nproject(GeneratedUI LANGUAGES C)\nadd_library(generated_ui STATIC ui.c ui_assets.c)\nset_target_properties(generated_ui PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED YES)\ntarget_include_directories(generated_ui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})\nif(TARGET lvgl::lvgl)\n target_link_libraries(generated_ui PUBLIC lvgl::lvgl)\nelseif(TARGET lvgl)\n target_link_libraries(generated_ui PUBLIC lvgl)\nelse()\n message(FATAL_ERROR \"Add your LVGL target before adding this directory\")\nendif()\n";
     const std::string readme="# Generated LVGL project\n\nThese C11 sources target LVGL 9.6.x. No editor, C++, JSON, Protobuf, SDL, filesystem or image decoder is required on the device. PNG/JPEG/GIF assets are decoded during export to ARGB8888 arrays; GIF frames advance using LVGL timers. Fonts and widget maps are compiled into the assets. Canvas buffers are writable RAM. Budget flash for uncompressed images and RAM for screens, canvases and variable histories.\n\nAdd LVGL to your firmware build, configure the options listed in ui_requirements.h, then add_subdirectory(path/to/generated_ui) and link generated_ui. Your firmware supplies LVGL, the display/input drivers and periodic tick/timer handling. After initializing them:\n\n```c\n#include \"ui.h\"\nif (!ui_init()) { /* initialization failed */ }\n/* ui_init loads the initial screen. */\n```\n\nUse ui_get_screen(index), ui_show_screen(index), and ui_get_object(screen_index, saved_object_id). manifest.json maps original names and IDs to generated symbols. Variables are exposed in ui_variables; update them through ui_set_v_NAME to maintain bindings and history. String pointers are borrowed and expire on the next update or ui_deinit. History getters return oldest first; a configured history of zero grows until memory is exhausted. Setters report allocation failures. Interactive bindings update variables on VALUE_CHANGED. All calls must run on the LVGL thread.\n\nui_init is idempotent. ui_deinit releases generated screens, animation timers and variable storage, restoring the previous screen when available. Call it before deleting the display or deinitializing LVGL. Application-specific actions and hardware behavior should be attached by firmware after ui_init; editor-only drag settings are not exported. Re-export overwrites generated files, so keep application logic outside this directory.\n\nCLI: UICreatorCodeGen project.json output_directory (also accepts project.pb). The editor exports through File > Export C project. External image paths resolve relative to the saved project; embedded assets are preferred. Optional multi-screen project records use a screens array of {name,canvas,obj} plus activeScreen and shared variables (binding screen defaults to 0).\n";
     std::map<std::string,std::string> output={{"ui.h",h},{"ui.c",c.str()},{"ui_assets.h","#pragma once\n#include <lvgl.h>\n"+assetHeader.str()},{"ui_assets.c","#include \"ui_assets.h\"\n"+assets.str()},{"ui_requirements.h",requirementsFile.str()},{"CMakeLists.txt",cmake},{"README.md",readme},{"manifest.json",manifest.dump(2)+"\n"}};
+    output["CMakeLists.txt"]+="\noption(UI_USE_STATIC_TEXT \"Keep authored fixed text in read-only storage\" ON)\ntarget_compile_definitions(generated_ui PRIVATE UI_USE_STATIC_TEXT=$<BOOL:${UI_USE_STATIC_TEXT}>)\n";
+    output["README.md"]+=R"MEMORY(
+Memory and update costs
+-----------------------
+
+Fixed label text, checkbox captions and dropdown options use immutable storage
+by default. Authored DOTS labels and Arabic/Persian preprocessing retain copying
+setters. Variable updates and normal LVGL text setters still copy dynamic text.
+Before calling lv_label_ins_text/lv_label_cut_text or changing a fixed label to
+DOTS at runtime, make its text mutable with
+lv_label_set_text(label, lv_label_get_text(label)). To keep all authored text
+mutable, configure the generated CMake project with -DUI_USE_STATIC_TEXT=OFF;
+other build systems can compile ui.c with UI_USE_STATIC_TEXT=0.
+
+Read-only pixel and typed numeric arrays are shared when their contents match;
+writable canvases retain separate buffers. Single-frame images have no animation
+tables or timers. Large projects use binary lookup through immutable arrays;
+small projects use switches. Lookup needs no extra writable table or allocation.
+Private handles and deletion callbacks are omitted for automatic button captions.
+
+Bounded variable histories use circular storage and the configured C storage
+type. History length 1 uses inline storage without a history allocation. Defaults
+do not allocate or append history; string defaults remain immutable literals.
+String updates share one owned copy between the current value and newest history
+entry. Numeric text is formatted once for all of that variable's text bindings.
+The public setter types and oldest-first history access remain unchanged.
+)MEMORY";
     if(!variableWiring.str().empty())output["README.md"]+="\n## Application variable bindings\n\nEach variable also has a generated typed `ui_bind_v_NAME` function. Call it after `ui_init`, passing application-owned storage that stays alive until `ui_unbind_v_NAME` or `ui_deinit`. Binding imports the application's existing value; it does not replace that value with the editor default. The pointer can refer to a C global, a C++ namespace variable or a C++ object member. The optional code symbol is a wiring hint only: generated C never declares or links an application symbol. Keep the following wiring in your application, outside the generated directory:\n\n```c\n"+variableWiring.str()+"```\n\nChange application values on the LVGL thread, then call `ui_sync_variables()` (or just `ui_sync_v_NAME()`). Unchanged values do not redraw widgets or add history. The call returns false on allocation failure, a nonfinite number or an invalid string buffer; other variables are still synchronized. Use `ui_set_v_NAME` when setting through the generated UI API; it also writes bound application storage. Interactive widget changes update the same storage and every output/two-way widget for that variable. A `to-widget` binding only receives updates; a `from-widget` binding only publishes user edits; `two-way` does both. Binding targets can span screens.\n\nInteger pointer types are exact, including `int32_t`; narrower values are range checked before a setter changes anything. Float bindings use `float` or `double` as selected; float values are rounded once to the application's actual precision. Strings bind a writable `char` buffer and its capacity, including the terminating NUL. The buffer must contain a NUL within that capacity. Oversize strings fail without truncation or changing the value/history; a two-way widget is restored to the previous value when its edit cannot fit. Rebind a different buffer explicitly after resizing. `ui_deinit` drops bindings without freeing or modifying application storage. Bindings do not provide thread synchronization: pass data from worker tasks to the LVGL thread before syncing.\n";
     if(!variableWiring.str().empty())output["README.md"]+="\nSetters and binders return false when called again from a synchronous widget callback during variable propagation. Queue such application updates for the next LVGL iteration. Authored widget actions are suppressed while propagating programmatic variable updates; actions still run for user-generated events.\n";
     if(usesTransitions)output["README.md"]+="\nui_show_screen applies the destination screen's transition and duration. Transitions retain both screens and never automatically delete them; repeated navigation and ui_deinit safely cancel pending transitions.\n";

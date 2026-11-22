@@ -4166,5 +4166,69 @@
         "settings": [],
         "lvglVersion": "9.6.0",
         "getStartedInstructions": "1. Copy the generated folder to Raspberry Pi OS 64-bit or a Linux machine with CMake 3.24+, Ninja, Python 3 and a C/C++17 compiler. Python checks the embedded profile inputs during CMake configuration. Install the graphics/input development packages for your Linux desktop; SDL3 source is included.\n2. Configure: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release\n3. Build: cmake --build build --parallel\n4. Run: build/platform/Runtime/linux/lvgl-pb-viewer ui/project.pb\n5. For a custom display transport, configure -DLVGL_PB_WITH_SDL=OFF and use the board callback API described in platform/Runtime/linux/README.md.\nRegenerate after changing the UI so its minimum runtime includes any new widgets or assets. Building from source on the target selects its native architecture and ABI. Physical display and touch-controller drivers remain application-specific."
+    },
+    {
+        "name": "Raspberry Pi Pico 1",
+        "maintainer": "LVGL UI Creator",
+        "uicreatorTemplate": "raspberry-pi-pico",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "CMake",
+            "Pico SDK"
+        ],
+        "hardware": {
+            "chipVendor": "Raspberry Pi",
+            "manufacturer": "Raspberry Pi",
+            "specs": {
+                "MCU": "RP2040",
+                "Board": "pico",
+                "Output": "ELF, binary and UF2 firmware",
+                "Display": "Application-supplied pixel/touch callbacks"
+            }
+        },
+        "description": "Create a native Pico SDK firmware project for Raspberry Pi Pico 1. C output links the generated screen directly; Protobuf output includes the project-specific display library. Both use only the selected LVGL 9.6 modules and provide UF2 firmware output. Configure display and touch callbacks for your panel.",
+        "shortDescription": "RP2040 Pico SDK firmware with generated C or Protobuf UI and UF2 output.",
+        "urlToClone": "https://github.com/raspberrypi/pico-sdk",
+        "branches": [],
+        "uiFolderPath": "ui",
+        "settings": [],
+        "lvglVersion": "9.6.0",
+        "getStartedInstructions": "1. Install Raspberry Pi Pico SDK 2.3.1 or newer, its documented ARM compiler tools, CMake, Ninja and Python 3.10+. Set PICO_SDK_PATH to your SDK checkout. The UI library sources are bundled; the Pico SDK remains a build prerequisite.\n2. Configure: cmake -S . -B build -G Ninja -DPICO_BOARD=pico\n3. Build: cmake --build build --parallel\n4. Hold BOOTSEL while connecting the board and copy build/*.uf2 to its USB drive.\n5. Implement the example's pixel-write and touch callbacks for your display pins, driver and resolution. The default callbacks permit a firmware build without assuming a particular panel. Use the same LVGL owner thread for all UI calls.\nC mode calls ui_init and links generated_ui; Protobuf mode loads the embedded project through the Pico display library. Regenerate after changing the design."
+    },
+    {
+        "name": "Raspberry Pi Pico 2",
+        "maintainer": "LVGL UI Creator",
+        "uicreatorTemplate": "raspberry-pi-pico2",
+        "hostOperatingsystem": [
+            "Windows",
+            "Linux",
+            "MacOS"
+        ],
+        "environment": [
+            "CMake",
+            "Pico SDK"
+        ],
+        "hardware": {
+            "chipVendor": "Raspberry Pi",
+            "manufacturer": "Raspberry Pi",
+            "specs": {
+                "MCU": "RP2350",
+                "Board": "pico2",
+                "Output": "ELF, binary and UF2 firmware",
+                "Display": "Application-supplied pixel/touch callbacks"
+            }
+        },
+        "description": "Create a native Pico SDK firmware project for Raspberry Pi Pico 2. C output links the generated screen directly; Protobuf output includes the project-specific display library. Both use only the selected LVGL 9.6 modules and provide UF2 firmware output. Configure display and touch callbacks for your panel.",
+        "shortDescription": "RP2350 Pico SDK firmware with generated C or Protobuf UI and UF2 output.",
+        "urlToClone": "https://github.com/raspberrypi/pico-sdk",
+        "branches": [],
+        "uiFolderPath": "ui",
+        "settings": [],
+        "lvglVersion": "9.6.0",
+        "getStartedInstructions": "1. Install Raspberry Pi Pico SDK 2.3.1 or newer, its documented ARM compiler tools, CMake, Ninja and Python 3.10+. Set PICO_SDK_PATH to your SDK checkout. The UI library sources are bundled; the Pico SDK remains a build prerequisite.\n2. Configure: cmake -S . -B build -G Ninja -DPICO_BOARD=pico2\n3. Build: cmake --build build --parallel\n4. Hold BOOTSEL while connecting the board and copy build/*.uf2 to its USB drive.\n5. Implement the example's pixel-write and touch callbacks for your display pins, driver and resolution. The default callbacks permit a firmware build without assuming a particular panel. Use the same LVGL owner thread for all UI calls.\nC mode calls ui_init and links generated_ui; Protobuf mode loads the embedded project through the Pico display library. Regenerate after changing the design."
     }
 ]

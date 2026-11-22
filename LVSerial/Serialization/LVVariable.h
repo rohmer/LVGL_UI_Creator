@@ -47,5 +47,8 @@ namespace Serialization
         static void ValidateBinding(const VariableData& variable, const VariableBinding& binding, const nlohmann::json& widget);
         static std::string CodeType(const VariableData& variable);
         static std::string CodeSymbol(const VariableData& variable);
+        // Checks a candidate value against an already validated definition,
+        // without serializing or copying its bindings/history metadata.
+        static void ValidateValue(const VariableData& variable, const nlohmann::json& value);
     };
 }

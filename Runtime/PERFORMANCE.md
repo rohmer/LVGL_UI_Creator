@@ -1,5 +1,32 @@
 # Screen lifecycle and performance measurements
 
+## Library loading and variable updates
+
+The loader validates trie payloads directly from trusted Protobuf input ranges
+before choosing their final storage. Identical catalogs share model bytes. Normal
+memory and file loading retain owned trie/index bytes, preferring shared PSRAM
+on ESP32, so the input may be released when loading returns. The explicit
+borrowed-assets API retains its immutable-input lifetime contract. The owned
+path no longer creates a full temporary model copy before PSRAM placement or
+catalog deduplication.
+
+Screen definitions move from the decoded document into runtime storage rather
+than being deep-copied during envelope validation and screen extraction. The
+retained widget arrays are compacted without copying their nested properties.
+Hierarchy validation visits each parent path once; shared ancestor chains do
+not create a separate allocation for every ancestor of every widget. Screen
+definitions remain available for lazy loading and state-preserving unloading.
+
+Variable definitions and configured C storage are validated during loading.
+Updates validate the candidate value directly without reserializing bindings
+or initial history metadata. A one-entry history uses the current value as its
+only entry once a value has been recorded. Other bounded histories use a ring
+buffer, retaining chronological order through the public history API without
+shifting every entry on each update. A history limit of zero still means
+unlimited history, so choose a positive bound on memory-constrained targets.
+
+## Screen lifecycle
+
 The existing three-field `lvgl_runtime_options_t` and loading functions retain
 their ABI and eager behavior. Existing callers can still retrieve every screen
 immediately after loading.

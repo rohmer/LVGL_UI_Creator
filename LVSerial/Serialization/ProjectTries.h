@@ -29,6 +29,9 @@ public:
     // and removes bulk trie data from document before screen records are copied.
     // ESP32 prefers shared PSRAM bytes and releases replaced owned buffers.
     static CatalogPtr Load(nlohmann::json& document, const BorrowedAssets& borrowed = {});
+    // Consumes trusted input spans only during this call. Retained model bytes
+    // are owned (preferably in PSRAM), so the caller may release its input.
+    static CatalogPtr LoadOwned(nlohmann::json& document, const BorrowedAssets& borrowed = {});
     // The widget owns its predictor/scratch and retains the shared model bytes.
     // Empty trieId removes its predictor; builtin-en-us resolves without a blob.
     static void Attach(lv_obj_t* widget, const std::string& trieId,

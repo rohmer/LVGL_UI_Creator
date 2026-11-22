@@ -12,5 +12,7 @@ namespace Serialization
         static LoadedProject FromJSON(const json& document);
         static Binary ToProtobuf(const std::vector<lv_obj_t*>& objects, lv_obj_t* screen, const json& variables, int width = 0, int height = 0, const json& fonts = json::array(), const json& images = json::array(), const json& tries = json::array());
         static LoadedProject FromProtobuf(const Binary& input);
+        static std::string ToXML(const std::vector<lv_obj_t*>& objects, lv_obj_t* screen, const json& variables, int width = 0, int height = 0, const json& fonts = json::array(), const json& images = json::array(), const json& tries = json::array());
+        static LoadedProject FromXML(const std::string& input);
     };
 }

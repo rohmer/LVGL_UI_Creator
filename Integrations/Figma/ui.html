@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; font: 13px/1.5 Inter, system-ui, sans-serif; background: var(--figma-color-bg, #fff); color: var(--figma-color-text, #202633); }
+    h1 { margin: 0 0 10px; font-size: 20px; letter-spacing: -.4px; }
+    p { margin: 0 0 16px; }
+    .muted { color: var(--figma-color-text-secondary, #667085); }
+    .card { padding: 14px; border: 1px solid var(--figma-color-border, #dce1e8); border-radius: 8px; margin-bottom: 16px; }
+    #selection { max-height: 80px; overflow: auto; margin: 6px 0 0; padding-left: 18px; }
+    label { display: block; margin: 0 0 14px; }
+    button, a.download { display: block; width: 100%; border: 0; border-radius: 6px; padding: 10px 12px; font: inherit; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
+    #export, .download { background: var(--figma-color-bg-brand, #226be7); color: var(--figma-color-text-onbrand, #fff); }
+    #page, #cancel { margin-top: 8px; color: var(--figma-color-text, #202633); background: var(--figma-color-bg-secondary, #edf1f7); }
+    button:disabled { opacity: .45; cursor: default; }
+    #status { margin-top: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    #download { margin-top: 12px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <h1>Export to LVGL UI Creator</h1>
+  <p class="muted">Keep frames, text, and simple shapes editable. Images and complex artwork become embedded PNG assets.</p>
+  <div class="card"><strong id="heading">Current selection</strong><ul id="selection"></ul></div>
+  <label><input id="hidden" type="checkbox"> Include hidden layers</label>
+  <button id="export" disabled>Export selected frames</button>
+  <button id="page" disabled>Export all frames on this page</button>
+  <button id="cancel" hidden>Cancel export</button>
+  <div id="status" role="status" aria-live="polite">Select frames in your Figma design.</div>
+  <a id="download" class="download" hidden>Save Figma import file</a>
+  <script>
+    "use strict";
+    const $ = id => document.getElementById(id);
+    const send = message => parent.postMessage({ pluginMessage: message }, "*");
+    let busy = false, selected = 0, pageCount = 0, downloadUrl = null;
+    function controls() {
+      $("export").disabled = busy || selected === 0;
+      $("page").disabled = busy || pageCount === 0;
+      $("hidden").disabled = busy;
+      $("cancel").hidden = !busy;
+    }
+    function clearDownload() {
+      if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+      downloadUrl = null;
+      $("download").hidden = true;
+      $("download").removeAttribute("href");
+    }
+    function start(scope) {
+      clearDownload();
+      busy = true;
+      controls();
+      $("status").textContent = "Preparing design…";
+      send({ type: "export", scope: scope, includeHidden: $("hidden").checked });
+    }
+    $("export").onclick = () => start("selection");
+    $("page").onclick = () => start("page");
+    $("cancel").onclick = () => { send({ type: "cancel" }); $("status").textContent = "Cancelling after the current Figma operation…"; };
+    window.onmessage = event => {
+      const message = event.data && event.data.pluginMessage;
+      if (!message || typeof message.type !== "string") return;
+      if (message.type === "selection") {
+        selected = message.names.length;
+        pageCount = message.pageCount;
+        $("selection").replaceChildren();
+        for (const name of message.names) { const item = document.createElement("li"); item.textContent = name; $("selection").appendChild(item); }
+        if (!selected) { const item = document.createElement("li"); item.textContent = "No frames selected"; $("selection").appendChild(item); }
+        $("heading").textContent = selected + " selected " + (selected === 1 ? "frame" : "frames");
+        $("page").textContent = "Export page frames (" + pageCount + ")";
+      } else if (message.type === "busy") busy = message.busy;
+      else if (message.type === "progress" || message.type === "error") $("status").textContent = message.message;
+      else if (message.type === "complete") {
+        clearDownload();
+        downloadUrl = URL.createObjectURL(new Blob([message.text], { type: "application/json" }));
+        $("download").href = downloadUrl;
+        $("download").download = message.filename;
+        $("download").hidden = false;
+        $("status").textContent = "Ready: " + message.frames + " frame(s), " + message.assets + " embedded image(s).\nSave the file, then use File → Import Figma design in LVGL UI Creator." +
+          (message.warnings.length ? "\n" + message.warnings.join("\n") : "");
+      }
+      controls();
+    };
+    window.addEventListener("unload", clearDownload);
+    send({ type: "refresh" });
+  </script>
+</body>
+</html>

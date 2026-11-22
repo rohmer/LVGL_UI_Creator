@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -327,7 +327,7 @@
     <ClCompile Include="..\Runtime\common\Validation.cpp" />
   </ItemGroup>
   <Import Project="..\3rdParty\LVGL\LVGL9.props" />
-  <ItemDefinitionGroup><ClCompile><AdditionalIncludeDirectories>$(ProjectDir)..\Runtime\include;$(ProjectDir)..\Runtime\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>LVGL_RUNTIME_MAJOR=9;LVGL_RUNTIME_MINOR=6;LVGL_RUNTIME_VERSION=&quot;9.6&quot;;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile><Link><AdditionalDependencies>comdlg32.lib;ole32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies></Link></ItemDefinitionGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><Target Name="BundleFontConverter" AfterTargets="Build"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)Fonts\BundleFontConverter.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target>
+  <ItemDefinitionGroup><ClCompile><AdditionalIncludeDirectories>$(ProjectDir)..\Runtime\include;$(ProjectDir)..\Runtime\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>LVGL_RUNTIME_MAJOR=9;LVGL_RUNTIME_MINOR=6;LVGL_RUNTIME_VERSION=&quot;9.6&quot;;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile><Link><AdditionalDependencies>comdlg32.lib;ole32.lib;shell32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies></Link></ItemDefinitionGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><Target Name="BundleFontConverter" AfterTargets="Build"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)Fonts\BundleFontConverter.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target>
   <Target Name="BundleImageConverter" AfterTargets="Build"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)Images\BundleImageConverter.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target><Target Name="BundleProjectCreator" AfterTargets="BundleImageConverter"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)ProjectCreator\BundleProjectCreator.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target><Target Name="CopyNativeRuntimeLibraries" AfterTargets="Build"><ItemGroup><NativeRuntime Include="$(SolutionDir)$(Platform)\$(Configuration)\SDL3.dll" /><NativeRuntime Include="$(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll" Condition="Exists('$(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll')" /></ItemGroup><Copy SourceFiles="@(NativeRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" /></Target><ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <Target Name="BundleLanguageModels" AfterTargets="Build">
@@ -341,6 +341,21 @@
     <Copy SourceFiles="@(LanguageModelExamples)" DestinationFolder="$(TargetDir)language-models\examples" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(LanguageModelNotices)" DestinationFolder="$(TargetDir)language-models" SkipUnchangedFiles="true" />
   </Target>
+  <Target Name="BundleFigmaPlugin" AfterTargets="Build">
+    <ItemGroup>
+      <FigmaPluginFiles Include="$(ProjectDir)..\Integrations\Figma\*" />
+    </ItemGroup>
+    <MakeDir Directories="$(TargetDir)integrations\figma" />
+    <Copy SourceFiles="@(FigmaPluginFiles)" DestinationFolder="$(TargetDir)integrations\figma" SkipUnchangedFiles="true" />
+  </Target>
+  <ItemGroup>
+    <ClCompile Include="Imports\FigmaImportWindow.cpp" />
+    <ClInclude Include="Imports\FigmaImportWindow.h" />
+    <ClCompile Include="Imports\FigmaHttp.cpp" />
+    <ClInclude Include="Imports\FigmaHttp.h" />
+    <ClCompile Include="Imports\FigmaOnline.cpp" />
+    <ClInclude Include="Imports\FigmaOnline.h" />
+  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\CommandPalette.cpp" />
     <ClCompile Include="Windows\Documents.cpp" />

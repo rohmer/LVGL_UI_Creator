@@ -20,9 +20,12 @@ function SmokeProcess([string]$Executable,[string[]]$Arguments,[string]$Work,[st
     $stdout=Join-Path $Work ($Name+'.stdout.log');$stderr=Join-Path $Work ($Name+'.stderr.log')
     $argumentLine=($Arguments | ForEach-Object {NativeArgument $_}) -join ' '
     $savedEnvironment=@{}
-    foreach($key in @('SDL_VIDEO_DRIVER','SDL_AUDIO_DRIVER','SDL_RENDER_DRIVER','PATH','PYTHONHOME','PYTHONPATH','NODE_PATH','NODE_OPTIONS')){$savedEnvironment[$key]=[Environment]::GetEnvironmentVariable($key,'Process')}
+    foreach($key in @('SDL_VIDEO_DRIVER','SDL_AUDIO_DRIVER','SDL_RENDER_DRIVER','PATH','PYTHONHOME','PYTHONPATH','NODE_PATH','NODE_OPTIONS','UICREATOR_SESSION_DIR')){$savedEnvironment[$key]=[Environment]::GetEnvironmentVariable($key,'Process')}
     try{
         $env:SDL_VIDEO_DRIVER='dummy';$env:SDL_AUDIO_DRIVER='dummy';$env:SDL_RENDER_DRIVER='software'
+        $session=Join-Path $Work ('session-'+$Name+'-'+[Guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $session | Out-Null
+        $env:UICREATOR_SESSION_DIR=$session
         # Release applications must find their own interpreters and modules.
         # Do not allow an installed host Node/Python to mask missing payloads.
         $env:PATH=(Join-Path $env:SystemRoot 'System32')+';'+$env:SystemRoot
@@ -39,10 +42,56 @@ function SmokeProcess([string]$Executable,[string[]]$Arguments,[string]$Work,[st
     }
     $process.Refresh()
     $image=Get-UICreatorPeInfo $Executable -Required
-    $applicationResults.Add(@{name=$Name;executable=$Executable;arguments=$Arguments;exitCode=$process.ExitCode;elapsedSeconds=([DateTime]::UtcNow-$started).TotalSeconds;imageBits=$image.bits;peMachine=('0x'+$image.machine.ToString('x4'));pathPolicy='windows-system-only'})
+    $applicationResults.Add(@{name=$Name;executable=$Executable;arguments=$Arguments;exitCode=$process.ExitCode;elapsedSeconds=([DateTime]::UtcNow-$started).TotalSeconds;imageBits=$image.bits;peMachine=('0x'+$image.machine.ToString('x4'));pathPolicy='windows-system-only';sessionDirectory=$session})
     if($process.ExitCode -ne 0){
         $details=((Get-Content -LiteralPath $stdout -Tail 8 -ErrorAction SilentlyContinue)+(Get-Content -LiteralPath $stderr -Tail 8 -ErrorAction SilentlyContinue)) -join "`n"
         throw "Installed $Name smoke test failed with exit $($process.ExitCode): $details"
+    }
+}
+function SmokeInstalledMicroPythonExport([string]$Destination,[string]$Project,[string]$Protobuf,[string]$Work){
+    foreach($frontEnd in @('codegen','compiler')){
+        $microPython=Join-Path $Work ('generated-micropython-'+$frontEnd)
+        if($frontEnd -eq 'codegen'){
+            SmokeProcess (Join-Path $Destination 'UICreatorCodeGen.exe') @('--format','micropython',$Protobuf,$microPython) $Work 'micropython-codegen'
+        }else{
+            SmokeProcess (Join-Path $Destination 'LVGLCompiler.exe') @($Project,'--format','micropython','--target','9.3','--output',$microPython) $Work 'micropython-compiler'
+        }
+        foreach($name in @('ui.py','ui.json','uicreator_lvgl.py','main.py','README.md','lv_conf.defaults.h','export-manifest.json')){
+            $file=Join-Path $microPython $name
+            if(!(Test-Path -LiteralPath $file -PathType Leaf) -or (Get-Item -LiteralPath $file).Length -eq 0){throw "Installed MicroPython exporter omitted $name"}
+        }
+        $microManifest=Get-Content -LiteralPath (Join-Path $microPython 'export-manifest.json') -Raw | ConvertFrom-Json
+        $microDocument=Get-Content -LiteralPath (Join-Path $microPython 'ui.json') -Raw | ConvertFrom-Json
+        if($microManifest.format -ne 'micropython' -or $microManifest.lvglVersion -ne '9.3.0' -or $microManifest.binding.repository -ne 'https://github.com/lvgl/lv_binding_micropython'){
+            throw 'Installed MicroPython exporter targets an unexpected binding.'
+        }
+        if($microDocument.screens[0].obj[0].button.text -ne 'Installed application smoke'){throw 'Installed MicroPython export lost the authored widget.'}
+    }
+}
+function SmokeInstalledXmlExport([string]$Destination,[string]$Project,[string]$Protobuf,[string]$Work,[string]$ReferenceBitmap){
+    $reference=[IO.File]::ReadAllBytes($ReferenceBitmap)
+    foreach($frontEnd in @('codegen','compiler')){
+        $xml=Join-Path $Work ('installed-smoke-'+$frontEnd+'.xml')
+        if($frontEnd -eq 'codegen'){
+            SmokeProcess (Join-Path $Destination 'UICreatorCodeGen.exe') @('--format','xml',$Protobuf,$xml) $Work 'xml-codegen'
+        }else{
+            SmokeProcess (Join-Path $Destination 'LVGLCompiler.exe') @($Project,'--format','xml','--target','9.6','--output',$xml) $Work 'xml-compiler'
+        }
+        if(!(Test-Path -LiteralPath $xml -PathType Leaf) -or (Get-Item -LiteralPath $xml).Length -eq 0){throw 'Installed XML exporter produced no document.'}
+        $xmlDocument=[xml]([IO.File]::ReadAllText($xml))
+        $root=$xmlDocument.DocumentElement
+        if($root.LocalName -ne 'uicreator' -or $root.GetAttribute('format_version') -ne '1' -or $root.GetAttribute('kind') -ne 'project' -or $root.GetAttribute('type') -ne 'project'){
+            throw 'Installed XML exporter produced an unexpected document format.'
+        }
+        $bitmap=Join-Path $Work ('viewer-xml-'+$frontEnd+'.bmp')
+        SmokeProcess (Join-Path $Destination 'UICreatorViewer.exe') @($xml,'--frames','4','--screenshot',$bitmap) $Work ('xml-viewer-'+$frontEnd)
+        $pixels=[IO.File]::ReadAllBytes($bitmap)
+        if($pixels.Length -ne $reference.Length -or [Convert]::ToBase64String($pixels) -ne [Convert]::ToBase64String($reference)){
+            throw 'Installed XML and Protobuf viewers rendered different framebuffers.'
+        }
+        $fromXml=Join-Path $Work ('from-xml-'+$frontEnd+'.pb')
+        SmokeProcess (Join-Path $Destination 'LVGLCompiler.exe') @($xml,'--format','protobuf','--output',$fromXml) $Work ('xml-input-'+$frontEnd)
+        if(!(Test-Path -LiteralPath $fromXml -PathType Leaf) -or (Get-Item -LiteralPath $fromXml).Length -eq 0){throw 'Installed compiler could not read the exported XML.'}
     }
 }
 function SmokeInstalledApplications([string]$Destination,[string]$Architecture){
@@ -55,9 +104,11 @@ function SmokeInstalledApplications([string]$Destination,[string]$Architecture){
     foreach($name in @('ui.c','ui.h','ui_assets.c','manifest.json','CMakeLists.txt')){if(!(Test-Path -LiteralPath (Join-Path $generated $name) -PathType Leaf)){throw "Installed code generator omitted $name"}}
     SmokeProcess (Join-Path $Destination 'LVGLCompiler.exe') @($project,'--format','protobuf','--target','9.6','--output',$protobuf) $work 'compiler'
     if(!(Test-Path -LiteralPath $protobuf -PathType Leaf) -or (Get-Item -LiteralPath $protobuf).Length -eq 0){throw 'Installed compiler did not write a Protobuf project.'}
+    SmokeInstalledMicroPythonExport $Destination $project $protobuf $work
     SmokeProcess (Join-Path $Destination 'UICreatorViewer.exe') @($protobuf,'--frames','4','--screenshot',$bitmap) $work 'viewer'
     $pixels=[IO.File]::ReadAllBytes($bitmap)
     if($pixels.Length -lt 54 -or $pixels[0] -ne 0x42 -or $pixels[1] -ne 0x4d -or [BitConverter]::ToInt32($pixels,18) -ne 320 -or [Math]::Abs([BitConverter]::ToInt32($pixels,22)) -ne 240){throw 'Installed viewer did not render the expected 320x240 framebuffer.'}
+    SmokeInstalledXmlExport $Destination $project $protobuf $work $bitmap
     $trie=Join-Path $work 'language-model'
     SmokeProcess (Join-Path $Destination 'UICreator.exe') @('--language-model-smoke',$trie) $work 'language-model'
     $languageReport=Get-Content -LiteralPath (Join-Path $trie 'report.json') -Raw | ConvertFrom-Json
@@ -101,7 +152,32 @@ function SmokeInstalledApplications([string]$Destination,[string]$Architecture){
     $creatorResult=Get-Content -LiteralPath (Join-Path $creatorJob 'result.json') -Raw | ConvertFrom-Json
     if(!$creatorResult.linuxBuild){throw 'Installed project creator did not produce a Linux build.'}
     foreach($name in @('CMakeLists.txt','ui/project.pb','embedded/features.json','embedded/config/lv_conf.h','platform/Runtime/linux/Viewer.cpp')){if(!(Test-Path -LiteralPath (Join-Path $created $name) -PathType Leaf)){throw "Installed project creator omitted $name"}}
-    Write-Output "PASS: installed $Architecture editor/compiler/codegen/viewer, trie prediction/autocorrect, font, SVG/image compression and offline project conversion."
+    $vendorSource=Join-Path $repo '3rdParty/LVGL/lvgl/src/display/lv_display.c'
+    $vendorHash=(Get-FileHash -LiteralPath $vendorSource -Algorithm SHA256).Hash
+    if((Get-FileHash -LiteralPath (Join-Path $created 'embedded/vendor/3rdParty/LVGL/lvgl/src/display/lv_display.c') -Algorithm SHA256).Hash -ne $vendorHash){throw 'Installed Linux project creator used an outdated LVGL source.'}
+    $catalogRequest=Join-Path $creatorJob 'catalog-request.json'
+    [IO.File]::WriteAllText($catalogRequest,(@{operation='catalog';cache=(Join-Path $creatorJob 'cache')}|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
+    SmokeProcess (Join-Path $Destination 'project-creator/UICreatorProjectTool.exe') @('--request',$catalogRequest) $work 'project-catalog' 60
+    $runtimeCatalog=(Get-Content -LiteralPath (Join-Path $creatorJob 'result.json') -Raw | ConvertFrom-Json).catalog
+    foreach($board in @('pico','pico2')){
+        $identity=if($board -eq 'pico'){'raspberry-pi-pico'}else{'raspberry-pi-pico2'}
+        $picoTemplate=@($runtimeCatalog | Where-Object uicreatorTemplate -eq $identity)[0]
+        if(!$picoTemplate){throw "Installed project catalog is missing the $board template."}
+        $picoJob=Join-Path $creatorJob $board;New-Item -ItemType Directory -Path $picoJob | Out-Null
+        $picoProject=Join-Path $picoJob 'new project';$picoRequest=Join-Path $picoJob 'request.json'
+        $request=@{operation='create';manifest=$picoTemplate;destination=$picoProject;project=$document;format='protobuf';lvglVersion='template';cache=(Join-Path $creatorJob 'cache');uiSourceFolder=$uiSource;picoToolkitArchive=(Join-Path $Destination 'project-creator/pico-toolkit.zip')}
+        [IO.File]::WriteAllText($picoRequest,($request|ConvertTo-Json -Depth 24),[Text.UTF8Encoding]::new($false))
+        SmokeProcess (Join-Path $Destination 'project-creator/UICreatorProjectTool.exe') @('--request',$picoRequest) $work ('project-creator-'+$board) 120
+        $picoResult=Get-Content -LiteralPath (Join-Path $picoJob 'result.json') -Raw | ConvertFrom-Json
+        if($picoResult.picoBuild.board -ne $board -or $picoResult.picoBuild.format -ne 'protobuf'){throw "Installed $board project creator selected the wrong target."}
+        foreach($name in @('CMakeLists.txt','ui/project.pb','embedded/features.json','embedded/config/lv_conf.h','src/lvgl_pb_pico.cpp','lvgl-pb-pico-sdk.json')){
+            if(!(Test-Path -LiteralPath (Join-Path $picoProject $name) -PathType Leaf)){throw "Installed $board project creator omitted $name"}
+        }
+        $picoMetadata=Get-Content -LiteralPath (Join-Path $picoProject 'lvgl-pb-pico-sdk.json') -Raw | ConvertFrom-Json
+        if($picoMetadata.board -ne $board){throw "Installed $board project metadata uses the wrong board."}
+        if((Get-FileHash -LiteralPath (Join-Path $picoProject 'embedded/vendor/3rdParty/LVGL/lvgl/src/display/lv_display.c') -Algorithm SHA256).Hash -ne $vendorHash){throw "Installed $board project creator used an outdated LVGL source."}
+    }
+    Write-Output "PASS: installed $Architecture editor/compiler/codegen/viewer, MicroPython/XML export and loading, trie prediction/autocorrect, font, SVG/image compression and offline Linux/Pico/Pico2 project conversion."
 }
 function RegistrationSnapshot {
     $state=@{}
@@ -179,6 +255,6 @@ if($Architecture -eq 'combined'){
 }
 if($SmokeApplications){
     $hostInformation=@{osVersion=[Environment]::OSVersion.VersionString;os64Bit=[Environment]::Is64BitOperatingSystem;harnessProcessBits=([IntPtr]::Size*8);architecture=$env:PROCESSOR_ARCHITECTURE}
-    @{version=1;passed=$true;host=$hostInformation;applications=$applicationResults.ToArray();icons=$iconResults.ToArray();workerPathPolicy='Windows System32 and Windows directories only; Python/Node override variables cleared';native32BitOperatingSystemTested=(!$hostInformation.os64Bit)} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $TestRoot 'application-smoke.json') -Encoding UTF8
+    @{version=1;passed=$true;host=$hostInformation;applications=$applicationResults.ToArray();icons=$iconResults.ToArray();workerPathPolicy='Windows System32 and Windows directories only; Python/Node override variables cleared; editor sessions isolated per process';native32BitOperatingSystemTested=(!$hostInformation.os64Bit)} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $TestRoot 'application-smoke.json') -Encoding UTF8
 }
 Write-Output "Installer smoke tests passed: $TestRoot"

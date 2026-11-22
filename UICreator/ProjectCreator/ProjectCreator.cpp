@@ -85,14 +85,17 @@ Result Run(json request,const std::atomic<bool>* cancel){
         request["workspace"]=workspace.u8string();if(!request.contains("cache"))request["cache"]=DefaultCache().u8string();
         const auto version=request.value("lvglVersion",std::string("template"));
         const bool linux=operation=="create" && request.at("manifest").value("uicreatorTemplate",std::string{})=="raspberry-pi-linux";
-        if(linux){
-            if(version!="template" && version!="9.6.0")throw std::invalid_argument("Raspberry Pi Linux projects use bundled LVGL 9.6.0");
-            request["linuxToolkitArchive"]=(RuntimeDirectory()/"linux-toolkit.zip").u8string();
+        const auto templateId=operation=="create"?request.at("manifest").value("uicreatorTemplate",std::string{}):std::string{};
+        const bool pico=templateId=="raspberry-pi-pico"||templateId=="raspberry-pi-pico2";
+        const bool native=linux||pico;
+        if(native){
+            if(version!="template" && version!="9.6.0")throw std::invalid_argument("Built-in Raspberry Pi projects use bundled LVGL 9.6.0");
+            request[pico?"picoToolkitArchive":"linuxToolkitArchive"]=(RuntimeDirectory()/(pico?"pico-toolkit.zip":"linux-toolkit.zip")).u8string();
         }
         if(version=="9.6.0" && !request.contains("lvglArchive"))request["lvglArchive"]=(RuntimeDirectory()/"lvgl-9.6.0.zip").u8string();
         auto format=request.value("format",std::string("json"));
-        if(operation=="create" && (format!="json" || linux)) {
-            auto nativeVersion=linux?std::string("9.6.0"):version=="template"?request.at("manifest").value("lvglVersion",std::string{}):version;
+        if(operation=="create" && (format!="json" || native)) {
+            auto nativeVersion=native?std::string("9.6.0"):version=="template"?request.at("manifest").value("lvglVersion",std::string{}):version;
             auto end=nativeVersion.find('.',nativeVersion.find('.')+1);auto target=nativeVersion.substr(0,end);
             auto source=request.value("sourceDirectory",std::string{});auto project=request.at("project");
             auto ui=workspace/"ui";std::filesystem::create_directory(ui);
@@ -100,7 +103,7 @@ Result Run(json request,const std::atomic<bool>* cancel){
                 CCodeGenerator generator;generator.SetTargetVersion(target);generator.SetSourceDirectory(source);
                 if(!generator.LoadProject(project)||!generator.ExportProject(ui.u8string()))throw std::runtime_error(generator.GetLastError());
             } else if(format!="protobuf" && format!="json")throw std::invalid_argument("Unknown UI output format");
-            if(format=="protobuf" || linux) {
+            if(format=="protobuf" || native) {
                 project=Serialization::ProjectScreens::Device(project);
                 Serialization::ProjectDesign::Materialize(project,true);
                 CGeneration::ValidateTarget(target);CGeneration::EmbedLocalImages(project,std::filesystem::u8path(source));project["runtimeTarget"]=target;

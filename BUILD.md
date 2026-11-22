@@ -1,18 +1,26 @@
 # Building LVGL UI Creator
 
 Run commands from the repository root unless stated otherwise. These instructions
-cover the desktop editor, compiler, C exporter, Protobuf viewer, device SDK inputs,
+cover the desktop editor, compiler, C and MicroPython exporters, Protobuf viewer, device SDK inputs,
 and the four separate release installers:
 
 | Target | Build argument | Installer |
 | --- | --- | --- |
-| Windows 64-bit | `x64` | `LVGL-UI-Creator-0.9.0-windows-x64-setup.exe` |
-| Windows 32-bit | `x86` (`x32` is a build alias) | `LVGL-UI-Creator-0.9.0-windows-x86-setup.exe` |
-| Linux x86_64 | `x86_64` | `LVGL-UI-Creator-0.9.0-Linux-x86_64.deb` |
-| Linux ARM64 / Raspberry Pi | `aarch64` | `LVGL-UI-Creator-0.9.0-Linux-arm64.deb` |
+| Windows 64-bit | `x64` | `LVGL-UI-Creator-0.9.1-windows-x64-setup.exe` |
+| Windows 32-bit | `x86` (`x32` is a build alias) | `LVGL-UI-Creator-0.9.1-windows-x86-setup.exe` |
+| Linux x86_64 | `x86_64` | `LVGL-UI-Creator-0.9.1-Linux-x86_64.deb` |
+| Linux ARM64 / Raspberry Pi | `aarch64` | `LVGL-UI-Creator-0.9.1-Linux-arm64.deb` |
 
 The Linux release also produces a `.tar.gz` for each architecture. ARM64 means
 64-bit Raspberry Pi OS/Linux, not ARMv7 or a 32-bit Raspberry Pi installation.
+
+Figma importing needs no additional compiler or development package. Online import
+uses Windows WinHTTP or the system `libcurl.so.4` library on Linux, with the system
+CA certificates. The desktop package also includes the local Figma export plugin
+in `integrations/figma`; its JavaScript and HTML run directly in Figma. See the
+[Figma import guide](Integrations/Figma/README.md) for **File → Import Figma design…**
+usage. Online import requires a Figma personal access token with `file_content:read`;
+local plugin imports require no token.
 
 ## Source checkout and tools
 
@@ -262,7 +270,7 @@ contains them and can supply a Linux-only build machine without a Windows build:
 
 ```sh
 mkdir -p build/sdk-inputs build/sdk-extracted
-dpkg-deb -x /path/to/LVGL-UI-Creator-0.9.0-Linux-x86_64.deb build/sdk-extracted
+dpkg-deb -x /path/to/LVGL-UI-Creator-0.9.1-Linux-x86_64.deb build/sdk-extracted
 find build/sdk-extracted/usr/lib/lvgl-ui-creator/sdk -type f \
   \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.sha256' \) \
   -exec cp -t build/sdk-inputs -- {} +
@@ -362,7 +370,7 @@ Linux distributions or 32-bit Raspberry Pi installations are compatible.
 Install on the matching Linux architecture:
 
 ```sh
-sudo apt install ./LVGL-UI-Creator-0.9.0-Linux-x86_64.deb
+sudo apt install ./LVGL-UI-Creator-0.9.1-Linux-x86_64.deb
 # On 64-bit Raspberry Pi OS, use the Linux-arm64.deb instead.
 lvgl-ui-creator
 ```
@@ -416,7 +424,7 @@ For complete generation/build commands and hardware settings, use:
 Once both Windows installers and both Linux package pairs pass verification:
 
 ```sh
-python3 Packaging/collect_release.py --windows-packages build/windows-installer/packages --linux-packages build/linux-desktop/packages --output build/releases/0.9.0
+python3 Packaging/collect_release.py --windows-packages build/windows-installer/packages --linux-packages build/linux-desktop/packages --output build/releases/0.9.1
 ```
 
 In Windows PowerShell, use `python` instead of `python3` if that is the installed
@@ -448,3 +456,83 @@ release.
 
 Additional details: `Packaging/WINDOWS.md`, `Packaging/LINUX.md`,
 `Docs/Professional-workflows.md`, and `Tests/README.md`.
+
+## Raspberry Pi Pico 1 and Pico 2 firmware
+
+These are native Pico SDK targets, separate from the Linux ARM64 desktop app.
+In the editor choose **Export > Create firmware project > Raspberry Pi**, then
+**Raspberry Pi Pico 1** or **Raspberry Pi Pico 2**. C output links the exported
+UI directly; Protobuf output includes the project-specific display library.
+
+On Windows or Linux, install Pico SDK 2.3.1 or newer, Arm GNU bare-metal GCC,
+Ninja, CMake 3.24+ and Python 3.10+. The SDK's `picotool` must be installed or
+available to its normal extra-output build step. Put the compiler and Ninja on
+PATH. The editor's **Build this project** handoff detects the board; set
+**Pico SDK folder**, then Build. Tool version and SDK paths are saved with the
+device target. UF2 flashing remains an explicit copy to the board's BOOTSEL drive.
+
+The source generators work on both Windows and Linux:
+
+```sh
+python Runtime/pico/make_sdk.py project.pb --board pico --output build/pico-display --zip
+python Runtime/pico/make_sdk.py project.pb --board pico2 --output build/pico2-display --zip
+cmake -S build/pico-display -B build/pico-display/firmware -G Ninja -DPICO_SDK_PATH=/absolute/path/pico-sdk -DCMAKE_BUILD_TYPE=Release
+cmake --build build/pico-display/firmware --parallel
+```
+
+On Windows, use an SDK path such as `C:/pico/pico-sdk`. Build the `pico2-display`
+folder separately for Pico 2. The outputs are `lvgl_pico_display.elf`, `.bin`
+and `.uf2`. Pico 1 selects RP2040; Pico 2 selects RP2350 Arm Secure. The example
+has display/touch callbacks for your own panel and a small partial draw buffer.
+Configure the callbacks before expecting visible output on physical hardware.
+See `Runtime/pico/README.md` for direct C input, source pruning, stack/heap
+layout, memory budgets and integration into another firmware project.
+
+## MicroPython source export
+
+The editor and compiler include a MicroPython exporter. The normal Windows and
+Linux builds above embed its runtime; no separate Python package is needed to
+export a project. In the editor choose **Export > MicroPython project...**.
+The command-line forms are:
+
+```sh
+UICreatorCodeGen --format micropython project.json generated_micropython
+LVGLCompiler --format micropython --target 9.3 project.pb generated_micropython
+```
+
+The output requires LVGL-enabled MicroPython from the official
+[lvgl/lv_binding_micropython](https://github.com/lvgl/lv_binding_micropython)
+source. It targets binding revision
+`032dda4b7e8419702a4b9c4c8748a4d85d51be61` and that revision's LVGL 9.3.0
+submodule, independently of the editor's LVGL. Use the upstream
+[lv_micropython](https://github.com/lvgl/lv_micropython) instructions for your
+MicroPython port and board. Merge the generated `lv_conf.defaults.h` into the
+binding's configuration, keeping its garbage collector and allocator settings,
+then rebuild firmware to regenerate the enabled Python APIs.
+
+Upload the generated scripts, `ui.json` and assets. Initialize your board's
+display/input drivers and event loop, then call `ui.create()`. The exported
+README includes setup and application variable-access examples. Preflight
+reports custom native widgets or unsupported styles that require C/Protobuf
+output. Barcode and QR content is exported as bitmap assets.
+See [MicroPython export](CodeGeneration/MicroPython/README.md) for compatibility
+and lifecycle details.
+
+## UI Creator XML export and runtime loading
+
+The standard build includes UI Creator XML, our typed XML representation of
+the existing Protobuf project model. Select **Export > UI Creator XML (.xml)...**,
+or run:
+
+```sh
+LVGLCompiler project.json --format xml --target 9.6 --output screen.xml
+UICreatorViewer screen.xml --frames 20
+ctest --test-dir build/release -L xml --output-on-failure
+```
+
+The existing runtime memory/file entry points detect either format. No extra
+XML dependency, separate widget engine or Pro tool is needed. Full builds set
+`LVSERIAL_USE_XML=ON`; disable it to remove the codec. Device profiles keep it
+off by default and can opt in with their generator's `--enable-xml` option.
+See [XML export and runtime integration](CodeGeneration/XML.md) for the schema,
+platform settings, memory tradeoffs and conversion commands.

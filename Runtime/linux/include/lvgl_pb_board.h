@@ -24,7 +24,8 @@ void lvgl_pb_board_flush_ready(lvgl_pb_board_t* board);
 void lvgl_pb_board_poll(lvgl_pb_board_t* board, uint32_t elapsed_ms);
 void lvgl_pb_board_pointer(lvgl_pb_board_t* board, int32_t x, int32_t y, bool pressed);
 bool lvgl_pb_board_load_memory(lvgl_pb_board_t* board, const void* bytes, size_t size);
-/* Immutable flash trie/index spans in input remain borrowed until destroy. */
+/* Protobuf immutable flash trie/index spans remain borrowed until destroy.
+ * XML input (when enabled) always decodes resources into owned storage. */
 bool lvgl_pb_board_load_memory_borrowed_assets(lvgl_pb_board_t* board, const void* bytes, size_t size);
 const char* lvgl_pb_board_error(const lvgl_pb_board_t* board);
 void* lvgl_pb_board_object(lvgl_pb_board_t* board, size_t screen, int32_t id);

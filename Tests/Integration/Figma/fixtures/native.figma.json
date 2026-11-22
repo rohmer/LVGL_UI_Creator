@@ -1,0 +1,52 @@
+{
+  "name": "Editable dashboard",
+  "document": {
+    "id": "0:0", "type": "DOCUMENT", "name": "Dashboard",
+    "children": [{
+      "id": "0:1", "type": "CANVAS", "name": "Designs",
+      "children": [{
+        "id": "1:1", "type": "FRAME", "name": "Home",
+        "absoluteBoundingBox": {"x": 100, "y": 200, "width": 320, "height": 240},
+        "fills": [{"type": "SOLID", "color": {"r": 0.06274509803921569, "g": 0.12549019607843137, "b": 0.25098039215686274, "a": 1}}],
+        "clipsContent": true,
+        "children": [{
+          "id": "2:1", "type": "GROUP", "name": "Card",
+          "absoluteBoundingBox": {"x": 116, "y": 224, "width": 280, "height": 160},
+          "children": [{
+            "id": "3:1", "type": "RECTANGLE", "name": "Card background",
+            "absoluteBoundingBox": {"x": 116, "y": 224, "width": 280, "height": 160},
+            "cornerRadius": 12,
+            "fills": [{"type": "SOLID", "opacity": 0.5, "color": {"r": 1, "g": 0.5, "b": 0, "a": 1}}],
+            "strokes": [{"type": "SOLID", "color": {"r": 1, "g": 1, "b": 1, "a": 1}}],
+            "strokeWeight": 2
+          }, {
+            "id": "3:2", "type": "TEXT", "name": "Heading",
+            "absoluteBoundingBox": {"x": 128, "y": 236, "width": 220, "height": 24},
+            "characters": "Ready & connected — café",
+            "style": {"fontFamily": "Inter", "fontSize": 18, "fontWeight": 600, "textAlignHorizontal": "CENTER", "textAlignVertical": "CENTER"},
+            "fills": [{"type": "SOLID", "color": {"r": 1, "g": 1, "b": 1, "a": 1}}]
+          }, {
+            "id": "3:3", "type": "ELLIPSE", "name": "Status light",
+            "absoluteBoundingBox": {"x": 340, "y": 270, "width": 24, "height": 24},
+            "fills": [{"type": "SOLID", "color": {"r": 0, "g": 1, "b": 0, "a": 1}}]
+          }, {
+            "id": "3:4", "type": "RECTANGLE", "name": "Hidden object", "visible": false,
+            "absoluteBoundingBox": {"x": 120, "y": 300, "width": 32, "height": 20},
+            "fills": [{"type": "SOLID", "color": {"r": 1, "g": 0, "b": 1, "a": 1}}]
+          }]
+        }]
+      }, {
+        "id": "1:2", "type": "FRAME", "name": "About",
+        "absoluteBoundingBox": {"x": 600, "y": 200, "width": 320, "height": 240},
+        "fills": [{"type": "SOLID", "color": {"r": 0.1, "g": 0.1, "b": 0.1, "a": 1}}],
+        "children": [{
+          "id": "4:1", "type": "TEXT", "name": "About caption",
+          "absoluteBoundingBox": {"x": 620, "y": 220, "width": 260, "height": 40},
+          "characters": "Built for LVGL",
+          "style": {"fontFamily": "Montserrat", "fontSize": 14, "textAlignHorizontal": "LEFT"},
+          "fills": [{"type": "SOLID", "color": {"r": 1, "g": 1, "b": 1, "a": 1}}]
+        }]
+      }]
+    }]
+  }
+}

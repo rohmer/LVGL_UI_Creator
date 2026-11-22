@@ -897,6 +897,7 @@ static const Icon actionCatalog[] = {
 static const ActionBinding actionBindings[] = {
     {"new", 0},
     {"open", 1},
+    {"import-figma", 1},
     {"save", 2},
     {"save-as", 3},
     {"exit", 4},
@@ -949,6 +950,8 @@ static const ActionBinding actionBindings[] = {
     {"language-model-load", 48},
     {"export-protobuf", 49},
     {"export-c", 50},
+    {"export-micropython", 50},
+    {"export-xml", 50},
     {"project-creator", 51},
     {"project-creator-linux", 51},
     {"device-tools", 52},

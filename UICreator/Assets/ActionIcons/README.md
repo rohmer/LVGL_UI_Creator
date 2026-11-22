@@ -3,7 +3,7 @@
 This catalog supplies 87 vector descriptors for menus, toolbars and window
 controls. Each entry has an `action.*` key, a concise label, explicit action
 aliases, and either original geometry or an intentional reuse of an object
-icon. The 94 exact action bindings include all eight menu headings, all four
+icon. The 97 exact action bindings include all eight menu headings, all four
 submenu headings, screen/start-screen controls and generic window actions.
 Dynamic `recent:<path>` actions share the recent-project descriptor. Empty or
 unknown actions return no icon; the catalog has no generic fallback.

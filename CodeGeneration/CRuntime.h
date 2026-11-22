@@ -36,17 +36,17 @@ static void ui_style_num(lv_obj_t* obj, lv_style_prop_t property, int32_t number
 { lv_style_value_t value; value.num = number; lv_obj_set_local_style_prop(obj, property, value, selector); }
 static void ui_style_color(lv_obj_t* obj, lv_style_prop_t property, uint32_t color, lv_style_selector_t selector)
 { lv_style_value_t value; value.color = lv_color_hex(color); lv_obj_set_local_style_prop(obj, property, value, selector); }
-static bool ui_reserve(void** storage, size_t* capacity, size_t count, size_t maximum, size_t size)
+static void* ui_reserve(void* storage, size_t* capacity, size_t count, size_t maximum, size_t size)
 {
     size_t wanted; void* next;
-    if (count < *capacity || (maximum && count >= maximum)) return true;
+    if (count < *capacity || (maximum && count >= maximum)) return storage;
     wanted = *capacity ? *capacity * 2 : 4;
-    if (wanted < *capacity) return false;
+    if (wanted < *capacity) return NULL;
     if (maximum && wanted > maximum) wanted = maximum;
-    if (wanted > SIZE_MAX / size) return false;
-    next = lv_realloc(*storage, wanted * size);
-    if (!next) return false;
-    *storage = next; *capacity = wanted; return true;
+    if (wanted > SIZE_MAX / size) return NULL;
+    next = lv_realloc(storage, wanted * size);
+    if (!next) return NULL;
+    *capacity = wanted; return next;
 }
 static void ui_forget_object(lv_event_t* event)
 { lv_obj_t **slot=(lv_obj_t**)lv_event_get_user_data(event); if (*slot == lv_event_get_target_obj(event)) *slot = NULL; }

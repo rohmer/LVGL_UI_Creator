@@ -16,6 +16,9 @@ def main():
     environment['SDL_VIDEO_DRIVER']='dummy';environment['SDL_RENDER_DRIVER']='software'
     output=build/'validation';output.mkdir(parents=True,exist_ok=True)
     temporary=output/'tmp';temporary.mkdir(exist_ok=True);environment['TMPDIR']=str(temporary)
+    # Architecture checks must not share desktop preferences or recovery state
+    # with another check run or an interactive editor on the build host.
+    environment['UICREATOR_SESSION_DIR']=str(temporary/('session-'+str(os.getpid())))
     records=[]
     def run(name,command):
         started=time.monotonic()
@@ -32,7 +35,7 @@ def main():
         environment['TMPDIR']=str(temporary);environment['SDL_VIDEO_DRIVER']='dummy';environment['SDL_RENDER_DRIVER']='software'
         run('compiled-desktop-backends',[*prefix,build/'bin/UICreatorVideoBackends','--require-x11','--require-wayland'])
         run('desktop-startup',[*prefix,build/'bin/UICreator','--smoke-test'])
-        tests='^(UICreatorNativeSDL3|UICreatorNativeFileDialog|UICreatorFileBrowser|UICreatorSmoke|UICreatorAdvancedKeyboardEditor|UICreatorMenus|UICreatorRunMode|UICreatorPerformance|UICreatorPolishCore|UICreatorVisualAuthoring|UICreatorWorkflowProblems|UICreatorDebugScreen|UICreatorFontConverter|UICreatorAssetLibrary|UICreatorLanguageModels)$'
+        tests='^(UICreatorNativeSDL3|UICreatorNativeFileDialog|UICreatorFileBrowser|UICreatorSmoke|UICreatorAdvancedKeyboardEditor|UICreatorMenus|UICreatorRunMode|UICreatorPerformance|UICreatorPolishCore|UICreatorVisualAuthoring|UICreatorWorkflowProblems|UICreatorDebugScreen|UICreatorFontConverter|UICreatorAssetLibrary|UICreatorLanguageModels|UICreatorMicroPython.*|UICreatorFigma.*|UICreatorXml.*)$'
         run('focused-desktop-ctest',[Path(tools['cmake']).with_name('ctest'),'--test-dir',build,'--output-on-failure','--parallel','1','-R',tests])
     (output/'verified.json').write_text(json.dumps({'architecture':arch,'tests':records},indent=2)+'\n')
 if __name__=='__main__':main()

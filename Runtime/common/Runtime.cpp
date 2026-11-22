@@ -11,6 +11,9 @@ extern "C" { ui_compat_base* lvgl_runtime_compat_states = nullptr; }
 #include <Serialization/Base64.h>
 #include <Serialization/CustomWidgets.h>
 #include <Serialization/RuntimeFeatures.h>
+#if LVSERIAL_USE_XML
+#include <Serialization/Xml.h>
+#endif
 #include <Serialization/ExtendedWidgets.h>
 #include <Serialization/Project.h>
 #include <Serialization/ProjectFonts.h>
@@ -92,6 +95,14 @@ void Error(char *buffer, size_t size, const std::string &text)
         std::memcpy(buffer, text.data(), n);
         buffer[n] = 0;
     }
+}
+bool IsXmlInput(const void* bytes, size_t size)
+{
+    const auto* input = static_cast<const uint8_t*>(bytes);
+    size_t position = size >= 3 && input[0] == 0xef && input[1] == 0xbb && input[2] == 0xbf ? 3 : 0;
+    while (position < size && (input[position] == ' ' || input[position] == '\t' ||
+           input[position] == '\r' || input[position] == '\n')) ++position;
+    return position < size && input[position] == '<';
 }
 struct FocusSlot{lv_obj_t* object=nullptr;};
 struct Screen
@@ -225,6 +236,7 @@ struct Variable
     Serialization::VariableData definition;
     json current;
     std::vector<json> history;
+    size_t history_start = 0;
     std::vector<std::unique_ptr<VariableBindingState>> bindings;
 };
 struct DisplayScope
@@ -248,13 +260,7 @@ void ValidateValue(const Variable &variable, const json &value)
 {
     if (value.is_string() && value.get_ref<const std::string &>().find('\0') != std::string::npos)
         throw std::invalid_argument("Variable strings cannot contain embedded NUL characters");
-    auto model = variable.definition;
-    model.defaultValue = value;
-    model.values = json::array();
-    Serialization::LVVariable::ToJSON(model);
-    if (value.is_number_unsigned() && model.type != Serialization::VariableType::Float &&
-        value.get<uint64_t>() > INT64_MAX)
-        throw std::invalid_argument("Variable exceeds int64 range");
+    Serialization::LVVariable::ValidateValue(variable.definition, value);
 }
 void Apply(VariableBindingState &v, const json& x)
 {
@@ -339,7 +345,7 @@ void Apply(Variable& variable)
 {
     for(auto& binding:variable.bindings)Apply(*binding,variable.current);
 }
-void Assign(Variable &v, const json &value, bool history)
+void Assign(Variable &v, json value, bool history)
 {
     ValidateValue(v, value);
     // Check every output before touching any widget, including unloaded screens.
@@ -349,10 +355,10 @@ void Assign(Variable &v, const json &value, bool history)
         if(!std::isfinite(number)||number<double(INT32_MIN)||number>double(INT32_MAX))
             throw std::invalid_argument("Binding value outside LVGL integer range");
     }
-    auto previous = v.current;
-    v.current = value;
     if(v.definition.type==Serialization::VariableType::Float&&Serialization::LVVariable::CodeType(v.definition)=="float")
-        v.current=double(static_cast<float>(value.get<double>()));
+        value=double(static_cast<float>(value.get<double>()));
+    auto previous = std::move(v.current);
+    v.current = std::move(value);
     try
     {
         Apply(v);
@@ -364,9 +370,17 @@ void Assign(Variable &v, const json &value, bool history)
     }
     if (history)
     {
-        v.history.push_back(v.current);
-        if (v.definition.history && v.history.size() > v.definition.history)
-            v.history.erase(v.history.begin());
+        // A one-entry history is always the current value. Retain only its
+        // presence marker instead of a second JSON/string allocation.
+        if (v.definition.history == 1) v.history_start = 1;
+        else if (v.definition.history && v.history.size() == v.definition.history) {
+            v.history[v.history_start] = v.current;
+            v.history_start = (v.history_start + 1) % v.history.size();
+        } else {
+            if (v.definition.history && v.history.size() == v.history.capacity())
+                v.history.reserve((std::min)(size_t(v.definition.history), (std::max)(size_t(1), v.history.capacity() * 2)));
+            v.history.push_back(v.current);
+        }
     }
 }
 json ReadVariable(const VariableBindingState& v) {
@@ -417,7 +431,7 @@ void Changed(lv_event_t *e)
                  x.is_boolean())
             x = int64_t(x.get<bool>());
         v->owner->updating = true;
-        Assign(*v, x, true);
+        Assign(*v, std::move(x), true);
         v->owner->updating = false;
     }
     catch (const std::exception &error)
@@ -580,13 +594,15 @@ void Validate(const json &document)
     auto lvgl = document.value("lvglVersion", std::string("9.6.0"));
     if (lvgl != "9.6" && lvgl.rfind("9.6.", 0) != 0)
         throw std::invalid_argument("Project LVGL version is incompatible with backend 9.6");
-    auto screens = document.contains("screens") ? document.at("screens") : json::array({document});
-    if (!screens.is_array() || screens.empty())
+    const auto screens = document.find("screens");
+    if (screens != document.end() && (!screens->is_array() || screens->empty()))
         throw std::invalid_argument("Project needs at least one screen");
-    if (document.value("activeScreen", size_t(0)) >= screens.size())
+    const size_t screenCount = screens == document.end() ? 1 : screens->size();
+    if (document.value("activeScreen", size_t(0)) >= screenCount)
         throw std::invalid_argument("Invalid initial screen");
-    for (const auto &screen : screens)
+    for (size_t screenIndex = 0; screenIndex < screenCount; ++screenIndex)
     {
+        const auto& screen = screens == document.end() ? document : screens->at(screenIndex);
         if (!screen.is_object() || !screen.contains("obj") || !screen["obj"].is_array())
             throw std::invalid_argument("Screen needs an obj array");
         std::map<int, int> parents;
@@ -614,17 +630,24 @@ void Validate(const json &document)
             if (id < 0 || !parents.emplace(id, record.value("par", -1)).second)
                 throw std::invalid_argument("Invalid or duplicate widget ID");
         }
-        for (const auto &p : parents)
-        {
-            std::set<int> seen{p.first};
-            int parent = p.second;
-            while (parent != -1)
-            {
+        // Parent indices are at least -1, so these values can mark completed
+        // paths in the existing map. Each widget is traversed once instead of
+        // rebuilding a set for every ancestor chain in a deep hierarchy.
+        constexpr int visiting = INT32_MIN, complete = INT32_MIN + 1;
+        std::vector<int> path;
+        for (const auto &p : parents) {
+            int parent = p.first;
+            while (parent != -1) {
                 auto found = parents.find(parent);
-                if (found == parents.end() || !seen.insert(parent).second)
+                if (found == parents.end() || found->second == visiting)
                     throw std::invalid_argument("Missing parent or widget hierarchy cycle");
+                if (found->second == complete) break;
+                path.push_back(parent);
                 parent = found->second;
+                found->second = visiting;
             }
+            for (int id : path) parents.at(id) = complete;
+            path.clear();
         }
     }
 }
@@ -1044,14 +1067,28 @@ extern "C"
                                                         : lv_display_get_default();
             if (!display)
                 throw std::invalid_argument("Create an LVGL display first");
-            auto record = (flags & LVGL_RUNTIME_BORROW_ASSETS) ? Serialization::Protobuf::DecodeBorrowedAssets(bytes, size)
-                                       : Serialization::Protobuf::Decode(bytes, size);
+            // The XML codec restores the same typed record directly, without
+            // an intermediate XML -> Protobuf buffer or another decode pass.
+            // Protobuf trie payloads stay as trusted input spans until final
+            // catalog placement. XML text must never become borrowed assets.
+            const bool xml = IsXmlInput(bytes, size);
+            Serialization::BinaryRecord record;
+            if (xml) {
+#if LVSERIAL_USE_XML
+                record = Serialization::Xml::Decode(bytes, size);
+#else
+                throw std::invalid_argument("XML input is disabled in this runtime; enable LVSERIAL_USE_XML");
+#endif
+            }
+            else record = Serialization::Protobuf::DecodeBorrowedAssets(bytes, size);
             if (record.kind != Serialization::EntityKind::Project || record.type != "project")
-                throw std::invalid_argument("Expected a project Protobuf record");
+                throw std::invalid_argument("Expected a project record");
             auto document = std::move(record.data);
             Serialization::ProjectDesign::Materialize(document,true);
             Serialization::MigrateAdvancedKeyboardEditors(document);
-            auto tries = Serialization::ProjectTries::Load(document, record.borrowedAssets);
+            auto tries = (!xml && (flags & LVGL_RUNTIME_BORROW_ASSETS))
+                ? Serialization::ProjectTries::Load(document, record.borrowedAssets)
+                : Serialization::ProjectTries::LoadOwned(document, record.borrowedAssets);
             Serialization::ProjectTries::Scope trieScope(tries);
             Validate(document);
             RuntimeValidation::ValidateFeatures(document);
@@ -1060,8 +1097,9 @@ extern "C"
             ConvertCoordinates(document);
 #endif
             RuntimeValidation::ValidateFonts(document);
-            Serialization::ProjectFonts::References(document, document.value("fonts", json::array()), false);
-            Serialization::ProjectImages::References(document, document.value("images", json::array()),
+            static const json emptyArray = json::array();
+            Serialization::ProjectFonts::References(document, document.contains("fonts") ? document.at("fonts") : emptyArray, false);
+            Serialization::ProjectImages::References(document, document.contains("images") ? document.at("images") : emptyArray,
                                                      false);
             auto runtime = std::make_unique<lvgl_runtime>();
             runtime->display = display;runtime->tries=tries;runtime->input_group=lv_group_get_default();
@@ -1071,16 +1109,22 @@ extern "C"
             Track(lv_screen_active(), &runtime->previous);
             Serialization::ResourceScope resources(runtime->resources);
             Serialization::AssetScope assets(*runtime);
-            for (const auto &font : document.value("fonts", json::array()))
+            for (const auto &font : document.contains("fonts") ? document.at("fonts") : emptyArray)
             {
                 auto *restored = &Serialization::LVFont::FromJSON(font.at("font"));
                 runtime->fonts[font.at("id")] = restored;
                 runtime->resources.fontRefs[font.at("id")] = restored;
             }
-            for (const auto &image : document.value("images", json::array()))
+            for (const auto &image : document.contains("images") ? document.at("images") : emptyArray)
                 runtime->imageIds[image.at("id")] =
                     static_cast<const lv_image_dsc_t *>(runtime->Resolve(image.at("image")));
-            auto screens = document.contains("screens") ? document.at("screens") : json::array({document});
+            const size_t initial=document.value("activeScreen",size_t(0));
+            auto variableRecords = document.contains("variables") ? std::move(document.at("variables")) : json::array();
+            document.erase("variables");
+            json screens;
+            if (document.contains("screens")) screens = std::move(document.at("screens"));
+            else { screens = json::array(); screens.push_back(std::move(document)); }
+            runtime->screens.reserve(screens.size());
             for(auto& screen:screens) {
                 runtime->screens.push_back(std::make_unique<Screen>());auto& state=*runtime->screens.back();
                 int next=0;for(auto& widget:screen["obj"]) {
@@ -1092,13 +1136,15 @@ extern "C"
                 const auto dimensions=Serialization::Screen::Normalize(canvas);
                 state.width=dimensions.at("width");state.height=dimensions.at("height");state.definition=std::move(screen);
                 for(const auto* key:{"fonts","images","variables","tries","components","projectTheme","sharedStyles","screens"})state.definition.erase(key);
+                // Decoding grows obj arrays geometrically. Moving the tree
+                // avoids deep copies; compact just these shallow JSON handles.
+                state.definition.at("obj").get_ref<json::array_t&>().shrink_to_fit();
             }
-            const size_t initial=document.value("activeScreen",size_t(0));
             if(!runtime->lazy)for(size_t i=0;i<runtime->screens.size();++i)EnsureScreen(*runtime,i);
             else if(!options||options->load_initial_screen)EnsureScreen(*runtime,initial);
             std::set<std::string> names;
             for (const auto &item :
-                 Serialization::LVVariable::NormalizeList(document.value("variables", json::array())))
+                 Serialization::LVVariable::NormalizeList(variableRecords))
             {
                 auto v = std::make_unique<Variable>();
                 v->owner = runtime.get();
@@ -1113,9 +1159,13 @@ extern "C"
                     loaded.bindings.push_back(std::move(binding));Bind(*loaded.bindings.back());
                 }
                 runtime->updating = true;
-                Assign(loaded, loaded.definition.defaultValue, false);
-                for (const auto &x : loaded.definition.values)
-                    Assign(loaded, x, true);
+                Assign(loaded, std::move(loaded.definition.defaultValue), false);
+                for (auto &x : loaded.definition.values)
+                    Assign(loaded, std::move(x), true);
+                loaded.definition.values = json::array();
+                loaded.definition.extra.erase("value");
+                loaded.definition.defaultValue = nullptr;
+                loaded.definition.extra.erase("default");
                 runtime->updating = false;
             }
             runtime->initialized=true;
@@ -1163,20 +1213,20 @@ extern "C"
         try
         {
             if (!path || lv_fs_open(&file, path, LV_FS_MODE_RD) != LV_FS_RES_OK)
-                throw std::runtime_error("Cannot open Protobuf file through LVGL filesystem");
+                throw std::runtime_error("Cannot open project file through LVGL filesystem");
             open = true;
             uint32_t size = 0;
             if (lv_fs_seek(&file, 0, LV_FS_SEEK_END) != LV_FS_RES_OK ||
                 lv_fs_tell(&file, &size) != LV_FS_RES_OK ||
                 lv_fs_seek(&file, 0, LV_FS_SEEK_SET) != LV_FS_RES_OK)
-                throw std::runtime_error("Cannot seek Protobuf file");
+                throw std::runtime_error("Cannot seek project file");
             auto limit = options && options->max_input_bytes ? options->max_input_bytes : 16u * 1024u * 1024u;
             if (!size || size > limit)
                 throw std::runtime_error("Invalid file size or project exceeds input limit");
             std::vector<uint8_t> data(size);
             uint32_t read = 0;
             if (lv_fs_read(&file, data.data(), size, &read) != LV_FS_RES_OK || read != size)
-                throw std::runtime_error("Cannot read complete Protobuf file");
+                throw std::runtime_error("Cannot read complete project file");
             lv_fs_close(&file);
             open = false;
             return lvgl_runtime_load_memory(data.data(), data.size(), options, output, error, error_size);
@@ -1363,15 +1413,16 @@ extern "C"
     size_t lvgl_runtime_history_count(const lvgl_runtime_t *runtime, const char *name)
     {
         auto *v = Find(const_cast<lvgl_runtime_t *>(runtime), name);
-        return v ? v->history.size() : 0;
+        return v ? (v->definition.history == 1 ? v->history_start : v->history.size()) : 0;
     }
     bool lvgl_runtime_history_get(lvgl_runtime_t *runtime, const char *name, size_t index,
                                   lvgl_runtime_value_t *value)
     {
         auto *v = Find(runtime, name);
-        if (!v || !value || index >= v->history.size())
+        if (!v || !value || index >= (v->definition.history == 1 ? v->history_start : v->history.size()))
             return false;
-        ExportValue(*v, v->history[index], value);
+        ExportValue(*v, v->definition.history == 1 ? v->current :
+            v->history[(v->history_start + index) % v->history.size()], value);
         return true;
     }
 }

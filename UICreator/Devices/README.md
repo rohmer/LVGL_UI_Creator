@@ -20,4 +20,20 @@ Build and Flash first check a generated `ui/project.json`, or the current design
 
 **Stop** terminates the running tool and its descendants. Closing the build window stops jobs and releases its serial monitor. Flash disconnects the monitor before opening the upload port. The Flash and serial-monitor controls remain explicit user actions.
 
+## Pico 1 and Pico 2
+
+The dedicated Pico firmware templates select the native CMake toolchain and
+remember the board with the project target. **Pico SDK folder** accepts the SDK
+root containing `pico_sdk_init.cmake`; **Detect tools** also checks `PICO_SDK_PATH`.
+Use **Extra tool PATH** for your Arm GNU compiler and Ninja when they are not
+already on the process PATH. The generated project supports a native Windows or
+Linux Pico toolchain and does not inherit the Linux desktop WSL/run settings.
+
+**Build** configures Ninja with `PICO_BOARD=pico` / `PICO_PLATFORM=rp2040` for
+Pico 1, or `PICO_BOARD=pico2` / `PICO_PLATFORM=rp2350-arm-s` for Pico 2. The result
+is a UF2 firmware file. Hold BOOTSEL while connecting the matching board over USB
+and copy that UF2 to its USB drive. Pico firmware is not a desktop executable,
+and the generic CMake profile does not automatically flash a connected board.
+The generated example supplies callbacks for your display/touch driver.
+
 Core checks live in `Tests/Integration/Devices/Workflow.cpp`; the editor's WorkflowProblems test exercises handoff, target persistence and validation without opening hardware.

@@ -49,6 +49,7 @@ endif()
 install(FILES "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-ESP32-Toolkit.zip" DESTINATION sdk/esp32 OPTIONAL)
 install(FILES "${PROJECT_BINARY_DIR}/packages/LVGLProtobufDisplay-windows.zip" DESTINATION sdk/windows OPTIONAL)
 install(FILES "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-Arduino-Toolkit.zip" DESTINATION sdk/arduino OPTIONAL)
+install(FILES "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-Pico-Toolkit.zip" DESTINATION sdk/pico OPTIONAL)
 install(FILES "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-Linux-Toolkit.zip"
     "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-Linux-Keyboard-Profile.zip"
     "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-Linux-aarch64-keyboard.tar.gz"
@@ -59,12 +60,18 @@ endif()
 install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/font-converter"
                   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image-converter"
                   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator"
-                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models" DESTINATION .)
+                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models"
+                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations" DESTINATION .)
 install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" "${PROJECT_SOURCE_DIR}/Packaging/THIRD_PARTY_NOTICES.md" DESTINATION licenses)
 install(FILES "${PROJECT_SOURCE_DIR}/UICreator/README.md" "${PROJECT_SOURCE_DIR}/UICreator/SESSION.md"
               "${PROJECT_SOURCE_DIR}/UICreator/Bootstrap.md" "${PROJECT_SOURCE_DIR}/UICreator/Codes.md"
               "${PROJECT_SOURCE_DIR}/UICreator/AdvancedKeyboard.md" DESTINATION docs/UICreator)
 install(FILES "${PROJECT_SOURCE_DIR}/Packaging/RELEASE_NOTES.md" DESTINATION docs)
+install(FILES "${PROJECT_SOURCE_DIR}/BUILD.md" DESTINATION docs)
+install(FILES "${PROJECT_SOURCE_DIR}/CodeGeneration/XML.md" "${PROJECT_SOURCE_DIR}/CodeGeneration/PERFORMANCE.md" DESTINATION docs/CodeGeneration)
+install(FILES "${PROJECT_SOURCE_DIR}/LVSerial/Serialization/Xml.md" DESTINATION docs/LVSerial/Serialization)
+install(FILES "${PROJECT_SOURCE_DIR}/CodeGeneration/MicroPython/README.md" DESTINATION docs/CodeGeneration/MicroPython)
+install(FILES "${PROJECT_SOURCE_DIR}/Runtime/pico/README.md" DESTINATION docs/Runtime/pico)
 install(FILES "${PROJECT_SOURCE_DIR}/EDITOR_WORKFLOWS.md" DESTINATION docs)
 install(FILES "${PROJECT_SOURCE_DIR}/Docs/Themes-and-components.md" DESTINATION docs/Docs)
 install(FILES "${PROJECT_SOURCE_DIR}/Docs/Responsive-previews.md" "${PROJECT_SOURCE_DIR}/Docs/Professional-workflows.md" DESTINATION docs/Docs)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 include("${CMAKE_CURRENT_SOURCE_DIR}/Packaging/WindowsArchitectures.cmake")
-project(LVGL_UI_Creator VERSION 0.9.0 LANGUAGES C CXX)
+project(LVGL_UI_Creator VERSION 0.9.1 LANGUAGES C CXX)
 uicreator_validate_windows_architecture()
 
 include(CTest)

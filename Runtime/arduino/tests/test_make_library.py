@@ -12,6 +12,19 @@ spec.loader.exec_module(generator)
 
 
 class ArduinoLibraryTests(unittest.TestCase):
+    def test_xml_parser_is_only_copied_for_explicit_opt_in(self):
+        with tempfile.TemporaryDirectory(prefix="arduino-xml-") as temporary:
+            root = Path(temporary)
+            source = root / "screen.json"
+            source.write_text(json.dumps({"runtimeTarget": "9.6", "canvas": {"width": 240, "height": 320},
+                "obj": [{"oid": 1, "par": -1, "base": {}, "text": "XML"}]}))
+            output = root / "library"
+            plan = generator.make_library([source], output, enable_xml=True)
+            self.assertTrue(plan["xmlEnabled"])
+            self.assertEqual(plan["enabledFeatures"], ["LABEL"])
+            self.assertTrue((output / "src/vendor/LVSerial/Serialization/Xml.cpp").is_file())
+            self.assertIn("#define LVSERIAL_USE_XML 1", (output / "src/lv_conf.h").read_text())
+
     def test_profile_headers_embedding_and_replace_guard(self):
         with tempfile.TemporaryDirectory(prefix="arduino-generator-") as temporary:
             root = Path(temporary).resolve()
@@ -21,6 +34,9 @@ class ArduinoLibraryTests(unittest.TestCase):
                 "obj": [{"base": {"name": "label"}, "oid": 1, "par": -1, "text": {"text": "Hello"}}]}))
             output = root / "LVGLProtobuf"
             plan = generator.make_library([project], output)
+            self.assertFalse(plan["xmlEnabled"])
+            self.assertFalse((output / "src/vendor/LVSerial/Serialization/Xml.cpp").exists())
+            self.assertIn("#define LVSERIAL_USE_XML 0", (output / "src/lv_conf.h").read_text())
             self.assertEqual(plan["enabledFeatures"], ["LABEL"])
             self.assertTrue((output / "library.properties").is_file())
             self.assertIn("architectures=esp32", (output / "library.properties").read_text())

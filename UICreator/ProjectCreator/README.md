@@ -1,6 +1,17 @@
 # Firmware project creator
 
-Open Export > Create firmware project... to create a board project around the current design. The bundled catalog includes 67 official templates from https://github.com/lvgl/lvgl_project_creator (manifest_all_v1.1.0.json), plus the built-in Raspberry Pi Linux build. The upstream application is not open source; this implementation consumes its public manifest format independently.
+Open Export > Create firmware project... to create a board project around the current design. The bundled catalog includes 67 official templates from https://github.com/lvgl/lvgl_project_creator (manifest_all_v1.1.0.json), plus built-in Raspberry Pi Linux, Pico 1 and Pico 2 projects. The upstream application is not open source; this implementation consumes its public manifest format independently.
+
+Select **Chip / board vendor > Raspberry Pi**, then **Project template > Raspberry Pi Pico 1** or **Raspberry Pi Pico 2** for native Pico SDK firmware. The templates are available on Windows, Linux and macOS and retain the fixed bundled LVGL 9.6 configuration. **C code + project JSON** links the generated C screen directly through `generated_ui`; **Protobuf + project JSON** includes a minimum display library and embedded screen. The JSON choice also includes the runnable Protobuf screen. C mode omits the JSON/Protobuf runtime from the linked firmware while retaining the editable design files.
+
+Pico project creation uses the bundled, hash-checked `pico-toolkit.zip` offline. Building requires Pico SDK 2.3.1 or newer, its documented ARM compiler tools, CMake, Ninja and Python. Set `PICO_SDK_PATH`, then configure and build:
+
+```sh
+cmake -S . -B build -G Ninja -DPICO_BOARD=pico
+cmake --build build --parallel
+```
+
+Use `-DPICO_BOARD=pico2` for Pico 2. Connect the selected board in BOOTSEL mode and copy its generated `build/*.uf2` file to the USB drive. Implement the example's pixel-write and touch callbacks for your display driver, pins and resolution; the default callbacks compile without assuming a panel. Advanced Keyboard, its selected trie, QR codes, barcodes and variables use their shared portable implementations. The generated feature report records the required LVGL modules. Both Pico entries survive catalog refreshes and older caches, alongside the Linux entry and upstream Waveshare/NuttX template.
 
 Select **Chip / board vendor > Raspberry Pi**, then **Project template > Raspberry Pi - Linux** for a native Linux CMake project. It is available when preparing projects on Windows, Linux or macOS and uses bundled LVGL 9.6.0. Creation works offline and includes the current screen, the portable display library, SDL3 sources and only the LVGL widgets required by that screen. Advanced Keyboard, its selected prediction trie, barcodes, QR codes, themes and event actions use the shared runtime.
 

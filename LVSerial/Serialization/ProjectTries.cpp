@@ -29,7 +29,7 @@ struct Asset {
     std::shared_ptr<const espos::keyboard::prediction::ModelStorage> storage;
 #endif
 };
-void PreferPsram(Asset& asset)
+bool PreferPsram(Asset& asset)
 {
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
     asset.storage = espos::keyboard::prediction::CopyModelToPsram(
@@ -41,10 +41,19 @@ void PreferPsram(Asset& asset)
         asset.index.borrowedSize = asset.storage->IndexSize();
         Binary{}.swap(asset.trie.owned);
         Binary{}.swap(asset.index.owned);
+        return true;
     }
 #else
     (void)asset;
 #endif
+    return false;
+}
+void Own(Bytes& bytes)
+{
+    if (!bytes.borrowed) return;
+    bytes.owned.assign(bytes.borrowed, bytes.borrowed + bytes.borrowedSize);
+    bytes.borrowed = nullptr;
+    bytes.borrowedSize = 0;
 }
 uint32_t Read32(const uint8_t* bytes)
 {
@@ -231,9 +240,10 @@ nlohmann::json ProjectTries::ToWire(const json& tries)
     }
     return result;
 }
-ProjectTries::CatalogPtr ProjectTries::Load(json& document, const BorrowedAssets& borrowed)
+namespace {
+ProjectTries::CatalogPtr LoadCatalog(json& document, const BorrowedAssets& borrowed, bool retainBorrowed)
 {
-    auto catalog = std::make_shared<Catalog>();
+    auto catalog = std::make_shared<ProjectTries::Catalog>();
     if (!document.contains("tries")) return catalog;
     auto tries = std::move(document.at("tries")); document.erase("tries");
     Array(tries); std::set<std::string> ids; size_t position = 0;
@@ -247,10 +257,22 @@ ProjectTries::CatalogPtr ProjectTries::Load(json& document, const BorrowedAssets
         auto& matches = byContent[Identity(asset->trie)];
         bool shared = false;
         for (const auto& existing : matches) if (Equal(existing->trie, asset->trie) && Equal(existing->index, asset->index)) { asset = existing; shared = true; break; }
-        if (!shared) PreferPsram(*asset);
-        matches.push_back(asset); catalog->assets.emplace(item.at("id").get<std::string>(), std::move(asset));
+        if (!shared) {
+            if (!PreferPsram(*asset) && !retainBorrowed) { Own(asset->trie); Own(asset->index); }
+            matches.push_back(asset);
+        }
+        catalog->assets.emplace(item.at("id").get<std::string>(), std::move(asset));
     }
     return catalog;
+}
+}
+ProjectTries::CatalogPtr ProjectTries::Load(json& document, const BorrowedAssets& borrowed)
+{
+    return LoadCatalog(document, borrowed, true);
+}
+ProjectTries::CatalogPtr ProjectTries::LoadOwned(json& document, const BorrowedAssets& borrowed)
+{
+    return LoadCatalog(document, borrowed, false);
 }
 void ProjectTries::Attach(lv_obj_t* widget, const std::string& trieId, bool autocorrect, double threshold)
 {

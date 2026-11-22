@@ -15,7 +15,7 @@
     "id": 1,
     "key": "action.open",
     "name": "Open project",
-    "aliases": ["open"],
+    "aliases": ["open", "import-figma"],
     "commands": [
       ["polyline",[[3,26],[3,7],[12,7],[15,10],[28,10],[28,26],[3,26]],"primary",1.8],
       ["polyline",[[3,26],[8,15],[29,15],[25,26]],"accent",1.8],
@@ -614,7 +614,7 @@
     "id": 50,
     "key": "action.export_c",
     "name": "Export C",
-    "aliases": ["export-c"],
+    "aliases": ["export-c", "export-micropython", "export-xml"],
     "commands": [
       ["polyline",[[7,3],[20,3],[26,9],[26,29],[7,29],[7,3]],"primary",1.8],
       ["polyline",[[20,3],[20,9],[26,9]],"blue",1.8],

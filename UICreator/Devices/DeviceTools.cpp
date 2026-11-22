@@ -146,6 +146,23 @@ std::vector<Command> BuildPlan(const Options& o,bool flash) {
     std::error_code error;Require(std::filesystem::is_directory(o.project,error),"Choose an existing generated project folder");
     Require(o.jobs>=1&&o.jobs<=256,"Choose between 1 and 256 build workers");
     const auto build=o.build.empty()?o.project/"build":o.build;
+    if(o.profile==Profile::CMake&&!o.picoBoard.empty()) {
+        Require(o.picoBoard=="pico"||o.picoBoard=="pico2","Unsupported Pico board; choose Pico 1 or Pico 2");
+        Require(!flash,"Copy the built UF2 to the board's BOOTSEL drive to flash this Pico project");
+        Require(!o.linuxHostWsl,"Use a native Pico toolchain on this host, or build the generated project directly inside Linux");
+        auto configure=Tool(o);
+        configure.arguments={"-S",Text(o.project),"-B",Text(build),"-G","Ninja","-DCMAKE_BUILD_TYPE=Release",
+            "-DPICO_BOARD="+o.picoBoard,"-DPICO_PLATFORM="+std::string(o.picoBoard=="pico"?"rp2040":"rp2350-arm-s")};
+        if(!o.picoSdk.empty()) {
+            Require(Exists(o.picoSdk/"pico_sdk_init.cmake"),"Choose a Pico SDK folder containing pico_sdk_init.cmake");
+            configure.arguments.push_back("-DPICO_SDK_PATH="+Text(o.picoSdk));
+            const auto tools=o.picoSdk.parent_path()/"tools";
+            for(const auto* name:{"picotool","pioasm"})if(Exists(tools/name/(std::string(name)+"Config.cmake")))
+                configure.arguments.push_back(std::string("-D")+name+"_DIR="+Text(tools/name));
+        }
+        auto compile=configure;compile.arguments={"--build",Text(build),"--parallel",std::to_string(o.jobs)};
+        return {configure,compile};
+    }
     if(o.profile==Profile::CMake&&o.linuxHostWsl) {
         Require(!flash,"CMake projects have no universal flash action");
         Command configure;configure.executable=Find("wsl");Require(!configure.executable.empty(),"WSL is unavailable. Install a Linux toolchain or build this project on Linux.");configure.directory=o.project;
@@ -186,6 +203,18 @@ Options Detect(Options o,const std::filesystem::path& workspace) {
     if(o.executable.empty())o.executable=Find(o.profile==Profile::Arduino?"arduino-cli":"cmake");
     if(o.profile==Profile::Arduino&&o.executable.empty()&&Exists(workspace/"build/arduino-tools/cli/arduino-cli.exe"))o.executable=workspace/"build/arduino-tools/cli/arduino-cli.exe";
     if(o.profile==Profile::Arduino&&o.config.empty()&&Exists(workspace/"build/arduino-tools/arduino-cli.yaml"))o.config=workspace/"build/arduino-tools/arduino-cli.yaml";
+    if(o.profile==Profile::CMake&&!o.picoBoard.empty()&&o.picoSdk.empty()) {
+        const auto inherited=std::filesystem::u8path(Env("PICO_SDK_PATH"));
+        if(Exists(inherited/"pico_sdk_init.cmake"))o.picoSdk=inherited;
+        else if(!workspace.empty())for(const auto& relative:{"build/pico-validation/tools/pico-sdk","build/pico-validation/pico-sdk"}) {
+            const auto candidate=workspace/relative;
+            if(Exists(candidate/"pico_sdk_init.cmake")){o.picoSdk=candidate;break;}
+        }
+    }
+    if(o.profile==Profile::CMake&&!o.picoBoard.empty()&&o.toolPath.empty()&&!o.picoSdk.empty()) {
+        const auto compiler=o.picoSdk.parent_path()/"tools/bin";
+        if(Exists(compiler/"arm-none-eabi-gcc.exe")||Exists(compiler/"arm-none-eabi-gcc"))AddPath(o.toolPath,compiler);
+    }
     if(o.profile==Profile::EspIdf) {
         if(o.idfRoot.empty()){const auto inherited=std::filesystem::u8path(Env("IDF_PATH"));if(Exists(inherited/"tools/idf.py"))o.idfRoot=inherited;}if(o.idfTools.empty())o.idfTools=std::filesystem::u8path(Env("IDF_TOOLS_PATH"));
 #ifdef _WIN32

@@ -31,4 +31,5 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PROJECT_SOURCE_DIR}/UICreator/Images/image-converter-bridge.py"
     "${PROJECT_SOURCE_DIR}/3rdParty/lvgl_image_converter/LVGLImage.py"
     "${PROJECT_SOURCE_DIR}/UICreator/ProjectCreator/project_creator.py"
-    "${PROJECT_SOURCE_DIR}/UICreator/ProjectCreator/raspberry_pi_linux.py")
+    "${PROJECT_SOURCE_DIR}/UICreator/ProjectCreator/raspberry_pi_linux.py"
+    "${PROJECT_SOURCE_DIR}/UICreator/ProjectCreator/raspberry_pi_pico.py")

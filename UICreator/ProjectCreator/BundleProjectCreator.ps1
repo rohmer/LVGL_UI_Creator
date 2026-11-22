@@ -6,7 +6,7 @@ $repositoryRoot=$helperContext.RepositoryRoot
 $destination=Join-Path ([IO.Path]::GetFullPath($OutputDirectory)) 'project-creator'
 if($helperContext.Architecture -eq 'x86'){
     $nativeTools=Get-UICreatorVisualStudioX86Tools $helperContext;$python=$nativeTools.imagePython
-    Sync-UICreatorVisualStudioHelper -Context $helperContext -Python $python -Source $nativeTools.projectToolDirectory -Destination $destination -Keep @('catalog.json','lvgl-9.6.0.zip','linux-toolkit.zip')
+    Sync-UICreatorVisualStudioHelper -Context $helperContext -Python $python -Source $nativeTools.projectToolDirectory -Destination $destination -Keep @('catalog.json','lvgl-9.6.0.zip','linux-toolkit.zip','pico-toolkit.zip')
 }else{
     $python=Join-Path $repositoryRoot 'build\image-tools-env\Scripts\python.exe'
     if(!(Test-Path -LiteralPath $python)){throw 'Run BundleImageConverter.ps1 first to prepare the packaging environment'}
@@ -23,3 +23,7 @@ $linuxToolkit = Join-Path $repositoryRoot 'build\project-creator-linux-toolkit'
 & $python (Join-Path $repositoryRoot 'Runtime\linux\package_toolkit.py') --output $linuxToolkit --replace
 if($LASTEXITCODE){throw 'Linux source toolkit packaging failed'}
 Copy-Item -LiteralPath ($linuxToolkit + '.zip') -Destination (Join-Path $destination 'linux-toolkit.zip') -Force
+$picoToolkit = Join-Path $repositoryRoot 'build\project-creator-pico-toolkit'
+& $python (Join-Path $repositoryRoot 'Runtime\pico\package_toolkit.py') --output $picoToolkit --replace
+if($LASTEXITCODE){throw 'Pico source toolkit packaging failed'}
+Copy-Item -LiteralPath ($picoToolkit + '.zip') -Destination (Join-Path $destination 'pico-toolkit.zip') -Force

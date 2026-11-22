@@ -191,7 +191,7 @@ private:
     lv_timer_t* workspaceTimer = nullptr;
     int workspaceWidth = 0, workspaceHeight = 0;
     void OpenMenu(const std::string& name, int x);
-    void ShowFileDialog(bool save, bool binary = false, bool cCode = false);
+    void ShowFileDialog(bool save, bool binary = false, bool cCode = false, bool microPython = false, bool xml = false);
     void CloseDocument();
     lv_obj_t* menuPopup = nullptr;
     lv_obj_t* fileDialog = nullptr;
@@ -201,5 +201,7 @@ private:
     bool saving = false;
     bool exportingBinary = false;
     bool exportingC = false;
+    bool exportingMicroPython = false;
+    bool exportingXML = false;
 #endif
 };

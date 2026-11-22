@@ -1,5 +1,14 @@
 # ESP32 Protobuf display component
 
+The optional LVGL UI Creator XML input codec uses this same renderer. Add
+`--enable-xml` when generating the component, enable `CONFIG_LVGL_PB_XML` in
+ESP-IDF menuconfig, or configure the generated component with
+`-DLVGL_PB_ENABLE_XML=ON`. Its separate parser source is omitted from the default
+Protobuf-only build. XML and Protobuf inputs share the memory/file APIs and
+selected widget closure; regenerate the profile when the design adds features.
+This XML format is independent of LVGL Pro XML. XML-decoded resources are owned
+even when using a borrowed-input loader.
+
 Generate a standalone ESP-IDF component around the projects your firmware will
 display. The output contains the pinned LVGL 9.6 implementation, LVSerial,
 nanopb, JSON headers, the C-callable runtime, and its required licenses. It has

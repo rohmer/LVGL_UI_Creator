@@ -16,15 +16,16 @@ import zlib
 
 MACHINES = {"x86_64": 62, "aarch64": 183}
 TOOLS = ("UICreator", "LVGLCompiler", "UICreatorCodeGen", "UICreatorViewer")
-HELPERS = ("font-converter", "image-converter", "project-creator", "language-models", "python-runtime")
+HELPERS = ("font-converter", "image-converter", "project-creator", "language-models", "python-runtime", "integrations")
 # SDL's X11/Wayland backends load these by name. They do not appear in ELF
 # DT_NEEDED, so declare the desktop runtime contract explicitly in the DEB.
 DESKTOP_DEPENDENCIES = ("libx11-6", "libxext6", "libxcursor1", "libxi6", "libxfixes3", "libxrandr2",
                         "libxrender1", "libxss1", "libxtst6", "libwayland-client0", "libwayland-cursor0",
                         "libwayland-egl1", "libxkbcommon0", "libegl1", "libgl1", "libglx0",
-                        "libglvnd0", "libopengl0", "libgles2", "libgbm1", "libdrm2", "zenity")
+                        "libglvnd0", "libopengl0", "libgles2", "libgbm1", "libdrm2", "zenity",
+                        "libcurl4t64 | libcurl4", "ca-certificates")
 SDKS = (
-    "LVGLProtobuf-ESP32-Toolkit.zip", "LVGLProtobuf-Arduino-Toolkit.zip",
+    "LVGLProtobuf-ESP32-Toolkit.zip", "LVGLProtobuf-Arduino-Toolkit.zip", "LVGLProtobuf-Pico-Toolkit.zip",
     "LVGLProtobufDisplay-windows.zip", "LVGLProtobuf-Linux-Toolkit.zip",
     "LVGLProtobuf-Linux-Keyboard-Profile.zip", "LVGLProtobuf-Linux-aarch64-keyboard.tar.gz",
     "LVGLProtobuf-Linux-x86_64.tar.gz",
@@ -247,7 +248,9 @@ def manifest(args):
         if not (app / name).is_file() or not os.access(app / name, os.X_OK):
             raise ValueError(f"Missing executable Linux helper: {name}")
     for name in ("font-converter/bridge.js", "image-converter/image-converter-bridge.py", "image-converter/upstream/LVGLImage.py",
-                 "project-creator/project_creator.py", "project-creator/raspberry_pi_linux.py", "project-creator/catalog.json"):
+                 "project-creator/project_creator.py", "project-creator/raspberry_pi_linux.py",
+                 "project-creator/raspberry_pi_pico.py", "project-creator/pico-toolkit.zip", "project-creator/catalog.json",
+                 "integrations/figma/manifest.json", "integrations/figma/code.js", "integrations/figma/ui.html"):
         if not (app / name).is_file():
             raise ValueError(f"Missing Linux helper resource: {name}")
     if args.require_sdks:
@@ -339,6 +342,32 @@ def smoke(app, args, work):
     protobuf = work / "smoke.pb"
     run(command("LVGLCompiler", project, "--format", "pb", "--output", protobuf), env=environment, cwd=work)
     run(command("UICreatorCodeGen", protobuf, work / "generated"), env=environment, cwd=work)
+    # Exercise both installed XML frontends and the same packaged renderer.
+    for frontend in ("UICreatorCodeGen", "LVGLCompiler"):
+        xml = work / ("screen-" + frontend + ".xml")
+        arguments = [protobuf, xml] if frontend == "UICreatorCodeGen" else [project, "--output", xml]
+        run(command(frontend, *arguments, "--format", "xml"), env=environment, cwd=work)
+        import xml.etree.ElementTree as etree
+        if etree.parse(xml).getroot().tag != "uicreator":
+            raise ValueError("Packaged XML export has an unexpected root")
+        run(command("UICreatorViewer", xml, "--frames", "4", "--screenshot", work / (frontend + "-xml.bmp")), env=environment, cwd=work)
+    for frontend in ("UICreatorCodeGen", "LVGLCompiler"):
+        micro = work / ("generated-micropython-" + frontend)
+        arguments = [protobuf, micro] if frontend == "UICreatorCodeGen" else [project, "--output", micro]
+        run(command(frontend, "--format", "micropython", *arguments), env=environment, cwd=work)
+        for name in ("ui.py", "ui.json", "uicreator_lvgl.py", "main.py", "README.md", "lv_conf.defaults.h", "export-manifest.json"):
+            if not (micro / name).is_file() or not (micro / name).stat().st_size:
+                raise ValueError("Packaged MicroPython export omitted " + name)
+        manifest = json.loads((micro / "export-manifest.json").read_text())
+        micro_document = json.loads((micro / "ui.json").read_text())
+        if (manifest["format"] != "micropython" or manifest["lvglVersion"] != "9.3.0" or
+                manifest["binding"]["repository"] != "https://github.com/lvgl/lv_binding_micropython"):
+            raise ValueError("Packaged MicroPython exporter targets an unexpected binding")
+        if micro_document["screens"][0]["obj"][0]["text"] != "Packaged Linux editor":
+            raise ValueError("Packaged MicroPython export lost its authored widget")
+        run(command(python, "-I", "-c", "from pathlib import Path;import sys;root=Path(sys.argv[1]);"
+                    "[compile((root/name).read_text(encoding='utf-8'),name,'exec') "
+                    "for name in ('ui.py','main.py','uicreator_lvgl.py')]", micro), env=environment, cwd=work)
     ui=work/"ui";ui.mkdir();shutil.copy2(project,ui/"project.json");shutil.copy2(protobuf,ui/"project.pb")
     project_job=work/"project-creation";project_job.mkdir()
     catalog=json.loads((app/"project-creator/catalog.json").read_text())

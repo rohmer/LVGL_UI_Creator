@@ -330,7 +330,7 @@ class CreatorTests(unittest.TestCase):
         stale['name'] = 'Stale cached local template'
         (self.root / 'cache/catalog.json').write_text(json.dumps([official, stale]), encoding='utf-8')
         cached = self.creator.catalog()
-        self.assertEqual(cached, [official, creator.raspberry_pi_linux.manifest()])
+        self.assertEqual(cached, [official, creator.raspberry_pi_linux.manifest(), *creator.raspberry_pi_pico.manifests()])
         calls = []
         online = creator.Creator(self.root / 'cache', lambda url: calls.append(url) or json.dumps([official]).encode())
         refreshed = online.catalog(True)
@@ -437,6 +437,101 @@ class CreatorTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256((out / name).read_bytes()).hexdigest(), expected, name)
         self.assertIn('ui/project.pb', data['files'])
         self.assertIn('uicreator-project.json', data['files'])
+
+
+class PicoCreatorTests(unittest.TestCase):
+    def setUp(self):
+        workspace = ROOT / 'build/creator-unit'
+        workspace.mkdir(parents=True, exist_ok=True)
+        self.temp = tempfile.TemporaryDirectory(dir=workspace)
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.creator = creator.Creator(self.root / 'cache', lambda url: self.fail('Pico creation attempted a network request'))
+        self.source = self.root / 'current-ui'
+        self.source.mkdir()
+        (self.source / 'project.pb').write_bytes(b'current selected design')
+        for name in ('ui.c', 'ui.h', 'ui_assets.c', 'ui_assets.h', 'CMakeLists.txt'):
+            (self.source / name).write_text('/* generated selected design */', encoding='utf-8')
+        self.toolkit = self.root / 'pico-toolkit.zip'
+        generator = '''import json
+from pathlib import Path
+def generate(inputs, output, *, board, generated_c, archive, copy_ui):
+    assert archive is False and copy_ui is False
+    output.mkdir()
+    mode = "c" if generated_c is not None else "protobuf"
+    (output / "CMakeLists.txt").write_text("PICO_BOARD=" + board + "\\nmode=" + mode)
+    (output / "lvgl-pb-pico-sdk.json").write_text(json.dumps({"formatVersion": 1, "board": board, "mode": mode, "files": {}}))
+'''
+        files = {'Runtime/pico/make_sdk.py': generator,
+                 'Runtime/esp32/feature_plan.py': '# bundled profile analyzer',
+                 'Runtime/esp32/make_component.py': '# bundled source closure',
+                 'Runtime/esp32/trie_assets.py': '# bundled model validator'}
+        import hashlib
+        marker = {'formatVersion': 1, 'lvglVersion': '9.6.0',
+                  'files': {name: hashlib.sha256(text.encode()).hexdigest() for name, text in files.items()}}
+        self.toolkit.write_bytes(archive({'toolkit/' + name: text for name, text in
+                                        {**files, 'lvgl-pb-pico-toolkit.json': json.dumps(marker)}.items()}))
+
+    def request(self, board=0, output_format='protobuf'):
+        return {'manifest': creator.raspberry_pi_pico.manifests()[board],
+                'destination': str(self.root / 'output'), 'format': output_format,
+                'lvglVersion': 'template', 'project': {'obj': [], 'name': 'Current design'},
+                'uiSourceFolder': str(self.source), 'picoToolkitArchive': str(self.toolkit)}
+
+    def test_both_pico_templates_survive_old_cache_and_catalog_refresh(self):
+        official = manifest()
+        for refresh in (False, True):
+            if refresh:
+                self.creator.fetch = lambda url: json.dumps([official]).encode()
+            else:
+                (self.creator.cache / 'catalog.json').write_text(json.dumps([official]))
+            catalog = self.creator.catalog(refresh)
+            for identity in creator.raspberry_pi_pico.TEMPLATE_BOARDS:
+                self.assertEqual(sum(item.get('uicreatorTemplate') == identity for item in catalog), 1)
+            self.assertTrue(any(item['name'] == official['name'] for item in catalog))
+            self.assertTrue(any(item.get('uicreatorTemplate') == 'raspberry-pi-linux' for item in catalog))
+
+    def test_pico_formats_select_the_board_and_link_mode_offline(self):
+        for board, board_name in enumerate(('pico', 'pico2')):
+            for output_format in ('json', 'protobuf', 'c'):
+                with self.subTest(board=board_name, format=output_format):
+                    request = self.request(board, output_format)
+                    request['destination'] = str(self.root / (board_name + '-' + output_format))
+                    with mock.patch.object(self.creator, 'repository', side_effect=AssertionError('Pico creation used a remote template')):
+                        result = self.creator.create(request)
+                    output = Path(result['destination'])
+                    data = json.loads((output / 'lvgl-pb-pico-sdk.json').read_text())
+                    self.assertEqual(data['board'], board_name)
+                    self.assertEqual(data['mode'], 'c' if output_format == 'c' else 'protobuf')
+                    self.assertEqual((output / 'ui/project.pb').read_bytes(), b'current selected design')
+                    self.assertEqual(json.loads((output / 'ui/project.json').read_text()), request['project'])
+                    self.assertIn('uicreator-project.json', data['files'])
+                    self.assertIn('ui/ui.c', data['files'])
+                    self.assertEqual(result['template']['uicreatorTemplate'], request['manifest']['uicreatorTemplate'])
+                    self.assertEqual(result['picoBuild']['board'], board_name)
+                    with self.assertRaises(ValueError):
+                        self.creator.create(request)
+
+    def test_pico_rejects_unsupported_overrides_and_incomplete_current_design(self):
+        for extra in ({'lvglVersion': '8.3.11'}, {'sourceArchive': str(self.toolkit)},
+                      {'branch': 'main'}, {'lvglPath': 'vendor/lvgl'}, {'settings': {'board': 'pico_w'}},
+                      {'uiSourceFolder': ''}, {'picoToolkitArchive': ''}):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                self.creator.create({**self.request(), **extra})
+            self.assertFalse((self.root / 'output').exists())
+        (self.source / 'ui.c').unlink()
+        with self.assertRaisesRegex(ValueError, 'complete generated C'):
+            self.creator.create(self.request(output_format='c'))
+
+    def test_pico_toolkit_integrity_is_checked_before_import(self):
+        marker = {'formatVersion': 1, 'lvglVersion': '9.6.0',
+                  'files': {'Runtime/pico/make_sdk.py': '0' * 64}}
+        self.toolkit.write_bytes(archive({'toolkit/lvgl-pb-pico-toolkit.json': json.dumps(marker),
+                                        'toolkit/Runtime/pico/make_sdk.py': 'raise AssertionError("executed before verification")'}))
+        with self.assertRaisesRegex(ValueError, 'integrity check'):
+            self.creator.create(self.request())
+        self.assertFalse((self.root / 'output').exists())
+        self.assertFalse(list(self.root.glob('.uicreator-project-*')))
 
 
 if __name__ == '__main__':

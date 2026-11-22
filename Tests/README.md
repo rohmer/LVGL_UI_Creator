@@ -31,6 +31,70 @@ JSON/Protobuf, runtime text bindings, language/trie inspector selection and
 undo/redo, independent generated C consumers and a minimized
 ESP32 source profile. Select these checks with `ctest -L advanced-keyboard`.
 
+## MicroPython export
+
+Select the complete MicroPython group with `ctest -L micropython`. The standard
+suite includes these checks without downloading or building firmware:
+
+| Test | Coverage |
+| --- | --- |
+| `UICreatorMicroPythonExport` | Both CLI frontends, JSON/Protobuf input, generated scripts, native bitmap assets, target requirements and unsupported-feature errors. Produces the shared native-test fixture. |
+| `UICreatorMicroPythonRoundTrip` | Deterministic regeneration and preserved project behavior across frontends and input formats. |
+| `UICreatorMicroPythonAssets` | Image payloads, deduplication, distinct image headers and exported runtime parity. |
+| `UICreatorMicroPythonPaths` | Relative assets, spaces and Unicode in source/output paths. |
+| `UICreatorMicroPythonRejections` | Invalid inputs and unsupported features fail without overwriting an existing export. |
+| `UICreatorMicroPythonRuntime` | Variable directions/history/validation, keyboard ownership, transactional cleanup, resources and screen lifecycle using a bounded LVGL test double. |
+| `UICreatorMicroPythonEditor` | Menu routing, editable output path, preflight, output files, unchanged document state and rejected exports. |
+| `UICreatorMicroPythonInstalledCLI` (Windows) | Runs the installer smoke checks against both built CLI frontends with a Windows-system-only PATH, checking that export needs no host Python installation. |
+
+After configuring a build with `BUILD_TESTING=ON`, build the executable fixtures
+and run the group:
+
+```sh
+cmake --build build/release --target UICreatorCodeGen LVGLCompiler UICreatorEditorTests
+ctest --test-dir build/release -L micropython --output-on-failure --parallel 4
+```
+
+For real binding execution, build LVGL-enabled MicroPython from the pinned
+official sources described in [the export guide](../CodeGeneration/MicroPython/README.md).
+Ordinary MicroPython without `import lvgl` cannot run this test. On Linux:
+
+```sh
+cmake -S . -B build/release -DUICREATOR_MICROPYTHON_EXECUTABLE=/absolute/path/to/micropython
+ctest --test-dir build/release -R '^UICreatorMicroPythonNative$' --output-on-failure
+```
+
+On Windows, an existing Linux interpreter can run through WSL:
+
+```powershell
+cmake -S . -B build/release -DUICREATOR_MICROPYTHON_EXECUTABLE=E:/path/to/micropython -DUICREATOR_MICROPYTHON_WSL_DISTRIBUTION=Ubuntu
+ctest --test-dir build/release -R '^UICreatorMicroPythonNative$' --output-on-failure
+```
+
+`UICreatorMicroPythonNative` uses a CTest fixture, so selecting only that test
+also regenerates the export first. A failed producer prevents the native test
+from using stale files. It executes the shipped Python runtime with an in-memory
+display, checks native widgets, pixel output, variable bindings, garbage
+collection and repeated keyboard lifetimes, and writes
+`CodeGeneration/micropython-test/native-verification.json`. The host unit suite
+does not substitute for this native test. No panel, SDL window or hardware flash
+is required. The native interpreter is optional and is never downloaded by
+CTest.
+
+Windows installer and Linux package smoke tests also exercise MicroPython
+export through both packaged CLI frontends and verify their bundled output.
+Linux desktop release validation includes the MicroPython CTest group.
+
+## Running the full suite
+
+The `xml` group exercises UI Creator's own XML codec and the shared runtime:
+typed/Unicode/binary round trips, malformed and bounded input, identical
+Protobuf/XML rendering, embedded images/fonts/trie prediction, released-input
+ownership, lazy screens, LVGL filesystem loading, CLI conversion and editor
+export/open. It also compiles reduced profiles with XML enabled and disabled.
+Run `ctest --test-dir build/release -L xml --output-on-failure`; no external
+XML tooling or license is required. See [XML integration](../CodeGeneration/XML.md).
+
 From an x86 Visual Studio Developer Command Prompt, configure a Release build with testing enabled, build, then run CTest:
 
 ```bat

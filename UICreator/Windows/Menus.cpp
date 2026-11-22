@@ -2,6 +2,7 @@
 #include "../Utils/EditorStyle.h"
 #include "../Utils/EditorIcons.h"
 #include "../Utils/ObjectIcons.h"
+#include <Serialization/RuntimeFeatures.h>
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -64,6 +65,7 @@ std::vector<UI::MenuItem> UI::MenuItems(const std::string& name) const
         add("New project", "new", "Ctrl+N", !fileDialog);
         add("Open project...", "open", "Ctrl+O", !fileDialog);
         child("Recent projects", "Recent projects", !fileDialog && !recentProjects.empty());
+        add("Import Figma design...", "import-figma", "", canEdit);
         separator(); add("Save project", "save", "Ctrl+S", !fileDialog);
         add("Save project as...", "save-as", "Ctrl+Shift+S", !fileDialog);
         separator(); add("Exit", "exit");
@@ -112,6 +114,8 @@ std::vector<UI::MenuItem> UI::MenuItems(const std::string& name) const
         add("Generate language model...", "language-model-generator"); add("Load model into project...", "language-model-load");
     } else if (name == "Export") {
         add("Device Protobuf (.pb)...", "export-protobuf", "", !fileDialog); add("LVGL source project...", "export-c", "", !fileDialog);
+        add("MicroPython project...", "export-micropython", "", !fileDialog);
+        add("UI Creator XML (.xml)...", "export-xml", "", LVSERIAL_USE_XML && !fileDialog);
         separator(); add("Create firmware project...", "project-creator", "", !fileDialog);
         add("Build, flash and serial monitor...", "device-tools");
     } else if (name == "Debug") {

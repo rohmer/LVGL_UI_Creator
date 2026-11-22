@@ -23,7 +23,8 @@
       "key": "action.open",
       "name": "Open project",
       "aliases": [
-        "open"
+        "open",
+        "import-figma"
       ],
       "primitives": 10,
       "svg": "svg/action.open.svg"
@@ -519,7 +520,9 @@
       "key": "action.export_c",
       "name": "Export C",
       "aliases": [
-        "export-c"
+        "export-c",
+        "export-micropython",
+        "export-xml"
       ],
       "primitives": 14,
       "svg": "svg/action.export_c.svg"

@@ -74,6 +74,7 @@ void Runtime(const Bytes& data, bool expectCorrection = false) {
 }
 void ReferenceCases(const fs::path& fixture, const fs::path& work, const fs::path& words) {
     for (const auto* name : {"full", "legacy", "budget128", "budget20", "limits", "zero", "folded", "es", "fr", "de", "el"}) {
+        std::cout << "Generating C# parity case " << name << '\n';
         auto options = Base(fixture, work, name);
         const std::string scenario = name;
         if (scenario == "legacy") options.compact = false;
@@ -109,6 +110,7 @@ void ReferenceCases(const fs::path& fixture, const fs::path& work, const fs::pat
 void ModesAndEncoding(const fs::path& fixture, const fs::path& work) {
     const auto expected = Read(fixture / "full.ngtr");
     for (bool disk : {false, true}) for (unsigned workers : {1u, 4u}) {
+        std::cout << "Counting mode " << (disk ? "disk" : "memory") << ", workers " << workers << '\n';
         auto options = Base(fixture, work, std::string(disk ? "disk" : "memory") + std::to_string(workers));
         options.lowMemory = disk; options.chunkEntries = 2; options.workers = workers;
         std::mutex mutex; unsigned last = 0, callbacks = 0;
@@ -126,9 +128,11 @@ void ModesAndEncoding(const fs::path& fixture, const fs::path& work) {
     std::string frequent;
     for (unsigned repeat = 0; repeat < 1000; ++repeat) frequent.append(input.begin(), input.end());
     auto trained = Base(fixture, work, "trained-correction");
+    std::cout << "Training realistic autocorrection counts\n";
     trained.inputs = {work / "trained-correction.txt"}; Write(trained.inputs[0], frequent);
     LanguageModels::Generate(trained); Runtime(Read(trained.trieOutput), true);
     for (unsigned width : {2u, 4u}) for (bool big : {false, true}) {
+        std::cout << "Checking encoding " << width << (big ? "be" : "le") << '\n';
         std::string encoded;
         if (width == 2) encoded = big ? std::string("\xfe\xff", 2) : std::string("\xff\xfe", 2);
         else encoded = big ? std::string("\0\0\xfe\xff", 4) : std::string("\xff\xfe\0\0", 4);
@@ -214,22 +218,45 @@ void InvalidAndCancellation(const fs::path& fixture, const fs::path& work) {
     try { LanguageModels::Generate(original, {}, &cancel); } catch (const LanguageModels::Cancelled&) { cancelled = true; }
     Check(cancelled && Read(original.trieOutput) == before, "Pre-cancelled generation wrote output or failed with the wrong error");
     cancel = false; cancelled = false;
-    options = original; options.inputs = {work / "cancel-corpus.txt"}; options.lowMemory = true; options.chunkEntries = 2;
-    std::string large; for (unsigned i = 0; i < 10000; ++i) large += "the world hello there help the hero\n";
+    options = original; options.inputs = {work / "cancel-corpus.txt"}; options.lowMemory = true; options.chunkEntries = 256;
+    // Reach the byte-progress callback after real external counting work,
+    // without creating tens of thousands of two-entry files first on NTFS.
+    // Unique tokens force spills even with the larger bounded chunk size.
+    std::string large; for (unsigned i = 0; i < 10000; ++i) large += "cancelword" + std::to_string(i) + " ";
     Write(options.inputs[0], large);
-    try { LanguageModels::Generate(options, [&](const LanguageModels::Progress& progress) { if (progress.percent > 0 && progress.percent < 80) cancel = true; }, &cancel); }
+    std::vector<fs::path> existingDirectories;
+    for (const auto& entry : fs::directory_iterator(work)) if (entry.is_directory()) existingDirectories.push_back(entry.path());
+    size_t spilledFiles = 0;
+    try { LanguageModels::Generate(options, [&](const LanguageModels::Progress& progress) {
+        if (progress.stage != "Counting n-grams" || !progress.bytesProcessed || progress.percent >= 80) return;
+        Check(progress.bytesProcessed < large.size(), "Cancellation did not occur before counting completed");
+        for (const auto& entry : fs::directory_iterator(work)) {
+            if (!entry.is_directory() || std::find(existingDirectories.begin(), existingDirectories.end(), entry.path()) != existingDirectories.end()) continue;
+            for (const auto& chunk : fs::directory_iterator(entry.path())) if (chunk.is_regular_file()) ++spilledFiles;
+        }
+        Check(spilledFiles > 0, "Cancellation fixture did not exercise external spill storage");
+        std::cout << "Cancelling after " << progress.bytesProcessed << " corpus bytes and " << spilledFiles << " external count chunks\n";
+        cancel = true;
+    }, &cancel); }
     catch (const LanguageModels::Cancelled&) { cancelled = true; }
-    Check(cancelled && cancel && Read(original.trieOutput) == before, "In-flight cancellation replaced an existing output");
+    Check(cancelled && cancel && spilledFiles && Read(original.trieOutput) == before && !fs::exists(original.jsonOutput),
+          "In-flight disk cancellation failed or published partial output");
 }
 }
 int main(int argc, char** argv) {
     try {
+        std::cout << std::unitbuf;
         Check(argc == 4, "Expected fixture, work and bundled word-list directories");
         const auto fixture = fs::absolute(fs::u8path(argv[1]));
         const auto work = fs::absolute(fs::u8path(argv[2])) / ("run-" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
         fs::create_directories(work);
         ReferenceCases(fixture, work, fs::u8path(argv[3]));
-        ModesAndEncoding(fixture, work); CacheAndDiscovery(fixture, work); InvalidAndCancellation(fixture, work);
+        std::cout << "Starting counting modes and encoding cases\n";
+        ModesAndEncoding(fixture, work);
+        std::cout << "Starting cache and corpus discovery cases\n";
+        CacheAndDiscovery(fixture, work);
+        std::cout << "Starting invalid input and cancellation cases\n";
+        InvalidAndCancellation(fixture, work);
         std::cout << "Native C# parity, Unicode, budgets, device prediction, disk/worker/cache modes, encodings, validation and cancellation passed\n";
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }

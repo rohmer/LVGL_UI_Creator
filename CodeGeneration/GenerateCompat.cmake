@@ -8,3 +8,9 @@ execute_process(COMMAND "${keyboard_python}" "${SOURCE_DIR}/EmbedAdvancedKeyboar
 if(NOT keyboard_result EQUAL 0)
     message(FATAL_ERROR "Cannot embed Advanced Keyboard export sources")
 endif()
+execute_process(COMMAND "${keyboard_python}" "${SOURCE_DIR}/EmbedMicroPython.py"
+    "${SOURCE_DIR}/MicroPython" "${OUTPUT_DIR}/MicroPythonSource.h"
+    RESULT_VARIABLE micropython_result)
+if(NOT micropython_result EQUAL 0)
+    message(FATAL_ERROR "Cannot embed MicroPython export runtime")
+endif()

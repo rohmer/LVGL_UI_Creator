@@ -5,6 +5,8 @@
 #include "AdvancedKeyboardMigration.h"
 #include "ProjectDesign.h"
 #include "ProjectScreens.h"
+#include "Xml.h"
+#include "RuntimeFeatures.h"
 #include <stdexcept>
 namespace Serialization
 {
@@ -48,5 +50,23 @@ namespace Serialization
         const auto record = Protobuf::Decode(input);
         if (record.kind != EntityKind::Project || record.type != "project") throw std::invalid_argument("Expected a project record");
         return FromJSON(record.data);
+    }
+    std::string Project::ToXML(const std::vector<lv_obj_t*>& objects, lv_obj_t* screen, const json& variables, int width, int height, const json& fonts, const json& images, const json& tries)
+    {
+#if LVSERIAL_USE_XML
+        return Xml::Encode(EntityKind::Project, "project", ToJSON(objects, screen, variables, width, height, fonts, images, tries));
+#else
+        throw std::runtime_error("XML support is disabled in this build");
+#endif
+    }
+    LoadedProject Project::FromXML(const std::string& input)
+    {
+#if LVSERIAL_USE_XML
+        auto record = Xml::Decode(input.data(), input.size());
+        if (record.kind != EntityKind::Project || record.type != "project") throw std::invalid_argument("Expected a UI Creator XML project");
+        return FromJSON(record.data);
+#else
+        throw std::runtime_error("XML support is disabled in this build");
+#endif
     }
 }

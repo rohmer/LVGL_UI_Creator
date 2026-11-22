@@ -100,7 +100,7 @@ def package(output: Path, example_projects=(), replace=False):
                 if any(part in (".git", "__pycache__", "build", "node_modules") for part in relative.parts): continue
                 if path.is_file() and (predicate is None or predicate(path)):
                     copy_file(path, destination / relative)
-        source_file = lambda path: path.suffix.lower() in (".h", ".hpp", ".inc", ".inl", ".c", ".cpp", ".py", ".md", ".json", ".ngtr", ".ngix", ".proto", ".options", ".txt", ".cmake", ".defaults", ".projbuild") or any(
+        source_file = lambda path: path.name == "Kconfig" or path.suffix.lower() in (".h", ".hpp", ".inc", ".inl", ".c", ".cpp", ".py", ".md", ".json", ".ngtr", ".ngix", ".proto", ".options", ".txt", ".cmake", ".defaults", ".projbuild") or any(
             marker in path.name.upper() for marker in ("LICENSE", "LICENCE", "COPYING", "NOTICE"))
         tree(repo / "Runtime/esp32", stage / "Runtime/esp32", source_file)
         for directory in ("Runtime/common", "Runtime/include", "Runtime/compat", "LVSerial/Serialization", "LVSerial/Device", "LVSerial/Proto", "LVSerial/Widgets"):
@@ -123,7 +123,7 @@ def package(output: Path, example_projects=(), replace=False):
                 copy_file(path, stage / "licenses/LVGL_dependencies" / path.relative_to(lvgl))
         for source in examples: copy_file(source, stage / "examples" / source.name)
         text_file(stage / "README.md", readme([source.name for source in examples]))
-        manifest = {"formatVersion": 1, "toolkitVersion": "0.9.0", "lvglVersion": "9.6.0",
+        manifest = {"formatVersion": 1, "toolkitVersion": "0.9.1", "lvglVersion": "9.6.0",
                     "examples": [source.name for source in examples],
                     "files": {path.relative_to(stage).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                               for path in sorted(stage.rglob("*")) if path.is_file()}}

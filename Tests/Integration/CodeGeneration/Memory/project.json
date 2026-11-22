@@ -1,0 +1,13 @@
+{
+  "canvas": {"width": 320, "height": 240},
+  "obj": [
+    {"oid": 1, "par": -1, "base": {}, "text": "Persistent label text remains in read-only generated storage."},
+    {"oid": 2, "par": -1, "base": {}, "cb": {"text": "Persistent checkbox caption also stays in read-only storage."}},
+    {"oid": 3, "par": -1, "base": {}, "dropdown": {"options": "First persistent option\nSecond persistent option\nThird persistent option", "selected": 1}},
+    {"oid": 4, "par": -1, "base": {"coords": {"width": 70, "height": 20}}, "text": "This text must remain writable for dots mode.", "longmode": 2},
+    {"oid": 5, "par": -1, "base": {}, "img": {"name": "first", "formatVersion": 9, "w": 2, "h": 2, "cf": 16, "stride": 8, "data": "AAECAwQFBgcICQoLDA0ODw=="}},
+    {"oid": 6, "par": -1, "base": {}, "img": {"name": "second", "formatVersion": 9, "w": 2, "h": 2, "cf": 16, "stride": 8, "data": "AAECAwQFBgcICQoLDA0ODw=="}},
+    {"oid": 7, "par": -1, "base": {}, "canvas": {"width": 2, "height": 2, "format": 16, "stride": 8, "data": "AAECAwQFBgcICQoLDA0ODw=="}},
+    {"oid": 8, "par": -1, "base": {}, "canvas": {"width": 2, "height": 2, "format": 16, "stride": 8, "data": "AAECAwQFBgcICQoLDA0ODw=="}}
+  ]
+}

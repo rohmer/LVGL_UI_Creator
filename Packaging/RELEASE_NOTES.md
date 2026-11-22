@@ -1,62 +1,163 @@
-# LVGL UI Creator 0.9.0
+# LVGL UI Creator 0.9.1
 
-Windows builds now support x64 (default) and x86, with x32 as an alias. The
-CPack NSIS installers are provided separately for each architecture and include
-the matching native display SDK. Linux desktop packages are built separately
-for x86_64 and ARM64/Raspberry Pi. See docs/Packaging/WINDOWS.md for Windows
-build and package commands.
+This release adds Figma importing, MicroPython and UI Creator XML export,
+Raspberry Pi Pico projects, and substantial generated-code and runtime memory
+improvements. It also includes the fixes and SDK updates made after the 0.9.0
+public release.
 
-This release adds measured performance dashboards, lazy runtime screen loading,
-multi-screen editing and animated navigation, responsive device comparisons,
-native Flex/Grid authoring, connected project build tools, actual-screen theme
-previews, reviewed component updates, and a persistent Problems panel. Document
-caching and patch-based undo reduce repeated work and large-asset copying.
-Command/property search and native visual/input/performance regression fixtures
-complete the editor workflow. See docs/Docs/Professional-workflows.md.
+## Import Figma designs
 
-The project creator now includes **Raspberry Pi - Linux** under the Raspberry Pi
-vendor filter. It creates an offline CMake build of the current screen using
-LVGL 9.6, the portable Protobuf runtime, bundled SDL3 and a project-specific
-LVGL source profile. JSON, C and Protobuf choices all include the runnable
-screen; the built-in entry survives cached catalogs and refreshes.
+- **File > Import Figma design...** imports a whole design or selected frames
+  into editable screens. Choose a scale, review conversion notes, then add
+  screens to the current project or replace it. Each import is one undoable
+  edit; reviewing a design does not change the project.
+- **Online Figma link** reads design and frame links through Figma's REST API.
+  Enter a personal access token with `file_content:read` permission. The token
+  is masked and is not saved in projects, generated code, logs or request URLs.
+  Download progress, cancellation, permission errors and API rate limits are
+  handled in the import window.
+- A bundled local Figma export plugin creates self-contained `.figma.json`
+  files without an API token or network connection. The importer also reads
+  Figma REST JSON and `JSON_REST_V1` node exports.
+- Frames, groups, text and supported shapes retain editable hierarchy,
+  geometry and styles. Complex artwork uses embedded PNG images. Online
+  requests batch renders, fetch artwork for the chosen frames and reuse cached
+  images. Repeated imports reuse identical resources and resolve ID/name
+  collisions without changing existing bindings.
+- Font substitutions and unsupported behavior are reported. Auto layout uses
+  the resolved geometry at the exported size; prototype interactions,
+  responsive rules and application behavior need configuration in UI Creator.
 
-This update adds an in-editor Design/Run toggle (F6), a real two-model prediction
-playground, a visual widget-event editor, linked reusable components, screen
-validation with selectable issues, and build/flash/serial tools for installed
-Arduino, ESP-IDF and CMake toolchains. Run uses an isolated portable Protobuf
-runtime so testing does not alter the authored screen.
+See [Figma import instructions](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/Integrations/Figma/README.md).
 
-The theme gallery includes 14 curated light and dark palettes, live miniature
-previews, project/selection application, shared color/radius/spacing tokens,
-new-widget defaults and undo. Local style and component overrides survive
-shared updates. See docs/EDITOR_WORKFLOWS.md and docs/Docs/Themes-and-components.md.
+## Export MicroPython projects
 
-Menus are organized by task: File handles projects, Assets contains font/image
-managers and converters, and Export contains Protobuf, LVGL source and firmware
-project output. Recent projects, alignment, distribution and panel controls
-have their own submenus. View also provides Fit, Actual size and zoom commands.
-All eight top-level menus have Alt shortcuts and support arrow-key, Enter and
-Escape navigation. Save updates the known JSON path; Save As chooses a new path.
+- **Export > MicroPython project...** and both command-line compilers now
+  generate projects for the official LVGL MicroPython binding, pinned to its
+  LVGL 9.3.0 revision. Use `--format micropython` in the CLI.
+- Generated projects include `ui.py`, `ui.json`, the portable Python runtime,
+  an example entry point, deduplicated pixel assets, firmware requirements and
+  a manifest recording upstream source revisions.
+- Supported widgets, layouts, multiple screens, interactions and variables
+  bound to several widgets use the native binding API. Images are decoded
+  during export. QR codes and barcodes become bitmap assets.
+- Preflight reports unsupported widgets/styles/fonts before export. Advanced
+  Keyboard, Text box and Layer view use C, Protobuf or UI Creator XML output;
+  the pinned binding also lacks native Spinner support. Dynamic barcode/QR
+  bindings are rejected instead of silently becoming static.
+- Regeneration removes only obsolete assets owned by the previous export
+  manifest and preserves user files. Native-binding tests cover garbage
+  collection, retained keyboard layouts, assets and repeated lifecycle use.
 
-A top-level Language Models menu opens a native LVGL/C++ port of the ESPOS C#
-NgramTrie generator. It trains compact NGTR v3 models from corpus folders, with
-five bundled language vocabulary filters, model byte budgets, n-gram limits,
-background progress, cancellation, reusable counts and disk-based counting.
-Generated and existing models can be loaded directly into the current project
-and attached to Advanced Keyboard. The generator runs without .NET.
+See the [MicroPython guide](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/CodeGeneration/MicroPython/README.md).
 
-This development release adds work recovery and session preferences, a consistent inspector, editing refinements, export preflight, a welcome screen, diagnostics, native Bootstrap-inspired presets and admin examples.
+## Read and export UI Creator XML
 
-It also includes native Code 128/GS1 barcode and QR-code widgets, a standalone Windows Protobuf display DLL/viewer and the editor's F5 screen-debugging command. The simulator preview stays open without a close button. The ESP32 source toolkit builds standalone project-specific components with only the needed LVGL modules; see docs/Runtime/esp32 and docs/Runtime/windows for integration.
+- **Export > UI Creator XML (.xml)...** writes one self-contained, readable
+  project file. Both CLIs accept XML input and support `--format xml`; the
+  editor opens XML projects and offers JSON when saving an editable project.
+- UI Creator XML v1 represents the same typed project model as Protobuf,
+  including widgets, screens, variables, histories, bindings, images, fonts,
+  actions and Advanced Keyboard models. It uses UI Creator's own schema.
+- Existing runtime memory/file loading APIs and desktop viewers automatically
+  recognize Protobuf or XML and use the same validator and renderer. XML input
+  can be released after loading; its resources remain owned by the runtime.
+- Full builds include XML by default. Minimal ESP32, Arduino, Linux and Pico
+  profiles omit the parser unless enabled, preserving the default small build.
+  ESP32, Arduino and Pico generators accept `--enable-xml` for runtime
+  projects; Linux runtime builds expose the corresponding CMake option.
+- The codec bounds input size, nesting, elements and text, rejects malformed
+  typed values and does not resolve external entities. Failed exports preserve
+  existing output files.
 
-Advanced Keyboard ports the ESPOS keyboard and prediction/autocorrect engine. It targets external text fields, automatically scrolls the selected field into view above the keyboard, and stays open until Enter or its X button closes it. The inspector's Language dropdown selects English (US), Spanish, French, German, Italian or Portuguese key layouts. A separate Prediction trie dropdown selects built-in English or a project model; Load trie… embeds a specific NGTR model for suggestions and autocorrect. Language and trie choices survive JSON/Protobuf, undo/redo and C export. Temporary scrolling preserves the saved layout. C exports include the portable C++17 engine. ESP32, Raspberry Pi/Linux and Arduino toolkits provide project-specific runtimes with the same widgets and model behavior. See docs/UICreator/AdvancedKeyboard.md and docs/Runtime for integration.
+See the [XML export and runtime guide](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/CodeGeneration/XML.md).
 
-The Bootstrap library simulates component patterns with LVGL controls. It is not an HTML/CSS renderer. See the component coverage document for supported interactions and export limitations. Example forms and admin data do not connect to authentication, payment, or server services.
+## Raspberry Pi Pico 1 and Pico 2
 
-Extract the entire release archive, then run UICreator.exe. Keep the converter, project-creator and language-models folders beside it. For a per-user installation and Start menu entry, run Install.ps1 from PowerShell. No administrator privileges or changes to PATH are needed. A conventional NSIS installer can be built using `cpack -G NSIS` when NSIS is installed on the build machine.
+- The firmware project creator now includes Raspberry Pi Pico 1/RP2040 and
+  Pico 2/RP2350 Arm targets using the Pico SDK.
+- Generate direct C projects or projects using the portable Protobuf runtime,
+  with the selected widgets, images, fonts, variables and keyboard models.
+  Runtime projects can opt into the XML reader.
+- Device tools recognize the Pico SDK, board choice and Arm toolchain and can
+  run native Ninja builds. Generated projects produce UF2 firmware.
+- Display flush and input callbacks remain application-specific; connect them
+  to the panel and touch hardware used by the board.
 
-Save JSON projects for continued editing. Keep application code outside generated firmware folders. Generated sources require the selected LVGL version and the configuration listed in ui_requirements.h.
+See the [Pico SDK guide](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/Runtime/pico/README.md).
 
-## Build a release
+## Smaller and faster generated C
 
-Build Release with CMake, run CTest, then run `cpack --config build/release/CPackConfig.cmake`. Artifacts are written to build/release/packages. ZIP packaging is available without additional installer tools. Build matching symbols separately and retain them for crash analysis.
+- Fixed labels, checkbox captions and dropdown options can reference immutable
+  text directly. Read-only byte arrays and typed assets share storage; writable
+  canvas buffers remain independent.
+- Static images no longer need animation tables/timers, and automatic button
+  captions avoid unnecessary persistent handles and deletion callbacks.
+- Small object lookup tables use switches; larger tables use binary search
+  over immutable ID/slot arrays without an extra writable table.
+- Bounded variable histories use typed circular storage rather than shifting
+  every element. Single-entry histories use inline storage. Numeric text is
+  formatted once per update across a variable's text bindings.
+- The measured Windows host fixture reduced requested LVGL heap after layout
+  from **255,640 to 222,328 bytes** and a filled 1,024-entry `uint8_t` history
+  from **8,192 to 1,024 bytes**. These are fixture measurements, not device RAM
+  or frame-rate guarantees.
+
+Re-export projects to obtain these changes. Applications that directly mutate
+fixed label buffers can disable static text with `UI_USE_STATIC_TEXT=OFF` or
+make a label mutable before editing it. See the
+[generated C performance guide](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/CodeGeneration/PERFORMANCE.md).
+
+## Runtime memory and ESP32 PSRAM
+
+- The bundled LVGL now removes only its own temporary screen-deletion callbacks,
+  preserving application trackers even when the linker merges identical callback
+  functions. This fixes stale screen handles during lazy unloading in optimized
+  Windows builds, including the 32-bit build, without disabling code folding.
+- The loader moves decoded screen definitions into retained storage, validates
+  parent chains without repeatedly allocating ancestor paths, and avoids
+  unnecessary retained variable/history metadata.
+- Scalar variable updates validate values directly, and bounded histories use
+  ring buffers. The benchmark's 5,000 scalar updates with initial history
+  dropped from 570,000 C++ allocations to zero; bound LVGL widget updates can
+  still allocate through LVGL.
+- Identical trie catalogs share immutable model/index bytes. On ESP-IDF and
+  Arduino ESP32, available PSRAM is preferred for trie data and index storage,
+  with normal-memory/flash fallback when unavailable or exhausted. Shared
+  owned storage is released after its last owner is destroyed.
+- Owned loading avoids temporary full trie copies before placement and
+  deduplication. Its input may be released after loading; the explicit
+  borrowed-assets API retains its existing input-lifetime requirement.
+- In the measured four-screen fixture, peak C++ loading allocations fell from
+  **411,992 to 239,968 bytes**. A fixture referencing identical trie data under
+  20 IDs fell from **657,876 to 64,841 bytes**. These figures exclude C/LVGL
+  allocations, framebuffers, allocator overhead and existing input buffers.
+
+See [runtime memory and lifecycle details](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/Runtime/PERFORMANCE.md).
+
+## Builds, packages and regression coverage
+
+- Release installers are provided separately for Windows x64, Windows x86,
+  Linux x86_64 and Linux ARM64/Raspberry Pi; Linux also has portable tar archives.
+  Windows x64 remains the default. The x86 package includes genuine 32-bit
+  conversion helpers and runtimes as well as the editor, compiler and viewer.
+- Complete CMake and Visual Studio source registrations, restored build files,
+  CMake 4.5.1 workflows, target architecture audits and regenerated SDK inputs
+  make the source checkout and packaged application reproducible together.
+- New exporters are available in the editor and CLI tools; Figma importing is
+  exposed in the editor. Linux online Figma import declares its system libcurl
+  and CA certificate requirements.
+- Expanded tests cover generated C memory behavior, PSRAM sharing/fallback,
+  MicroPython on the real upstream binding, XML codec/runtime parity and
+  parser-free profiles, Pico generation, Figma conversions, online download
+  errors/caching/limits, editor typing, resource collisions and undo/redo.
+- Installer smoke tests now exercise MicroPython conversion helpers in
+  addition to the existing native tools. Build instructions are consolidated
+  in [BUILD.md](https://github.com/rohmer/LVGL_UI_Creator/blob/0.9.1/BUILD.md).
+
+Save editor JSON projects for continued authoring. Generated firmware requires
+the chosen LVGL configuration and board-specific display/input integration.
+Protobuf remains the compact runtime format; XML favors readable interchange.
+Online Figma importing requires file access and is subject to Figma's API quotas.
+
+[Full source comparison from 0.9.0](https://github.com/rohmer/LVGL_UI_Creator/compare/0.9.0...0.9.1).

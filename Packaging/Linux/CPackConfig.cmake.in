@@ -23,3 +23,5 @@ if(NOT result EQUAL 0)
     message(FATAL_ERROR "Cannot resolve target-only ELF dependencies: ${output}${error}")
 endif()
 string(JSON CPACK_DEBIAN_PACKAGE_DEPENDS GET "${output}" abi debianDepends)
+# linux_package.py also declares dynamically loaded desktop/libcurl runtimes so
+# the payload manifest and the DEB dependency contract stay identical.

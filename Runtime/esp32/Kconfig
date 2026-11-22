@@ -1,0 +1,9 @@
+menu "LVGL UI Creator display runtime"
+    config LVGL_PB_XML
+        bool "Enable LVGL UI Creator XML input"
+        default n
+        help
+            Compile the optional XML input codec alongside Protobuf. XML uses
+            the same selected widgets and runtime as the generated profile;
+            regenerate the profile when adding widgets or optional features.
+endmenu

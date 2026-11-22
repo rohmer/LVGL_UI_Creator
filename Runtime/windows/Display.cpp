@@ -85,11 +85,11 @@ bool lvgl_pb_window_load_file(lvgl_pb_window_t* window, const char* path) {
     if (!window || !path) return false;
     try {
         std::ifstream input(std::filesystem::u8path(path),std::ios::binary|std::ios::ate);
-        if (!input) throw std::runtime_error("Cannot open Protobuf file");
+        if (!input) throw std::runtime_error("Cannot open project file");
         const auto count=input.tellg();
-        if(count<=0 || static_cast<uint64_t>(count)>InputLimit) throw std::runtime_error("Protobuf file must contain 1 byte to 16 MiB");
+        if(count<=0 || static_cast<uint64_t>(count)>InputLimit) throw std::runtime_error("project file must contain 1 byte to 16 MiB");
         std::vector<char> bytes(static_cast<size_t>(count)); input.seekg(0);input.read(bytes.data(),static_cast<std::streamsize>(bytes.size()));
-        if(!input) throw std::runtime_error("Cannot read complete Protobuf file");
+        if(!input) throw std::runtime_error("Cannot read complete project file");
         return lvgl_pb_window_load_memory(window,bytes.data(),bytes.size());
     } catch(const std::exception& error) { window->error=error.what();return false; }
 }

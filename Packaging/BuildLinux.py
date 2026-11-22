@@ -36,7 +36,7 @@ def mirror(source,base):
             dirs[:]=[]
             continue
         if relative==Path('.'):
-            dirs[:]=[name for name in dirs if name in {'3rdParty','CodeGeneration','ImgLib','LVSerial','Runtime','UICreator','Tests','Packaging','Docs','Docker','Examples'}]
+            dirs[:]=[name for name in dirs if name in {'3rdParty','CodeGeneration','ImgLib','Integrations','LVSerial','Runtime','UICreator','Tests','Packaging','Docs','Docker','Examples'}]
         dirs[:]=[name for name in dirs if name not in {'.git','.agents','.codex','.vs','.idea','.venv','.cache','__pycache__','.pytest_cache'}
                  and (name!='build' or relative.as_posix()=='3rdParty/lv_font_conv/lib/freetype')
                  and (name!='node_modules' or relative.as_posix()=='3rdParty/lv_font_conv')]
@@ -70,7 +70,9 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
     if not (assets/'python-dependencies.json').is_file():raise ValueError('Prepare helper assets first')
     env=os.environ.copy();env.pop('PYTHONHOME',None);env.pop('PYTHONPATH',None)
     env.update(RUSTUP_HOME=data['rust']['rustupHome'],CARGO_HOME=data['rust']['cargoHome'])
-    env['PATH']=str(Path(data['node']['x86_64']).parent)+':'+str(Path(data['rust']['cargo']).parent)+':'+env['PATH']
+    # WSL inherits Windows PATH entries. Searching those for optional SDL tools
+    # is slow and can select foreign binaries instead of target-native tools.
+    env['PATH']=str(Path(data['node']['x86_64']).parent)+':'+str(Path(data['rust']['cargo']).parent)+':/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
     env['PKG_CONFIG_SYSROOT_DIR']=str(sysroot)
     env['PKG_CONFIG_LIBDIR']=':'.join(str(sysroot/path) for path in ['usr/lib/'+triplet+'/pkgconfig','usr/share/pkgconfig'])
     env['QEMU_LD_PREFIX']=str(sysroot)
@@ -127,7 +129,8 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
     run(command,directory/'configure.log',env);signature_path.write_text(signature)
     targets=['UICreator','UICreatorViewer','UICreatorCodeGen','LVGLCompiler','UICreatorEditorTests',
              'UICreatorVideoBackends','UICreatorNativeSDL3Tests','UICreatorFontConverterTests','UICreatorAssetLibraryTests',
-             'UICreatorProjectCreationTests','UICreatorLanguageModelTests','UICreatorNativeFileDialogTests']
+             'UICreatorProjectCreationTests','UICreatorLanguageModelTests','UICreatorNativeFileDialogTests',
+             'UICreatorFigmaTests','UICreatorFigmaOnlineTests','UICreatorXmlTests']
     if not configure_only:run([cmake,'--build',directory,'--parallel',jobs,'--target',*targets],directory/'build.log',env)
     metadata={'architecture':arch,'buildDirectory':str(directory),'sourceDirectory':str(source),'cmake':str(cmake),
               'sysroot':str(sysroot),'binaryDirectory':str(directory/'bin'),'targets':targets,

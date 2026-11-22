@@ -16,7 +16,9 @@ import tempfile
 
 def package(build: Path, output: Path):
     output = output.resolve(); output.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="lvgl-linux-package-", dir=output.parent) as temporary:
+    # Keep the many small install operations on the native temporary filesystem
+    # when the final archive is written to a mounted Windows release directory.
+    with tempfile.TemporaryDirectory(prefix="lvgl-linux-package-") as temporary:
         stage = Path(temporary) / "LVGL-Protobuf-Linux-SDK"; stage.mkdir()
         subprocess.run(["cmake", "--install", str(build.resolve()), "--prefix", str(stage)], check=True)
         libraries = list(stage.rglob("libLVGLProtobufDisplay.so"))
@@ -69,7 +71,7 @@ target_link_libraries(LVGLProtobufWindowExample PRIVATE LVGLProtobuf::Display)
             for kind in ("GLIBC", "GLIBCXX", "CXXABI")}
         minimums = ", ".join(values[-1] for values in requirements.values() if values)
         (stage / "README.md").write_text("# Linux Protobuf display C SDK\n\nBuilt architecture: " + architecture + ". Required symbol versions: **" + minimums + "**. These are measured across every bundled ELF, including SDL3. The ELF loader and C/C++ runtime must satisfy sdk.json's complete requirements. This binary is not a universal Raspberry Pi OS build; build the source toolkit on the target distribution when runtime versions differ.\n\nUse `cmake -S . -B build && cmake --build build`; the board example renders through an application callback. " + ("`bin/lvgl-pb-viewer project.pb --watch` opens the SDL3 viewer. SDL3 is bundled; its OS graphics/input libraries remain platform dependencies. " if viewer else "This build uses the board callback backend without SDL. ") + "\nAll calls run on one LVGL owner thread. No physical panel is configured by this SDK.\n", encoding="utf-8")
-        manifest = {"formatVersion": 1, "architecture": architecture, "symbolVersions": requirements,
+        manifest = {"formatVersion": 1, "sdkVersion": "0.9.1", "architecture": architecture, "symbolVersions": requirements,
                     "backend": "sdl3-and-callback" if viewer else "callback", "files": {}}
         for path in sorted(stage.rglob("*")):
             if path.is_file(): manifest["files"][path.relative_to(stage).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()

@@ -101,6 +101,33 @@ void CheckPiLinux(const std::filesystem::path& output) {
         {"project",project},{"format","json"},{"lvglVersion","9.5.0"},{"cache",(output/"pi-cache").u8string()}};
     CHECK(!ProjectCreation::Run(invalid).success);CHECK(!std::filesystem::exists(output/"unsupported-pi"));
 }
+void CheckPiPico(const std::filesystem::path& output) {
+    const auto catalog=ProjectCreation::BundledCatalog();
+    CHECK(std::filesystem::is_regular_file(ProjectCreation::RuntimeDirectory()/"pico-toolkit.zip"));
+    const auto project=PiProject();
+    for(const char* identity:{"raspberry-pi-pico","raspberry-pi-pico2"}) {
+        const auto found=std::find_if(catalog.begin(),catalog.end(),[&](const json& entry){return entry.value("uicreatorTemplate",std::string{})==identity;});
+        CHECK(found!=catalog.end());
+        const std::string board=std::string(identity)=="raspberry-pi-pico"?"pico":"pico2";
+        for(const char* format:{"c","protobuf"}) {
+            const auto destination=output/(board+"-"+format);
+            const json request={{"operation","create"},{"manifest",*found},{"destination",destination.u8string()},
+                {"project",project},{"format",format},{"lvglVersion","template"},{"cache",(output/"pico-cache").u8string()}};
+            const auto result=ProjectCreation::Run(request);
+            if(!result.success)throw std::runtime_error(board+" "+format+": "+result.message);
+            CHECK(ReadJson(destination/"ui/project.json")==project);
+            CHECK(!ReadBinary(destination/"ui/project.pb").empty());
+            CHECK(std::filesystem::is_regular_file(destination/"ui/ui.c")==bool(std::string(format)=="c"));
+            CHECK(ReadText(destination/"CMakeLists.txt").find("pico_add_extra_outputs")!=std::string::npos);
+            const auto metadata=ReadJson(destination/"lvgl-pb-pico-sdk.json");
+            CHECK(metadata.at("board")==board);
+            CHECK(metadata.at("files").contains("ui/project.pb"));
+            CHECK(metadata.at("files").contains("uicreator-project.json"));
+            CHECK(result.data.at("picoBuild").at("format")==format);
+            CHECK(!ProjectCreation::Run(request).success);
+        }
+    }
+}
 }
 int main(int argc,char** argv){try {
     CHECK(argc==4);auto root=std::filesystem::u8path(argv[1]),output=std::filesystem::u8path(argv[2]);std::filesystem::create_directories(output);
@@ -121,5 +148,6 @@ int main(int argc,char** argv){try {
     lvgl_runtime_destroy(runtime);lv_display_delete(display);lv_deinit();
     request["destination"]=(output/"json-project").u8string();request["format"]="json";auto data=ProjectCreation::Run(request);CHECK(data.success);CHECK(std::filesystem::is_regular_file(output/"json-project/ui/project.json"));
     CheckPiLinux(output);
+    CheckPiPico(output);
     std::cout<<"Bundled creator produced JSON, C and Protobuf projects; Raspberry Pi Linux defaults generate a minimal runnable keyboard/action project and survive cached catalogs\n";return 0;
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

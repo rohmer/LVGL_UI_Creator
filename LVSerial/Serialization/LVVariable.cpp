@@ -64,6 +64,11 @@ namespace Serialization
         if(!valid)throw std::invalid_argument("C storage type does not match the variable data type");
         return type;
     }
+    void LVVariable::ValidateValue(const VariableData& variable, const json& value)
+    {
+        if (!Valid(variable.type, value)) throw std::invalid_argument("Variable value has the wrong data type");
+        CheckCodeValue(variable.type, CodeType(variable), value);
+    }
     std::string LVVariable::CodeSymbol(const VariableData& variable)
     {
         const auto& code=Code(variable);if(!code.contains("symbol"))return {};

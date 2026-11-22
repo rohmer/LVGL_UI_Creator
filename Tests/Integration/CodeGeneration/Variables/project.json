@@ -76,6 +76,8 @@
     {"var": {"name": "timestamp", "dataType": 4, "default": 1770000001, "bindings": []}},
     {"var": {"name": "double", "dataType": 3, "default": 0.5, "bindings": []}},
     {"var": {"name": "legacy label", "dataType": 1, "default": 1, "bindings": []}},
-    {"var": {"name": "legacy-label", "dataType": 1, "default": 2, "bindings": []}}
+    {"var": {"name": "legacy-label", "dataType": 1, "default": 2, "history": 0, "bindings": []}},
+    {"var": {"name": "unlimited_caption", "dataType": 0, "default": "Unbounded default", "history": 0, "bindings": []}},
+    {"var": {"name": "single_caption", "dataType": 0, "default": "Single default", "history": 1, "bindings": []}}
   ]
 }

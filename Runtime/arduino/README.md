@@ -1,5 +1,12 @@
 # Arduino Nano ESP32 Protobuf display library
 
+Pass `--enable-xml` to `make_library.py` to include the optional LVGL UI Creator
+XML codec. The generated memory and file loaders then accept XML and Protobuf
+through the same API. A default Protobuf-only library does not copy the XML
+parser into Arduino's recursively compiled source tree; regenerate with the
+flag to enable it. The widget profile must cover the XML design's features.
+This is LVGL UI Creator's independent format, not LVGL Pro XML.
+
 Generate a self-contained Arduino library for the saved projects your board
 will display. This uses the same pinned LVGL 9.6, serializers, Protobuf runtime,
 asset handling and minimum safe module closure as the ESP32 component. It

@@ -29,6 +29,15 @@ except ModuleNotFoundError as error:
     helper_spec = importlib.util.spec_from_file_location("raspberry_pi_linux", Path(__file__).with_name("raspberry_pi_linux.py"))
     raspberry_pi_linux = importlib.util.module_from_spec(helper_spec)
     helper_spec.loader.exec_module(raspberry_pi_linux)
+try:
+    import raspberry_pi_pico
+except ModuleNotFoundError as error:
+    if error.name != "raspberry_pi_pico":
+        raise
+    import importlib.util
+    helper_spec = importlib.util.spec_from_file_location("raspberry_pi_pico", Path(__file__).with_name("raspberry_pi_pico.py"))
+    raspberry_pi_pico = importlib.util.module_from_spec(helper_spec)
+    helper_spec.loader.exec_module(raspberry_pi_pico)
 
 CATALOG_URL = "https://raw.githubusercontent.com/lvgl/lvgl_project_creator/master/manifest_all_v1.1.0.json"
 MAX_DOWNLOAD = 512 * 1024 * 1024
@@ -108,7 +117,11 @@ def validate_manifest(manifest):
     if not isinstance(manifest, dict) or not isinstance(manifest.get("name"), str) or not manifest["name"].strip():
         raise ValueError("Template needs a name")
     github_repo(manifest.get("urlToClone", ""))
-    raspberry_pi_linux.validate_manifest(manifest)
+    identity = manifest.get("uicreatorTemplate")
+    if identity in raspberry_pi_pico.TEMPLATE_BOARDS:
+        raspberry_pi_pico.validate_manifest(manifest)
+    else:
+        raspberry_pi_linux.validate_manifest(manifest)
     safe_relative(manifest.get("uiFolderPath", "ui"))
     settings = manifest.get("settings", manifest.get("Settings", []))
     if not isinstance(settings, list):
@@ -254,7 +267,7 @@ class Creator:
         catalog = json.loads(data)
         if not isinstance(catalog, list):
             raise ValueError("Catalog must be an array")
-        catalog = raspberry_pi_linux.merge_catalog(catalog)
+        catalog = raspberry_pi_pico.merge_catalog(raspberry_pi_linux.merge_catalog(catalog))
         for item in catalog:
             validate_manifest(item)
         atomic_json(self.cache / "catalog.json", catalog)
@@ -322,8 +335,12 @@ class Creator:
     def create(self, request):
         manifest = validate_manifest(request["manifest"])
         builtin_linux = manifest.get("uicreatorTemplate") == raspberry_pi_linux.TEMPLATE_ID
+        builtin_pico = manifest.get("uicreatorTemplate") in raspberry_pi_pico.TEMPLATE_BOARDS
+        builtin = builtin_linux or builtin_pico
         if builtin_linux:
             raspberry_pi_linux.validate_request(request)
+        elif builtin_pico:
+            raspberry_pi_pico.validate_request(request)
         destination = Path(request["destination"]).absolute()
         if destination.exists() and (not destination.is_dir() or any(destination.iterdir())):
             raise ValueError("Choose a new or empty destination folder")
@@ -339,11 +356,16 @@ class Creator:
         with tempfile.TemporaryDirectory(prefix=".uicreator-project-", dir=destination.parent if not workspace else workspace) as temporary:
             stage = Path(temporary) / "project"
             linux_build = None
+            pico_build = None
             source = request.get("sourceArchive")
             if builtin_linux:
                 linux_build = raspberry_pi_linux.generate(request, stage, Path(temporary), extract_archive, inside)
                 lvgl_paths = []
                 self.repositories.append({"repository": "LVGL UI Creator Linux toolkit", "ref": "9.6.0", "source": "bundled"})
+            elif builtin_pico:
+                pico_build = raspberry_pi_pico.generate(request, stage, Path(temporary), extract_archive, inside)
+                lvgl_paths = []
+                self.repositories.append({"repository": "LVGL UI Creator Pico toolkit", "ref": "9.6.0", "source": "bundled"})
             elif source:
                 stage.mkdir()
                 extract_archive(Path(source).read_bytes(), stage)
@@ -353,7 +375,7 @@ class Creator:
             explicit = request.get("lvglPath", "")
             if explicit:
                 lvgl_paths = [inside(stage, explicit)]
-            if not builtin_linux and version != "template" and (source or explicit or not lvgl_paths):
+            if not builtin and version != "template" and (source or explicit or not lvgl_paths):
                 if not lvgl_paths:
                     lvgl_paths = [p.parent for p in stage.rglob("lv_version.h") if "lvgl" in [s.lower() for s in p.relative_to(stage).parts] and p.name == "lv_version.h"]
                     lvgl_paths = list({next((parent for parent in p.parents if parent.name.lower() == "lvgl"), p) for p in lvgl_paths})
@@ -371,7 +393,7 @@ class Creator:
                     else:
                         self.repository("https://github.com/lvgl/lvgl", "v" + version.removeprefix("v"), folder)
                     verify_lvgl(folder, version)
-            applied = [] if builtin_linux else apply_settings(stage, manifest, request.get("settings", {}))
+            applied = [] if builtin else apply_settings(stage, manifest, request.get("settings", {}))
             ui_path = manifest.get("uiFolderPath", "ui")
             ui = inside(stage, ui_path)
             if ui.exists() and any(p.name != ".gitkeep" for p in ui.iterdir()):
@@ -403,6 +425,10 @@ class Creator:
                 result["linuxBuild"] = linux_build
                 atomic_json(stage / "uicreator-project.json", result)
                 raspberry_pi_linux.update_profile_manifest(stage)
+            elif builtin_pico:
+                result["picoBuild"] = pico_build
+                atomic_json(stage / "uicreator-project.json", result)
+                raspberry_pi_pico.update_profile_manifest(stage)
             empty_existed = destination.exists()
             if empty_existed:
                 destination.rmdir()

@@ -36,6 +36,8 @@ constexpr Entry entries[]={
     {"Language Models","Model playground...","model-playground"},{"Language Models","Generate language model...","language-model-generator"},
     {"Language Models","Load model into project...","language-model-load"},
     {"Export","Device Protobuf (.pb)...","export-protobuf"},{"Export","LVGL source project...","export-c"},
+    {"Export","MicroPython project...","export-micropython"},
+    {"Export","UI Creator XML (.xml)...","export-xml"},
     {"Export","Create firmware project...","project-creator"},{"Export","Build, flash and serial monitor...","device-tools"},
     {"Debug","Run screen in editor","run-toggle"},{"Debug","Run application from start","run-application"},
     {"Debug","Performance dashboard...","performance"},{"Debug","Validate screen...","validate-screen"},

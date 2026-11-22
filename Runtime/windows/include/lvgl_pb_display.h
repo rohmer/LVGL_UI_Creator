@@ -29,7 +29,8 @@ typedef struct {
  * UTF-8 strings and filenames. No caller-side LVGL installation is required. */
 LVGL_PB_API lvgl_pb_window_t* lvgl_pb_window_create(int width, int height, const char* title, char* error, size_t error_size);
 LVGL_PB_API void lvgl_pb_window_destroy(lvgl_pb_window_t* window);
-/* Failed loads preserve the previously displayed project. Input is consumed
+/* Accepts Protobuf and LVGL UI Creator XML when its codec is enabled.
+ * Failed loads preserve the previously displayed project. Input is consumed
  * during this call; retained models/resources are owned by the DLL. The caller
  * may release bytes after this returns. Input limit is 16 MiB. */
 LVGL_PB_API bool lvgl_pb_window_load_memory(lvgl_pb_window_t* window, const void* bytes, size_t size);

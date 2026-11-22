@@ -1,5 +1,11 @@
 # Windows Protobuf display SDK
 
+The DLL and viewer also accept LVGL UI Creator XML through their existing
+memory/file APIs. Full builds enable the codec by default; configure with
+`-DLVSERIAL_USE_XML=OFF` to omit it. XML uses the same renderer, variable bindings,
+assets and screen lifecycle as Protobuf, with no separate LVGL library. XML
+resources are owned after loading. This is not the LVGL Pro XML format.
+
 `LVGLProtobufDisplay.dll` loads and displays saved LVSerial Protobuf projects in
 a native SDL3 window. The DLL contains its own LVGL 9.6 renderer and Protobuf
 runtime; C and C++ callers need only `include/lvgl_pb_display.h` and the import

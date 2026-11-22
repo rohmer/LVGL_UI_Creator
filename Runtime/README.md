@@ -5,6 +5,24 @@ Use the [ESP32](esp32/README.md), [Arduino Nano ESP32](arduino/README.md),
 to package the renderer for your platform. They share the same Protobuf schema,
 Advanced Keyboard engine, external text-field bindings and imported tries.
 
+The same runtime also loads **LVGL UI Creator XML**, an independent typed
+representation of the project record. It is not the LVGL Pro XML format.
+`lvgl_runtime_load_memory`, its extended/borrowed variants and the file loader
+detect XML after an optional UTF-8 BOM and leading XML whitespace. XML decodes
+directly into the existing project pipeline, without an intermediate Protobuf
+conversion. Widgets, variables, bindings, assets, imported tries and lazy screen
+policies therefore use the same implementation in both formats. XML input bytes
+can be released after loading, including with BORROW_ASSETS: XML assets are
+owned and never borrow slices of the XML text.
+XML text and its decoded resource bytes require more memory than immutable
+Protobuf input with borrowed trie assets; keep Protobuf for the lowest-RAM path.
+
+Full desktop and standalone builds enable the codec by default; set
+`-DLVSERIAL_USE_XML=OFF` to omit it. Minimal profiles keep it disabled unless
+explicitly enabled. Enabling XML changes the accepted input format, not the
+profile's selected widgets. Generate a minimal profile from the same project's
+Protobuf or JSON record so its widget/resource closure includes the XML design.
+
 Authored [event actions and validation](INTERACTIONS.md) run on these platforms and in the editor's Run screen. The authoring preview keeps the same bindings as data until Run or Debug starts.
 
 Native backends target **LVGL 9.6.x, 9.5.x, 9.3.x, 9.2.x, 9.1.x, and 8.3.x**, with a stable C-callable API in `include/lvgl_runtime.h`. Firmware supplies LVGL, a display, input drivers, ticks, and periodic `lv_timer_handler()` calls. All runtime calls and widget access must run on the LVGL thread. Keep the display alive until its runtimes are destroyed.

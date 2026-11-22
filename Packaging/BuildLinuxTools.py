@@ -147,7 +147,7 @@ def assets(base,source):
         upstream=source/'3rdParty/lvgl_image_converter'
         shutil.copytree(upstream,image/'upstream',dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
         project=output/'project-creator';project.mkdir(exist_ok=True)
-        for name in ['project_creator.py','raspberry_pi_linux.py']:shutil.copy2(source/'UICreator/ProjectCreator'/name,project/name)
+        for name in ['project_creator.py','raspberry_pi_linux.py','raspberry_pi_pico.py']:shutil.copy2(source/'UICreator/ProjectCreator'/name,project/name)
         for folder,tool,script in [(image,'UICreatorImageTool','image-converter-bridge.py'),(project,'UICreatorProjectTool','project_creator.py')]:
             preamble='#!/bin/sh\nset -eu\nTOOL_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\n'
             if folder==image:

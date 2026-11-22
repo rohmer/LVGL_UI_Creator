@@ -128,6 +128,7 @@ def main():
         repo / "3rdParty/lvgl_image_converter/LVGLImage.py",
         repo / "UICreator/ProjectCreator/project_creator.py",
         repo / "UICreator/ProjectCreator/raspberry_pi_linux.py",
+        repo / "UICreator/ProjectCreator/raspberry_pi_pico.py",
     ]}
     fingerprint = {"node": NODE_VERSION, "python": PYTHON_VERSION, "packages": PACKAGES, "inputs": inputs}
     stamp = output / "built-inputs.json"

@@ -1,5 +1,11 @@
 # Linux and Raspberry Pi Protobuf display SDK
 
+Full builds also accept LVGL UI Creator XML through the existing memory/file
+and viewer APIs. `LVSERIAL_USE_XML` defaults to `ON`; set it to `OFF` to omit
+the codec. A minimal profile enables it with `LVGL_PB_ENABLE_XML=ON` while keeping
+the same selected widgets. XML resources are owned after loading, including
+when using the borrowed-input API. This is not the LVGL Pro XML format.
+
 This C ABI loads LVGL UI Creator `.pb` projects on Linux x86-64 and ARM64.
 The SDL3 shared library and viewer use the same `lvgl_pb_window_*` API as the
 Windows SDK. A separate board callback API renders without SDL and accepts

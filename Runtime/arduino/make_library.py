@@ -26,7 +26,7 @@ def forwarding_headers(source: Path, destination: Path):
 
 
 def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
-                 embed=True, retain_editor_assets=False, replace=False, archive=False):
+                 embed=True, retain_editor_assets=False, replace=False, archive=False, enable_xml=False):
     repo = repository_root()
     if default_font not in range(8, 49, 2):
         raise ValueError("Default font must be an available even Montserrat size from 8 to 48")
@@ -47,11 +47,13 @@ def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
             raise ValueError("Staging escaped the intended output parent")
         component = stage / "component"
         plan = make_component(inputs, component, color_depth=color_depth, default_font=default_font,
-                              embed=embed, retain_editor_assets=retain_editor_assets)
+                              embed=embed, retain_editor_assets=retain_editor_assets, enable_xml=enable_xml)
         library = stage / "library"
         src = library / "src"
         src.mkdir(parents=True)
         (component / "vendor").rename(src / "vendor")
+        if enable_xml:
+            shutil.copy2(component / "optional/xml/Xml.cpp", src / "vendor/LVSerial/Serialization/Xml.cpp")
         shutil.copytree(component / "projects", library / "projects")
         shutil.copytree(component / "licenses", library / "licenses")
         shutil.copytree(Path(__file__).parent / "examples", library / "examples")
@@ -62,6 +64,7 @@ def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
         text_file(src / "lvgl_pb_projects.c", projects)
         config = (component / "config/lv_conf.h").read_text(encoding="utf-8")
         config = config.replace("#define LV_CONF_H", "#define LV_CONF_H\n#define LVSERIAL_EMBEDDED_RUNTIME 1\n#define LVGL_RUNTIME_MAJOR 9\n#define LVGL_RUNTIME_MINOR 6")
+        config += "\n#ifndef LVSERIAL_USE_XML\n#define LVSERIAL_USE_XML " + str(int(enable_xml)) + "\n#endif\n"
         text_file(src / "lv_conf.h", config)
         text_file(src / "vendor/3rdParty/LVGL/lv_conf.h", config)
         include_roots = [src / "vendor" / name for name in (
@@ -81,7 +84,7 @@ def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
                   f"#define LVGL_PB_DEFAULT_WIDTH {width}\n#define LVGL_PB_DEFAULT_HEIGHT {height}\n" +
                   f"#define LVGL_PB_COLOR_DEPTH {color_depth}\n")
         text_file(library / "library.properties", '''name=LVGLProtobuf
-version=0.9.0
+version=0.9.1
 author=LVGL UI Creator contributors
 maintainer=LVGL UI Creator contributors
 sentence=Project-specific LVGL 9.6 Protobuf UI runtime for Arduino Nano ESP32.
@@ -117,6 +120,7 @@ def main():
     parser.add_argument("--color-depth", type=int, choices=(16, 32), default=16)
     parser.add_argument("--default-font", type=int, choices=range(8, 49, 2), default=14)
     parser.add_argument("--no-embed", action="store_true")
+    parser.add_argument("--enable-xml", action="store_true", help="Compile the optional LVGL UI Creator XML input codec")
     parser.add_argument("--retain-editor-assets", action="store_true")
     parser.add_argument("--replace", action="store_true")
     parser.add_argument("--zip", action="store_true")
@@ -124,7 +128,7 @@ def main():
     try:
         plan = make_library(args.projects, args.output, color_depth=args.color_depth, default_font=args.default_font,
                             embed=not args.no_embed, retain_editor_assets=args.retain_editor_assets,
-                            replace=args.replace, archive=args.zip)
+                            replace=args.replace, archive=args.zip, enable_xml=args.enable_xml)
         print(f"Created {args.output.resolve()}; {plan['lvglSourceFileCount']} LVGL sources, {plan['embeddedInputBytes']} Protobuf bytes")
     except (OSError, ValueError, KeyError, TypeError) as error:
         print("Arduino library generation failed: " + str(error), file=sys.stderr); return 1

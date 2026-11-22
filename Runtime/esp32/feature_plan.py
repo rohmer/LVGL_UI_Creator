@@ -586,6 +586,9 @@ def source_plan(plan: dict, root: Path) -> list[str]:
     serializer_widget = {"LVArc.cpp": "ARC", "LVBar.cpp": "BAR", "LVButton.cpp": "BUTTON", "LVButtonMatrix.cpp": "BUTTONMATRIX",
                          "LVCalendar.cpp": "CALENDAR", "LVCanvas.cpp": "CANVAS", "LVCheckBox.cpp": "CHECKBOX", "LVImage.cpp": "IMAGE", "LVLabel.cpp": "LABEL"}
     for source in (root / "LVSerial/Serialization").glob("*.cpp"):
+        # XML is an optional input codec, outside a Protobuf-only source closure.
+        # The generator bundles it separately for an explicit build-time opt-in.
+        if source.name == "Xml.cpp": continue
         if source.name in ("lodepng.cpp", "PNGToArray.cpp"): continue
         if source.name in serializer_widget and serializer_widget[source.name] not in enabled: continue
         selected.add(source.relative_to(root).as_posix())

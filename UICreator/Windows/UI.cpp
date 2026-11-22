@@ -1,5 +1,7 @@
 #include "UI.h"
 #include "../../CodeGeneration/CCodeGenerator.h"
+#include "../../CodeGeneration/MicroPythonCodeGenerator.h"
+#include "../../CodeGeneration/XmlCodeGenerator.h"
 #include "../../CodeGeneration/Targets/Target.h"
 #include "../../CodeGeneration/ProjectAssets.h"
 #include "../Fonts/FontConverterWindow.h"
@@ -19,6 +21,7 @@
 #include "../Utils/EditorControls.h"
 #include "../Utils/EditorTextInput.h"
 #include "../Utils/EditorIcons.h"
+#include "../Imports/FigmaImportWindow.h"
 #include "../Utils/EditorSpinbox.h"
 #include <iostream>
 #include <fstream>
@@ -139,6 +142,7 @@ namespace
 
 UI::~UI()
 {
+    FigmaImportWindow::Close();
     toolBar->CancelVariableConnection();
     CloseMenu();
     CommandPalette::Close();PerformanceWindow::Close();PreviewProfiles::Close();PreviewProfiles::CloseLayout();ScreenFlowWindow::Close();
@@ -351,6 +355,10 @@ void UI::OpenProjectPath(const std::string& filename)
     {
         const Serialization::Binary bytes((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
         restored = Serialization::Project::FromProtobuf(bytes);
+    }
+    else if (path.extension() == ".xml" || path.extension() == ".XML") {
+        const std::string bytes((std::istreambuf_iterator<char>(input)),{});
+        restored=Serialization::Project::FromXML(bytes);
     }
     else restored = Serialization::Project::FromJSON(json::parse(input));
     restoringHistory = true;
@@ -628,17 +636,19 @@ void UI::CloseDocument()
     propertyWindow->AddFontSelector();
 }
 
-void UI::ShowFileDialog(bool save, bool binary, bool cCode)
+void UI::ShowFileDialog(bool save, bool binary, bool cCode, bool microPython, bool xml)
 {
     if (fileDialog) lv_obj_delete(fileDialog);
     saving = save;
     exportingBinary = binary;
     exportingC = cCode;
+    exportingMicroPython = microPython;
+    exportingXML = xml;
     fileDialog = EditorWindow::Create(lv_layer_top());
     EditorWindow::SetCloseHandler(fileDialog,[this]{MenuAction("cancel-file");});
-    lv_obj_set_size(fileDialog, 560, (binary || cCode) ? 420 : 230);
+    lv_obj_set_size(fileDialog, 560, (binary || cCode || microPython || xml) ? 420 : 230);
     lv_obj_center(fileDialog);
-    EditorWindow::SetTitle(fileDialog, cCode ? "Export C project" : binary ? "Export device project" : save ? "Save project" : "Open project");
+    EditorWindow::SetTitle(fileDialog, xml ? "Export UI Creator XML" : microPython ? "Export MicroPython project" : cCode ? "Export C project" : binary ? "Export device project" : save ? "Save project" : "Open project");
     auto* content = EditorWindow::Content(fileDialog);
     lv_obj_set_style_pad_all(content, 16, LV_PART_MAIN);
     lv_obj_set_style_pad_row(content, 12, LV_PART_MAIN);
@@ -646,14 +656,15 @@ void UI::ShowFileDialog(bool save, bool binary, bool cCode)
     projectPathField = lv_textarea_create(content);
     lv_obj_set_width(projectPathField, LV_PCT(100));
     lv_textarea_set_one_line(projectPathField, true);
-    const auto initialPath = cCode ? (std::filesystem::u8path(projectPath).parent_path()/"generated_ui").u8string() : binary ? std::filesystem::u8path(projectPath).replace_extension(".pb").u8string() : save && std::filesystem::u8path(projectPath).extension() == ".pb" ? std::filesystem::u8path(projectPath).replace_extension(".json").u8string() : projectPath;
+    const auto extension = std::filesystem::u8path(projectPath).extension().u8string();
+    const auto initialPath = xml ? std::filesystem::u8path(projectPath).replace_extension(".xml").u8string() : microPython ? (std::filesystem::u8path(projectPath).parent_path()/"generated_micropython").u8string() : cCode ? (std::filesystem::u8path(projectPath).parent_path()/"generated_ui").u8string() : binary ? std::filesystem::u8path(projectPath).replace_extension(".pb").u8string() : save && (extension == ".pb" || extension == ".xml" || extension == ".XML") ? std::filesystem::u8path(projectPath).replace_extension(".json").u8string() : projectPath;
     lv_textarea_set_text(projectPathField, initialPath.c_str());
     BindEditorControl(propertyWindow->GetKBGroup(), projectPathField);
     fileStatus = lv_label_create(content);
     lv_obj_set_width(fileStatus, LV_PCT(100));
-    lv_label_set_text(fileStatus, cCode ? "Output folder for C sources, headers, and assets" : binary ? "Device Protobuf file path (.pb)" : save ? "Editor project file path (.json)" : "Project file path (.json or .pb)");
+    lv_label_set_text(fileStatus, xml ? "Self-contained UI Creator XML file (.xml)" : microPython ? "Output folder for MicroPython scripts and assets" : cCode ? "Output folder for C sources, headers, and assets" : binary ? "Device Protobuf file path (.pb)" : save ? "Editor project file path (.json)" : "Project file path (.json, .pb or .xml)");
     exportTarget = nullptr;
-    if (binary || cCode)
+    if (binary || cCode || xml)
     {
         auto* targetLabel = lv_label_create(content); lv_label_set_text(targetLabel, "Target LVGL version");
         exportTarget = lv_dropdown_create(content); lv_dropdown_set_options(exportTarget, "9.6\n9.5\n9.3\n9.2\n9.1\n8.3");
@@ -666,10 +677,18 @@ void UI::ShowFileDialog(bool save, bool binary, bool cCode)
         auto* preflight = MenuButton(content, "Check project before export", this, "export-preflight");
         lv_obj_set_size(preflight, LV_PCT(100), 36);
     }
+    else if (microPython)
+    {
+        auto* targetLabel = lv_label_create(content);
+        lv_obj_set_width(targetLabel, LV_PCT(100));
+        lv_label_set_text(targetLabel, "LVGL MicroPython binding\nLVGL 9.3.0");
+        auto* preflight = MenuButton(content, "Check project before export", this, "export-preflight");
+        lv_obj_set_size(preflight, LV_PCT(100), 36);
+    }
     auto* row = lv_cont_create(content, nullptr);
     lv_obj_set_size(row, LV_PCT(100), 36);
     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
-    lv_obj_set_size(MenuButton(row, save ? "Save" : "Open", this, "confirm-file"), 100, 36);
+    lv_obj_set_size(MenuButton(row, (microPython || xml) ? "Export" : save ? "Save" : "Open", this, "confirm-file"), 100, 36);
     lv_obj_set_size(MenuButton(row, "Cancel", this, "cancel-file"), 100, 36);
     FocusEditorControl(propertyWindow->GetKBGroup(), projectPathField);
 }
@@ -702,10 +721,12 @@ void UI::MenuAction(const std::string& action)
     }
     else if (action == "undo") Undo();
     else if (action == "redo") Redo();
+    else if (action == "import-figma") FigmaImportWindow::Open(this, propertyWindow->GetKBGroup());
     else if (action == "run-toggle" || action == "run-stop" || action=="run-application") {
         if(Running())runPreview.Stop();
         else if(action!="run-stop")try {
             FinishSelectionGesture(); LanguageModelWindow::Close(); ModelPlayground::Close();PreviewProfiles::Close();PreviewProfiles::CloseLayout();
+            FigmaImportWindow::Close();
             ProjectThemeWindow::Close(); ComponentLibraryWindow::Close(); InteractionEditor::Close(); ScreenValidation::Close();ScreenFlowWindow::Close();
             auto document=ProjectDocument();if(action!="run-application"&&Serialization::ProjectScreens::Multiple(document))document["activeScreen"]=editingScreen;
             runPreview.Start(std::move(document),std::filesystem::u8path(projectPath).parent_path().u8string(),[this]{MenuAction("run-stop");});
@@ -734,7 +755,7 @@ void UI::MenuAction(const std::string& action)
     }
     else if (action == "debug-stop") debugPreview.Stop();
     else if (action == "new") {restoringHistory=true;CloseDocument();restoringHistory=false;projectPath="project.json";hasProjectPath=false;history.Reset(CaptureHistory());MarkSaved(false);RefreshScreensDock();}
-    else if(action=="save"&&hasProjectPath&&std::filesystem::u8path(projectPath).extension()!=".pb"){
+    else if(action=="save"&&hasProjectPath&&std::filesystem::u8path(projectPath).extension()!=".pb"&&std::filesystem::u8path(projectPath).extension()!=".xml"&&std::filesystem::u8path(projectPath).extension()!=".XML"){
         try{SaveProjectTo(std::filesystem::u8path(projectPath));}catch(const std::exception& error){ProductWindows::Message("Save failed",error.what());}
     }
     else if (action == "open" || action == "save" || action=="save-as") ShowFileDialog(action != "open");
@@ -757,10 +778,17 @@ void UI::MenuAction(const std::string& action)
     }
     else if (action == "export-protobuf") ShowFileDialog(true, true);
     else if (action == "export-c") ShowFileDialog(true, false, true);
+    else if (action == "export-micropython") ShowFileDialog(true, false, false, true);
+    else if (action == "export-xml") ShowFileDialog(true, false, false, false, true);
+    else if (action == "export-preflight" && exportingMicroPython && fileDialog)
+    {
+        const auto report = ProductWindows::MicroPythonPreflight(ProjectDocument(), std::filesystem::u8path(projectPath).parent_path().u8string());
+        lv_label_set_text(fileStatus, report.c_str());
+    }
     else if (action == "export-preflight" && exportTarget)
     {
         char target[16];lv_dropdown_get_selected_str(exportTarget, target, sizeof(target));
-        const auto report = ProductWindows::Preflight(ProjectDocument(), target, std::filesystem::u8path(projectPath).parent_path().u8string());
+        const auto report = exportingXML ? ProductWindows::XmlPreflight(ProjectDocument(), target, std::filesystem::u8path(projectPath).parent_path().u8string()) : ProductWindows::Preflight(ProjectDocument(), target, std::filesystem::u8path(projectPath).parent_path().u8string());
         lv_label_set_text(fileStatus, report.c_str());
     }
     else if (action == "project-creator" || action == "project-creator-linux") ProjectCreatorWindow::Open(propertyWindow,[this]{return ProjectDocument();},std::filesystem::u8path(projectPath).parent_path().u8string(),action=="project-creator-linux"?"raspberry-pi-linux":"");
@@ -823,9 +851,28 @@ void UI::MenuAction(const std::string& action)
             if (saving)
             {
                 auto document = ProjectDocument();
-                if(exportingC||exportingBinary){
+                if(exportingC||exportingBinary||exportingMicroPython||exportingXML){
                     auto errors=ScreenValidation::BlockingErrors(document);if(!errors.empty())throw std::runtime_error(errors);
                     document=Serialization::ProjectScreens::Device(std::move(document));
+                }
+                if (exportingXML)
+                {
+                    XmlCodeGenerator generator;
+                    if(exportTarget){char target[16];lv_dropdown_get_selected_str(exportTarget,target,sizeof(target));generator.SetTargetVersion(target);}
+                    generator.SetSourceDirectory(std::filesystem::u8path(projectPath).parent_path().u8string());
+                    if(!generator.LoadProject(document)||!generator.ExportProject(path.u8string()))throw std::runtime_error(generator.GetLastError());
+                    EditorWindow::ReleaseFocus(fileDialog);lv_obj_delete(fileDialog);fileDialog=nullptr;projectPathField=nullptr;exportTarget=nullptr;
+                    ProductWindows::XmlExportSuccess(path.u8string());return;
+                }
+                if (exportingMicroPython)
+                {
+                    MicroPythonCodeGenerator generator;
+                    generator.SetSourceDirectory(std::filesystem::u8path(projectPath).parent_path().u8string());
+                    if (!generator.LoadProject(document) || !generator.ExportProject(path.u8string()))
+                        throw std::runtime_error(generator.GetLastError());
+                    EditorWindow::ReleaseFocus(fileDialog);lv_obj_delete(fileDialog);fileDialog=nullptr;projectPathField=nullptr;exportTarget=nullptr;
+                    ProductWindows::MicroPythonExportSuccess(path.u8string());
+                    return;
                 }
                 if (exportingC)
                 {
@@ -882,6 +929,10 @@ void UI::MenuAction(const std::string& action)
                 {
                     const Serialization::Binary bytes((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
                     restored = Serialization::Project::FromProtobuf(bytes);
+                }
+                else if(path.extension()==".xml"||path.extension()==".XML") {
+                    const std::string bytes((std::istreambuf_iterator<char>(input)),{});
+                    restored=Serialization::Project::FromXML(bytes);
                 }
                 else restored = Serialization::Project::FromJSON(json::parse(input));
                 restoringHistory = true;

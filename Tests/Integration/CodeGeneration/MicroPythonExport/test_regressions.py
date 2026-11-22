@@ -1,0 +1,363 @@
+"""Independent MicroPython export contracts exercised through the real CLIs.
+
+Each --case owns a separate directory, so CTest can run the cases in parallel.
+The existing test_export.py remains the producer for the native runtime fixture.
+"""
+import argparse
+import base64
+import copy
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import types
+from unittest.mock import patch
+
+
+def tree(directory):
+    return {path.relative_to(directory).as_posix(): path.read_bytes()
+            for path in sorted(directory.rglob('*')) if path.is_file()}
+
+
+def project():
+    return {
+        'screens': [
+            {'name': 'Main', 'canvas': {'width': 320, 'height': 240}, 'obj': [
+                {'oid': 10, 'par': -1, 'base': {}, 'slider': {'min': 0, 'max': 100, 'value': 17}},
+                {'oid': 20, 'par': -1, 'base': {}, 'text': 'Caption "quoted"\\slash\nEspañol é'},
+            ]},
+            {'name': 'Second screen', 'canvas': {'width': 320, 'height': 240}, 'obj': [
+                {'oid': 10, 'par': -1, 'base': {}, 'bar': {'min': 0, 'max': 100, 'value': 17}},
+            ]},
+        ],
+        'activeScreen': 1,
+        'deviceTargets': [{'name': 'private build', 'options': {'project': 'private/host/path'}}],
+        'variables': [{'var': {'name': 'lambda', 'dataType': 1, 'default': 17, 'history': 3,
+            'value': [11, 13], 'code': {'cType': 'int16_t', 'symbol': 'private_adc'},
+            'bindings': [
+                {'screen': 0, 'oid': 10, 'property': '/slider/value', 'direction': 'two-way'},
+                {'screen': 0, 'oid': 20, 'property': '/text', 'direction': 'to-widget'},
+                {'screen': 1, 'oid': 10, 'property': '/bar/value', 'direction': 'to-widget'},
+            ]}}],
+    }
+
+
+class Suite:
+    def __init__(self, args, case):
+        self.args = args
+        self.case = case
+        self.work = args.output / case
+        self.work.mkdir(parents=True, exist_ok=True)
+        self.commands = 0
+
+    def run(self, *arguments, success=True, exit_code=None):
+        result = subprocess.run([str(value) for value in arguments], capture_output=True,
+                                text=True, encoding='utf-8', errors='replace', timeout=30)
+        self.commands += 1
+        detail = repr(tuple(str(value) for value in arguments)) + '\n' + result.stdout + result.stderr
+        if success:
+            assert result.returncode == 0, detail
+        else:
+            assert result.returncode != 0, 'Invalid export succeeded: ' + detail
+            assert result.stderr.strip(), 'Rejected input has no diagnostic: ' + detail
+        if exit_code is not None:
+            assert result.returncode == exit_code, detail
+        return result
+
+    def write(self, document, name='project.json'):
+        path = self.work / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(document, ensure_ascii=False), encoding='utf-8')
+        return path
+
+    def export(self, document, name='generated', compiler=False):
+        source = self.write(document, name + '.json')
+        destination = self.work / name
+        tool = self.args.compiler if compiler else self.args.codegen
+        self.run(tool, '--format', 'micropython', source, destination)
+        return destination
+
+    def manifest(self, directory):
+        files = tree(directory)
+        manifest = json.loads(files['export-manifest.json'])
+        listed = {entry['file']: entry['bytes'] for entry in manifest['files']}
+        assert len(listed) == len(manifest['files']), 'Duplicate generated manifest entries'
+        assert set(listed) == set(files) - {'export-manifest.json'}, 'Generated manifest is incomplete'
+        for filename, expected_bytes in listed.items():
+            assert len(files[filename]) == expected_bytes, filename
+        assets = {entry['file']: entry['bytes'] for entry in manifest['assets']}
+        assert set(assets) == {name for name in files if name.startswith('assets/')}
+        assert all(len(files[name]) == size for name, size in assets.items())
+        source = self.args.source_root / 'CodeGeneration/MicroPython/uicreator_lvgl.py'
+        assert (directory / 'uicreator_lvgl.py').read_text(encoding='utf-8') == source.read_text(encoding='utf-8'), \
+            'The executable embedded a stale MicroPython runtime'
+        for name in ('ui.py', 'uicreator_lvgl.py', 'main.py'):
+            compile(files[name].decode('utf-8'), name, 'exec')
+        return manifest
+
+    def roundtrip(self):
+        authored = project()
+        original = self.write(authored)
+        original_bytes = original.read_bytes()
+        first = self.work / 'first'
+        second = self.work / 'second'
+        self.run(self.args.codegen, '--format', 'micropython', original, first)
+        self.run(self.args.codegen, '--format=micropython', original, second)
+        assert tree(first) == tree(second), 'Repeated export changed generated bytes'
+        self.manifest(first)
+        frontend = self.work / 'compiler'
+        self.run(self.args.compiler, original, '--format', 'micropython', '--target', '9.3', '-o', frontend)
+        assert tree(first) == tree(frontend), 'The two public CLI frontends disagree'
+        self.run(self.args.codegen, '--micropython', original, first)
+        assert tree(first) == tree(second), 'Exporting over a generated folder is not deterministic'
+        protobuf = self.work / 'project.pb'
+        self.run(self.args.compiler, original, '--format', 'protobuf', '-o', protobuf)
+        from_pb = self.work / 'from-protobuf'
+        compiler_pb = self.work / 'compiler-protobuf'
+        self.run(self.args.codegen, protobuf, '--format', 'micropython', from_pb)
+        self.run(self.args.compiler, protobuf, '--format', 'micropython', '-o', compiler_pb)
+        assert tree(from_pb) == tree(compiler_pb), 'Protobuf exports differ between frontends'
+        self.manifest(from_pb)
+        for directory in (first, from_pb):
+            exported = json.loads((directory / 'ui.json').read_text(encoding='utf-8'))
+            assert exported['activeScreen'] == 1
+            assert [screen['name'] for screen in exported['screens']] == ['Main', 'Second screen']
+            assert exported['screens'][0]['obj'][1]['text'] == authored['screens'][0]['obj'][1]['text']
+            variable = exported['variables'][0]['var']
+            assert variable['name'] == 'lambda' and variable['default'] == 17
+            assert variable['value'] == [11, 13] and variable['history'] == 3
+            assert variable['bindings'] == authored['variables'][0]['var']['bindings']
+            assert variable['code'] == {'cType': 'int16_t'}
+            assert 'private_adc' not in json.dumps(exported) and 'deviceTargets' not in exported
+        assert original.read_bytes() == original_bytes, 'Export overwrote its source project'
+
+    def assets(self):
+        label = {'canvas': {'width': 320, 'height': 240, 'base': {
+            'nativeStyles': [{'selector': 0, 'values': {'bg_color': 0x274a68}}]}}, 'obj': [
+            {'oid': 1, 'par': -1, 'base': {}, 'text': 'No image resources'},
+        ]}
+        minimal = self.export(label, 'label-only')
+        minimal_manifest = self.manifest(minimal)
+        assert not minimal_manifest['assets'], 'Screen dimensions allocated an unused full-screen pixel asset'
+        screen_canvas = json.loads((minimal / 'ui.json').read_text(encoding='utf-8'))['screens'][0]['canvas']
+        assert 'data' not in screen_canvas and 'mpyAsset' not in screen_canvas
+        assert (screen_canvas['width'], screen_canvas['height']) == (320, 240)
+        assert screen_canvas['base']['nativeStyles'][0]['values']['bg_color'] == 0x274a68
+        assert 'LV_USE_IMAGE' not in minimal_manifest['requiredConfiguration']
+        # Exactly the same bytes form two valid shapes. Pixel deduplication must
+        # preserve each descriptor's geometry and actual byte payload.
+        pixels = bytes((0x11, 0x22, 0x33, 0xff, 0x44, 0x55, 0x66, 0xff))
+        def raw_image(width, height, stride):
+            return {'asset': {'deviceFrames': [{'w': width, 'h': height, 'stride': stride,
+                'cf': 16, 'flags': 0, 'data': base64.b64encode(pixels).decode()}]}}
+        authored = {'canvas': {'width': 320, 'height': 240}, 'obj': [
+            {'oid': 1, 'par': -1, 'base': {}, 'img': raw_image(1, 2, 4)},
+            {'oid': 2, 'par': -1, 'base': {}, 'img': raw_image(2, 1, 8)},
+            {'oid': 3, 'par': -1, 'base': {}, 'img': raw_image(1, 2, 4)},
+        ]}
+        destination = self.export(authored, 'shared-pixels')
+        manifest = self.manifest(destination)
+        images = [record['img'] for record in json.loads((destination / 'ui.json').read_text(encoding='utf-8'))['screens'][0]['obj']]
+        assert len(manifest['assets']) == 1, 'Identical pixel data was copied more than once'
+        assert len({image['mpyAsset'] for image in images}) == 1
+        assert [(image['width'], image['height'], image['stride']) for image in images] == [(1, 2, 4), (2, 1, 8), (1, 2, 4)]
+        assert (destination / 'assets' / images[0]['mpyAsset']).read_bytes() == pixels
+
+        # A successful update removes obsolete exporter-owned pixels while
+        # preserving application files, including filenames that resemble a
+        # generated asset but never belonged to the previous manifest.
+        for tool in (self.args.codegen, self.args.compiler):
+            with tempfile.TemporaryDirectory(prefix='regenerate-', dir=self.work) as temporary:
+                temporary = Path(temporary)
+                generated = temporary / 'generated'
+                source = self.write(authored, 'regenerate-source.json')
+                self.run(tool, '--format', 'micropython', source, generated)
+                old_manifest = json.loads((generated / 'export-manifest.json').read_text(encoding='utf-8'))
+                managed = [generated / entry['file'] for entry in old_manifest['assets']]
+                assert managed and all(path.is_file() for path in managed)
+                application = generated / 'application.py'
+                unlisted = generated / 'assets/image_999999.bin'
+                outside = temporary / 'outside.bin'
+                application.write_bytes(b'# application code must survive regeneration\n')
+                unlisted.write_bytes(b'application-owned pixel data')
+                outside.write_bytes(b'not owned by this export')
+                old_manifest['assets'].append({'file': '../outside.bin', 'bytes': outside.stat().st_size})
+                old_manifest['files'].append({'file': '../outside.bin', 'bytes': outside.stat().st_size})
+                (generated / 'export-manifest.json').write_text(json.dumps(old_manifest), encoding='utf-8')
+                source = self.write(label, 'regenerate-target.json')
+                self.run(tool, '--format', 'micropython', source, generated)
+                assert all(not path.exists() for path in managed), 'Obsolete managed asset was retained'
+                assert application.read_bytes() == b'# application code must survive regeneration\n'
+                assert unlisted.read_bytes() == b'application-owned pixel data'
+                assert outside.read_bytes() == b'not owned by this export'
+                new_manifest = json.loads((generated / 'export-manifest.json').read_text(encoding='utf-8'))
+                assert not new_manifest['assets']
+
+        codes = {'canvas': {'width': 320, 'height': 240}, 'obj': [
+            {'oid': 1, 'par': -1, 'base': {}, 'qrcode': {'data': 'Español é', 'size': 64, 'quietZone': True}},
+            {'oid': 2, 'par': -1, 'base': {'coords': {'width': 360, 'height': 41}},
+             'barcode': {'data': '12345678', 'scale': 2, 'direction': 3}},
+            {'oid': 3, 'par': -1, 'base': {'coords': {'width': 360, 'height': 41}},
+             'barcode': {'data': '12345678', 'scale': 2, 'direction': 3, 'tiled': True}},
+        ]}
+        destination = self.export(codes, 'indexed-codes')
+        manifest = self.manifest(destination)
+        records = json.loads((destination / 'ui.json').read_text(encoding='utf-8'))['screens'][0]['obj']
+        assert len(manifest['staticCodeWidgets']) == 3
+        for record in records:
+            image = record['img']
+            assert image['colorFormat'] == 7  # Indexed one-bit pixels.
+            payload = (destination / 'assets' / image['mpyAsset']).read_bytes()
+            assert len(payload) == image['stride'] * image['height'] + 8, 'Allocator padding leaked into a pixel asset'
+            assert {payload[:4], payload[4:8]} == {b'\0\0\0\xff', b'\xff\xff\xff\xff'}
+            assert len(set(payload[8:])) > 1, 'Code asset lost its encoded bit pattern'
+        assert records[1]['img']['height'] == 41
+        assert records[2]['img']['height'] == 1 and records[2]['img']['innerAlign'] == 12
+        config = (destination / 'lv_conf.defaults.h').read_text(encoding='utf-8')
+        for native_codec in ('LV_USE_BARCODE', 'LV_USE_QRCODE', 'LV_USE_LODEPNG', 'LV_USE_GIF'):
+            assert native_codec not in config, native_codec
+
+    def paths(self):
+        folder = self.work / 'screen files é 画'
+        artwork = folder / 'art assets' / 'sample image.png'
+        artwork.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(self.args.source_root / 'Tests/Fixtures/Images/sample.png', artwork)
+        source = folder / 'screen é.json'
+        document = {'canvas': {'width': 320, 'height': 240}, 'obj': [
+            {'oid': 1, 'par': -1, 'base': {}, 'img': {'fileName': 'art assets/sample image.png'}},
+        ]}
+        source.write_text(json.dumps(document, ensure_ascii=False), encoding='utf-8')
+        destination = folder / 'generated screen é'
+        self.run(self.args.compiler, '--format', 'micropython', source, destination)
+        self.manifest(destination)
+        exported = json.loads((destination / 'ui.json').read_text(encoding='utf-8'))
+        assert exported['screens'][0]['obj'][0]['img']['mpyAsset']
+        assert 'art assets' not in json.dumps(exported) and 'sample image.png' not in json.dumps(exported)
+
+        # Check the shipped Python entry points from another working folder,
+        # without replacing the portable runtime with a permissive LVGL fake.
+        class RecordingUI:
+            def __init__(self, project_path, asset_root):
+                self.project_path, self.asset_root, self.loads = project_path, asset_root, 0
+            def load(self):
+                self.loads += 1
+                return self
+        runtime = types.ModuleType('uicreator_lvgl')
+        runtime.UI = RecordingUI
+        binding = types.ModuleType('lvgl')
+        binding.display_get_default = lambda: None
+        ui = types.ModuleType('ui')
+        ui.__file__ = str(destination / 'ui.py')
+        current = Path.cwd()
+        elsewhere = self.work / 'unrelated working directory'
+        elsewhere.mkdir(exist_ok=True)
+        try:
+            os.chdir(elsewhere)
+            with patch.dict(sys.modules, {'uicreator_lvgl': runtime, 'lvgl': binding, 'ui': ui}):
+                exec(compile((destination / 'ui.py').read_text(encoding='utf-8'), str(destination / 'ui.py'), 'exec'), ui.__dict__)
+                app = ui.create()
+                assert Path(app.project_path) == destination / 'ui.json'
+                assert Path(app.asset_root) == destination / 'assets' and app.loads == 1
+                override = ui.create('other.json', 'other-assets')
+                assert (override.project_path, override.asset_root, override.loads) == ('other.json', 'other-assets', 1)
+                main = {'__file__': str(destination / 'main.py')}
+                exec(compile((destination / 'main.py').read_text(encoding='utf-8'), str(destination / 'main.py'), 'exec'), main)
+                try:
+                    main['start']()
+                    raise AssertionError('main.start accepted a missing display')
+                except RuntimeError as error:
+                    assert 'display' in str(error).lower()
+                binding.display_get_default = lambda: object()
+                assert main['start']().loads == 1
+        finally:
+            os.chdir(current)
+
+    def rejections(self):
+        authored = project()
+        destination = self.export(authored, 'preserved-output')
+        (destination / 'application.py').write_bytes(b'# application-owned sentinel\n')
+        expected = tree(destination)
+        with tempfile.TemporaryDirectory(prefix='rejected-', dir=self.work) as temporary:
+            temporary = Path(temporary)
+            cases = []
+            def add(name, mutation, diagnostic=None):
+                document = copy.deepcopy(authored)
+                mutation(document)
+                cases.append((name, json.dumps(document).encode(), '.json', diagnostic))
+            add('missing-parent', lambda d: d['screens'][0]['obj'][0].update(par=900), 'parent')
+            add('duplicate-id', lambda d: d['screens'][0]['obj'].append(copy.deepcopy(d['screens'][0]['obj'][0])), 'duplicate')
+            add('bad-binding', lambda d: d['variables'][0]['var']['bindings'][0].update(property='/slider/no_such_property'), 'property')
+            add('missing-binding-target', lambda d: d['variables'][0]['var']['bindings'][0].update(oid=900), 'missing')
+            add('wrong-default-type', lambda d: d['variables'][0]['var'].update(default='not an integer'), 'type')
+            add('missing-image', lambda d: d['screens'][0]['obj'].append(
+                {'oid': 30, 'par': -1, 'base': {}, 'img': {'fileName': 'missing-image.png'}}), 'image')
+            add('malformed-image', lambda d: d['screens'][0]['obj'].append(
+                {'oid': 30, 'par': -1, 'base': {}, 'img': {'asset': {'name': 'broken.png', 'sourceData': 'bm90IGEgcG5n'}}}), 'image')
+            add('text-box', lambda d: d['screens'][0]['obj'].append(
+                {'oid': 30, 'par': -1, 'base': {}, 'textBox': {}}), 'Text box')
+            add('layer-view', lambda d: d['screens'][0]['obj'].append(
+                {'oid': 30, 'par': -1, 'base': {}, 'layerView': {}}), 'Layer view')
+            custom_font = {'lineHeight': 9, 'baseLine': 1, 'dsc': {'bitmap': 'AA==', 'bpp': 1,
+                'bitmapFmt': 0, 'GlyphDsc': [{'bitmapIdx': 0, 'adv_w': 0, 'box_w': 0, 'box_h': 0}], 'cmaps': []}}
+            add('custom-font', lambda d: d['screens'][0]['obj'][1]['base'].update(
+                nativeStyles=[{'selector': 0, 'values': {'text_font': custom_font}}]), 'Custom bitmap font')
+            add('newer-style', lambda d: d['screens'][0]['obj'][1]['base'].update(
+                nativeStyles=[{'selector': 0, 'values': {'blur_radius': 3}}]), 'style')
+            add('complex-gradient', lambda d: d['screens'][0]['obj'][1]['base'].update(
+                nativeStyles=[{'selector': 0, 'values': {'bg_grad': {'direction': 3, 'stops': [
+                    {'color': 0, 'fraction': 0, 'opacity': 255}, {'color': 0xffffff, 'fraction': 255, 'opacity': 255}]}}}]), 'gradient')
+            cases += [('broken-json', b'{not valid json', '.json', None),
+                      ('truncated-protobuf', b'\x80', '.pb', None)]
+            for name, content, extension, diagnostic in cases:
+                source = temporary / (name + extension)
+                source.write_bytes(content)
+                for tool in (self.args.codegen, self.args.compiler):
+                    fresh = temporary / (name + '-' + tool.stem)
+                    result = self.run(tool, '--format', 'micropython', source, fresh, success=False)
+                    assert not fresh.exists(), 'Rejected export created files: ' + name
+                    if diagnostic:
+                        assert diagnostic.lower() in result.stderr.lower(), name + ': ' + result.stderr
+                    self.run(tool, '--format', 'micropython', source, destination, success=False)
+                    assert tree(destination) == expected, 'Rejected export changed existing files: ' + name
+            source = self.write(authored)
+            self.run(self.args.compiler, source, '--format', 'micropython', '--target', '9.6', '-o', destination,
+                     success=False, exit_code=1)
+            assert tree(destination) == expected
+            self.run(self.args.compiler, source, '--format', 'not-a-format', '-o', destination,
+                     success=False, exit_code=2)
+            assert tree(destination) == expected
+        # Unsupported enabled effects must fail, but their disabled/default
+        # values should remain portable rather than reject an otherwise valid UI.
+        neutral = copy.deepcopy(authored)
+        neutral['screens'][0]['obj'][1]['base'].update(
+            flags={'event_trickle': False},
+            nativeStyles=[{'selector': 0, 'values': {'blur_radius': 0, 'bg_color': 0x123456}}])
+        for use_compiler in (False, True):
+            accepted = self.export(neutral, 'default-effects-' + str(use_compiler), compiler=use_compiler)
+            base = json.loads((accepted / 'ui.json').read_text(encoding='utf-8'))['screens'][0]['obj'][1]['base']
+            assert 'event_trickle' not in base.get('flags', {})
+            assert base['nativeStyles'][0]['values'] == {'bg_color': 0x123456}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--compiler', required=True, type=Path)
+    parser.add_argument('--codegen', required=True, type=Path)
+    parser.add_argument('--source-root', required=True, type=Path)
+    parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--case', choices=('roundtrip', 'assets', 'paths', 'rejections', 'all'), default='all')
+    args = parser.parse_args()
+    for name in ('compiler', 'codegen', 'source_root', 'output'):
+        setattr(args, name, getattr(args, name).resolve())
+    cases = ('roundtrip', 'assets', 'paths', 'rejections') if args.case == 'all' else (args.case,)
+    for case in cases:
+        suite = Suite(args, case)
+        getattr(suite, case)()
+        print('MicroPython %s passed (%d real CLI invocations)' % (case, suite.commands))
+
+
+if __name__ == '__main__':
+    main()

@@ -573,3 +573,67 @@ TEST_CASE("Backends reject properties without a native equivalent", "[runtime][c
     if(backend=="9.1" || backend=="9.2" || backend=="8.3") {auto d=Empty();object=json{{"base",json::object()},{"slider",{{"orientation",1}}},{"oid",0}};d["obj"]=json::array({object});Reject(d);}
     if(backend=="8.3") {auto d=Empty();object=json{{"base",json::object()},{"arc",{{"knobOffset",1}}},{"oid",0}};d["obj"]=json::array({object});Reject(d);}
 }
+
+TEST_CASE("Runtime bounded histories wrap chronologically and retain initial values only once", "[runtime][variables][history]")
+{
+    auto document = Empty();
+    auto bounded = Var("bounded", 1, -1, 3);
+    bounded["var"]["value"] = {1,2,3,4,5,6,7,8};
+    auto single = Var("single", 0, "default", 1);
+    single["var"]["value"] = {"first", "last"};
+    document["variables"] = {bounded, single, Var("unlimited", 1, 0, 0), Var("empty", 1, 5, 1)};
+    auto runtime = Load(document);
+    lvgl_runtime_value_t value{};
+    REQUIRE(lvgl_runtime_history_count(runtime.get(), "bounded") == 3);
+    for (size_t i = 0; i < 3; ++i) {
+        REQUIRE(lvgl_runtime_history_get(runtime.get(), "bounded", i, &value));
+        CHECK(value.integer_value == int64_t(i + 6));
+    }
+    CHECK(lvgl_runtime_history_count(runtime.get(), "empty") == 0);
+    CHECK_FALSE(lvgl_runtime_history_get(runtime.get(), "empty", 0, &value));
+    REQUIRE(lvgl_runtime_history_get(runtime.get(), "single", 0, &value));
+    CHECK(std::string(value.string_value) == "last");
+    CHECK_FALSE(lvgl_runtime_history_get(runtime.get(), "single", 1, &value));
+    for (int64_t number = 9; number < 39; ++number) {
+        value = {}; value.type = LVGL_RUNTIME_INTEGER; value.integer_value = number;
+        REQUIRE(lvgl_runtime_set_variable(runtime.get(), "bounded", &value));
+        REQUIRE(lvgl_runtime_set_variable(runtime.get(), "unlimited", &value));
+        for (size_t i = 0; i < 3; ++i) {
+            REQUIRE(lvgl_runtime_history_get(runtime.get(), "bounded", i, &value));
+            CHECK(value.integer_value == number - 2 + int64_t(i));
+        }
+    }
+    CHECK(lvgl_runtime_history_count(runtime.get(), "unlimited") == 30);
+    for (size_t i = 0; i < 30; ++i) {
+        REQUIRE(lvgl_runtime_history_get(runtime.get(), "unlimited", i, &value));
+        CHECK(value.integer_value == int64_t(i + 9));
+    }
+    for (int iteration = 0; iteration < 5; ++iteration) {
+        std::string text(300, char('a' + iteration)); text += " \xc3\xa9";
+        value = {}; value.type = LVGL_RUNTIME_STRING; value.string_value = text.c_str();
+        REQUIRE(lvgl_runtime_set_variable(runtime.get(), "single", &value));
+        CHECK(lvgl_runtime_history_count(runtime.get(), "single") == 1);
+        REQUIRE(lvgl_runtime_history_get(runtime.get(), "single", 0, &value));
+        CHECK(std::string(value.string_value) == text);
+        REQUIRE(lvgl_runtime_get_variable(runtime.get(), "single", &value));
+        CHECK(std::string(value.string_value) == text);
+    }
+    value = {}; value.type = LVGL_RUNTIME_INTEGER; value.integer_value = 123;
+    CHECK_FALSE(lvgl_runtime_set_variable(runtime.get(), "single", &value));
+    REQUIRE(lvgl_runtime_history_get(runtime.get(), "single", 0, &value));
+    CHECK(std::string(value.string_value) == std::string(300, 'e') + " \xc3\xa9");
+}
+
+TEST_CASE("Runtime hierarchy validation handles shared deep paths and long cycles", "[runtime][validation]")
+{
+    auto document = Empty();
+    for (int i = 0; i < 64; ++i)
+        document["obj"].push_back({{"base", json::object()}, {"oid", i}, {"par", i - 1}});
+    for (int i = 64; i < 80; ++i)
+        document["obj"].push_back({{"base", json::object()}, {"oid", i}, {"par", 63}});
+    { auto runtime = Load(document); CHECK(lvgl_runtime_object(runtime.get(), 0, 79)); }
+    document["obj"][0]["par"] = 63;
+    Reject(document);
+    document["obj"][0]["par"] = 99999;
+    Reject(document);
+}

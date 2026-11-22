@@ -27,16 +27,16 @@ bool lvgl_pb_arduino_load_file(fs::FS& filesystem,const char* path,const lvgl_ru
     if (output) *output=nullptr;
     if (!path || !output) {Error(error,capacity,"Filesystem path and output pointer are required");return false;}
     auto file=filesystem.open(path,FILE_READ);
-    if (!file || file.isDirectory()) {Error(error,capacity,"Cannot open Protobuf file");return false;}
+    if (!file || file.isDirectory()) {Error(error,capacity,"Cannot open project file");return false;}
     const auto bytes=file.size();
     const size_t limit=options && options->max_input_bytes?options->max_input_bytes:16u*1024u*1024u;
-    if (!bytes || bytes>limit) {Error(error,capacity,"Protobuf file is empty or exceeds the input limit");return false;}
+    if (!bytes || bytes>limit) {Error(error,capacity,"project file is empty or exceeds the input limit");return false;}
     auto* buffer=static_cast<uint8_t*>(std::malloc(bytes));
-    if (!buffer) {Error(error,capacity,"Cannot allocate Protobuf input buffer");return false;}
+    if (!buffer) {Error(error,capacity,"Cannot allocate project input buffer");return false;}
     const bool complete=file.read(buffer,bytes)==bytes;
     file.close();
     bool loaded=false;
     if (complete) loaded=lvgl_runtime_load_memory(buffer,bytes,options,output,error,capacity);
-    else Error(error,capacity,"Could not read the complete Protobuf file");
+    else Error(error,capacity,"Could not read the complete project file");
     std::free(buffer);return loaded;
 }

@@ -33,6 +33,8 @@ extern "C"
     } lvgl_runtime_value_t;
     /* Call on the LVGL thread after lv_init and display creation. NULL options use
      * the default display, a 16 MiB input limit, and load the initial screen.
+     * Input accepts Protobuf or LVGL UI Creator XML (when LVSERIAL_USE_XML is
+     * enabled). XML is detected after an optional UTF-8 BOM and whitespace.
      * Input bytes may be released after load returns. Error is optional. */
     bool lvgl_runtime_load_memory(const void *bytes, size_t size, const lvgl_runtime_options_t *options,
                                   lvgl_runtime_t **output, char *error, size_t error_size);
@@ -45,15 +47,20 @@ extern "C"
      * Lazy runtimes retain compact screen definitions/shared assets and create
      * widgets on demand. UNLOAD_INACTIVE snapshots widget state after navigation
      * and releases inactive widgets once any transition has completed. The
-     * default input group used for loading must outlive a lazy runtime. */
+     * default input group used for loading must outlive a lazy runtime.
+     * XML follows the same flags and lifecycle. BORROW_ASSETS is accepted for
+     * XML, but decoded XML assets are always owned by the runtime. */
     bool lvgl_runtime_load_memory_ex(const void *bytes, size_t size, const lvgl_runtime_options_t *options,
         uint32_t flags, lvgl_runtime_t **output, char *error, size_t error_size);
     /* Opt-in flash/memory-mapped input: trie/index BINARY payloads remain in the
      * caller's immutable buffer until runtime destruction. Other input data is
-     * decoded normally. Use load_memory for temporary or mutable buffers. */
+     * decoded normally. XML assets are always decoded into owned storage, so
+     * XML input bytes may be freed after this function returns. Use load_memory
+     * for temporary or mutable Protobuf buffers. */
     bool lvgl_runtime_load_memory_borrowed_assets(const void *bytes, size_t size,
         const lvgl_runtime_options_t *options, lvgl_runtime_t **output, char *error, size_t error_size);
-    /* Uses LVGL's filesystem (e.g. "S:/project.pb"), not host stdio. */
+    /* Uses LVGL's filesystem (e.g. "S:/project.pb" or "S:/project.xml"), not
+     * host stdio. Both formats use the same memory-loader validation. */
     bool lvgl_runtime_load_file(const char *path, const lvgl_runtime_options_t *options,
                                 lvgl_runtime_t **output, char *error, size_t error_size);
     void lvgl_runtime_destroy(lvgl_runtime_t *runtime);

@@ -19,7 +19,7 @@ run_step(generate "${COMPILER}" "${SOURCE_ROOT}/Tests/Integration/CodeGeneration
     --target "${TARGET_VERSION}" --format c --output "${BINARY_DIR}/generated")
 file(READ "${BINARY_DIR}/generated/manifest.json" manifest)
 string(JSON variable_count LENGTH "${manifest}" variables)
-if(NOT variable_count EQUAL 14)
+if(NOT variable_count EQUAL 16)
     message(FATAL_ERROR "Generated variable manifest lost definitions")
 endif()
 string(JSON first_legacy GET "${manifest}" variables 12 field)

@@ -48,15 +48,19 @@ void Select(Window* w){
     w->options.clear();lv_obj_clean(w->settings);auto* selected=Selected(w);if(!selected){lv_label_set_text(w->details,"No matching templates");lv_obj_set_disabled(w->create,true);return;}
     const auto& m=*selected;std::string text=Text(m.value("description",json{}));
     const bool linux=m.value("uicreatorTemplate",std::string{})=="raspberry-pi-linux";
+    const auto templateId=m.value("uicreatorTemplate",std::string{});
+    const bool pico=templateId=="raspberry-pi-pico"||templateId=="raspberry-pi-pico2";
+    const bool native=linux||pico;
     const auto oldVersion=lv_dropdown_get_selected(w->version);
-    const unsigned versionCount=linux?2:7;
+    const unsigned versionCount=native?2:7;
     if(lv_dropdown_get_option_count(w->version)!=versionCount){
-        lv_dropdown_set_options(w->version,linux?"From template (9.6.0)\n9.6.0 (bundled)":"From template\n9.6.0 (bundled)\n9.5.0\n9.3.0\n9.2.2\n9.1.0\n8.3.11");
+        lv_dropdown_set_options(w->version,native?"From template (9.6.0)\n9.6.0 (bundled)":"From template\n9.6.0 (bundled)\n9.5.0\n9.3.0\n9.2.2\n9.1.0\n8.3.11");
         lv_dropdown_set_selected(w->version,(std::min)(unsigned(oldVersion),versionCount-1));
     }
-    lv_obj_set_disabled(w->branch,linux);lv_obj_set_disabled(w->lvglPath,linux);
-    if(linux)lv_textarea_set_text(w->lvglPath,"");
-    lv_label_set_text(w->note,linux?
+    lv_obj_set_disabled(w->branch,native);lv_obj_set_disabled(w->lvglPath,native);
+    if(native)lv_textarea_set_text(w->lvglPath,"");
+    lv_label_set_text(w->note,pico?
+        "Creates Pico SDK firmware and UF2 output. C export links generated_ui directly; Protobuf and JSON export use the minimum display library. Configure the example's pixel/touch callbacks for your panel.":linux?
         "Creates an offline Linux CMake build with the current screen, Advanced Keyboard and only the required LVGL widgets. A runnable Protobuf is included in every output format; C export also includes generated source.":
         "Use the template version to preserve its tested SDK setup. Choose a supported LVGL version to export C or Protobuf. Settings below come from the template manifest.");
     text+="\n\nMaintainer: "+Text(m.value("maintainer",json{}))+"\nHost OS: "+Text(m.value("hostOperatingsystem",json{}))+"\nEnvironment: "+Text(m.value("environment",json{}));

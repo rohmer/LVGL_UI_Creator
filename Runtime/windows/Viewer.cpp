@@ -11,7 +11,7 @@
 namespace {
 int Run(const std::vector<std::string>& args) {
     if(args.size()<2 || args[1]=="--help") {
-        std::cout<<"LVGL Protobuf Display\nUsage: UICreatorViewer project.pb [--watch] [--frames N] [--screen N] [--screenshot output.bmp]\n";return args.size()<2?2:0;
+        std::cout<<"LVGL project display\nUsage: UICreatorViewer project.pb|project.xml [--watch] [--frames N] [--screen N] [--screenshot output.bmp]\n";return args.size()<2?2:0;
     }
     bool watch=false,screenOverride=false;int frames=-1;size_t screen=0;std::string screenshot,stopFile;
     for(size_t i=2;i<args.size();++i) {

@@ -208,6 +208,13 @@ class FeaturePlanTests(unittest.TestCase):
             source.write_bytes(profile.encode_project(project({"text": {"text": "ESP32"}})))
             output = directory / "component"
             plan = make_component([source], output)
+            self.assertFalse(plan["xmlEnabled"])
+            self.assertEqual(plan["inputFormats"], ["protobuf"])
+            self.assertFalse(any(name.endswith("/Xml.cpp") for name in plan["sourceFiles"]))
+            self.assertTrue((output / "optional/xml/Xml.cpp").is_file())
+            self.assertFalse((output / "vendor/LVSerial/Serialization/Xml.cpp").exists())
+            self.assertIn('XML input codec" OFF)', (output / "CMakeLists.txt").read_text())
+            self.assertIn("config LVGL_PB_XML", (output / "Kconfig").read_text())
             self.assertLess(plan["lvglSourceFileCount"], plan["fullLvglSourceFileCount"])
             self.assertTrue((output / "vendor/3rdParty/LVGL/lvgl/src/widgets/label/lv_label.c").is_file())
             self.assertFalse((output / "vendor/3rdParty/LVGL/lvgl/src/widgets/chart/lv_chart.c").exists())
@@ -238,6 +245,23 @@ class FeaturePlanTests(unittest.TestCase):
             self.assertTrue((output / "licenses/LVSerial/Widgets/AdvancedKeyboard/KeyboardFont.LICENSE.txt").is_file())
             self.assertFalse((output / "vendor/3rdParty/LVGL/lvgl/src/widgets/keyboard/lv_keyboard.c").exists())
             self.assertEqual(len([name for name in plan["sourceFiles"] if name.startswith("LVSerial/Widgets/AdvancedKeyboard/")]), 7)
+
+    def test_xml_codec_is_explicit_and_does_not_expand_widgets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "label.json"
+            source.write_text(json.dumps(project({"text": "XML input"})))
+            output = root / "xml-component"
+            plan = make_component([source], output, enable_xml=True)
+            self.assertTrue(plan["xmlEnabled"])
+            self.assertEqual(plan["inputFormats"], ["protobuf", "uicreator-xml"])
+            self.assertEqual(plan["enabledFeatures"], ["LABEL"])
+            self.assertTrue((output / "optional/xml/Xml.cpp").is_file())
+            cmake = (output / "CMakeLists.txt").read_text()
+            self.assertIn('XML input codec" ON)', cmake)
+            self.assertIn("if(LVGL_PB_ENABLE_XML OR CONFIG_LVGL_PB_XML)", cmake)
+            self.assertIn("LVSERIAL_USE_XML=$<BOOL:${pb_xml_enabled}>", cmake)
+            self.assertNotIn("#define LVSERIAL_USE_XML", (output / "config/lv_conf.h").read_text())
 
 
 if __name__ == "__main__": unittest.main()

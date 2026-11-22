@@ -19,6 +19,7 @@
 #include "MenuToolbarIcons.h"
 #include "ThemeGallery.h"
 #include "Variables.h"
+#include "../Figma/FigmaEditor.h"
 #include "../../../UICreator/Utils/SdlSimulator.h"
 #include "../../../UICreator/Utils/EditorWindow.h"
 #include "../../../UICreator/Utils/EditorEdit.h"
@@ -30,6 +31,7 @@
 #include <Serialization/ExtendedWidgets.h>
 #include <Serialization/CustomWidgets.h>
 #include <Serialization/ProjectScreens.h>
+#include <Serialization/Xml.h>
 #include "../../../UICreator/Windows/PropertyWindows/ImageProperties.h"
 #include <map>
 #include <set>
@@ -124,6 +126,80 @@ int main(int argc, char* argv[])
         SdlSimulator simulator;
         Require(simulator.Initialize(1440, 960), "SDL initialization failed");
         UI editor(simulator.GetKeyboard());
+        if (argc == 3 && std::string(argv[1]) == "--figma-import") {
+            CheckFigmaEditor(editor, simulator, std::filesystem::u8path(argv[2])); return 0;
+        }
+#if LVSERIAL_USE_XML
+        if(argc==3 && std::string(argv[1])=="--xml-export") {
+            const auto path=std::filesystem::absolute(std::filesystem::u8path(argv[2]));
+            Click("Label");Click("Bar");Click("Advanced Keyboard");
+            const auto original=editor.ProjectDocument();const bool dirty=editor.Dirty();
+            editor.MenuAction("menu:Export");Require(FindText(lv_layer_top(),"UI Creator XML (.xml)..."),"XML export menu entry is missing");
+            editor.MenuAction("export-xml");auto* title=FindText(lv_layer_top(),"Export UI Creator XML");Require(title,"XML export dialog is missing");
+            auto* field=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);
+            Require(lv_obj_has_class(field,&lv_textarea_class),"XML export path is not editable");
+            lv_textarea_set_text(field,path.u8string().c_str());editor.MenuAction("export-preflight");
+            bool ready=false;std::function<void(lv_obj_t*)> status=[&](lv_obj_t* object){
+                if(lv_obj_has_class(object,&lv_label_class)&&std::string(lv_label_get_text(object)).find("Ready for UI Creator XML / LVGL 9.6")==0)ready=true;
+                for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)status(lv_obj_get_child(object,i));
+            };status(lv_layer_top());Require(ready,"XML preflight rejected supported native widgets");
+            editor.MenuAction("confirm-file");Require(std::filesystem::is_regular_file(path),"XML export did not create its file");
+            Require(!FindText(lv_layer_top(),"Export UI Creator XML"),"XML export failed to close its dialog");
+            std::ifstream input(path,std::ios::binary);const std::string bytes((std::istreambuf_iterator<char>(input)),{});
+            const auto record=Serialization::Xml::Decode(bytes);
+            Require(record.kind==Serialization::EntityKind::Project&&record.type=="project","XML export used the wrong entity envelope");
+            Require(editor.ProjectDocument()==original&&editor.Dirty()==dirty,"XML export changed the editor document or saved state");
+            editor.MenuAction("open");title=FindText(lv_layer_top(),"Open project");Require(title,"Open dialog is missing");
+            field=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);lv_textarea_set_text(field,path.u8string().c_str());editor.MenuAction("confirm-file");
+            Require(!FindText(lv_layer_top(),"Open project")&&editor.ProjectDocument()["obj"].size()==original["obj"].size(),"XML import lost widgets");
+            Require(!editor.Dirty(),"Opening an XML project marked it unsaved");
+            editor.MenuAction("save");title=FindText(lv_layer_top(),"Save project");Require(title,"Saving an XML device project must offer an editor JSON path");
+            field=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);
+            Require(std::filesystem::u8path(lv_textarea_get_text(field)).extension()==".json","Save would write JSON into the XML source file");
+            editor.MenuAction("cancel-file");
+            Require(std::ifstream(path,std::ios::binary).good(),"Opening or saving removed the XML source");
+            std::cout<<"Owned XML editor menu, preflight, Advanced Keyboard export, import and safe editor Save path passed\n";return 0;
+        }
+#endif
+        if(argc==3 && std::string(argv[1])=="--micropython-export") {
+            const auto output=std::filesystem::absolute(std::filesystem::u8path(argv[2]));
+            Click("Label");Click("Bar");
+            const auto document=editor.ProjectDocument();const bool dirty=editor.Dirty();
+            editor.MenuAction("menu:Export");
+            Require(FindText(lv_layer_top(),"MicroPython project..."),"Export menu is missing MicroPython");
+            editor.MenuAction("export-micropython");
+            auto* title=FindText(lv_layer_top(),"Export MicroPython project");
+            Require(title,"MicroPython export dialog did not open");
+            auto* field=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);
+            Require(lv_obj_has_class(field,&lv_textarea_class),"MicroPython output path is not editable");
+            Require(std::string(lv_textarea_get_text(field)).find("generated_micropython")!=std::string::npos,"MicroPython output folder default is missing");
+            lv_textarea_set_text(field,output.u8string().c_str());
+            editor.MenuAction("export-preflight");
+            auto hasStatus=[](const std::string& prefix) {
+                bool found=false;
+                std::function<void(lv_obj_t*)> walk=[&](lv_obj_t* object){
+                    if(lv_obj_has_class(object,&lv_label_class)&&std::string(lv_label_get_text(object)).rfind(prefix,0)==0)found=true;
+                    for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)walk(lv_obj_get_child(object,i));
+                };walk(lv_layer_top());return found;
+            };
+            Require(hasStatus("Ready for MicroPython / LVGL 9.3.0"),"MicroPython preflight did not validate the project");
+            editor.MenuAction("confirm-file");
+            Require(!FindText(lv_layer_top(),"Export MicroPython project"),"MicroPython export failed to close its dialog");
+            for(const char* name:{"ui.py","ui.json","uicreator_lvgl.py","main.py","README.md","export-manifest.json"})
+                Require(std::filesystem::is_regular_file(output/name),"MicroPython export is missing a required file");
+            json manifest;std::ifstream(output/"export-manifest.json")>>manifest;
+            Require(manifest.at("format")=="micropython"&&manifest.at("lvglVersion")=="9.3.0","MicroPython manifest uses the wrong binding target");
+            Require(editor.ProjectDocument()==document&&editor.Dirty()==dirty,"Export changed the authored project or its saved state");
+            editor.MenuAction("cancel-file");Click("Advanced Keyboard");
+            editor.MenuAction("export-micropython");title=FindText(lv_layer_top(),"Export MicroPython project");
+            field=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);
+            const auto unsupported=output/"unsupported-keyboard";lv_textarea_set_text(field,unsupported.u8string().c_str());
+            editor.MenuAction("export-preflight");Require(hasStatus("Export blocked:"),"Unavailable native extensions were silently exported");
+            editor.MenuAction("confirm-file");Require(!std::filesystem::exists(unsupported),"Rejected MicroPython export created output files");
+            Require(FindText(lv_layer_top(),"Export MicroPython project"),"Failed export did not keep its editable dialog open");
+            editor.MenuAction("cancel-file");
+            std::cout<<"MicroPython menu, preflight, output files, unchanged document and unsupported native-extension rejection passed\n";return 0;
+        }
         if(argc==2 && std::string(argv[1])=="--file-browser") {
             const auto folder=std::filesystem::temp_directory_path()/("uicreator-file-browser-"+std::to_string(SDL_GetTicksNS()));
             std::filesystem::create_directories(folder/"Browser folder");
@@ -342,7 +418,7 @@ int main(int argc, char* argv[])
             for(const auto& item:panels)Require(!lv_obj_is_hidden(item.first),"Restore-all left a panel hidden");
             auto* tray=windowFor(lv_screen_active(),"Tool Tray");auto* minimize=FindText(EditorWindow::Header(tray),LV_SYMBOL_DOWN);Require(minimize,"Minimize control is missing");lv_obj_send_event(lv_obj_get_parent(minimize),LV_EVENT_CLICKED,nullptr);Require(lv_obj_is_hidden(tray),"Minimize did not hide the tray");editor.MenuAction("view:widgets");
             unsigned visibleTitles=0;std::function<void(lv_obj_t*)> countTitles=[&](lv_obj_t* object){if(lv_obj_get_class(object)==&lv_label_class && std::string(lv_label_get_text(object))=="Tool Tray" && lv_obj_is_visible(object))++visibleTitles;for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)countTitles(lv_obj_get_child(object,i));};lv_obj_update_layout(lv_screen_active());countTitles(lv_screen_active());Require(visibleTitles==1,"View restoration left a minimized icon behind");
-            for(const auto& item:{std::make_pair("open","Open project"),std::make_pair("save","Save project"),std::make_pair("export-c","Export C project"),std::make_pair("export-protobuf","Export device project"),std::make_pair("about","About LVGL UI Creator"),std::make_pair("font-manager","Project fonts"),std::make_pair("image-manager","Project images"),std::make_pair("font-converter","Font converter"),std::make_pair("image-converter","Image converter"),std::make_pair("project-creator","Create LVGL firmware project")}) {
+            for(const auto& item:{std::make_pair("open","Open project"),std::make_pair("save","Save project"),std::make_pair("export-c","Export C project"),std::make_pair("export-protobuf","Export device project"),std::make_pair("export-micropython","Export MicroPython project"),std::make_pair("export-xml","Export UI Creator XML"),std::make_pair("about","About LVGL UI Creator"),std::make_pair("font-manager","Project fonts"),std::make_pair("image-manager","Project images"),std::make_pair("font-converter","Font converter"),std::make_pair("image-converter","Image converter"),std::make_pair("project-creator","Create LVGL firmware project")}) {
                 for(int i=0;i<2;++i){editor.MenuAction(item.first);auto* window=windowFor(lv_layer_top(),item.second);close(window);Require(!FindText(lv_layer_top(),item.second),"Dialog X did not close its window");}
             }
             Require(editor.ProjectDocument()==original,"Closing dialogs changed project data");
@@ -632,9 +708,16 @@ int main(int argc, char* argv[])
                 select(environment,"CMake");Require(std::string(lv_dropdown_get_options(list)).find(piName)!=std::string::npos,"Linux project disappeared from CMake filter");
                 select(list,piName);
             }
-            select(host,"All hosts");select(environment,"All environments");select(list,"NuttX Waveshare RP2040-LCD-1.28");
+            select(host,"All hosts");select(environment,"Pico SDK");
+            for(const char* name:{"Raspberry Pi Pico 1","Raspberry Pi Pico 2"}) {
+                Require(std::string(lv_dropdown_get_options(list)).find(name)!=std::string::npos,"Pico SDK template is missing from the Raspberry Pi filter");
+                select(list,name);Require(lv_dropdown_get_option_count(version)==2,"Pico template offered incompatible LVGL versions");
+                Require(lv_obj_has_state(field("Template branch"),LV_STATE_DISABLED),"Pico template exposed an arbitrary remote branch");
+                Require(lv_obj_has_state(field("LVGL folder (auto)"),LV_STATE_DISABLED),"Pico template exposed an incompatible LVGL override");
+            }
+            select(environment,"All environments");select(list,"NuttX Waveshare RP2040-LCD-1.28");
             Require(lv_dropdown_get_option_count(version)>=7,"Selecting an official template did not restore its LVGL version choices");
-            select(vendor,"All vendors");Require(lv_dropdown_get_option_count(list)>=68,"Clearing vendor filter did not restore the new full catalog");
+            select(vendor,"All vendors");Require(lv_dropdown_get_option_count(list)>=70,"Clearing vendor filter did not restore the new full catalog");
             std::cout<<"Project creator catalog, Raspberry Pi Linux/CMake and host filtering, compatible versions, official template restoration and launch controls are available\n";return 0;
         }
         if(argc==2 && std::string(argv[1])=="--undo-redo") {

@@ -61,6 +61,15 @@ int main()
             ProjectTries::Attach(keyboard, id, false, 0.4); Predict(keyboard);
             lv_obj_delete(keyboard);
         }
+        {
+            auto temporary = bytes;
+            auto decoded = Protobuf::DecodeBorrowedAssets(temporary.data(), temporary.size());
+            auto catalog = ProjectTries::LoadOwned(decoded.data, decoded.borrowedAssets);
+            std::fill(temporary.begin(), temporary.end(), 0); temporary.clear(); temporary.shrink_to_fit();
+            auto* keyboard = lv_advanced_keyboard_create(previous); Check(keyboard, "Cannot create owned trie keyboard");
+            { ProjectTries::Scope scope(catalog); ProjectTries::Attach(keyboard, id); }
+            catalog.reset(); Predict(keyboard); lv_obj_delete(keyboard);
+        }
         for (int cycle = 0; cycle < 3; ++cycle) {
             auto temporary = bytes; lvgl_runtime_t* runtime = nullptr; char error[512]{};
             Check(lvgl_runtime_load_memory(temporary.data(), temporary.size(), nullptr, &runtime, error, sizeof error), error);

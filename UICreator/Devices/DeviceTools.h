@@ -19,6 +19,8 @@ struct Options {
     bool linuxHostWsl=false;
     std::filesystem::path runProgram;
     std::vector<std::string> runArguments;
+    std::filesystem::path picoSdk;
+    std::string picoBoard;
 };
 struct Command {
     std::filesystem::path executable, directory;

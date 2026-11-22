@@ -40,7 +40,7 @@ def copy_platform(repo: Path, destination: Path, *, bundle_sdl=True, profile=Fal
 def finish_archive(output: Path, marker: str):
     files = {path.relative_to(output).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
              for path in sorted(output.rglob("*")) if path.is_file() and path.name != marker}
-    text_file(output / marker, json.dumps({"formatVersion": 1, "lvglVersion": "9.6.0", "files": files}, indent=2) + "\n")
+    text_file(output / marker, json.dumps({"formatVersion": 1, "toolkitVersion": "0.9.1", "lvglVersion": "9.6.0", "files": files}, indent=2) + "\n")
     archive = Path(shutil.make_archive(str(output), "zip", output.parent, output.name))
     with zipfile.ZipFile(archive) as zipped:
         if zipped.testzip(): raise ValueError("SDK archive integrity check failed")

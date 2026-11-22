@@ -24,6 +24,9 @@
     <ClInclude Include="Serialization\Area.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Serialization\Xml.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Serialization\Base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,6 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Serialization\Base64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\Xml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\LVArc.cpp">

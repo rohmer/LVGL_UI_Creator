@@ -72,7 +72,7 @@ retained so a future UI can select a different feature closure.
 
 See [Arduino integration and memory details](Runtime/arduino/README.md).
 ''')
-        manifest = {"formatVersion": 1, "toolkitVersion": "0.9.0", "lvglVersion": "9.6.0",
+        manifest = {"formatVersion": 1, "toolkitVersion": "0.9.1", "lvglVersion": "9.6.0",
                     "platform": "Arduino Nano ESP32", "examples": examples,
                     "files": {path.relative_to(toolkit).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                               for path in sorted(toolkit.rglob("*")) if path.is_file() and path.name not in ("lvgl-pb-toolkit.json", "lvgl-pb-arduino-toolkit.json")}}

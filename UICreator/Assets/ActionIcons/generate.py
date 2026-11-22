@@ -13,13 +13,13 @@ spec=importlib.util.spec_from_file_location('uicreator_object_icon_geometry',ROO
 geometry=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(geometry)
 
-REQUIRED=set('''new open save save-as exit undo redo duplicate delete copy paste move-up move-down
+REQUIRED=set('''new open import-figma save save-as exit undo redo duplicate delete copy paste move-up move-down
 events-editor layout-designer property-search align-left align-hcenter align-right align-top align-vcenter
 align-bottom distribute-horizontal distribute-vertical commands device-previews screen-flow problems
 fit-canvas zoom-reset zoom-in zoom-out view:all preferences view:screens view:widgets view:hierarchy
 view:properties view:tools view:simulator theme-gallery component-library font-manager image-manager
 font-converter image-converter model-playground language-model-generator language-model-load
-export-protobuf export-c project-creator device-tools run-toggle run-application run-stop performance
+export-protobuf export-c export-micropython export-xml project-creator device-tools run-toggle run-application run-stop performance
 validate-screen debug-screen debug-stop welcome shortcuts diagnostics about screen-add screen-home
 select-screen grid-decrease grid-increase variable-add variable-delete minimize restore close settings add remove'''.split())
 REQUIRED.update('menu:'+name for name in ('File','Edit','View','Assets','Language Models','Export','Debug','Help'))

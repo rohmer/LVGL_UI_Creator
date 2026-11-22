@@ -49,6 +49,7 @@ if(MSVC)
     target_compile_options(${runtime_library} PRIVATE /utf-8 /Zi)
 endif()
 if(BUILD_TESTING AND TARGET UICreatorCodeGenFixture)
+    include("${PROJECT_SOURCE_DIR}/Tests/Integration/Xml/Register.cmake")
     add_executable(LVGLProjectUnitTests ../Tests/UnitTests/Runtime/Main.cpp ../Tests/UnitTests/Runtime/API.cpp ../Tests/UnitTests/Runtime/Targets.cpp ../Tests/UnitTests/Runtime/Interactions.cpp ../Tests/UnitTests/Runtime/LazyScreens.cpp ../Tests/UnitTests/Runtime/PerformanceMetrics.cpp ../Tests/UnitTests/Runtime/GeneratedScreenMetadata.cpp)
     if(MSVC)
         target_compile_options(LVGLProjectUnitTests PRIVATE /Zi)
@@ -87,6 +88,12 @@ if(BUILD_TESTING AND TARGET UICreatorCodeGenFixture)
         "-DPYTHON=${Python3_EXECUTABLE}" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
         -P "${PROJECT_SOURCE_DIR}/Tests/Integration/Runtime/Minimal/Verify.cmake")
     set_tests_properties(LVGLRuntimeMinimal PROPERTIES TIMEOUT 180 LABELS "functional;firmware;protobuf;minimal")
+    add_test(NAME LVGLRuntimeXmlMinimal COMMAND "${CMAKE_COMMAND}"
+        "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/minimal-xml"
+        "-DPYTHON=${Python3_EXECUTABLE}" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
+        -P "${PROJECT_SOURCE_DIR}/Tests/Integration/Runtime/Minimal/XmlProfile/Verify.cmake")
+    set_tests_properties(LVGLRuntimeXmlMinimal PROPERTIES TIMEOUT 300 RUN_SERIAL TRUE
+        LABELS "functional;firmware;xml;protobuf;minimal")
     add_test(NAME LVGLRuntimeCodesMinimal COMMAND "${CMAKE_COMMAND}"
         "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/minimal-codes"
         "-DPROJECT_FILE=${PROJECT_BINARY_DIR}/UICreator/code-widgets/fixture.pb"
@@ -106,8 +113,12 @@ if(BUILD_TESTING AND TARGET UICreatorCodeGenFixture)
     set_tests_properties(LVGLRuntimeKeyboardWithoutPrediction PROPERTIES TIMEOUT 180 LABELS "functional;firmware;protobuf;minimal;advanced-keyboard;prediction")
     add_test(NAME UICreatorArduinoProfile COMMAND "${Python3_EXECUTABLE}" -m unittest discover
         -s "${PROJECT_SOURCE_DIR}/Runtime/arduino/tests" -v)
-    set_tests_properties(UICreatorArduinoProfile PROPERTIES TIMEOUT 180 LABELS "functional;firmware;arduino")
+    set_tests_properties(UICreatorArduinoProfile PROPERTIES TIMEOUT 300 LABELS "functional;firmware;arduino;xml")
     add_test(NAME UICreatorESP32Profile COMMAND "${Python3_EXECUTABLE}" -m unittest discover
         -s "${PROJECT_SOURCE_DIR}/Runtime/esp32/tests" -p "test_*.py")
-    set_tests_properties(UICreatorESP32Profile PROPERTIES TIMEOUT 60 LABELS "unit;esp32;protobuf")
+    set_tests_properties(UICreatorESP32Profile PROPERTIES TIMEOUT 120 LABELS "unit;esp32;protobuf;xml")
+    add_test(NAME UICreatorPicoProfile COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${PROJECT_SOURCE_DIR}/Runtime/pico/tests" -v)
+    set_tests_properties(UICreatorPicoProfile PROPERTIES TIMEOUT 300
+        LABELS "unit;pico;protobuf;minimal" RUN_SERIAL TRUE)
 endif()

@@ -15,7 +15,7 @@ endif()
 if(UNIX)
     target_link_libraries(lvgl INTERFACE m)
 endif()
-add_executable(generated_variables main.c CppPublic.cpp "${GENERATED_DIR}/ui.c" "${GENERATED_DIR}/ui_assets.c")
+add_executable(generated_variables main.c CppPublic.cpp GeneratedWrapper.c "${GENERATED_DIR}/ui_assets.c")
 target_link_libraries(generated_variables PRIVATE lvgl)
 target_include_directories(generated_variables PRIVATE "${GENERATED_DIR}")
 set_target_properties(generated_variables PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO

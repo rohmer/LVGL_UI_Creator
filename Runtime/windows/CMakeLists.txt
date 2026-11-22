@@ -23,6 +23,13 @@ add_custom_target(LVGLProtobufWindowsSDK
         --output "${PROJECT_BINARY_DIR}/packages/LVGLProtobufDisplay-windows" --replace
     DEPENDS LVGLProtobufDisplay UICreatorViewer VERBATIM)
 if(BUILD_TESTING)
+    if(LVSERIAL_USE_XML AND TARGET UICreatorXmlTests)
+        add_test(NAME UICreatorXmlViewer COMMAND "${Python3_EXECUTABLE}"
+            "${PROJECT_SOURCE_DIR}/Tests/Integration/Xml/test_viewer.py" --viewer "$<TARGET_FILE:UICreatorViewer>"
+            --fixture "${PROJECT_BINARY_DIR}/Runtime/xml-tests/fixture" --output "${PROJECT_BINARY_DIR}/xml-viewer")
+        set_tests_properties(UICreatorXmlViewer PROPERTIES FIXTURES_REQUIRED uicreator_xml_inputs
+            LABELS "xml;functional;windows;viewer" TIMEOUT 90)
+    endif()
     add_executable(LVGLProtobufDisplayTests "${PROJECT_SOURCE_DIR}/Tests/Integration/WindowsDisplay/Display.c")
     target_link_libraries(LVGLProtobufDisplayTests PRIVATE LVGLProtobufDisplay)
     set_target_properties(LVGLProtobufDisplayTests PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON)

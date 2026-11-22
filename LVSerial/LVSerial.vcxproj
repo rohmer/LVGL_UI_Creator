@@ -133,6 +133,7 @@
     <ClInclude Include="Serialization\ExtendedWidgets.h" />
     <ClInclude Include="Serialization\CustomWidgets.h" />
     <ClInclude Include="Serialization\Protobuf.h" />
+    <ClInclude Include="Serialization\Xml.h" />
     <ClInclude Include="Serialization\LVVariable.h" />
     <ClInclude Include="Serialization\Variable.h" />
     <ClInclude Include="Serialization\Screen.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="Serialization\LVObject.cpp" />
     <ClCompile Include="Serialization\ObjectSerializer.cpp" />
     <ClCompile Include="Serialization\Protobuf.cpp" />
+    <ClCompile Include="Serialization\Xml.cpp" />
     <ClCompile Include="Serialization\LVVariable.cpp" />
     <ClCompile Include="Serialization\Screen.cpp" />
     <ClCompile Include="Serialization\Project.cpp" />
