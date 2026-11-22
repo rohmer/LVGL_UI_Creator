@@ -8,6 +8,7 @@
 
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
 #include "../Widgets/AdvancedKeyboard/include/lv_advanced_keyboard_prediction.h"
+#include "../Widgets/AdvancedKeyboard/PredictionStorage.h"
 #endif
 
 namespace Serialization {
@@ -22,7 +23,29 @@ struct Bytes {
     const uint8_t* Data() const { return borrowed ? borrowed : owned.data(); }
     size_t Size() const { return borrowed ? borrowedSize : owned.size(); }
 };
-struct Asset { Bytes trie, index; };
+struct Asset {
+    Bytes trie, index;
+#if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
+    std::shared_ptr<const espos::keyboard::prediction::ModelStorage> storage;
+#endif
+};
+void PreferPsram(Asset& asset)
+{
+#if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
+    asset.storage = espos::keyboard::prediction::CopyModelToPsram(
+        asset.trie.Data(), asset.trie.Size(), asset.index.Data(), asset.index.Size());
+    if (asset.storage) {
+        asset.trie.borrowed = static_cast<const uint8_t*>(asset.storage->Trie());
+        asset.trie.borrowedSize = asset.storage->TrieSize();
+        asset.index.borrowed = static_cast<const uint8_t*>(asset.storage->Index());
+        asset.index.borrowedSize = asset.storage->IndexSize();
+        Binary{}.swap(asset.trie.owned);
+        Binary{}.swap(asset.index.owned);
+    }
+#else
+    (void)asset;
+#endif
+}
 uint32_t Read32(const uint8_t* bytes)
 {
     return uint32_t(bytes[0]) | (uint32_t(bytes[1]) << 8) | (uint32_t(bytes[2]) << 16) | (uint32_t(bytes[3]) << 24);
@@ -222,7 +245,9 @@ ProjectTries::CatalogPtr ProjectTries::Load(json& document, const BorrowedAssets
         if (item.contains("indexData")) asset->index = Take(item.at("indexData"), path + "/indexData", borrowed);
         Validate(*asset);
         auto& matches = byContent[Identity(asset->trie)];
-        for (const auto& existing : matches) if (Equal(existing->trie, asset->trie) && Equal(existing->index, asset->index)) { asset = existing; break; }
+        bool shared = false;
+        for (const auto& existing : matches) if (Equal(existing->trie, asset->trie) && Equal(existing->index, asset->index)) { asset = existing; shared = true; break; }
+        if (!shared) PreferPsram(*asset);
         matches.push_back(asset); catalog->assets.emplace(item.at("id").get<std::string>(), std::move(asset));
     }
     return catalog;

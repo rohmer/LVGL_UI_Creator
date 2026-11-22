@@ -55,10 +55,13 @@ their text into an independent text area. Bind application string variables to
 the target field's `/textarea/text` or `/textBox/text` property.
 
 The bundled LVGL 9.6 backend is required. C exports include the C++17 engine,
-shared constant trie/index arrays and a C API. ESP32/Arduino embedded loaders
-borrow immutable trie bytes directly from flash; Windows and ordinary memory
-loads retain owned assets after the input buffer is released. Each keyboard
-owns its inference workspace. Inference performs no heap allocations.
+shared constant trie/index arrays and a C API. On ESP32, including Arduino,
+models automatically prefer enabled, initialized PSRAM for the compact trie
+and index. Keyboards using the same model share one copy. If PSRAM is absent
+or cannot fit the model, embedded loaders borrow immutable flash bytes and
+file loads retain owned model bytes. Windows and ordinary memory loads retain
+owned assets after the input buffer is released. Each keyboard owns its
+inference workspace. Inference performs no heap allocations.
 
 Native applications can attach fields using `lv_advanced_keyboard_bind_textarea`
 and select models using `lv_advanced_keyboard_set_predictor`. The predictor API

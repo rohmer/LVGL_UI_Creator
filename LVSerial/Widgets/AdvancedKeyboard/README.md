@@ -47,7 +47,11 @@ caret. Custom project tries select another vocabulary or domain model.
 `include/lv_advanced_keyboard_prediction.h` exposes the portable engine.
 `lv_advanced_keyboard_predictor_create_builtin()` uses shared immutable
 English NGTR/NGIX arrays. `predictor_create_borrowed` accepts NGTR v3 and NGIX v1
-arrays directly from flash, without alignment restrictions or model copies.
+arrays directly from flash, without alignment restrictions. ESP32 and Arduino
+ESP32 automatically copy model/index bytes into enabled, initialized PSRAM when
+there is enough space. Keyboards with identical models share that allocation;
+the last owner releases it. Without available PSRAM they keep borrowing the
+original flash or RAM arrays. Other targets continue borrowing without copies.
 `predictor_create` borrows raw NGTR bytes and builds an owned index once.
 Keep borrowed bytes alive until the predictor is destroyed. Each predictor
 has its own scratch workspace; inference allocates no heap memory. Instances
@@ -55,8 +59,9 @@ are independent and one is required per concurrent caller.
 
 The default trie contains 5,691 nodes in 16,384 model bytes plus 15,627 index
 bytes. Workspace size is exposed through `predictor_workspace_bytes()`
-(11,688 bytes in the Windows x64 test build). Index construction uses a
-transient four-byte mass entry per node plus its output buffer. Exporters can
+(the returned size includes the predictor's private ownership metadata). Index construction uses a
+transient four-byte mass entry per node plus its output buffer, preferring
+PSRAM on ESP32 and falling back to the normal heap. Exporters can
 build that index ahead of time with `layout/build_ngtr_index.py`, leaving both
 arrays in firmware flash.
 

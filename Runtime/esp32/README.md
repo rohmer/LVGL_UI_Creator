@@ -34,11 +34,15 @@ Projects without Advanced Keyboard omit all its native implementation and font.
 
 The generator validates imported NGTR v3 structure and indices, generates missing
 NGIX data on the build machine, removes unused catalog entries and stores model
-bytes as binary Protobuf payloads. `lvgl_pb_esp32_load_embedded` borrows those
-immutable payloads directly inside flash; it does not expand the trie or copy
-its model/index into RAM. Files loaded through VFS use owned shared model bytes
-so their temporary input buffer can be freed. Each keyboard has a private,
-reused inference workspace; query its exact compiled size with
+bytes as binary Protobuf payloads. On ESP32, loading a model automatically
+prefers initialized PSRAM for its compact trie and index. One copy is shared
+by keyboards using the same model. Enable PSRAM in your board configuration
+and make it available to the capability allocator before loading a project.
+If PSRAM is unavailable or cannot fit the model, embedded loads retain their
+immutable flash ranges; files loaded through VFS retain owned model bytes so
+their temporary input buffer can be freed. The trie stays compact in either
+case. Each keyboard has a private, reused inference workspace; query its exact
+compiled size with
 `lv_advanced_keyboard_predictor_workspace_bytes()`. Inference does not allocate.
 The public prediction callback remains available for application-specific engines.
 No ESPOS board driver, default flash partition or hardware input port is imported.

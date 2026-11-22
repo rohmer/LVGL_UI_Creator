@@ -34,7 +34,7 @@ class ArduinoLibraryTests(unittest.TestCase):
             self.assertIn("dashboard", (output / "src/lvgl_pb_projects.c").read_text())
             # Forwarders work after extraction: all their quoted includes must
             # resolve inside this library rather than the original checkout.
-            for name in ("lvgl.h", "lvgl/lvgl.h", "Serialization/Project.h", "RuntimeCompat.h", "pb.h"):
+            for name in ("lvgl.h", "lvgl/lvgl.h", "Serialization/Project.h", "RuntimeCompat.h", "pb.h", "PredictionStorage.h"):
                 header = output / "src" / name
                 include = header.read_text().split('#include "')[1].split('"')[0]
                 target = (header.parent / include).resolve()

@@ -48,10 +48,14 @@ lvgl_pb_arduino_load_embedded("dashboard", nullptr, &project, error, sizeof erro
 // Call lv_timer_handler() regularly from this same task.
 ```
 
-Embedded Protobuf, trie and index arrays remain in flash while the runtime
-borrows their immutable asset bytes. Selectable custom trie models work with
-the same engine as Windows. The default English model is shared; each active
-keyboard owns its inference workspace. Password fields suppress predictions.
+Embedded Protobuf arrays remain in flash. On ESP32 boards with enabled,
+initialized PSRAM, the prediction engine automatically prefers PSRAM for each
+compact trie and index, sharing one copy between keyboards using that model.
+Enable your board's PSRAM option before loading a project. If PSRAM is absent
+or cannot fit the model, embedded models remain borrowed from immutable flash;
+file loads retain owned model bytes. Selectable custom tries use the same engine
+as Windows. Each active keyboard owns its inference workspace. Password fields
+suppress predictions.
 Enter commits autocorrect, emits `LV_EVENT_READY` on the field and keyboard,
 and dismisses the keyboard. X emits `LV_EVENT_CANCEL` on the keyboard and
 dismisses it. Clicking or focusing the field again restores the keyboard;

@@ -62,8 +62,11 @@ Arduino IDE, or supply its folder to Arduino CLI. Include all projects that
 the firmware may load when generating its minimum feature profile.
 
 Nano ESP32 has no built-in display. Supply your display/touch driver callbacks
-and hardware pins in the example. Embedded Protobuf/trie bytes are borrowed
-directly from flash; files can be loaded through Arduino FS. No second LVGL
+and hardware pins in the example. Embedded Protobuf stays in flash; files can
+be loaded through Arduino FS. When ESP32 PSRAM is enabled and initialized,
+compact tries and indices automatically prefer PSRAM, with one shared copy
+per model. If PSRAM is unavailable or cannot fit the model, embedded models
+remain in flash and file loads retain owned model bytes. No second LVGL
 library or ESP-IDF CMake project is required. The complete source toolkit is
 retained so a future UI can select a different feature closure.
 

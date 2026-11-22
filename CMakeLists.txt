@@ -41,6 +41,7 @@ endif()
 add_subdirectory(UICreator)
 
 if(BUILD_TESTING)
+    add_subdirectory(Tests/Integration/ESP32Prediction)
     add_library(UICreatorCatch STATIC 3rdParty/Catch2/extras/catch_amalgamated.cpp)
     target_compile_definitions(UICreatorCatch PRIVATE CATCH_AMALGAMATED_CUSTOM_MAIN)
     target_include_directories(UICreatorCatch PUBLIC

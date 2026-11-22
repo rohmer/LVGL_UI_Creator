@@ -27,6 +27,7 @@ public:
         const void* bytes, size_t size, std::string* selectedId = nullptr);
     // Moves owned binary payloads or retains explicitly borrowed flash spans,
     // and removes bulk trie data from document before screen records are copied.
+    // ESP32 prefers shared PSRAM bytes and releases replaced owned buffers.
     static CatalogPtr Load(nlohmann::json& document, const BorrowedAssets& borrowed = {});
     // The widget owns its predictor/scratch and retains the shared model bytes.
     // Empty trieId removes its predictor; builtin-en-us resolves without a blob.

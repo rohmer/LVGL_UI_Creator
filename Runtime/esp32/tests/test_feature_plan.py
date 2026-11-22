@@ -232,7 +232,7 @@ class FeaturePlanTests(unittest.TestCase):
             for relative in profile.CUSTOM_SOURCES["LVSERIAL_USE_ADVANCED_KEYBOARD"]:
                 self.assertTrue((output / "vendor" / relative).is_file(), relative)
             for name in ("include/lv_advanced_keyboard.h", "include/espos_keyboard/TypingView.h", "include/espos_keyboard/Prediction.h",
-                         "Utf8Fold.h", "UnicodeFold.inc", "en_us_qwerty.generated.h", "README.md", "PROVENANCE.md"):
+                         "PredictionStorage.h", "Utf8Fold.h", "UnicodeFold.inc", "en_us_qwerty.generated.h", "README.md", "PROVENANCE.md"):
                 self.assertTrue((output / "vendor/LVSerial/Widgets/AdvancedKeyboard" / name).is_file(), name)
             self.assertFalse((output / "vendor/LVSerial/Widgets/AdvancedKeyboard/include/ngram_trie").exists())
             self.assertTrue((output / "licenses/LVSerial/Widgets/AdvancedKeyboard/KeyboardFont.LICENSE.txt").is_file())

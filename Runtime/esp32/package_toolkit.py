@@ -41,7 +41,11 @@ available so a future project can require a different set of features.
 Advanced Keyboard's portable ESPOS implementation, key font, prediction engine
 and small English model are included in this toolkit. Generated profiles select
 only their required widget/engine/model features. Custom trie catalogs remain
-shared, immutable binary assets; embedded loads read them directly from flash.
+shared, immutable binary assets. With PSRAM enabled and initialized on ESP32,
+the engine automatically prefers PSRAM for the compact trie and index and
+shares one copy between keyboards using that model. If PSRAM is unavailable
+or cannot fit the model, embedded loads borrow flash bytes and file loads
+retain owned model bytes.
 
 Copy the generated component into your firmware's components directory, or try
 its bundled configurable SPI ST7789 example:

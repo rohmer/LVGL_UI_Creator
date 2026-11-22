@@ -51,7 +51,7 @@ def component_cmake() -> str:
     return r'''# Generated standalone component. Do not add another LVGL component/library.
 cmake_minimum_required(VERSION 3.24)
 if(CMAKE_BUILD_EARLY_EXPANSION)
-    idf_component_register(REQUIRES esp_timer)
+    idf_component_register(REQUIRES esp_timer heap)
     return()
 endif()
 if(NOT COMMAND idf_component_register)
@@ -79,7 +79,7 @@ set(pb_includes include config vendor/Runtime/include vendor/Runtime/compat
     vendor/3rdParty/LVGL/lvgl vendor/3rdParty/LVGL/lvgl/include)
 set(pb_sources ${LVGL_PB_PROJECT_SOURCES} src/lvgl_pb_esp32.cpp src/lvgl_pb_projects.c)
 if(COMMAND idf_component_register)
-    idf_component_register(SRCS ${pb_sources} INCLUDE_DIRS ${pb_includes} REQUIRES esp_timer)
+    idf_component_register(SRCS ${pb_sources} INCLUDE_DIRS ${pb_includes} REQUIRES esp_timer heap)
     if(NOT CONFIG_COMPILER_CXX_EXCEPTIONS)
         message(FATAL_ERROR "Enable CONFIG_COMPILER_CXX_EXCEPTIONS=y (see sdkconfig.defaults); the Protobuf loader uses exceptions for safe rollback.")
     endif()

@@ -2,18 +2,92 @@
 #include "PredictionModel.h"
 #include "PredictionPrefix.h"
 #include "PredictionAutocorrect.h"
+#include "PredictionStorage.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <new>
 
+#if defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32)
+#include <esp_heap_caps.h>
+#include <mutex>
+#include <vector>
+#endif
+
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
 namespace prediction = espos::keyboard::prediction;
+namespace {
+void* AllocateTrieBytes(size_t size)
+{
+#if defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32)
+    if (void* bytes = heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) return bytes;
+#endif
+    return std::malloc(size);
+}
+void FreeTrieBytes(void* bytes)
+{
+#if defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32)
+    heap_caps_free(bytes);
+#else
+    std::free(bytes);
+#endif
+}
+void* CompactTrieBytes(void* bytes, size_t size)
+{
+#if defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32)
+    if (void* compact = heap_caps_realloc(bytes, size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)) return compact;
+    return heap_caps_realloc(bytes, size, MALLOC_CAP_8BIT);
+#else
+    return std::realloc(bytes, size);
+#endif
+}
+}
+
+namespace espos::keyboard::prediction {
+ModelStorage::ModelStorage(void* bytes, size_t trie_size, size_t index_size) noexcept
+    : bytes_(bytes), trie_size_(trie_size), index_size_(index_size) {}
+ModelStorage::~ModelStorage() { FreeTrieBytes(bytes_); }
+
+std::shared_ptr<const ModelStorage> CopyModelToPsram(
+    const void* trie, size_t trie_size, const void* index, size_t index_size)
+{
+#if defined(ESP_PLATFORM) || defined(ARDUINO_ARCH_ESP32)
+    if (!trie || !index || trie_size < 16 || index_size < 16 ||
+        trie_size > UINT32_MAX || index_size > UINT32_MAX || trie_size > SIZE_MAX - index_size) return {};
+    static std::mutex mutex;
+    static std::vector<std::weak_ptr<const ModelStorage>> models;
+    const std::lock_guard<std::mutex> lock(mutex);
+    for (auto iterator = models.begin(); iterator != models.end();) {
+        const auto model = iterator->lock();
+        if (!model) { iterator = models.erase(iterator); continue; }
+        if (model->TrieSize() == trie_size && model->IndexSize() == index_size &&
+            (model->Trie() == trie || !std::memcmp(model->Trie(), trie, trie_size)) &&
+            (model->Index() == index || !std::memcmp(model->Index(), index, index_size))) return model;
+        ++iterator;
+    }
+    void* bytes = heap_caps_malloc(trie_size + index_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (!bytes) return {};
+    std::shared_ptr<const ModelStorage> model;
+    try { model = std::make_shared<ModelStorage>(bytes, trie_size, index_size); }
+    catch (const std::bad_alloc&) { FreeTrieBytes(bytes); return {}; }
+    std::memcpy(bytes, trie, trie_size);
+    std::memcpy(static_cast<unsigned char*>(bytes) + trie_size, index, index_size);
+    try { models.emplace_back(model); }
+    catch (const std::bad_alloc&) { /* The model remains usable without caching. */ }
+    return model;
+#else
+    (void)trie; (void)trie_size; (void)index; (void)index_size;
+    return {};
+#endif
+}
+}
+
 struct lv_advanced_keyboard_predictor {
     prediction::Model model;
     prediction::PrefixScratch prefix;
     prediction::AutocorrectScratch autocorrect;
+    std::shared_ptr<const prediction::ModelStorage> storage;
     void* owned_index = nullptr;
 };
 
@@ -102,10 +176,10 @@ bool lv_advanced_keyboard_build_trie_index(const void* data,size_t size,void** i
     const uint64_t capacity64=mass_start64+uint64_t(nodes)*5;
     if (uint64_t(nodes)*sizeof(uint32_t)>SIZE_MAX || capacity64>SIZE_MAX || capacity64>UINT32_MAX) return false;
     const auto mass_start=static_cast<size_t>(mass_start64);
-    auto* masses=static_cast<uint32_t*>(std::malloc(size_t(nodes)*sizeof(uint32_t)));
-    auto* output=static_cast<uint8_t*>(std::malloc(static_cast<size_t>(capacity64)));
-    if (!masses || !output) {std::free(masses);std::free(output);return false;}
-    auto fail=[&]() {std::free(masses);std::free(output);return false;};
+    auto* masses=static_cast<uint32_t*>(AllocateTrieBytes(size_t(nodes)*sizeof(uint32_t)));
+    auto* output=static_cast<uint8_t*>(AllocateTrieBytes(static_cast<size_t>(capacity64)));
+    if (!masses || !output) {FreeTrieBytes(masses);FreeTrieBytes(output);return false;}
+    auto fail=[&]() {FreeTrieBytes(masses);FreeTrieBytes(output);return false;};
     std::memcpy(output,"NGIX",4);Write32(output+4,1);Write32(output+8,static_cast<uint32_t>(size));Write32(output+12,nodes);
     RawCursor cursor;
     RawNode node;
@@ -133,16 +207,18 @@ bool lv_advanced_keyboard_build_trie_index(const void* data,size_t size,void** i
     }
     prediction::Model check;
     if (!check.Open(bytes,size,output,used)) return fail();
-    std::free(masses);
-    if (auto* compact=static_cast<uint8_t*>(std::realloc(output,used))) output=compact;
+    FreeTrieBytes(masses);
+    if (auto* compact=static_cast<uint8_t*>(CompactTrieBytes(output,used))) output=compact;
     *index=output;*index_size=used;
     return true;
 }
-void lv_advanced_keyboard_free_trie_index(void* index) {std::free(index);}
+void lv_advanced_keyboard_free_trie_index(void* index) {FreeTrieBytes(index);}
 lv_advanced_keyboard_predictor_t* lv_advanced_keyboard_predictor_create_borrowed(const void* trie,size_t trie_size,const void* index,size_t index_size)
 {
     auto* predictor=new(std::nothrow) lv_advanced_keyboard_predictor;
     if (!predictor) return nullptr;
+    predictor->storage = prediction::CopyModelToPsram(trie,trie_size,index,index_size);
+    if (predictor->storage) {trie=predictor->storage->Trie();index=predictor->storage->Index();}
     if (!predictor->model.Open(trie,trie_size,index,index_size)) {delete predictor;return nullptr;}
     return predictor;
 }
@@ -173,14 +249,15 @@ lv_advanced_keyboard_predictor_t* lv_advanced_keyboard_predictor_create(const vo
     void* index=nullptr;size_t index_size=0;
     if (!lv_advanced_keyboard_build_trie_index(trie,trie_size,&index,&index_size)) return nullptr;
     auto* predictor=lv_advanced_keyboard_predictor_create_borrowed(trie,trie_size,index,index_size);
-    if (!predictor) {std::free(index);return nullptr;}
-    predictor->owned_index=index;
+    if (!predictor) {FreeTrieBytes(index);return nullptr;}
+    if (predictor->storage) FreeTrieBytes(index);
+    else predictor->owned_index=index;
     return predictor;
 }
 void lv_advanced_keyboard_predictor_destroy(lv_advanced_keyboard_predictor_t* predictor)
 {
     if (!predictor) return;
-    predictor->model.Close();std::free(predictor->owned_index);delete predictor;
+    predictor->model.Close();FreeTrieBytes(predictor->owned_index);delete predictor;
 }
 size_t lv_advanced_keyboard_predictor_workspace_bytes(void) {return sizeof(lv_advanced_keyboard_predictor);}
 uint32_t lv_advanced_keyboard_predictor_node_count(const lv_advanced_keyboard_predictor_t* predictor) {return predictor?predictor->model.NodeCount():0;}
