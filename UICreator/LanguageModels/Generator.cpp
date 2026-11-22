@@ -1,7 +1,9 @@
 // Native port of ESPOS tools/NgramTrie; see PROVENANCE.md.
 #include "Generator.h"
 #include <algorithm>
+#include <cerrno>
 #include <chrono>
+#include <condition_variable>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -13,6 +15,7 @@
 #include <mutex>
 #include <queue>
 #include <sstream>
+#include <system_error>
 #include <unordered_map>
 #include <unordered_set>
 #ifdef _WIN32
@@ -46,10 +49,30 @@ template<std::size_t Size> bool Inside(const Range (&data)[Size], std::uint32_t 
         [](std::uint32_t key, const Range& item) { return key < item.first; });
     return found != std::begin(data) && value <= (found - 1)->last;
 }
-bool Word(std::uint32_t value) { return Inside(kWordRanges, value); }
-bool Mark(std::uint32_t value) { return Inside(kMarkRanges, value); }
-bool Space(std::uint32_t value) { return Inside(kSpaceRanges, value); }
-unsigned Combining(std::uint32_t value) { const auto* row = Scalar(kCombining, value); return row ? row->value : 0; }
+bool Word(std::uint32_t value) {
+    if (value < 0x80) return (value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z') || (value >= '0' && value <= '9');
+    return Inside(kWordRanges, value);
+}
+bool Mark(std::uint32_t value) { return value >= 0x80 && Inside(kMarkRanges, value); }
+bool ScriptCorpus(const std::string& language) {
+    return language == "ar" || language == "hi" || language == "zh" || language == "bn" ||
+        language == "id" || language == "ur" || language == "ru";
+}
+bool Han(std::uint32_t value) {
+    return (value >= 0x3400 && value <= 0x4dbf) || (value >= 0x4e00 && value <= 0x9fff) ||
+        (value >= 0xf900 && value <= 0xfaff) || (value >= 0x20000 && value <= 0x2ee5f) ||
+        (value >= 0x2f800 && value <= 0x2fa1f) || (value >= 0x30000 && value <= 0x323af);
+}
+bool Joiner(std::uint32_t value, const std::string& language) {
+    return (language == "ar" || language == "hi" || language == "bn" || language == "ur") && (value == 0x200c || value == 0x200d);
+}
+bool SentenceReset(std::uint32_t value, const std::string& language) {
+    if (value == '.' || value == '\n' || value == '\r') return true;
+    return ScriptCorpus(language) && (value == 0x61f || value == 0x6d4 || value == 0x964 || value == 0x965 ||
+        value == 0x3002 || value == 0xff01 || value == 0xff1f);
+}
+bool Space(std::uint32_t value) { return value < 0x80 ? value == ' ' || (value >= '\t' && value <= '\r') : Inside(kSpaceRanges, value); }
+unsigned Combining(std::uint32_t value) { if (value < 0x80) return 0; const auto* row = Scalar(kCombining, value); return row ? row->value : 0; }
 void Append(std::string& text, std::uint32_t scalar)
 {
     if (scalar < 0x80) text.push_back(static_cast<char>(scalar));
@@ -71,6 +94,7 @@ std::vector<std::uint32_t> Fold(const std::vector<std::uint32_t>& text)
     std::vector<std::uint32_t> result; result.reserve(text.size());
     for (auto scalar : text) {
         if (scalar >= 'A' && scalar <= 'Z') result.push_back(scalar + 32);
+        else if (scalar < 0x80) result.push_back(scalar);
         else if (const auto* row = Scalar(kFold, scalar))
             result.insert(result.end(), kFoldScalars + row->first, kFoldScalars + row->first + row->second);
         else result.push_back(scalar);
@@ -79,6 +103,7 @@ std::vector<std::uint32_t> Fold(const std::vector<std::uint32_t>& text)
 }
 void Decompose(std::uint32_t scalar, std::vector<std::uint32_t>& output)
 {
+    if (scalar < 0x80) { output.push_back(scalar); return; }
     constexpr std::uint32_t SBase = 0xac00, LBase = 0x1100, VBase = 0x1161, TBase = 0x11a7;
     if (scalar >= SBase && scalar < SBase + 11172) {
         const auto offset = scalar - SBase;
@@ -101,6 +126,7 @@ std::uint32_t Compose(std::uint32_t first, std::uint32_t second)
 }
 std::vector<std::uint32_t> Nfc(const std::vector<std::uint32_t>& input)
 {
+    if (std::all_of(input.begin(), input.end(), [](std::uint32_t scalar) { return scalar < 0x80; })) return input;
     std::vector<std::uint32_t> decomposed; decomposed.reserve(input.size());
     for (auto scalar : input) Decompose(scalar, decomposed);
     // Stable canonical ordering; only the combining sequence is reordered.
@@ -124,6 +150,7 @@ std::vector<std::uint32_t> Nfc(const std::vector<std::uint32_t>& input)
 }
 std::vector<std::uint32_t> Prepare(const std::vector<std::uint32_t>& text, const std::string& language)
 {
+    if (ScriptCorpus(language)) return Nfc(Fold(text));
     if (language == "fr" || language == "de" || language == "el") return Nfc(text);
     auto folded = Fold(text); return language == "es" ? Nfc(folded) : folded;
 }
@@ -131,7 +158,8 @@ std::string NormalizeListed(std::vector<std::uint32_t> text, const std::string& 
 {
     const bool finalSigma = language == "el" && text.size() > 1 && text.back() == 0x3a3;
     for (auto& scalar : text) {
-        if (const auto* row = Scalar(kLower, scalar)) scalar = row->value;
+        if (scalar < 0x80) { if (scalar >= 'A' && scalar <= 'Z') scalar += 32; }
+        else if (const auto* row = Scalar(kLower, scalar)) scalar = row->value;
         if (language == "fr" && scalar == 0x2019) scalar = '\'';
     }
     if (finalSigma) text.back() = 0x3c2;
@@ -151,6 +179,8 @@ struct Hash {
 class Control {
     ProgressCallback callback; const std::atomic_bool* cancellation; std::mutex gate;
     std::string previous; unsigned percent = 0;
+    std::mutex streamGate; std::condition_variable streamsAvailable;
+    std::size_t streams = 0, merges = 0;
 public:
     std::atomic<std::uint64_t> bytes{0}, files{0}; std::atomic_bool interrupted{false}; std::uint64_t totalBytes = 0, totalFiles = 0;
     Control(ProgressCallback progress, const std::atomic_bool* cancelled) : callback(std::move(progress)), cancellation(cancelled) {}
@@ -164,6 +194,27 @@ public:
         const auto completed = bytes.fetch_add(amount) + amount;
         Report("Counting n-grams", totalBytes ? static_cast<unsigned>((std::min)(70.0, 70.0 * completed / totalBytes)) : 70);
     }
+    void AcquireStreams(std::size_t amount, bool merging) {
+        // MSVC defaults to 512 FILE slots. Reserve only a bounded fraction for
+        // worker I/O, leaving room for the editor and other library consumers.
+        std::unique_lock<std::mutex> lock(streamGate);
+        while (streams + amount > 192 || (merging && merges >= 4)) {
+            Check(); streamsAvailable.wait_for(lock, std::chrono::milliseconds(25));
+        }
+        Check(); streams += amount; if (merging) ++merges;
+    }
+    void ReleaseStreams(std::size_t amount, bool merging) {
+        { std::lock_guard<std::mutex> lock(streamGate); streams -= amount; if (merging) --merges; }
+        streamsAvailable.notify_all();
+    }
+};
+class StreamPermit {
+    Control& control; const std::size_t amount; const bool merging;
+public:
+    StreamPermit(Control& owner, std::size_t count, bool merge = false) : control(owner), amount(count), merging(merge) { control.AcquireStreams(amount, merging); }
+    ~StreamPermit() { control.ReleaseStreams(amount, merging); }
+    StreamPermit(const StreamPermit&) = delete;
+    StreamPermit& operator=(const StreamPermit&) = delete;
 };
 struct Signature { std::uint64_t size = 0; fs::file_time_type modified{}; };
 Signature SignatureFor(const fs::path& path) { return {fs::file_size(path), fs::last_write_time(path)}; }
@@ -176,14 +227,56 @@ Hash FileHash(const fs::path& path, Control& control)
     if (!file.eof()) throw std::runtime_error("Cannot read " + path.u8string());
     return result;
 }
+struct TextFormat { unsigned encoding = 8; bool big = false; std::uint64_t skip = 0; };
+TextFormat FormatFor(const fs::path& path)
+{
+    std::ifstream input(path, std::ios::binary); if (!input) throw std::runtime_error("Cannot open " + path.u8string());
+    unsigned char prefix[4]{}; input.read(reinterpret_cast<char*>(prefix), sizeof prefix); const auto size = input.gcount();
+    if (input.bad() || (!input && !input.eof())) throw std::runtime_error("Cannot read " + path.u8string());
+    if (size >= 4 && prefix[0] == 0xff && prefix[1] == 0xfe && !prefix[2] && !prefix[3]) return {32, false, 4};
+    if (size >= 4 && !prefix[0] && !prefix[1] && prefix[2] == 0xfe && prefix[3] == 0xff) return {32, true, 4};
+    if (size >= 2 && prefix[0] == 0xff && prefix[1] == 0xfe) return {16, false, 2};
+    if (size >= 2 && prefix[0] == 0xfe && prefix[1] == 0xff) return {16, true, 2};
+    return {8, false, size >= 3 && prefix[0] == 0xef && prefix[1] == 0xbb && prefix[2] == 0xbf ? 3u : 0u};
+}
+struct TextRange { std::uint64_t begin = 0, end = 0; TextFormat format; };
+std::vector<TextRange> Partition(const fs::path& path, std::uint64_t size, std::uint64_t target, Control& control)
+{
+    const auto format = FormatFor(path);
+    if (format.encoding != 8 || size <= target) return {{0, size, format}};
+    std::ifstream input(path, std::ios::binary); if (!input) throw std::runtime_error("Cannot open " + path.u8string());
+    std::vector<TextRange> ranges; std::uint64_t begin = 0;
+    constexpr std::uint64_t scanLimit = 1024u * 1024u;
+    std::array<char, 65536> bytes{};
+    while (size - begin > target) {
+        control.Check(); const auto probe = begin + target;
+        input.clear(); input.seekg(static_cast<std::streamoff>(probe));
+        if (!input) throw std::runtime_error("Cannot seek corpus: " + path.u8string());
+        auto offset = probe; const auto limit = probe + (std::min)(scanLimit, size - probe);
+        std::uint64_t boundary = 0;
+        while (offset < limit && !boundary) {
+            control.Check(); const auto amount = static_cast<std::streamsize>((std::min)(std::uint64_t(bytes.size()), limit - offset));
+            input.read(bytes.data(), amount);
+            if (input.gcount() != amount) throw std::runtime_error("Cannot read corpus boundary: " + path.u8string());
+            for (std::streamsize i = 0; i < amount; ++i) if (bytes[static_cast<std::size_t>(i)] == '.' || bytes[static_cast<std::size_t>(i)] == '\r' || bytes[static_cast<std::size_t>(i)] == '\n') { boundary = offset + std::uint64_t(i) + 1; break; }
+            offset += static_cast<std::uint64_t>(amount);
+        }
+        // A long sentence is left intact: spaces alone do not reset n-grams.
+        if (!boundary) break;
+        ranges.push_back({begin, boundary, format}); begin = boundary;
+    }
+    ranges.push_back({begin, size, format}); return ranges;
+}
 // The decoder is strict, BOM-aware and bounded even for a single very long line.
 class TextReader {
     std::ifstream file; fs::path path; unsigned encoding = 8; bool big = false;
     std::array<unsigned char, 65536> buffer{}; std::size_t used = 0, available = 0; Control* control;
-    std::uint64_t consumed = 0, reported = 0; bool countProgress = false;
+    std::uint64_t consumed = 0, reported = 0, end = (std::numeric_limits<std::uint64_t>::max)(); bool countProgress = false;
     int Byte() {
         if (used == available) {
-            control->Check(); file.read(reinterpret_cast<char*>(buffer.data()), buffer.size()); available = static_cast<std::size_t>(file.gcount()); used = 0;
+            control->Check(); if (consumed == end) return -1;
+            const auto amount = static_cast<std::streamsize>((std::min)(std::uint64_t(buffer.size()), end - consumed));
+            file.read(reinterpret_cast<char*>(buffer.data()), amount); available = static_cast<std::size_t>(file.gcount()); used = 0;
             if (!available) { if (!file.eof()) throw std::runtime_error("Cannot read " + path.u8string()); return -1; }
         }
         ++consumed; if (countProgress && consumed - reported >= 65536) { control->CountProgress(consumed - reported); reported = consumed; }
@@ -199,15 +292,15 @@ class TextReader {
     }
     [[noreturn]] void Invalid() const { throw std::runtime_error("Cannot decode " + path.u8string() + ": invalid Unicode text."); }
 public:
-    TextReader(const fs::path& source, Control& owner, bool report = false) : file(source, std::ios::binary), path(source), control(&owner), countProgress(report) {
+    TextReader(const fs::path& source, Control& owner, bool report = false, const TextRange* range = nullptr) : file(source, std::ios::binary), path(source), control(&owner), countProgress(report) {
         if (!file) throw std::runtime_error("Cannot open " + source.u8string());
-        unsigned char prefix[4]{}; file.read(reinterpret_cast<char*>(prefix), 4); const auto size = file.gcount(); file.clear(); std::size_t skip = 0;
-        if (size >= 4 && prefix[0] == 0xff && prefix[1] == 0xfe && !prefix[2] && !prefix[3]) { encoding = 32; skip = 4; }
-        else if (size >= 4 && !prefix[0] && !prefix[1] && prefix[2] == 0xfe && prefix[3] == 0xff) { encoding = 32; big = true; skip = 4; }
-        else if (size >= 2 && prefix[0] == 0xff && prefix[1] == 0xfe) { encoding = 16; skip = 2; }
-        else if (size >= 2 && prefix[0] == 0xfe && prefix[1] == 0xff) { encoding = 16; big = true; skip = 2; }
-        else if (size >= 3 && prefix[0] == 0xef && prefix[1] == 0xbb && prefix[2] == 0xbf) skip = 3;
-        file.seekg(static_cast<std::streamoff>(skip)); consumed = skip;
+        const auto format = range ? range->format : FormatFor(source); encoding = format.encoding; big = format.big;
+        if (range) { consumed = range->begin; end = range->end; reported = consumed; }
+        // Only the first range owns the initial BOM. A nonzero UTF-8 start must
+        // never reinterpret an embedded BOM or payload bytes as a new encoding.
+        if (!consumed) consumed = format.skip;
+        if (consumed > end) throw std::runtime_error("Invalid corpus range: " + source.u8string());
+        file.seekg(static_cast<std::streamoff>(consumed)); if (!file) throw std::runtime_error("Cannot seek " + source.u8string());
     }
     bool Next(std::uint32_t& scalar) {
         const auto first = Byte();
@@ -237,9 +330,10 @@ struct WordList {
     std::unordered_set<std::string> words; std::string language; Hash hash;
     bool listed = false, enabled = false;
     explicit WordList(const Options& options, Control& control) {
-        if (!options.useWordList) return;
-        enabled = true; language = options.wordListPath.empty() ? options.language : "en";
-        listed = language == "fr" || language == "de" || language == "el";
+        language = options.wordListPath.empty() || ScriptCorpus(options.language) ? options.language : "en";
+        listed = language == "fr" || language == "de" || language == "el" || ScriptCorpus(language);
+        if (!options.useWordList || (ScriptCorpus(language) && options.wordListPath.empty())) return;
+        enabled = true;
         auto path = options.wordListPath;
         if (path.empty()) {
             const auto filename = language == "en" ? "words_alpha.txt" : "words_" + language + "_top150000.txt";
@@ -252,7 +346,8 @@ struct WordList {
             while (start != finish && Space(*start)) ++start; while (finish != start && Space(*(finish - 1))) --finish;
             if (start != finish && *start != '#') {
                 if (std::any_of(start, finish, Space)) throw std::runtime_error("Use one word per line in " + path.u8string());
-                std::vector<std::uint32_t> word(start, finish); words.insert(Encode(listed ? word : Fold(word)));
+                std::vector<std::uint32_t> word(start, finish);
+                words.insert(ScriptCorpus(language) ? NormalizeListed(Prepare(word, language), language) : Encode(listed ? word : Fold(word)));
             }
             line.clear();
         };
@@ -287,11 +382,19 @@ std::uint32_t Read32(std::istream& input) { std::uint32_t value = 0; for (unsign
 std::uint64_t Read64(std::istream& input) { std::uint64_t value = 0; for (unsigned i = 0; i < 8; ++i) { const auto next = input.get(); if (next == EOF) throw std::runtime_error("Truncated n-gram count file."); value |= std::uint64_t(next) << (8 * i); } return value; }
 void WriteEntry(std::ostream& output, const Entry& entry) {
     if (entry.key.size() > (std::numeric_limits<std::uint32_t>::max)()) throw std::runtime_error("N-gram is too long.");
-    U32(output, static_cast<std::uint32_t>(entry.key.size())); U64(output, entry.count); output.write(entry.key.data(), static_cast<std::streamsize>(entry.key.size()));
+    unsigned char header[12]; const auto size = static_cast<std::uint32_t>(entry.key.size());
+    for (unsigned i = 0; i < 4; ++i) header[i] = static_cast<unsigned char>(size >> (8 * i));
+    for (unsigned i = 0; i < 8; ++i) header[i + 4] = static_cast<unsigned char>(entry.count >> (8 * i));
+    output.write(reinterpret_cast<const char*>(header), sizeof header);
+    output.write(entry.key.data(), static_cast<std::streamsize>(entry.key.size()));
 }
 bool ReadEntry(std::istream& input, Entry& entry) {
-    if (input.peek() == EOF) { if (!input.eof()) throw std::runtime_error("Cannot read n-gram count file."); return false; }
-    const auto size = Read32(input); entry.count = Read64(input);
+    unsigned char header[12]; input.read(reinterpret_cast<char*>(header), sizeof header);
+    if (!input.gcount() && input.eof() && !input.bad()) return false;
+    if (input.gcount() != sizeof header || !input) throw std::runtime_error("Truncated n-gram count file.");
+    std::uint32_t size = 0; entry.count = 0;
+    for (unsigned i = 0; i < 4; ++i) size |= std::uint32_t(header[i]) << (8 * i);
+    for (unsigned i = 0; i < 8; ++i) entry.count |= std::uint64_t(header[i + 4]) << (8 * i);
     if (!size || size > maximumWordBytes * 3 + 3 || !entry.count) throw std::runtime_error("Invalid n-gram count record.");
     entry.key.resize(size); input.read(&entry.key[0], size); if (!input || static_cast<unsigned char>(entry.key[0]) > 2) throw std::runtime_error("Invalid n-gram count data."); return true;
 }
@@ -313,14 +416,16 @@ template<class Write> void AtomicWrite(const fs::path& path, Control& control, W
 
 fs::path WriteCounts(Counts& counts, Scratch& scratch, Control& control) {
     control.Check(); const auto path = scratch.File(); std::vector<Entry> entries; entries.reserve(counts.size());
-    for (auto& pair : counts) entries.push_back({std::move(pair.first), pair.second}); counts.clear();
+    // unordered_map keys are const; extracting nodes makes these actual moves.
+    while (!counts.empty()) { auto node = counts.extract(counts.begin()); entries.push_back({std::move(node.key()), node.mapped()}); }
     std::sort(entries.begin(), entries.end(), [](const Entry& left, const Entry& right) { return left.key < right.key; });
     std::ofstream output(path, std::ios::binary); if (!output) throw std::runtime_error("Cannot create count workspace.");
     std::size_t written = 0; for (const auto& entry : entries) { if (!(written++ & 1023)) control.Check(); WriteEntry(output, entry); }
     Finish(output, path); return path;
 }
 fs::path MergeGroup(const std::vector<fs::path>& inputs, bool ranked, Scratch& scratch, Control& control) {
-    struct Reader { std::ifstream stream; Entry current; explicit Reader(const fs::path& path) : stream(path, std::ios::binary) { if (!stream) throw std::runtime_error("Cannot open count workspace."); } };
+    StreamPermit permit(control, inputs.size() + 1, true);
+    struct Reader { std::ifstream stream; Entry current; explicit Reader(const fs::path& path) : stream(path, std::ios::binary) { if (!stream) { const auto code = errno; throw std::runtime_error("Cannot open count workspace '" + path.u8string() + "': " + std::error_code(code, std::generic_category()).message() + " (errno " + std::to_string(code) + ")."); } } };
     std::vector<std::unique_ptr<Reader>> readers; readers.reserve(inputs.size());
     for (const auto& path : inputs) readers.push_back(std::make_unique<Reader>(path));
     auto later = [&](std::size_t left, std::size_t right) { return ranked ? Frequency(readers[right]->current, readers[left]->current) : readers[left]->current.key > readers[right]->current.key; };
@@ -338,50 +443,93 @@ fs::path MergeGroup(const std::vector<fs::path>& inputs, bool ranked, Scratch& s
     if (hasPending) WriteEntry(output, pending); Finish(output, result); return result;
 }
 fs::path Merge(std::vector<fs::path> paths, bool ranked, Scratch& scratch, Control& control) {
-    if (paths.empty()) { Counts empty; return WriteCounts(empty, scratch, control); }
+    if (paths.empty()) { StreamPermit permit(control, 1); Counts empty; return WriteCounts(empty, scratch, control); }
     while (paths.size() > 1) {
         std::vector<fs::path> next;
         for (std::size_t i = 0; i < paths.size(); i += 32) {
             const auto end = (std::min)(paths.size(), i + 32);
             next.push_back(MergeGroup({paths.begin() + i, paths.begin() + end}, ranked, scratch, control));
+            // MergeGroup has closed all readers before these owned runs retire.
+            for (auto input = i; input < end; ++input) { control.Check(); fs::remove(paths[input]); }
         }
         paths = std::move(next);
     }
     return paths[0];
 }
 
-void CountFile(const fs::path& path, const WordList& list, Counts& counts, const std::function<void()>& flush, std::size_t chunkEntries, Control& control) {
-    TextReader input(path, control, true); std::vector<std::uint32_t> candidate;
+template<class Work> void RunWorkers(std::size_t count, unsigned requested, Control& control, Work work)
+{
+    if (!count) return;
+    const auto workers = (std::min)(std::size_t(requested), count);
+    if (workers == 1) { for (std::size_t i = 0; i < count; ++i) { control.Check(); work(i); } return; }
+    std::atomic<std::size_t> next{0}; std::exception_ptr failure; std::mutex failureGate;
+    auto worker = [&] {
+        try {
+            for (;;) { control.Check(); const auto index = next.fetch_add(1, std::memory_order_relaxed); if (index >= count) break; work(index); }
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(failureGate); if (!failure) failure = std::current_exception();
+            control.interrupted.store(true, std::memory_order_relaxed);
+        }
+    };
+    std::vector<std::thread> threads; threads.reserve(workers);
+    try { for (std::size_t i = 0; i < workers; ++i) threads.emplace_back(worker); }
+    catch (...) { control.interrupted.store(true, std::memory_order_relaxed); for (auto& thread : threads) thread.join(); throw; }
+    for (auto& thread : threads) thread.join(); if (failure) std::rethrow_exception(failure); control.Check();
+}
+
+void CountFile(const fs::path& path, const WordList& list, Counts& counts, const std::function<void()>& flush, std::size_t chunkEntries, Control& control, const TextRange* range = nullptr) {
+    TextReader input(path, control, true, range); std::vector<std::uint32_t> candidate; bool asciiCandidate = true;
     std::string previous, older;
     auto gram = [&](unsigned order, const std::string& text) { Increment(counts, std::string(1, static_cast<char>(order)) + text); if (counts.size() >= chunkEntries) flush(); };
-    auto token = [&](const std::vector<std::uint32_t>& word) {
-        auto text = list.listed ? NormalizeListed(word, list.language) : Encode(word);
-        if (list.enabled) { const auto found = list.words.find(text); if (found == list.words.end()) { previous.clear(); older.clear(); return; } text = *found; }
+    auto tokenText = [&](std::string text) {
+        if (list.enabled && list.words.find(text) == list.words.end()) { previous.clear(); older.clear(); return; }
         gram(0, text); if (!previous.empty()) gram(1, previous + " " + text); if (!older.empty()) gram(2, older + " " + previous + " " + text);
         older = std::move(previous); previous = std::move(text);
     };
     auto process = [&] {
         if (candidate.empty()) return;
-        const auto text = list.enabled ? Prepare(candidate, list.language) : Fold(candidate);
-        for (std::size_t index = 0; index < text.size();) {
-            if (!Word(text[index])) { ++index; continue; }
-            const auto start = index++;
-            while (index < text.size()) {
-                if (Word(text[index]) || (list.listed && Mark(text[index]))) { ++index; continue; }
-                if ((text[index] == '\'' || text[index] == 0x2019) && index + 1 < text.size() && Word(text[index + 1])) { index += 2; continue; }
-                break;
+        if (asciiCandidate) {
+            // ASCII normalization is lowercase-only in every supported language.
+            // Scan the same apostrophe grammar without allocating scalar slices.
+            for (std::size_t index = 0; index < candidate.size();) {
+                if (!Word(candidate[index])) { ++index; continue; }
+                const auto start = index++;
+                while (index < candidate.size()) {
+                    if (Word(candidate[index])) { ++index; continue; }
+                    if (candidate[index] == '\'' && index + 1 < candidate.size() && Word(candidate[index + 1])) { index += 2; continue; }
+                    break;
+                }
+                std::string text; text.reserve(index - start);
+                for (auto i = start; i < index; ++i) { auto scalar = candidate[i]; if (scalar >= 'A' && scalar <= 'Z') scalar += 32; text.push_back(static_cast<char>(scalar)); }
+                tokenText(std::move(text));
             }
-            token({text.begin() + start, text.begin() + index});
+        } else {
+            const auto text = list.enabled || ScriptCorpus(list.language) ? Prepare(candidate, list.language) : Fold(candidate);
+            for (std::size_t index = 0; index < text.size();) {
+                if (!Word(text[index])) { ++index; continue; }
+                const auto start = index++;
+                while (index < text.size()) {
+                    if (Word(text[index]) || (list.listed && Mark(text[index])) || Joiner(text[index], list.language)) { ++index; continue; }
+                    if ((text[index] == '\'' || text[index] == 0x2019) && index + 1 < text.size() && Word(text[index + 1])) { index += 2; continue; }
+                    break;
+                }
+                const std::vector<std::uint32_t> word{text.begin() + start, text.begin() + index};
+                tokenText(list.listed ? NormalizeListed(word, list.language) : Encode(word));
+            }
         }
-        candidate.clear();
+        candidate.clear(); asciiCandidate = true;
     };
     std::uint32_t scalar;
     while (input.Next(scalar)) {
-        if (Word(scalar) || Mark(scalar) || scalar == '\'' || scalar == 0x2019) {
+        if (list.language == "zh" && Han(scalar)) {
+            process();
+            const auto normalized = Prepare({scalar}, list.language);
+            tokenText(Encode(normalized));
+        } else if (Word(scalar) || Mark(scalar) || scalar == '\'' || scalar == 0x2019 || (Joiner(scalar, list.language) && !candidate.empty())) {
             if (candidate.size() >= maximumWordBytes / 4) throw std::runtime_error("Corpus word exceeds the 16 MiB token safety limit.");
-            candidate.push_back(scalar);
+            candidate.push_back(scalar); asciiCandidate = asciiCandidate && scalar < 0x80;
         } else {
-            process(); if (scalar == '.' || scalar == '\n' || scalar == '\r') { previous.clear(); older.clear(); }
+            process(); if (SentenceReset(scalar, list.language)) { previous.clear(); older.clear(); }
         }
     }
     process();
@@ -543,8 +691,8 @@ Result Generate(const Options& options, ProgressCallback progress, const std::at
     if (options.trieOutput.empty() && options.jsonOutput.empty()) throw std::invalid_argument("Choose a trie output file.");
     if (options.workers < 1 || options.workers > 1024) throw std::invalid_argument("Worker count must be between 1 and 1024.");
     if (!options.chunkEntries) throw std::invalid_argument("Count chunk size must be positive.");
-    if (options.language != "en" && options.language != "es" && options.language != "fr" && options.language != "de" && options.language != "el") throw std::invalid_argument("Choose English, Spanish, French, German or Greek corpus language.");
-    if (options.language != "en" && (!options.useWordList || !options.wordListPath.empty())) throw std::invalid_argument("Non-English corpus languages require their bundled word list.");
+    if (options.language != "en" && options.language != "es" && options.language != "fr" && options.language != "de" && options.language != "el" && !ScriptCorpus(options.language)) throw std::invalid_argument("Choose a supported corpus language: English, Spanish, French, German, Greek, Arabic, Hindi, Mandarin Chinese, Bengali, Indonesian, Urdu or Russian.");
+    if (options.language != "en" && !ScriptCorpus(options.language) && (!options.useWordList || !options.wordListPath.empty())) throw std::invalid_argument("This corpus language requires its bundled word list.");
     if (!options.useWordList && !options.wordListPath.empty()) throw std::invalid_argument("Choose a custom word list or disable filtering, not both.");
     if (options.maximumBytes && *options.maximumBytes < (options.compact ? 20u : 40u)) throw std::invalid_argument(options.compact ? "An NGTR v3 trie needs at least 20 bytes." : "An NGTR v2 trie needs at least 40 bytes.");
     const auto files = FindFiles(options, control); if (files.empty()) throw std::invalid_argument("No corpus files found.");
@@ -565,39 +713,59 @@ Result Generate(const Options& options, ProgressCallback progress, const std::at
     auto cache = options.cacheDirectory;
     if (options.useCache && cache.empty()) cache = fs::temp_directory_path() / "LVGL_UI_Creator" / "LanguageModelCounts";
     if (options.useCache) fs::create_directories(cache);
-    Scratch scratch(!triePath.empty() ? triePath.parent_path() : jsonPath.parent_path());
-    std::vector<fs::path> counted(corpus.size()); std::atomic<std::size_t> next{0}; std::atomic<std::uint64_t> hits{0};
-    std::exception_ptr failure; std::mutex failureGate; std::atomic_bool failed{false};
+    const auto scratchDirectory = options.scratchDirectory.empty() ? fs::temp_directory_path() / "LVGL_UI_Creator" / "LanguageModelWork" : options.scratchDirectory;
+    Scratch scratch(scratchDirectory);
+    struct FilePlan { Signature signature; Hash identity; fs::path destination, merged; std::vector<fs::path> parts; };
+    std::vector<FilePlan> plans(corpus.size()); std::atomic<std::uint64_t> hits{0};
     control.Report("Counting n-grams", 0);
-    const auto workers = (std::min)(std::size_t(options.workers), corpus.size());
-    auto worker = [&] {
-        try {
-            while (!failed.load()) {
-                control.Check(); const auto index = next.fetch_add(1); if (index >= corpus.size()) break;
-                const auto& path = corpus[index]; const auto signature = SignatureFor(path);
-                Hash identity; identity.Add("Native-Counts-v4"); identity.Add(PathIdentity(path));
-                if (options.useCache) { const auto content = FileHash(path, control); identity.Add(&content.first, sizeof content.first); identity.Add(&content.second, sizeof content.second); }
-                if (words.enabled) { identity.Add(words.language); identity.Add(&words.hash.first, sizeof words.hash.first); identity.Add(&words.hash.second, sizeof words.hash.second); }
-                const auto destination = options.useCache ? cache / (identity.Text() + ".counts") : fs::path{};
-                auto merged = options.useCache ? ReadCache(destination, identity, scratch, control) : fs::path{};
-                if (!merged.empty()) { ++hits; control.CountProgress(signature.size); }
-                else {
-                    Counts counts; std::vector<fs::path> chunks;
-                    auto flush = [&] { if (!counts.empty()) chunks.push_back(WriteCounts(counts, scratch, control)); };
-                    CountFile(path, words, counts, flush, options.lowMemory ? options.chunkEntries : (std::numeric_limits<std::size_t>::max)(), control);
-                    flush(); merged = Merge(std::move(chunks), false, scratch, control);
-                    if (!SameSignature(signature, SignatureFor(path))) throw std::runtime_error("Corpus file changed while processing: " + path.u8string());
-                    if (options.useCache) SaveCache(destination, merged, identity, control);
-                }
-                if (!SameSignature(signature, SignatureFor(path))) throw std::runtime_error("Corpus file changed while processing: " + path.u8string());
-                counted[index] = std::move(merged); ++control.files;
-            }
-        } catch (...) { failed = true; std::lock_guard<std::mutex> lock(failureGate); if (!failure) failure = std::current_exception(); control.interrupted = true; }
-    };
-    std::vector<std::thread> threads; threads.reserve(workers);
-    try { for (std::size_t i = 0; i < workers; ++i) threads.emplace_back(worker); }
-    catch (...) { failed = true; control.interrupted = true; for (auto& thread : threads) thread.join(); throw; }
-    for (auto& thread : threads) thread.join(); if (failure) std::rethrow_exception(failure); control.Check();
+    RunWorkers(corpus.size(), options.workers, control, [&](std::size_t index) {
+        StreamPermit permit(control, 2);
+        const auto& path = corpus[index]; auto& plan = plans[index]; plan.signature = SignatureFor(path);
+        plan.identity.Add("Native-Counts-v4"); plan.identity.Add(PathIdentity(path));
+        if (ScriptCorpus(words.language)) { plan.identity.Add("Script-Corpus-v1"); plan.identity.Add(words.language); }
+        if (options.useCache) { const auto content = FileHash(path, control); plan.identity.Add(&content.first, sizeof content.first); plan.identity.Add(&content.second, sizeof content.second); }
+        if (words.enabled) { plan.identity.Add(words.language); plan.identity.Add(&words.hash.first, sizeof words.hash.first); plan.identity.Add(&words.hash.second, sizeof words.hash.second); }
+        plan.destination = options.useCache ? cache / (plan.identity.Text() + ".counts") : fs::path{};
+        if (options.useCache) plan.merged = ReadCache(plan.destination, plan.identity, scratch, control);
+        if (!SameSignature(plan.signature, SignatureFor(path))) throw std::runtime_error("Corpus file changed while processing: " + path.u8string());
+        if (!plan.merged.empty()) { ++hits; control.CountProgress(plan.signature.size); ++control.files; }
+    });
+    std::uint64_t uncachedBytes = 0;
+    for (const auto& plan : plans) if (plan.merged.empty()) uncachedBytes += plan.signature.size;
+    const auto desiredJobs = std::uint64_t(options.workers) * 4;
+    const auto chunkBytes = (std::max)(std::uint64_t(8u * 1024u * 1024u), uncachedBytes / desiredJobs + (uncachedBytes % desiredJobs != 0));
+    struct CountJob { std::size_t file, part; TextRange range; };
+    std::vector<CountJob> jobs;
+    for (std::size_t index = 0; index < plans.size(); ++index) if (plans[index].merged.empty()) {
+        const auto ranges = Partition(corpus[index], plans[index].signature.size, chunkBytes, control);
+        plans[index].parts.resize(ranges.size());
+        for (std::size_t part = 0; part < ranges.size(); ++part) jobs.push_back({index, part, ranges[part]});
+    }
+    // The pool consumes ranges from every uncached file. A dominant UTF-8 file
+    // can therefore use all requested workers without crossing sentence resets.
+    RunWorkers(jobs.size(), options.workers, control, [&](std::size_t index) {
+        const auto& job = jobs[index]; Counts counts; std::vector<fs::path> chunks;
+        auto flush = [&] { if (!counts.empty()) chunks.push_back(WriteCounts(counts, scratch, control)); };
+        {
+            // Reserve the reader and spill writer together to avoid workers
+            // deadlocking while each holds a reader and waits for a writer.
+            StreamPermit permit(control, 2);
+            CountFile(corpus[job.file], words, counts, flush, options.lowMemory ? options.chunkEntries : (std::numeric_limits<std::size_t>::max)(), control, &job.range);
+            flush();
+        }
+        plans[job.file].parts[job.part] = Merge(std::move(chunks), false, scratch, control);
+    });
+    RunWorkers(corpus.size(), options.workers, control, [&](std::size_t index) {
+        const auto& path = corpus[index]; auto& plan = plans[index];
+        if (!SameSignature(plan.signature, SignatureFor(path))) throw std::runtime_error("Corpus file changed while processing: " + path.u8string());
+        if (plan.merged.empty()) {
+            plan.merged = Merge(std::move(plan.parts), false, scratch, control);
+            if (options.useCache) { StreamPermit permit(control, 2); SaveCache(plan.destination, plan.merged, plan.identity, control); }
+            ++control.files;
+        }
+        if (!SameSignature(plan.signature, SignatureFor(path))) throw std::runtime_error("Corpus file changed while processing: " + path.u8string());
+    });
+    std::vector<fs::path> counted; counted.reserve(plans.size()); for (auto& plan : plans) counted.push_back(std::move(plan.merged));
     const auto combined = Merge(std::move(counted), false, scratch, control);
     control.Report(options.lowMemory ? "Ranking n-grams on disk" : "Ranking n-grams", 70);
     std::array<std::vector<fs::path>, 3> rankingChunks;

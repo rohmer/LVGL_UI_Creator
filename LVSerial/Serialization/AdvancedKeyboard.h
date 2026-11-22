@@ -55,9 +55,13 @@ public:
         result["hideOnDefocus"] = false; // Upgrade earlier Creator records to explicit Enter/X dismissal.
         const auto language = text("language", "en-US");
         if (language != "en-US" && language != "es-ES" && language != "fr-FR" &&
-            language != "de-DE" && language != "it-IT" && language != "pt-PT")
+            language != "de-DE" && language != "it-IT" && language != "pt-PT" &&
+            language != "zh-CN" && language != "ar-SA" && language != "hi-IN" &&
+            language != "bn-BD" && language != "id-ID" && language != "ur-PK" && language != "ru-RU")
             throw std::invalid_argument("Unsupported Advanced Keyboard language");
         result["language"] = language;
+        if (input.contains("rightToLeft") && !input.at("rightToLeft").is_boolean()) throw std::invalid_argument("rightToLeft must be a boolean");
+        result["rightToLeft"] = input.value("rightToLeft", language == "ar-SA" || language == "ur-PK");
         result["trieId"] = text("trieId", language == "en-US" ? "builtin-en-us" : "");
         const auto threshold = input.find("autocorrectThreshold");
         if (threshold != input.end() && (!threshold->is_number() || !std::isfinite(threshold->get<double>()) || threshold->get<double>() < 0 || threshold->get<double>() > 1))
@@ -99,6 +103,8 @@ public:
         const auto previous = Settings(object);
         auto merged = previous;
         merged.update(input);
+        if (input.contains("language") && input.at("language") != previous.at("language") && !input.contains("rightToLeft"))
+            merged.erase("rightToLeft");
         const auto next = Normalize(merged); // Validate every field before changing the live widget.
         auto changed = [&](const char* key) { return previous.at(key) != next.at(key); };
         lv_advanced_keyboard_set_hide_on_defocus(object, false);
@@ -106,6 +112,7 @@ public:
             ProjectTries::Attach(object, next.at("trieId").get<std::string>(), next.at("autocorrect").get<bool>(), next.at("autocorrectThreshold").get<double>());
         if (changed("language") && !lv_advanced_keyboard_set_language(object, next.at("language").get_ref<const std::string&>().c_str()))
             throw std::invalid_argument("Could not select Advanced Keyboard language");
+        lv_advanced_keyboard_set_right_to_left(object, next.at("rightToLeft").get<bool>());
         lv_advanced_keyboard_set_autocorrect(object, next.at("autocorrect").get<bool>());
         lv_advanced_keyboard_set_autocorrect_threshold(object, next.at("autocorrectThreshold").get<double>());
         if (changed("keyBackground")) lv_advanced_keyboard_set_key_background(object, lv_color_hex(next.at("keyBackground").get<uint32_t>()));
@@ -211,6 +218,7 @@ private:
     {
         auto settings = Normalize(ReadSection(object, "advancedKeyboard"));
         settings["language"] = lv_advanced_keyboard_get_language(object);
+        settings["rightToLeft"] = lv_advanced_keyboard_get_right_to_left(object);
         settings["hideOnDefocus"] = false;
         settings["autocorrect"] = lv_advanced_keyboard_get_autocorrect(object);
         settings["autocorrectThreshold"] = lv_advanced_keyboard_get_autocorrect_threshold(object);

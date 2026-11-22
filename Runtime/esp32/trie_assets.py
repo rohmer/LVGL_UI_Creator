@@ -10,7 +10,8 @@ BUILTIN_TRIE = "builtin-en-us"
 PREDICTION_GATE = "LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION"
 BUILTIN_GATE = "LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE"
 MAX_ASSET = 16 * 1024 * 1024
-LANGUAGES = frozenset(("en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT"))
+LANGUAGES = frozenset(("en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT",
+                       "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU"))
 
 
 def selected_trie(settings: dict) -> str:

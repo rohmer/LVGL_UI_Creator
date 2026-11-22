@@ -1,9 +1,11 @@
 #include "AdvancedKeyboard.h"
+#include "EditorInputTest.h"
 #include "../../../UICreator/Windows/UI.h"
 #include "../../../UICreator/Utils/SdlSimulator.h"
 #include "../../../UICreator/Utils/EditorWindow.h"
 #include "../../../UICreator/Windows/PropertyWindows/AdvancedProperties.h"
 #include <lv_advanced_keyboard.h>
+#include <Serialization/Protobuf.h>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -20,6 +22,11 @@ lv_obj_t* Field(PropertyWindow* properties,const char* name) {
     return lv_obj_get_child(lv_obj_get_parent(label),1);
 }
 void Edit(lv_obj_t* field,const char* text) {lv_textarea_set_text(field,text);lv_obj_send_event(field,LV_EVENT_VALUE_CHANGED,nullptr);}
+lv_obj_t* Checkbox(lv_obj_t* parent,const char* text) {
+    if(lv_obj_has_class(parent,&lv_checkbox_class)&&std::string(lv_checkbox_get_text(parent))==text)return parent;
+    for(uint32_t i=0;i<lv_obj_get_child_count(parent);++i)if(auto* found=Checkbox(lv_obj_get_child(parent,i),text))return found;
+    return nullptr;
+}
 }
 void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     
@@ -53,8 +60,9 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
         size_t index=0;while(index<lv_advanced_keyboard_language_count() && std::string(lv_advanced_keyboard_language_id(index))!=id)++index;
         Require(index<lv_advanced_keyboard_language_count(),"Expected keyboard language is missing");
         lv_dropdown_set_selected(control,static_cast<uint32_t>(index));lv_obj_send_event(control,LV_EVENT_VALUE_CHANGED,nullptr);
+        EditorInputTest::Drain(simulator);
     };
-    Require(lv_dropdown_get_option_count(Field(properties(),"Language"))==6 && std::string(lv_advanced_keyboard_get_language(keyboard))=="en-US","Language defaults/list are incorrect");
+    Require(lv_dropdown_get_option_count(Field(properties(),"Language"))==13 && std::string(lv_advanced_keyboard_get_language(keyboard))=="en-US","Language defaults/list are incorrect");
     selectLanguage("es-ES");
     Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="es-ES" && !lv_advanced_keyboard_get_predictor(keyboard),"Spanish selection did not change native layout or retained the English dictionary");
     Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["language"]=="es-ES" && lv_dropdown_get_selected(Field(properties(),"Prediction trie"))==0,"Language/trie selection was not persisted or refreshed");
@@ -99,5 +107,31 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     auto inspect=[&](auto&& self,lv_obj_t* object)->void {if(lv_obj_get_class(object)==&lv_label_class && std::string(lv_label_get_text(object)).find("Ready for LVGL 9.6")==0)ready=true;for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)self(self,lv_obj_get_child(object,i));};
     inspect(inspect,lv_layer_top());Require(ready,"Trie/target C export preflight failed");editor.MenuAction("cancel-file");
     properties()->SetSelectedObject(entry);for(int frame=0;frame<5;++frame)simulator.ProcessEvents();
+    properties()->SetSelectedObject(keyboard);
+    for(const auto* id:{"zh-CN","ar-SA","hi-IN","bn-BD","id-ID","ur-PK","ru-RU"}) {
+        const auto* authoredFont=lv_obj_get_style_text_font(entry,LV_PART_MAIN);selectLanguage(id);
+        const bool rtl=std::string(id)=="ar-SA"||std::string(id)=="ur-PK";
+        Require(std::string(lv_advanced_keyboard_get_language(keyboard))==id && lv_advanced_keyboard_get_right_to_left(keyboard)==rtl,"Inspector did not select the script layout/direction");
+        Require(lv_obj_get_style_text_font(entry,LV_PART_MAIN)==authoredFont,"Language inspector replaced an authored text font");
+        auto* direction=Checkbox(properties()->ObjectPropWin()->GetWindow(),"Right-to-left display");
+        Require(direction&&lv_obj_has_state(direction,LV_STATE_CHECKED)==rtl,"RTL property checkbox did not follow the language");
+        const auto saved=editor.ProjectDocument();const auto& settings=saved["obj"][1]["advancedKeyboard"];
+        Require(settings["language"]==id&&settings["rightToLeft"]==rtl,"Editor JSON lost script language/direction");
+        const auto bytes=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",saved);
+        Require(Serialization::Protobuf::Decode(bytes).data["obj"][1]["advancedKeyboard"]["rightToLeft"]==rtl,"Editor Protobuf lost RTL setting");
+    }
+    selectLanguage("ar-SA");auto* direction=Checkbox(properties()->ObjectPropWin()->GetWindow(),"Right-to-left display");
+    lv_obj_remove_state(direction,LV_STATE_CHECKED);lv_obj_send_event(direction,LV_EVENT_VALUE_CHANGED,nullptr);
+    Require(!lv_advanced_keyboard_get_right_to_left(keyboard)&&!editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["rightToLeft"].get<bool>(),"RTL property override was not applied");
+    Require(editor.Undo(),"RTL edit was not undoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
+    Require(lv_advanced_keyboard_get_right_to_left(keyboard),"Undo did not restore default Arabic direction");
+    Require(editor.Redo(),"RTL edit was not redoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
+    Require(!lv_advanced_keyboard_get_right_to_left(keyboard),"Redo did not restore the RTL override");
+    properties()->SetSelectedObject(keyboard);selectLanguage("zh-CN");properties()->SetSelectedObject(entry);
+    lv_textarea_set_text(entry,"");EditorInputTest::Text("ni",simulator);
+    Require(std::string(lv_textarea_get_text(entry)).empty(),"Physical SDL Pinyin went directly into the target as Latin text");
+    auto* candidate=Label(lv_obj_get_child(keyboard,0),u8"你");Require(candidate,"Physical Pinyin input did not show Chinese candidates");
+    lv_obj_send_event(lv_obj_get_parent(candidate),LV_EVENT_CLICKED,nullptr);
+    Require(std::string(lv_textarea_get_text(entry))==u8"你","Selecting the Chinese candidate did not write to the active editor field");
     std::cout<<"Keyboard external target, focus visibility, language selection, trie loading, persistence, undo/redo and C export passed\n";
 }

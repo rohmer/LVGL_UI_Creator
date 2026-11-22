@@ -34,6 +34,7 @@ if(WIN32)
 endif()
 
 add_executable(UICreator ${creator_sources})
+add_dependencies(UICreator UICreatorModelGen)
 add_custom_target(UICreatorFigmaAssets
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${PROJECT_SOURCE_DIR}/Integrations/Figma"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations/figma"
@@ -70,6 +71,13 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         "${PROJECT_BINARY_DIR}/language-model-tests"
         "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/wordlists")
     set_tests_properties(UICreatorLanguageModels PROPERTIES TIMEOUT 90 LABELS "functional;language-models;prediction")
+    add_executable(UICreatorKeyboardSuggestionTextTests "${PROJECT_SOURCE_DIR}/Tests/Integration/KeyboardSuggestionText.cpp")
+    target_link_libraries(UICreatorKeyboardSuggestionTextTests PRIVATE UICreatorLanguageModels LVSerial)
+    if(MSVC)
+        target_compile_options(UICreatorKeyboardSuggestionTextTests PRIVATE /utf-8)
+    endif()
+    add_test(NAME UICreatorKeyboardSuggestionText COMMAND UICreatorKeyboardSuggestionTextTests)
+    set_tests_properties(UICreatorKeyboardSuggestionText PROPERTIES TIMEOUT 30 LABELS "functional;advanced-keyboard;prediction")
     add_test(NAME UICreatorSmoke COMMAND UICreator --smoke-test)
     set_tests_properties(UICreatorSmoke PROPERTIES
         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software"

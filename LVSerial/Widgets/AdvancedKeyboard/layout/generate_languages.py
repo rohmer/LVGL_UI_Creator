@@ -45,7 +45,9 @@ def main():
         path = HERE / (locale + "-qwerty.json")
         path.write_text(json.dumps(local_layout(locale, space, caption, lower, upper), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for locale, shape in (("en-US", "qwerty"), ("es-ES", "qwerty"), ("fr-FR", "azerty"),
-                          ("de-DE", "qwertz"), ("it-IT", "qwerty"), ("pt-PT", "qwerty")):
+                          ("de-DE", "qwertz"), ("it-IT", "qwerty"), ("pt-PT", "qwerty"),
+                          ("zh-CN", "pinyin"), ("ar-SA", "arabic"), ("hi-IN", "inscript"),
+                          ("bn-BD", "inscript"), ("id-ID", "qwerty"), ("ur-PK", "phonetic"), ("ru-RU", "jcuken")):
         name = locale + "-" + shape
         definition = json.loads((HERE / (name + ".json")).read_text(encoding="utf-8"))
         symbol = name.replace("-", "_").lower()

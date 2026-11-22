@@ -24,6 +24,10 @@ integration checks. Eleven tiny NGTR fixtures come from the original ESPOS C#
 generator; regular tests require no .NET runtime. They cover compact/legacy
 formats, byte budgets, language normalization, disk/count-cache modes,
 cancellation, predictor behavior and generated-model import into Advanced Keyboard.
+Additional native and managed checks cover Arabic, Hindi, Mandarin Chinese,
+Bengali, Indonesian, Urdu and Russian normalization and token boundaries.
+`UICreatorKeyboardSuggestionText` checks real trie queries for Indic Nukta
+normalization, Han-character context, UTF-8 caret edits and protected fields.
 
 Advanced Keyboard coverage includes actual pointer input, Shift/Shift Lock,
 localized layouts, symbol pages, UTF-8 editing, suggestion callbacks,

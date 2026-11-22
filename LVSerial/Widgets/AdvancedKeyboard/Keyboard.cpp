@@ -12,9 +12,41 @@
 #include "de_de_qwertz.generated.h"
 #include "it_it_qwerty.generated.h"
 #include "pt_pt_qwerty.generated.h"
+#include "zh_cn_pinyin.generated.h"
+#include "ar_sa_arabic.generated.h"
+#include "hi_in_inscript.generated.h"
+#include "bn_bd_inscript.generated.h"
+#include "id_id_qwerty.generated.h"
+#include "ur_pk_phonetic.generated.h"
+#include "ru_ru_jcuken.generated.h"
+
+#ifndef LV_ADVANCED_KEYBOARD_USE_HINDI_FONT
+#define LV_ADVANCED_KEYBOARD_USE_HINDI_FONT 0
+#endif
+#ifndef LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT
+#define LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT 0
+#endif
+#ifndef LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT
+#define LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT 0
+#endif
+#ifndef LV_ADVANCED_KEYBOARD_USE_URDU_FONT
+#define LV_ADVANCED_KEYBOARD_USE_URDU_FONT 0
+#endif
 
 extern "C" {
 LV_FONT_DECLARE(espos_keyboard_font)
+#if LV_ADVANCED_KEYBOARD_USE_HINDI_FONT
+LV_FONT_DECLARE(espos_keyboard_hindi_font)
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT
+LV_FONT_DECLARE(espos_keyboard_bengali_font)
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT
+LV_FONT_DECLARE(espos_keyboard_cyrillic_font)
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_URDU_FONT
+LV_FONT_DECLARE(espos_keyboard_urdu_font)
+#endif
 }
 
 namespace espos::keyboard {
@@ -39,10 +71,19 @@ constexpr Language languages[] = {
     {"de-DE", "German", &detail::de_de_qwertz},
     {"it-IT", "Italian", &detail::it_it_qwerty},
     {"pt-PT", "Portuguese", &detail::pt_pt_qwerty},
+    {"zh-CN", "Mandarin (Pinyin)", &detail::zh_cn_pinyin},
+    {"ar-SA", "Arabic", &detail::ar_sa_arabic},
+    {"hi-IN", "Hindi", &detail::hi_in_inscript},
+    {"bn-BD", "Bengali", &detail::bn_bd_inscript},
+    {"id-ID", "Indonesian", &detail::id_id_qwerty},
+    {"ur-PK", "Urdu", &detail::ur_pk_phonetic},
+    {"ru-RU", "Russian", &detail::ru_ru_jcuken},
 };
 constexpr std::size_t max_keys = (std::max)({detail::en_us_qwerty.max_keys, detail::es_es_qwerty.max_keys,
     detail::fr_fr_azerty.max_keys, detail::de_de_qwertz.max_keys,
-    detail::it_it_qwerty.max_keys, detail::pt_pt_qwerty.max_keys});
+    detail::it_it_qwerty.max_keys, detail::pt_pt_qwerty.max_keys,
+    detail::zh_cn_pinyin.max_keys, detail::ar_sa_arabic.max_keys, detail::hi_in_inscript.max_keys,
+    detail::bn_bd_inscript.max_keys, detail::id_id_qwerty.max_keys, detail::ur_pk_phonetic.max_keys, detail::ru_ru_jcuken.max_keys});
 
 constexpr std::uint32_t double_tap_ms = 300;
 constexpr std::int32_t key_gap = 4;
@@ -62,6 +103,7 @@ struct KeyboardView {
     std::uint32_t pending_since = 0;
     std::size_t base_layout = en_us_qwerty.initial_layout;
     const Language* language = &languages[0];
+    const lv_font_t* authored_font = nullptr;
     ShiftMode shift = ShiftMode::Off;
     std::array<Slot, max_keys> slots{};
 };
@@ -327,6 +369,7 @@ lv_obj_t* create_en_us_keyboard(lv_obj_t* parent, std::int32_t width, std::int32
     }
     auto* view = new (storage) KeyboardView{};
     view->container = container;
+    view->authored_font = style.font;
     if (lv_obj_add_event_cb(container, on_delete, LV_EVENT_DELETE, view) == nullptr) {
         destroy_view(view);
         lv_obj_delete(container);
@@ -382,6 +425,7 @@ bool set_keyboard_language(lv_obj_t* keyboard, const char* id)
         view->language = &language;
         view->base_layout = language.definition->initial_layout;
         view->shift = ShiftMode::Off;
+        if (!view->authored_font) for (auto& slot : view->slots) lv_obj_set_style_text_font(slot.button, keyboard_language_font(id), LV_PART_MAIN);
         refresh(*view);
         return true;
     }
@@ -403,5 +447,30 @@ const char* keyboard_language_name(std::size_t index)
 {
     return index < keyboard_language_count() ? languages[index].name : nullptr;
 }
+
+const lv_font_t* keyboard_language_font(const char* id)
+{
+    if (!id) return &espos_keyboard_font;
+#if LV_FONT_SOURCE_HAN_SANS_SC_16_CJK
+    if (!std::strcmp(id, "zh-CN")) { static const auto font = [] { auto value = lv_font_source_han_sans_sc_16_cjk; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+#if LV_FONT_DEJAVU_16_PERSIAN_HEBREW
+    if (!std::strcmp(id, "ar-SA")) { static const auto font = [] { auto value = lv_font_dejavu_16_persian_hebrew; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_HINDI_FONT
+    if (!std::strcmp(id, "hi-IN")) { static const auto font = [] { auto value = espos_keyboard_hindi_font; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT
+    if (!std::strcmp(id, "bn-BD")) { static const auto font = [] { auto value = espos_keyboard_bengali_font; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT
+    if (!std::strcmp(id, "ru-RU")) { static const auto font = [] { auto value = espos_keyboard_cyrillic_font; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_URDU_FONT
+    if (!std::strcmp(id, "ur-PK")) { static const auto font = [] { auto value = espos_keyboard_urdu_font; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+    return &espos_keyboard_font;
+}
+bool keyboard_language_right_to_left(const char* id) { return id && (!std::strcmp(id, "ar-SA") || !std::strcmp(id, "ur-PK")); }
 
 }  // namespace espos::keyboard

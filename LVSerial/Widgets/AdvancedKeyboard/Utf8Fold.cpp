@@ -2,6 +2,7 @@
 // The project feature gates live in lv_conf.h. Load them before the portable
 // engine's fallback defaults, including in callback-only (no model) profiles.
 #include <lvgl.h>
+#include "Utf8Fold.h"
 #include "PredictionAutocorrect.h"
 
 #include "PredictionModel.h"
@@ -24,6 +25,9 @@ struct ScalarMapping {
 };
 
 #include "UnicodeFold.inc"
+struct WordRange { std::uint32_t first, last; };
+struct IndicDecomposition { std::uint32_t scalar, first, second; };
+#include "UnicodeWordRanges.inc"
 
 enum class Utf8Status { Done, Partial, Invalid };
 
@@ -75,6 +79,13 @@ std::uint32_t Lookup(const ScalarMapping (&table)[Count], std::uint32_t scalar) 
 
 std::uint32_t AsciiLower(std::uint32_t scalar) noexcept {
     return scalar >= 'A' && scalar <= 'Z' ? scalar + ('a' - 'A') : scalar;
+}
+
+template <std::size_t Count>
+bool Inside(const WordRange (&ranges)[Count], std::uint32_t scalar) noexcept {
+    const auto* next = std::upper_bound(std::begin(ranges), std::end(ranges), scalar,
+        [](std::uint32_t value, const WordRange& range) { return value < range.first; });
+    return next != std::begin(ranges) && scalar <= (next - 1)->last;
 }
 
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
@@ -179,7 +190,22 @@ double Substitution(std::uint32_t intended, std::uint32_t observed) noexcept {
 #endif
 }  // namespace
 
-bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, std::string_view& folded) noexcept {
+bool IsWordScalar(std::uint32_t scalar) noexcept {
+    if (scalar < 0x80) return (scalar >= 'A' && scalar <= 'Z') || (scalar >= 'a' && scalar <= 'z') ||
+        (scalar >= '0' && scalar <= '9');
+    return Inside(kUnicodeWordRanges, scalar);
+}
+bool IsMarkScalar(std::uint32_t scalar) noexcept { return scalar >= 0x300 && Inside(kUnicodeMarkRanges, scalar); }
+bool IsHanScalar(std::uint32_t scalar) noexcept {
+    return (scalar >= 0x3400 && scalar <= 0x4dbf) || (scalar >= 0x4e00 && scalar <= 0x9fff) ||
+        (scalar >= 0xf900 && scalar <= 0xfaff) || (scalar >= 0x20000 && scalar <= 0x2ee5f) ||
+        (scalar >= 0x2f800 && scalar <= 0x2fa1f) || (scalar >= 0x30000 && scalar <= 0x323af);
+}
+bool IsCyrillicUpper(std::uint32_t scalar) noexcept { return Lookup(kCyrillicLowerMappings, scalar) != scalar; }
+bool IsCyrillicLower(std::uint32_t scalar) noexcept { return Lookup(kCyrillicUpperMappings, scalar) != scalar; }
+std::uint32_t UpperCyrillic(std::uint32_t scalar) noexcept { return Lookup(kCyrillicUpperMappings, scalar); }
+
+bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, std::string_view& folded, bool canonicalIndic) noexcept {
     folded = {};
     if (destination == nullptr && !input.empty()) return false;
     std::size_t used = 0;
@@ -187,6 +213,14 @@ bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, s
         std::uint32_t scalar = 0;
         std::size_t width = 0;
         if (DecodeUtf8(input, scalar, width) != Utf8Status::Done) return false;
+        if (canonicalIndic && scalar >= 0x900 && scalar <= 0x9ff) {
+            const auto* entry = std::lower_bound(std::begin(kIndicNuktaMappings), std::end(kIndicNuktaMappings), scalar,
+                [](const IndicDecomposition& mapping, std::uint32_t value) { return mapping.scalar < value; });
+            if (entry != std::end(kIndicNuktaMappings) && entry->scalar == scalar) {
+                if (!AppendUtf8(entry->first, destination, capacity, used) || !AppendUtf8(entry->second, destination, capacity, used)) return false;
+                input.remove_prefix(width); continue;
+            }
+        }
         const std::uint32_t mapping = scalar < 0x80 ? AsciiLower(scalar) : Lookup(kFoldMappings, scalar);
         if (mapping < kExpansionBase) {
             if (!AppendUtf8(mapping, destination, capacity, used)) return false;
@@ -201,6 +235,10 @@ bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, s
     }
     if (used != 0) folded = {destination, used};
     return true;
+}
+
+bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, std::string_view& folded) noexcept {
+    return FoldUtf8(input, destination, capacity, folded, false);
 }
 
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION

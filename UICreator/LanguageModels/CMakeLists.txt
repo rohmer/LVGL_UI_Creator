@@ -10,3 +10,12 @@ if(MSVC)
 endif()
 find_package(Threads REQUIRED)
 target_link_libraries(UICreatorLanguageModels PUBLIC Threads::Threads)
+
+add_executable(UICreatorModelGen ModelGen.cpp)
+target_link_libraries(UICreatorModelGen PRIVATE UICreatorLanguageModels)
+if(MSVC)
+    target_compile_options(UICreatorModelGen PRIVATE /utf-8 /EHsc)
+endif()
+add_custom_command(TARGET UICreatorModelGen POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/wordlists"
+        "$<TARGET_FILE_DIR:UICreatorModelGen>/wordlists" VERBATIM)

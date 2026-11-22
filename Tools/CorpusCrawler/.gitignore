@@ -1,0 +1,4 @@
+bin/
+obj/
+OpenNlp/dependencies/
+OpenNlp/java-home.txt

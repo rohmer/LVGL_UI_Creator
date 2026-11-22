@@ -35,7 +35,11 @@ if(LVSERIAL_USE_ADVANCED_KEYBOARD)
         Widgets/AdvancedKeyboard/SuggestionText.cpp
         Widgets/AdvancedKeyboard/Utf8Fold.cpp
         Widgets/AdvancedKeyboard/AdvancedKeyboard.cpp
-        Widgets/AdvancedKeyboard/KeyboardFont.c)
+        Widgets/AdvancedKeyboard/KeyboardFont.c
+        Widgets/AdvancedKeyboard/KeyboardHindiFont.c
+        Widgets/AdvancedKeyboard/KeyboardBengaliFont.c
+        Widgets/AdvancedKeyboard/KeyboardCyrillicFont.c
+        Widgets/AdvancedKeyboard/KeyboardUrduFont.c)
     if(LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION)
         list(APPEND serialization_sources Widgets/AdvancedKeyboard/PredictionModel.cpp
             Widgets/AdvancedKeyboard/PredictionPrefix.cpp Widgets/AdvancedKeyboard/Prediction.cpp)

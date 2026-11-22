@@ -70,6 +70,7 @@ class AdvancedProperties
 
     static std::string Name(std::string key)
     {
+        if (key == "rightToLeft") return "Right-to-left display";
         if (key == "hlDates") return "Highlighted dates";
         if (key == "dayN") return "Day names";
         if (key == "monthN") return "Month names";
@@ -476,15 +477,19 @@ public:
             try {
                 EditorEdit::Scope edit;
                 const auto previous=Serialization::AdvancedKeyboard::ToJSON(state->object).at("advancedKeyboard");
-                json update={{"language",id}};
+                json update={{"language",id},{"rightToLeft",std::string(id)=="ar-SA" || std::string(id)=="ur-PK"}};
                 const bool clearEnglish=std::string(id)!="en-US" && previous.value("trieId",std::string{})=="builtin-en-us";
                 if(clearEnglish)update["trieId"]="";
                 state->window->Tries().ApplySettings(state->object,update);
                 if(clearEnglish && state->trie)lv_dropdown_set_selected(state->trie,0);
                 lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Border),LV_PART_MAIN);
+                Refresh(state->window,state->object);
             }catch(const std::exception& error){lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Error),LV_PART_MAIN);}
         },LV_EVENT_ALL,languageBinding);
 #endif
+        Build(window,parent,"/advancedKeyboard/rightToLeft","rightToLeft",
+            settings.value("rightToLeft",settings.value("language",std::string{})=="ar-SA" || settings.value("language",std::string{})=="ur-PK"),
+            {{"advancedKeyboard",settings}});
         auto* trieField=Column(parent);
         auto* trieTitle=lv_label_create(trieField);lv_label_set_text(trieTitle,"Prediction trie");
         auto* selector=lv_dropdown_create(trieField);lv_obj_set_width(selector,LV_PCT(100));
@@ -591,7 +596,7 @@ public:
         {
             if (section.key() == "base" || !section.value().is_object()) continue;
             for (const auto& field : section.value().items()) {
-                if(section.key()=="advancedKeyboard" && (field.key()=="language" || field.key()=="trieId" || field.key()=="targetOid" || field.key()=="hideOnDefocus"))continue;
+                if(section.key()=="advancedKeyboard" && (field.key()=="language" || field.key()=="rightToLeft" || field.key()=="trieId" || field.key()=="targetOid" || field.key()=="hideOnDefocus"))continue;
                 Build(window, content, "/" + section.key() + "/" + field.key(), field.key(), field.value(), record);
             }
         }

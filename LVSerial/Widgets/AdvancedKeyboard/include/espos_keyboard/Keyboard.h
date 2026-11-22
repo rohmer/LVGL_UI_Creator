@@ -30,5 +30,8 @@ const char* keyboard_language(lv_obj_t* keyboard);
 std::size_t keyboard_language_count();
 const char* keyboard_language_id(std::size_t index);
 const char* keyboard_language_name(std::size_t index);
+// Shared static script fonts include the original key-symbol font as fallback.
+const lv_font_t* keyboard_language_font(const char* id);
+bool keyboard_language_right_to_left(const char* id);
 
 }  // namespace espos::keyboard

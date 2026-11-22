@@ -29,8 +29,9 @@
 namespace LanguageModelWindow {
 namespace {
 using Clock = std::chrono::steady_clock;
-constexpr const char* languageIds[] = {"en", "es", "fr", "de", "el"};
-constexpr const char* languageLabels = "English\nSpanish\nFrench\nGerman\nGreek";
+constexpr const char* languageIds[] = {"en", "es", "fr", "de", "el", "ar", "hi", "zh", "bn", "id", "ur", "ru"};
+constexpr uint32_t languageCount = sizeof(languageIds) / sizeof(*languageIds);
+constexpr const char* languageLabels = "English\nSpanish\nFrench\nGerman\nGreek\nArabic\nHindi\nMandarin Chinese\nBengali\nIndonesian\nUrdu\nRussian";
 constexpr uint64_t importLimit = 16u * 1024u * 1024u;
 struct Work {
     std::atomic_bool cancel{false}, done{false};
@@ -199,7 +200,7 @@ LanguageModels::Options ReadOptions(Window* window) {
     if (options.trieOutput.filename().empty() || std::filesystem::is_directory(options.trieOutput)) throw std::invalid_argument("Choose a file for the trie output.");
     if (!std::filesystem::is_directory(options.trieOutput.parent_path())) throw std::invalid_argument("The output folder does not exist.");
     const auto language = lv_dropdown_get_selected(window->fields.at("language"));
-    options.language = languageIds[(std::min)(language, uint32_t{4})];
+    options.language = languageIds[(std::min)(language, languageCount - 1)];
     options.wordListDirectory = WordLists();
     const auto workers = Number(Text(window, "workers"), "Worker threads");
     if (!workers || workers > 1024) throw std::invalid_argument("Worker threads must be between 1 and 1024.");
@@ -215,12 +216,13 @@ LanguageModels::Options ReadOptions(Window* window) {
     options.recursive = Checked(window, "recursive"); options.useCache = Checked(window, "cache");
     options.lowMemory = Checked(window, "lowMemory"); options.compact = true;
     options.cacheDirectory = EditorSession::DefaultDirectory() / "language-model-cache";
+    options.scratchDirectory = EditorSession::DefaultDirectory() / "language-model-work";
     return options;
 }
 void SaveSettings(Window* window) {
     try {
         json settings = {{"version", 1}, {"recursive", Checked(window, "recursive")}, {"cache", Checked(window, "cache")},
-            {"lowMemory", Checked(window, "lowMemory")}, {"language", languageIds[(std::min)(lv_dropdown_get_selected(window->fields.at("language")), uint32_t{4})]}};
+            {"lowMemory", Checked(window, "lowMemory")}, {"language", languageIds[(std::min)(lv_dropdown_get_selected(window->fields.at("language")), languageCount - 1)]}};
         for (const auto* key : {"directories", "output", "maximumBytes", "unigrams", "bigrams", "trigrams", "workers"}) settings[key] = Text(window, key);
         const auto path = SettingsFile(); std::filesystem::create_directories(path.parent_path());
         EditorSession::WriteAtomic(path, settings.dump(2));
@@ -235,7 +237,7 @@ void LoadSettings(Window* window) {
             if (settings.contains(key) && settings.at(key).is_string()) lv_textarea_set_text(window->fields.at(key), settings.at(key).get_ref<const std::string&>().c_str());
         for (const auto* key : {"recursive", "cache", "lowMemory"}) if (settings.contains(key) && settings.at(key).is_boolean()) lv_obj_set_checked(window->fields.at(key), settings.at(key).get<bool>());
         const auto language = settings.value("language", std::string("en"));
-        for (uint32_t index = 0; index < 5; ++index) if (language == languageIds[index]) lv_dropdown_set_selected(window->fields.at("language"), index);
+        for (uint32_t index = 0; index < languageCount; ++index) if (language == languageIds[index]) lv_dropdown_set_selected(window->fields.at("language"), index);
     } catch (const std::exception& error) { Status(window, std::string("Could not load generator settings: ") + error.what(), true); }
 }
 void SetRunning(Window* window, bool running) {
@@ -422,7 +424,8 @@ void Open(PropertyWindow* properties) {
     }
     Check(window, settings, "Reuse saved counts", true, "cache");
     Check(window, settings, "Keep counts on disk", true, "lowMemory");
-    EditorStyle::Help(settings, "Output format: compact NGTR v3. Corpus language selects its bundled word filter; it is separate from the keyboard layout. Blank count limits are automatic.");
+    EditorStyle::Help(settings, "Temporary counts use local application storage, including when the final trie is saved to a synced or network folder.");
+    EditorStyle::Help(settings, "Output format: compact NGTR v3. English, Spanish, French, German and Greek use bundled vocabulary filters. Other languages train directly from the corpus, preserving combining marks. Mandarin counts Han characters. The keyboard layout is selected separately. Blank count limits are automatic.");
     auto* footer = lv_obj_create(body); lv_obj_set_size(footer, LV_PCT(100), LV_SIZE_CONTENT); lv_obj_set_scrollable(footer, false);
     lv_obj_set_flex_flow(footer, LV_FLEX_FLOW_COLUMN); lv_obj_set_style_pad_all(footer, 0, LV_PART_MAIN);
     lv_obj_set_style_border_width(footer, 0, LV_PART_MAIN); lv_obj_set_style_bg_opa(footer, LV_OPA_TRANSP, LV_PART_MAIN);

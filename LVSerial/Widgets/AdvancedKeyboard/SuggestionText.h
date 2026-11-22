@@ -21,9 +21,10 @@ struct SuggestionText {
     bool selected = false;
 };
 
-SuggestionText capture_suggestion_text(lv_obj_t* textarea);
+SuggestionText capture_suggestion_text(lv_obj_t* textarea, bool hanTokens = false);
 std::size_t display_suggestion(const SuggestionText& input, std::string_view raw,
                                char* output, std::size_t capacity);
-bool accept_suggestion(lv_obj_t* textarea, const SuggestionText& input, std::string_view word, bool add_space = true);
+bool accept_suggestion(lv_obj_t* textarea, const SuggestionText& input, std::string_view word,
+                       bool add_space = true, bool hanTokens = false);
 
 }  // namespace espos::keyboard::detail

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="GBUTest" />
+    <InternalsVisibleTo Include="KeyboardSimulator.LanguageTests" />
+    <InternalsVisibleTo Include="CorpusWorkbench" />
+    <ProjectReference Include="../NgramTrie.Reader/NgramTrie.Reader.csproj" />
+    <Compile Include="../NgramTrie/WordNormalization.cs" Link="WordNormalization.cs" />
+    <EmbeddedResource Include="../NgramTrie/CaseFold.txt" LogicalName="NgramTrie.CaseFold.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../LVSerial/Widgets/AdvancedKeyboard/layout/*.json" Link="Keyboards/%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="PinyinData.tsv" LogicalName="KeyboardSimulator.PinyinData.tsv" />
+    <Content Include="PinyinData.LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -360,6 +360,7 @@ def analyze_projects(documents: list[dict], *, color_depth=16, default_font=14) 
     sw_formats = {"RGB565" if color_depth == 16 else "ARGB8888", "ARGB8888", "A8"}
     compressed_fonts = large_fonts = complex_gradients = False
     font_count = image_count = 0
+    keyboard_languages = set()
     trie_summaries = []
     def need(feature, reason):
         enabled.add(feature)
@@ -406,6 +407,14 @@ def analyze_projects(documents: list[dict], *, color_depth=16, default_font=14) 
                     kind = special[0]; kinds.add(kind); custom.add(CUSTOM[kind])
                     reasons.setdefault(CUSTOM[kind], set()).add(path or "widget")
                     for dependency in CUSTOM_DEPENDENCIES[kind]: need(dependency, kind)
+                    if kind == "advancedKeyboard":
+                        settings = value[kind]
+                        language = settings.get("language", "en-US")
+                        keyboard_languages.add(language)
+                        if "rightToLeft" in settings and not isinstance(settings["rightToLeft"], bool):
+                            raise ValueError("Advanced Keyboard rightToLeft must be a boolean")
+                        if language in ("ar-SA", "ur-PK") or settings.get("rightToLeft", False):
+                            need("BIDI", "Advanced Keyboard right-to-left input")
                 elif any(key not in {"base", "oid", "par", "hostPath", "hostIndex", "contentChildren", "page"} for key in value):
                     raise ValueError("Unrecognized widget type section at " + path)
                 else: kinds.add("object")
@@ -498,9 +507,15 @@ def analyze_projects(documents: list[dict], *, color_depth=16, default_font=14) 
         for feature in tuple(enabled):
             for dependency in DEPENDENCIES.get(feature, set()): need(dependency, feature + " dependency")
         changed = old != enabled
+    # Automatic Arabic label shaping changes textarea's logical text storage.
+    # Keyboard projects retain Unicode input and use BiDi for visual direction.
+    if "LVSERIAL_USE_ADVANCED_KEYBOARD" in custom:
+        enabled.discard("ARABIC_PERSIAN_CHARS")
+        reasons.pop("LV_USE_ARABIC_PERSIAN_CHARS", None)
     return {"schemaVersion": 1, "lvglVersion": "9.6.0", "runtimeTarget": "9.6", "colorDepth": color_depth,
             "defaultFont": default_font, "widgetSections": sorted(kinds), "enabledFeatures": sorted(enabled),
             "customFeatures": sorted(custom), "softwareFormats": sorted(sw_formats),
+            "keyboardLanguages": sorted(keyboard_languages),
             "legacyImageFormats": sorted(legacy_formats), "fontCompressed": compressed_fonts,
             "fontLargeDescriptors": large_fonts, "complexGradients": complex_gradients,
             "fontAssetCount": font_count, "imageAssetCount": image_count,
@@ -536,6 +551,12 @@ def lvgl_config(plan: dict, root: Path) -> str:
     fonts = set(re.findall(r"^\s*#define\s+(LV_FONT_(?:MONTSERRAT|UNSCII|DEJAVU|SOURCE_HAN)[A-Z0-9_]+)\s+[01](?:\s|$)", internal, re.M))
     for name in fonts: definitions[name] = int(name == "LV_FONT_MONTSERRAT_" + str(plan["defaultFont"]))
     definitions["LV_FONT_MONTSERRAT_" + str(plan["defaultFont"])] = 1
+    languages = set(plan.get("keyboardLanguages", []))
+    definitions["LV_FONT_SOURCE_HAN_SANS_SC_16_CJK"] = int("zh-CN" in languages)
+    definitions["LV_FONT_DEJAVU_16_PERSIAN_HEBREW"] = int("ar-SA" in languages)
+    definitions["LV_ADVANCED_KEYBOARD_USE_PINYIN"] = int("zh-CN" in languages)
+    for language, name in (("hi-IN", "HINDI"), ("bn-BD", "BENGALI"), ("ur-PK", "URDU"), ("ru-RU", "CYRILLIC")):
+        definitions["LV_ADVANCED_KEYBOARD_USE_" + name + "_FONT"] = int(language in languages)
     formats = set(re.findall(r"#ifndef\s+(LV_DRAW_SW_SUPPORT_[A-Z0-9_]+)", internal))
     for name in formats:
         definitions[name] = int(name.removeprefix("LV_DRAW_SW_SUPPORT_") in plan["softwareFormats"])
@@ -571,6 +592,12 @@ def source_plan(plan: dict, root: Path) -> list[str]:
                     "src/themes/lv_theme.c", "src/themes/default/*.c", "src/image/lv_bin_decoder.c", "src/image/lv_image_decoder.c"):
         add(pattern)
     add(f"src/font/lv_font_montserrat_{plan['defaultFont']}.c")
+    languages = set(plan.get("keyboardLanguages", []))
+    if "zh-CN" in languages: add("src/font/lv_font_source_han_sans_sc_16_cjk.c")
+    if "ar-SA" in languages: add("src/font/lv_font_dejavu_16_persian_hebrew.c")
+    for language, name in (("hi-IN", "Hindi"), ("bn-BD", "Bengali"), ("ur-PK", "Urdu"), ("ru-RU", "Cyrillic")):
+        if language in languages:
+            selected.add("LVSerial/Widgets/AdvancedKeyboard/Keyboard" + name + "Font.c")
     enabled = set(plan["enabledFeatures"])
     for feature, directory in WIDGET_DIRS.items():
         if feature in enabled:

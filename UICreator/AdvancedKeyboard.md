@@ -17,9 +17,14 @@ Select Advanced Keyboard in the Hierarchy to configure it:
 
 - **Target text box:** use the focused field automatically, or restrict the
   keyboard to a particular text area/Text box.
-- **Language:** choose English (US), Spanish, French, German, Italian or
-  Portuguese. The keys use that language's layout and accented letters.
+- **Language:** choose English (US), Spanish, French, German, Italian,
+  Portuguese, Mandarin Chinese (Pinyin), Arabic, Hindi, Bengali, Indonesian,
+  Urdu or Russian. The keys use that language's layout and letters.
   This setting is saved per keyboard and preserved in C exports.
+- **Right-to-left display:** Arabic and Urdu enable this by default. Toggle it
+  to choose the active text box's typing direction. Saved text stays in logical
+  Unicode order. The field's authored direction is restored on dismissal or a
+  target switch; temporary editing styles do not enter saved projects.
 - **Prediction trie:** choose bundled English, an imported project trie, or
   None. Click **Load trie…** to select a compact NGTR v3 file for the desired
   prediction and autocorrect vocabulary. Loaded models and
@@ -36,6 +41,23 @@ suggestions and autocorrect. Changing the layout preserves an explicitly
 loaded trie. Language and trie selection are separate settings.
 The key labels use the bundled language font. The target field keeps its own
 font; choose one containing the language's glyphs to display accented text.
+
+Mandarin uses Pinyin composition and paged Chinese character candidates.
+Type a syllable, choose a candidate, or use Space to accept the first visible
+candidate. Enter commits and closes; X discards uncommitted Pinyin. Composition
+is cleared when switching targets/languages or entering a password field.
+Committed Han text uses character-based trie contexts and inserts predictions
+without adding Latin word spaces.
+
+Arabic, Hindi, Bengali, Indonesian, Urdu, Russian and Mandarin are also accepted
+by the language-model generator and the source Corpus Workbench tools. Use
+**Language Models > Generate language model...** or see [Corpus Workbench](../Tools/README.md).
+The keyboard's fonts cover its keys and candidates. Target fields keep their
+authored fonts, so select matching script glyphs in the field's font settings.
+Native LVGL supports logical Unicode input and RTL ordering here; full
+Arabic/Urdu contextual shaping and Hindi/Bengali conjunct/mark positioning remain
+renderer limitations. The Windows simulator uses OS text shaping. See the
+[native keyboard notes](../LVSerial/Widgets/AdvancedKeyboard/README.md).
 
 Type a prefix to see word completions; after a word, the model uses up to two
 previous words for next-word predictions. Tap a suggestion to accept it.

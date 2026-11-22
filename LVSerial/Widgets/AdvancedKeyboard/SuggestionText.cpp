@@ -69,21 +69,22 @@ bool upper(std::uint32_t value)
 {
     return (value >= 'A' && value <= 'Z') ||
            (value >= 0xc0 && value <= 0xde && value != 0xd7) || value == 0x178 ||
-           (value >= 0x391 && value <= 0x3ab && value != 0x3a2);
+           (value >= 0x391 && value <= 0x3ab && value != 0x3a2) || prediction::IsCyrillicUpper(value);
 }
 
 bool lower(std::uint32_t value)
 {
     return (value >= 'a' && value <= 'z') ||
            (value >= 0xdf && value <= 0xff && value != 0xf7) ||
-           (value >= 0x3b1 && value <= 0x3cb);
+           (value >= 0x3b1 && value <= 0x3cb) || prediction::IsCyrillicLower(value);
 }
 
 bool is_word(std::uint32_t value)
 {
-    return upper(value) || lower(value) || (value >= '0' && value <= '9') ||
-           (value >= 0x100 && value <= 0x24f) || (value >= 0x1e00 && value <= 0x1eff);
+    return prediction::IsWordScalar(value);
 }
+bool mark(std::uint32_t value) { return prediction::IsMarkScalar(value); }
+bool joiner(std::uint32_t value) { return value == 0x200c || value == 0x200d; }
 
 bool apostrophe(std::uint32_t value)
 {
@@ -93,28 +94,40 @@ bool apostrophe(std::uint32_t value)
 bool sentence_separator(std::uint32_t value)
 {
     return value == '.' || value == '!' || value == '?' || value == '\r' || value == '\n' ||
-           value == 0x2028 || value == 0x2029;
+           value == 0x2028 || value == 0x2029 || value == 0x61f || value == 0x6d4 ||
+           value == 0x964 || value == 0x965 || value == 0x3002 || value == 0xff01 || value == 0xff1f;
 }
 
-std::size_t word_start(std::string_view text, std::size_t position)
+std::size_t word_start(std::string_view text, std::size_t position, bool hanTokens)
 {
+    const auto end = position;
     while (position > 0) {
         const auto rune = previous_rune(text, position);
-        if (!is_word(rune.value) && (!apostrophe(rune.value) ||
-            !is_word(previous_rune(text, position - rune.width).value))) break;
+        if (hanTokens && prediction::IsHanScalar(rune.value)) break;
+        const auto before = previous_rune(text, position - rune.width);
+        if (!is_word(rune.value) && !mark(rune.value) &&
+            !(apostrophe(rune.value) && is_word(before.value)) &&
+            !(joiner(rune.value) && (is_word(before.value) || mark(before.value)))) break;
         position -= rune.width;
     }
+    // Marks and joiners may continue a word, but never start a token alone.
+    while (position < end && !is_word(next_rune(text, position).value))
+        position += next_rune(text, position).width;
     return position;
 }
 
-std::string_view previous_word(std::string_view text, std::size_t& position)
+std::string_view previous_word(std::string_view text, std::size_t& position, bool hanTokens)
 {
     while (position > 0) {
         const auto rune = previous_rune(text, position);
-        if (is_word(rune.value)) {
+        if (hanTokens && prediction::IsHanScalar(rune.value)) {
+            position -= rune.width;
+            return text.substr(position, rune.width);
+        }
+        if (is_word(rune.value) || mark(rune.value)) {
             const auto end = position;
-            position = word_start(text, position);
-            return text.substr(position, end - position);
+            const auto start = word_start(text, position, hanTokens);
+            if (start < end) { position = start; return text.substr(start, end - start); }
         }
         if (sentence_separator(rune.value)) {
             position = 0;
@@ -148,11 +161,17 @@ void capitalize(char* output, std::string_view text, bool entire_word)
             (value >= 0x3b1 && value <= 0x3cb)) value -= 32;
         else if (value == 0xff) value = 0x178;
         if (rune.value == 0x3c2) value = 0x3a3;
-        if (value != rune.value) {
+        value = prediction::UpperCyrillic(value);
+        const auto width = value < 0x80 ? 1u : value < 0x800 ? 2u : value < 0x10000 ? 3u : 4u;
+        if (value != rune.value && width == rune.width) {
             if (rune.width == 1) output[position] = static_cast<char>(value);
-            else {
+            else if (rune.width == 2) {
                 output[position] = static_cast<char>(0xc0 | (value >> 6));
                 output[position + 1] = static_cast<char>(0x80 | (value & 0x3f));
+            } else if (rune.width == 3) {
+                output[position] = static_cast<char>(0xe0 | (value >> 12));
+                output[position + 1] = static_cast<char>(0x80 | ((value >> 6) & 0x3f));
+                output[position + 2] = static_cast<char>(0x80 | (value & 0x3f));
             }
         }
         if (!entire_word) return;
@@ -170,7 +189,7 @@ bool is_selected(lv_obj_t* textarea)
 
 }  // namespace
 
-SuggestionText capture_suggestion_text(lv_obj_t* textarea)
+SuggestionText capture_suggestion_text(lv_obj_t* textarea, bool hanTokens)
 {
     SuggestionText input{};
     if (textarea == nullptr || lv_textarea_get_password_mode(textarea)) {
@@ -188,18 +207,21 @@ SuggestionText capture_suggestion_text(lv_obj_t* textarea)
     if (input.selected) return input;
 
     const auto caret_byte = byte_at(input.text, input.caret);
-    input.start = word_start(input.text, caret_byte);
+    input.start = word_start(input.text, caret_byte, hanTokens);
     input.end = caret_byte;
     while (input.end < input.text.size()) {
         const auto rune = next_rune(input.text, input.end);
-        if (!is_word(rune.value) && !(apostrophe(rune.value) && input.end > input.start &&
-            is_word(next_rune(input.text, input.end + rune.width).value))) break;
+        if (hanTokens && prediction::IsHanScalar(rune.value)) break;
+        const auto next = next_rune(input.text, input.end + rune.width);
+        if (!is_word(rune.value) && !(mark(rune.value) && input.end > input.start) &&
+            !(apostrophe(rune.value) && input.end > input.start && is_word(next.value)) &&
+            !(joiner(rune.value) && input.end > input.start && (is_word(next.value) || mark(next.value)))) break;
         input.end += rune.width;
     }
     input.prefix = input.text.substr(input.start, caret_byte - input.start);
     auto context = input.start;
-    input.previous = previous_word(input.text, context);
-    input.older = previous_word(input.text, context);
+    input.previous = previous_word(input.text, context, hanTokens);
+    input.older = previous_word(input.text, context, hanTokens);
     return input;
 }
 
@@ -228,12 +250,22 @@ std::size_t display_suggestion(const SuggestionText& input, std::string_view raw
     return size;
 }
 
-bool accept_suggestion(lv_obj_t* textarea, const SuggestionText& input, std::string_view word, bool add_space)
+bool accept_suggestion(lv_obj_t* textarea, const SuggestionText& input, std::string_view word, bool add_space, bool hanTokens)
 {
     if (textarea == nullptr || word.empty() || input.selected || lv_textarea_get_password_mode(textarea) ||
         lv_textarea_get_text(textarea) != input.text.data() || lv_textarea_get_cursor_pos(textarea) != input.caret ||
         is_selected(textarea) || input.start > input.end || input.end > input.text.size()) return false;
 
+    const auto boundary = [&](std::size_t offset) { return offset == input.text.size() || !continuation(static_cast<unsigned char>(input.text[offset])); };
+    const auto caret_byte = byte_at(input.text, input.caret);
+    if (!boundary(input.start) || !boundary(input.end) || input.start > caret_byte || input.end < caret_byte ||
+        input.prefix != input.text.substr(input.start, caret_byte - input.start)) return false;
+    for (std::size_t index = 0; index < word.size();) {
+        const auto rune = next_rune(word, index);
+        if (!rune.value || (rune.value == 0xfffd && rune.width == 1)) return false;
+        index += rune.width;
+    }
+    add_space = add_space && !hanTokens;
     const auto tail = input.text.substr(input.end);
     const bool append_space = add_space && tail.empty();
     const bool advance_space = add_space && !tail.empty() && (tail.front() == ' ' || tail.front() == '\t');

@@ -3,11 +3,15 @@
 #include <Serialization/Project.h>
 #include "../../CodeGeneration/CCodeGenerator.h"
 #include "../../Runtime/include/lvgl_runtime.h"
+#include <lv_advanced_keyboard_prediction.h>
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <iterator>
+#include <map>
+#include <memory>
 #include <stdexcept>
 
 using namespace Serialization;
@@ -71,6 +75,7 @@ void Text(lv_obj_t* object, const std::string& expected)
     const std::string actual = lv_advanced_keyboard_get_text(object);
     Check(actual == expected, "Typing mismatch: expected '" + expected + "', got '" + actual + "'");
 }
+json FieldStyles(lv_obj_t* object) { return LVObject::ToJSON(object).value("nativeStyles",json::array()); }
 struct LookupState
 {
     unsigned calls = 0;
@@ -316,9 +321,9 @@ void TestRevealCallbackDeletion(lv_event_code_t code)
 }
 void TestKeyboardLanguages()
 {
-    constexpr const char* ids[] = {"en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT"};
-    Check(lv_advanced_keyboard_language_count() == 6, "Keyboard language catalog lost one of the six supported layouts");
-    for (size_t i = 0; i < 6; ++i) {
+    constexpr const char* ids[] = {"en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT", "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU"};
+    Check(lv_advanced_keyboard_language_count() == 13, "Keyboard language catalog must contain all thirteen stable layouts");
+    for (size_t i = 0; i < 13; ++i) {
         const auto* id = lv_advanced_keyboard_language_id(i);
         const auto* name = lv_advanced_keyboard_language_name(i);
         Check(id && std::strcmp(id, ids[i]) == 0 && name && *name, "Language catalog has an invalid stable ID or label");
@@ -372,6 +377,167 @@ void TestKeyboardLanguages()
               "Bundled keyboard font is missing a real multilingual glyph");
     }
     lv_screen_load(previous); lv_obj_delete(screen);
+}
+
+void TestScriptKeyboards(const std::filesystem::path& directory)
+{
+    auto* previous = lv_screen_active(); auto* screen = RevealScreen();
+    auto* field = lv_textarea_create(screen); lv_obj_set_pos(field, 15, 15); lv_obj_set_size(field, 600, 65);
+    auto* second = lv_textarea_create(screen); lv_obj_set_pos(second, 15, 100); lv_obj_set_size(second, 600, 65);
+    lv_obj_set_style_text_font(field, LV_FONT_DEFAULT, LV_PART_MAIN);
+    lv_obj_set_style_text_align(field, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+    const auto* authoredFont = lv_obj_get_style_text_font(field, LV_PART_MAIN);
+    const auto authoredStyles = FieldStyles(field);
+    auto* keyboard = RevealKeyboard(screen); auto* keys = lv_advanced_keyboard_get_keyboard(keyboard);
+    lv_advanced_keyboard_set_autocorrect(keyboard, false);
+    Check(lv_advanced_keyboard_set_textarea(keyboard, field), "Cannot attach script keyboard");
+    struct Script { const char* id; const char* key; uint32_t glyph; bool rtl; };
+    const Script scripts[] = {{"ar-SA",u8"س",0x0633,true},{"hi-IN",u8"क",0x0915,false},
+        {"bn-BD",u8"ক",0x0995,false},{"id-ID","q",0x71,false},{"ur-PK",u8"پ",0x067e,true},
+        {"ru-RU",u8"й",0x0439,false},{"zh-CN","n",0x4f60,false}};
+    for (const auto& script : scripts) {
+        Check(lv_advanced_keyboard_set_language(keyboard, script.id), std::string("Cannot select script ") + script.id);
+        Check(lv_advanced_keyboard_get_right_to_left(keyboard) == script.rtl &&
+            lv_obj_get_style_base_dir(field, LV_PART_MAIN) == (script.rtl ? LV_BASE_DIR_RTL : LV_BASE_DIR_LTR), "Layout direction did not reach the target");
+        Check(lv_obj_get_style_text_font(field, LV_PART_MAIN) == authoredFont && lv_obj_get_style_text_align(field, LV_PART_MAIN) == LV_TEXT_ALIGN_CENTER,
+            "Selecting a script replaced the target's authored font or alignment");
+        Check(FieldStyles(field)==authoredStyles,"Editing direction leaked into authored field styles");
+        auto* key = Button(keys, script.key); Check(key, "Script key is missing");
+        const auto* font = lv_obj_get_style_text_font(key, LV_PART_MAIN); lv_font_glyph_dsc_t glyph{};
+        Check(lv_font_get_glyph_dsc(font, &glyph, script.glyph, 0) && !glyph.is_placeholder && glyph.box_w && glyph.box_h, std::string("Missing compiled script glyph for ") + script.id);
+        if (std::string(script.id) == "hi-IN" || std::string(script.id) == "bn-BD") {
+            Check(lv_font_get_glyph_dsc(font, &glyph, 0x25cc, 0) && !glyph.is_placeholder && glyph.box_w, "Indic matra labels lack the dotted-circle glyph");
+        }
+        lv_textarea_set_text(field, "");
+        if (std::string(script.id) != "zh-CN") { Tap(keys, script.key); Text(keyboard, script.key); Tap(keys, u8"⌫"); Text(keyboard, ""); }
+        if (script.rtl) {
+            lv_advanced_keyboard_set_right_to_left(keyboard, false);
+            Check(!lv_advanced_keyboard_get_right_to_left(keyboard) && lv_obj_get_style_base_dir(field, LV_PART_MAIN) == LV_BASE_DIR_LTR,
+                "RTL override could not select LTR");
+            lv_advanced_keyboard_set_right_to_left(keyboard, true);
+            Check(lv_advanced_keyboard_set_textarea(keyboard, second) && lv_obj_get_style_base_dir(second, LV_PART_MAIN) == LV_BASE_DIR_RTL,
+                "RTL direction did not follow a switched target");
+            Check(lv_advanced_keyboard_set_textarea(keyboard, field), "Cannot restore script target");
+        }
+        const bool savedRTL = std::string(script.id) == "ar-SA" ? false : script.rtl;
+        lv_advanced_keyboard_set_right_to_left(keyboard,savedRTL);
+        auto record = ObjectSerializer::SerializeObject(keyboard); record["oid"] = 7; record["par"] = -1; record["advancedKeyboard"]["targetOid"] = 8;
+        Check(record["advancedKeyboard"]["language"] == script.id && record["advancedKeyboard"]["rightToLeft"] == savedRTL,
+            "Script or direction did not serialize");
+        auto entry = ObjectSerializer::SerializeObject(field); entry["oid"] = 8; entry["par"] = -1;
+        json document={{"canvas",{{"width",640},{"height",480}}},{"variables",json::array()},{"obj",json::array({record,entry})},{"runtimeTarget","9.6"}};
+        document = json::parse(document.dump()); const auto binary = Protobuf::Encode(EntityKind::Project,"project",document);
+        Check(Protobuf::Decode(binary).data["obj"][0]["advancedKeyboard"]["rightToLeft"] == savedRTL, "Protobuf lost RTL setting");
+        const auto output = directory / "languages" / script.id; CCodeGenerator generator;
+        Check(generator.LoadProject(document) && generator.ExportProject(output.u8string()), generator.GetLastError());
+        std::ifstream generated(output / "ui.c"); const std::string code((std::istreambuf_iterator<char>(generated)),{});
+        Check(code.find("lv_advanced_keyboard_set_right_to_left") != std::string::npos && code.find(script.id) != std::string::npos, "Generated C omitted script or direction");
+        lvgl_runtime_t* runtime = nullptr; char error[512]{};
+        Check(lvgl_runtime_load_memory(binary.data(),binary.size(),nullptr,&runtime,error,sizeof error),error);
+        auto* loaded=lvgl_runtime_object(runtime,0,7); auto* target=lvgl_runtime_object(runtime,0,8);
+        Check(loaded && target && std::string(lv_advanced_keyboard_get_language(loaded))==script.id && lv_advanced_keyboard_get_right_to_left(loaded)==savedRTL,
+            "Runtime lost the script layout or direction");
+        Check(lv_advanced_keyboard_set_textarea(loaded,target) && lv_obj_get_style_base_dir(target,LV_PART_MAIN)==(savedRTL?LV_BASE_DIR_RTL:LV_BASE_DIR_LTR),
+            "Runtime did not apply direction to the bound target");
+        lvgl_runtime_destroy(runtime); Check(lv_screen_active()==screen,"Script runtime did not restore the native screen");
+    }
+    Check(lv_advanced_keyboard_set_language(keyboard,"ar-SA"),"Cannot select Arabic");
+    lv_textarea_set_text(field,""); for(const auto* letter:{u8"س",u8"ل",u8"ا",u8"م"})Tap(keys,letter);
+    Text(keyboard,u8"سلام"); Check(lv_textarea_get_cursor_pos(field)==4,"Arabic lam/alef collapsed logical cursor positions");
+    Tap(keys,u8"⌫"); Text(keyboard,u8"سلا"); Check(lv_textarea_get_cursor_pos(field)==3,"Arabic backspace removed the wrong logical character");
+    Check(lv_advanced_keyboard_set_language(keyboard,"ur-PK"),"Cannot select Urdu");
+    lv_textarea_set_text(field,""); for(const auto* letter:{u8"پ",u8"ی",u8"ا",u8"ر"})Tap(keys,letter);
+    Text(keyboard,u8"پیار"); Tap(keys,u8"⌫"); Text(keyboard,u8"پیا");
+    Check(lv_advanced_keyboard_set_language(keyboard,"hi-IN"),"Cannot select Hindi");
+    lv_textarea_set_text(field,"");Tap(keys,u8"क");Tap(keys,u8"◌ि");Text(keyboard,u8"कि");Tap(keys,u8"⌫");Text(keyboard,u8"क");
+    Check(lv_advanced_keyboard_set_language(keyboard,"bn-BD"),"Cannot select Bengali");
+    lv_textarea_set_text(field,"");Tap(keys,u8"ক");Tap(keys,u8"◌ি");Text(keyboard,u8"কি");Tap(keys,u8"⌫");Text(keyboard,u8"ক");
+    Check(lv_advanced_keyboard_set_language(keyboard,"ru-RU"),"Cannot select Russian");
+    lv_textarea_set_text(field,"");Tap(keys,u8"й");Tap(keys,u8"⇧");Advance(320);Tap(keys,u8"Й");Text(keyboard,u8"йЙ");
+    Check(lv_advanced_keyboard_set_language(keyboard,"zh-CN"),"Cannot select Pinyin");
+    auto* bar=lv_obj_get_child(keyboard,0);lv_textarea_set_text(field,"");Tap(keys,"n");Tap(keys,"i");Text(keyboard,"");
+    Check(Button(bar,u8"你"),"Pinyin ni did not offer a real Chinese candidate");Tap(bar,u8"你");Text(keyboard,u8"你");
+    lv_textarea_add_text(field,"hao");Text(keyboard,u8"你");Check(Button(bar,u8"好"),"Physical Pinyin input did not compose");Tap(keys,"space");Text(keyboard,u8"你好");
+    Tap(keys,"s");Tap(keys,"h");Tap(keys,"i");Check(Button(bar,u8"是"),"Pinyin shi has no first candidate");
+    Tap(bar,">");Check(!Button(bar,u8"是"),"Pinyin next page repeated the first page");Tap(bar,"<");Check(Button(bar,u8"是"),"Pinyin previous page did not restore candidates");Tap(bar,u8"是");Text(keyboard,u8"你好是");
+    lv_textarea_set_text(field,"");lv_textarea_add_text(field,"shi");Tap(bar,">");Check(Button(bar,u8"食"),"Pinyin second page has no expected character");Tap(keys,"space");Text(keyboard,u8"食");
+    lv_textarea_set_text(field,"");lv_textarea_add_text(field,"ni");Tap(keys,u8"⌫");Text(keyboard,"");Tap(keys,u8"⌫");Check(!Button(bar,u8"你"),"Backspace retained a stale Pinyin candidate");
+    lv_textarea_add_text(field,"ni");Check(lv_advanced_keyboard_set_textarea(keyboard,second),"Cannot switch Pinyin target");lv_textarea_set_text(second,"");
+    Tap(keys,"space");Check(std::string(lv_textarea_get_text(field)).empty()&&std::string(lv_textarea_get_text(second))==" ","Pinyin preedit leaked between text boxes");
+    Check(lv_advanced_keyboard_set_textarea(keyboard,field),"Cannot restore Pinyin target");lv_textarea_add_text(field,"ni");
+    Check(lv_advanced_keyboard_set_language(keyboard,"ar-SA")&&lv_advanced_keyboard_set_language(keyboard,"zh-CN"),"Cannot switch away from Pinyin");
+    Check(!Button(bar,u8"你"),"Language switch retained private Pinyin state");lv_textarea_add_text(field,"ni");Tap(bar,"X");
+    Check(!lv_advanced_keyboard_get_textarea(keyboard)&&std::string(lv_textarea_get_text(field)).empty(),"X committed private Pinyin composition");
+    Check(lv_advanced_keyboard_set_textarea(keyboard,field),"Cannot reopen Pinyin keyboard");lv_textarea_add_text(field,"ni");
+    lv_advanced_keyboard_set_password(keyboard,true);Check(!Button(bar,u8"你"),"Password mode retained Chinese candidates");
+    lv_textarea_add_text(field,"hao");Text(keyboard,"hao");lv_advanced_keyboard_set_password(keyboard,false);
+    lv_textarea_set_text(field,"");lv_textarea_add_text(field,"ni");uint32_t enter=LV_KEY_ENTER;lv_obj_send_event(field,LV_EVENT_KEY,&enter);
+    Check(!lv_advanced_keyboard_get_textarea(keyboard)&&std::string(lv_textarea_get_text(field))==u8"你","Physical Enter did not commit Pinyin and dismiss");
+    Check(FieldStyles(field)==authoredStyles,"Dismissing a script keyboard did not restore authored direction");
+    auto* peer=RevealKeyboard(screen);Check(lv_advanced_keyboard_set_language(peer,"ar-SA")&&lv_advanced_keyboard_set_textarea(peer,field),"Cannot attach shared RTL field");
+    Check(lv_advanced_keyboard_set_textarea(keyboard,field)&&lv_obj_get_style_base_dir(field,LV_PART_MAIN)==LV_BASE_DIR_LTR,"Newest keyboard did not control shared-field direction");
+    lv_advanced_keyboard_close(keyboard);Check(lv_obj_get_style_base_dir(field,LV_PART_MAIN)==LV_BASE_DIR_RTL,"Closing one keyboard disrupted another keyboard's direction");
+    Check(FieldStyles(field)==authoredStyles,"Shared keyboard directions leaked into serialization");
+    lv_obj_set_style_base_dir(field,LV_BASE_DIR_LTR,LV_PART_MAIN);const auto editedStyles=FieldStyles(field);
+    lv_advanced_keyboard_close(peer);Check(lv_obj_get_style_base_dir(field,LV_PART_MAIN)==LV_BASE_DIR_LTR&&FieldStyles(field)==editedStyles,"Dismissing keyboard discarded an authored direction edit");
+    lv_obj_delete(peer);
+    lv_screen_load(previous);lv_obj_delete(screen);
+    std::cout<<"Thirteen layouts, real script glyphs, canonical RTL text, Indic matras, Pinyin candidates/paging and script JSON/Protobuf/C/runtime persistence passed\n";
+}
+
+std::vector<uint8_t> ScriptPredictionFixture()
+{
+    struct Node { uint8_t label=0; uint32_t terminal=0; std::map<uint8_t,std::unique_ptr<Node>> children; };
+    Node all, unigrams;
+    auto insert=[](Node& root,const std::string& text,uint32_t count){auto* node=&root;for(uint8_t value:text){auto& child=node->children[value];if(!child){child=std::make_unique<Node>();child->label=value;}node=child.get();}node->terminal=count;};
+    for(const auto& word:std::vector<std::pair<std::string,uint32_t>>{{u8"سلام",100},{u8"सुंदर",100},{u8"সুন্দর",100},{u8"پاکستان",100},{u8"привет",100},{"saya",100},
+        {u8"\u0915\u093c\u0932\u092e",100},{u8"\u09a1\u09bc\u09be\u0995",100},
+        {u8"你",1000},{u8"好",1000},{u8"吗",1000},{u8"你 好",1000},{u8"好 吗",1000},{u8"你 好 吗",1000}}){
+        insert(all,word.first,word.second);if(word.first.find(' ')==std::string::npos)insert(unigrams,word.first,word.second);
+    }
+    std::vector<Node*> nodes{&all,&unigrams};for(size_t i=0;i<nodes.size();++i)for(const auto& child:nodes[i]->children)nodes.push_back(child.second.get());
+    std::vector<uint8_t> bytes{'N','G','T','R'};
+    auto u32=[&](uint32_t value){for(unsigned i=0;i<4;++i)bytes.push_back(static_cast<uint8_t>(value>>(8*i)));};
+    auto var=[&](uint32_t value){while(value>=128){bytes.push_back(static_cast<uint8_t>(value|128));value>>=7;}bytes.push_back(static_cast<uint8_t>(value));};
+    u32(3);u32(static_cast<uint32_t>(nodes.size()));u32(0);
+    for(const auto* node:nodes){bytes.push_back(node->label);var(static_cast<uint32_t>((node->children.size()<<1)|(node->terminal?1:0)));if(node->terminal)var(node->terminal);}
+    return bytes;
+}
+void TestScriptPredictions(const std::filesystem::path& directory)
+{
+    auto* previous=lv_screen_active();auto* screen=RevealScreen();auto* field=lv_textarea_create(screen);lv_obj_set_pos(field,15,15);lv_obj_set_size(field,600,65);
+    auto* keyboard=RevealKeyboard(screen);auto* bar=lv_obj_get_child(keyboard,0);lv_advanced_keyboard_set_autocorrect(keyboard,false);
+    const auto bytes=ScriptPredictionFixture();auto* predictor=lv_advanced_keyboard_predictor_create(bytes.data(),bytes.size());Check(predictor,"Cannot create script prediction model");
+    lv_advanced_keyboard_set_predictor(keyboard,predictor);Check(lv_advanced_keyboard_set_textarea(keyboard,field),"Cannot bind script prediction field");
+    struct Case {const char* language;const char* prefix;const char* suggestion;};
+    for(const auto& item:std::vector<Case>{{"ar-SA",u8"سل",u8"سلام"},{"hi-IN",u8"सु",u8"सुंदर"},{"bn-BD",u8"সু",u8"সুন্দর"},{"ur-PK",u8"پا",u8"پاکستان"},{"ru-RU",u8"пр",u8"привет"},{"ru-RU",u8"ПР",u8"ПРИВЕТ"},{"id-ID","sa","saya"},
+        {"hi-IN",u8"\u0958",u8"\u0915\u093c\u0932\u092e"},{"bn-BD",u8"\u09dc",u8"\u09a1\u09bc\u09be\u0995"}}){
+        Check(lv_advanced_keyboard_set_language(keyboard,item.language),"Cannot choose prediction script");lv_textarea_set_text(field,item.prefix);lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);Advance(80);
+        Check(Button(bar,item.suggestion),std::string("Trie prefix suggestions are missing for ")+item.language);Tap(bar,item.suggestion);Text(keyboard,std::string(item.suggestion)+" ");
+    }
+    for(const auto& item:std::vector<Case>{{"hi-IN",u8"\u0958\u0932\u092e",u8"\u0958\u0932\u092e"},{"bn-BD",u8"\u09dc\u09be\u0995",u8"\u09dc\u09be\u0995"}}){
+        Check(lv_advanced_keyboard_set_language(keyboard,item.language),"Cannot choose Indic autocorrect script");lv_advanced_keyboard_set_autocorrect(keyboard,true);
+        lv_textarea_set_text(field,item.prefix);lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);Tap(lv_advanced_keyboard_get_keyboard(keyboard),"space");Text(keyboard,std::string(item.suggestion)+" ");
+        lv_advanced_keyboard_set_autocorrect(keyboard,false);
+    }
+    Check(lv_advanced_keyboard_set_language(keyboard,"zh-CN"),"Cannot choose Han prediction mode");lv_textarea_set_text(field,u8"你好");lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);Advance(80);
+    Check(Button(bar,u8"吗"),"Mandarin trie did not use the last two Han character tokens");Tap(bar,u8"吗");Text(keyboard,u8"你好吗");
+    lv_advanced_keyboard_set_autocorrect(keyboard,true);lv_textarea_set_text(field,"");lv_textarea_add_text(field,"ni");Tap(bar,u8"你");lv_textarea_add_text(field,"hao");Tap(lv_advanced_keyboard_get_keyboard(keyboard),"space");
+    unsigned ready=0;lv_obj_add_event_cb(field,[](lv_event_t* event){++*static_cast<unsigned*>(lv_event_get_user_data(event));},LV_EVENT_READY,&ready);
+    uint32_t enter=LV_KEY_ENTER;lv_obj_send_event(field,LV_EVENT_KEY,&enter);
+    Check(ready==1&&!lv_advanced_keyboard_get_textarea(keyboard)&&std::string(lv_textarea_get_text(field))==u8"你好","Mandarin Enter/autocorrect rewrote committed Han text or lost READY");
+    Check(lv_advanced_keyboard_set_textarea(keyboard,field),"Cannot reopen contextual Mandarin keyboard");Advance(80);Check(Button(bar,u8"吗"),"Mandarin next-character context was not retained after Enter");Tap(bar,u8"吗");Text(keyboard,u8"你好吗");
+    auto unconfigured=ObjectSerializer::SerializeObject(keyboard);unconfigured["oid"]=7;unconfigured["par"]=-1;unconfigured["advancedKeyboard"].erase("trieId");
+    std::string trieId;const auto catalog=ProjectTries::Import(json::array(),"script-model",bytes.data(),bytes.size(),&trieId);
+    auto configured=unconfigured;configured["oid"]=8;configured["advancedKeyboard"]["language"]="ar-SA";configured["advancedKeyboard"]["trieId"]=trieId;
+    json document={{"canvas",{{"width",640},{"height",480}}},{"obj",json::array({unconfigured,configured})},{"tries",catalog},{"runtimeTarget","9.6"}};
+    const auto exportDirectory=directory/"no-unused-english";CCodeGenerator generator;
+    Check(generator.LoadProject(document)&&generator.ExportProject(exportDirectory.u8string()),generator.GetLastError());
+    std::ifstream cmakeFile(exportDirectory/"CMakeLists.txt");const std::string cmake((std::istreambuf_iterator<char>(cmakeFile)),{});
+    Check(cmake.find("LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION=1")!=std::string::npos&&cmake.find("LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE=0")!=std::string::npos,
+        "Exporting a non-English default with a custom model retained the unused English trie");
+    lv_advanced_keyboard_set_predictor(keyboard,nullptr);lv_advanced_keyboard_predictor_destroy(predictor);lv_screen_load(previous);lv_obj_delete(screen);
+    std::cout<<"Real Arabic, Indic, Urdu, Cyrillic, Indonesian trie prefixes and unspaced Mandarin trigram prediction passed\n";
 }
 }
 
@@ -459,7 +625,7 @@ int main(int argc, char** argv)
         Advance(80);
         Check(lookup.calls && lookup.prefix == "ca" && lookup.previous == "word" && lookup.older == "old", "Prediction callback did not receive folded text context");
         auto* suggestions = lv_obj_get_child(object, 0);
-        Check(lv_obj_get_child_count(suggestions) == 4 && lv_obj_get_width(lv_obj_get_child(suggestions, 3)) >= 32 && lv_obj_get_height(lv_obj_get_child(suggestions, 3)) >= 32,
+        Check(lv_obj_get_child_count(suggestions) >= 4 && lv_obj_get_width(lv_obj_get_child(suggestions, 3)) >= 32 && lv_obj_get_height(lv_obj_get_child(suggestions, 3)) >= 32,
               "Close control displaced suggestion slots or has an undersized touch area");
         for (unsigned malformed = 1; malformed <= 4; ++malformed) {
             lookup.malformed = malformed;
@@ -556,9 +722,16 @@ int main(int argc, char** argv)
         Check(!lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Refocus did not show keyboard");
         lv_obj_delete(second);
         auto* doomed = ObjectSerializer::Create("textarea", previous);
+        struct TargetDeletion { bool deleting=false; unsigned styleEvents=0; } targetDeletion;
+        lv_obj_add_event_cb(doomed,[](lv_event_t* event) {
+            auto& state=*static_cast<TargetDeletion*>(lv_event_get_user_data(event));
+            if(lv_event_get_code(event)==LV_EVENT_DELETE)state.deleting=true;
+            else if(state.deleting&&lv_event_get_code(event)==LV_EVENT_STYLE_CHANGED)++state.styleEvents;
+        },LV_EVENT_ALL,&targetDeletion);
         Check(lv_advanced_keyboard_set_textarea(object, doomed), "Cannot attach temporary field");
         lv_obj_delete(doomed);
         Check(!lv_advanced_keyboard_get_textarea(object) && lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Deleted target left a dangling keyboard attachment");
+        Check(targetDeletion.deleting&&!targetDeletion.styleEvents,"Deleting a keyboard target reentered its application style handlers");
         auto* custom = CustomWidgets::Create("textBox", previous);
         lv_obj_set_pos(custom, 320, 80); lv_obj_set_size(custom, 280, 40);
         auto* customEntry = CustomWidgets::Part(custom, "Entry");
@@ -701,6 +874,8 @@ int main(int argc, char** argv)
         TestRevealCallbackDeletion(LV_EVENT_GET_SELF_SIZE);
         TestRevealCallbackDeletion(LV_EVENT_SCROLL_BEGIN);
         TestKeyboardLanguages();
+        TestScriptKeyboards(directory);
+        TestScriptPredictions(directory);
         lv_obj_delete(object); lv_obj_delete(editor); lv_indev_delete(pointer); pointer = nullptr;
         lv_display_delete(display); lv_deinit();
         std::cout << "Advanced Keyboard clicks, shift/lock, symbols, UTF-8, prediction callback, serialization, runtime bindings and C export passed\n";

@@ -22,6 +22,37 @@ active field and its text and resets Shift and the current page. The prediction
 trie is separate; the bundled vocabulary is English, so load an appropriate
 trie for other languages. No extra dictionary is implied by a key layout.
 
+Additional layouts are Mandarin Chinese Pinyin (`zh-CN`), Arabic (`ar-SA`), Hindi
+(`hi-IN`), Bengali (`bn-BD`), Indonesian (`id-ID`), Urdu (`ur-PK`) and Russian
+(`ru-RU`). Mandarin has an independent Pinyin preedit buffer and paged Chinese
+character candidates. Choose a candidate or press Space to commit; Enter commits
+and dismisses. Backspace first edits preedit. Switching targets or languages,
+pressing X, or entering password mode clears uncommitted composition.
+
+Arabic and Urdu default to right-to-left. The Creator **Right-to-left display**
+checkbox and `lv_advanced_keyboard_set_right_to_left()` override that direction
+for the current and subsequently selected target fields. Text remains in logical
+Unicode order; bytes are never reversed. Textarea fonts and explicit alignment
+remain authored properties. Choose a target font that covers the selected script.
+The keyboard's own keys and candidates include script fonts with control-symbol
+fallbacks.
+
+Build editable RTL screens with `LV_USE_BIDI=1`. Keep
+`LV_USE_ARABIC_PERSIAN_CHARS=0` for native textarea input: upstream LVGL's label
+shaping rewrites the text used by its textarea API. RTL ordering and canonical
+input work without that rewriting. Stock LVGL does not provide full Arabic/Urdu
+contextual shaping or Hindi/Bengali OpenType conjunct/mark positioning in these
+editable fields. The Windows simulator uses native OS shaping. Applications
+requiring fully shaped native editable text need a renderer with that support.
+
+Full desktop builds enable all script fonts and Pinyin. Minimal generated SDKs
+include the fonts and Pinyin data needed by the project's selected languages;
+regenerate a profile after adding a language. Applications switching to additional
+languages dynamically must enable their font macros and, for Mandarin,
+`LV_ADVANCED_KEYBOARD_USE_PINYIN`. Setting that macro to zero removes the Pinyin
+dictionary. See `KeyboardHindiFont.md` for reproducible font generation and OFL
+notices for the additional fonts.
+
 The keyboard provides lowercase and uppercase letters, one-shot Shift,
 double-tap Shift lock, two symbol pages, space, backspace and Enter. It reuses
 key buttons when changing pages. The bundled font covers its key labels,

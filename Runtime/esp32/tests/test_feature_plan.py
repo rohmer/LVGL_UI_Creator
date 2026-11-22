@@ -137,8 +137,29 @@ class FeaturePlanTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "does not match"): profile.optimize_document(invalid)
         arabic = struct.pack("<4sIII", b"NGTR", 3, 6, 0) + b"\0\2\0\2\xd8\2\xd8\2\xa7\1\1\xa7\1\1"
         rtl = copy.deepcopy(document);rtl["tries"][0]["data"] = base64.b64encode(arabic).decode()
-        for feature in ("BIDI", "ARABIC_PERSIAN_CHARS"):
-            self.assertIn(feature, profile.analyze_projects([rtl])["enabledFeatures"])
+        rtl_plan = profile.analyze_projects([rtl])
+        self.assertIn("BIDI", rtl_plan["enabledFeatures"])
+        self.assertNotIn("ARABIC_PERSIAN_CHARS", rtl_plan["enabledFeatures"])
+
+    def test_keyboard_script_dependencies_are_selected_per_language(self):
+        root = profile.repository_root()
+        fonts = {"hi-IN": "Hindi", "bn-BD": "Bengali", "ur-PK": "Urdu", "ru-RU": "Cyrillic"}
+        for language in ("en-US", "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU"):
+            with self.subTest(language=language):
+                plan = profile.analyze_projects([project({"advancedKeyboard": {"language": language, "trieId": ""}})])
+                self.assertEqual(plan["keyboardLanguages"], [language])
+                config = profile.lvgl_config(plan, root)
+                sources = profile.source_plan(plan, root)
+                self.assertIn(f"#define LV_ADVANCED_KEYBOARD_USE_PINYIN {int(language == 'zh-CN')}", config)
+                self.assertIn(f"#define LV_FONT_SOURCE_HAN_SANS_SC_16_CJK {int(language == 'zh-CN')}", config)
+                for locale, font in fonts.items():
+                    self.assertEqual(any(source.endswith(f"Keyboard{font}Font.c") for source in sources), language == locale)
+                self.assertEqual("BIDI" in plan["enabledFeatures"], language in ("ar-SA", "ur-PK"))
+                self.assertNotIn("ARABIC_PERSIAN_CHARS", plan["enabledFeatures"])
+        explicit = profile.analyze_projects([project({"advancedKeyboard": {"language": "en-US", "rightToLeft": True, "trieId": ""}})])
+        self.assertIn("BIDI", explicit["enabledFeatures"])
+        with self.assertRaisesRegex(ValueError, "rightToLeft"):
+            profile.analyze_projects([project({"advancedKeyboard": {"rightToLeft": 1}})])
 
     def test_keyboard_language_defaults_keep_unused_prediction_out(self):
         root = profile.repository_root()

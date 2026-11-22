@@ -22,6 +22,9 @@ struct Options {
     bool recursive = true, useCache = true, lowMemory = true, useWordList = true, compact = true;
     // Limits each external-sort/counting chunk, rather than the corpus size.
     std::size_t chunkEntries = 65536;
+    // Empty uses local temporary storage, independently of final outputs.
+    // Appended to preserve existing positional aggregate initializers.
+    std::filesystem::path scratchDirectory;
 };
 struct Progress {
     std::string stage;

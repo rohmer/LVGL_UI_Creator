@@ -12,6 +12,11 @@ using SuggestionLookup = std::size_t (*)(void* context, std::string_view prefix,
 [[nodiscard]] lv_obj_t* typing_view_editor(lv_obj_t* view);
 [[nodiscard]] lv_obj_t* typing_view_keyboard(lv_obj_t* view);
 bool set_typing_view_editor(lv_obj_t* view, lv_obj_t* editor);
+bool set_typing_view_language(lv_obj_t* view, const char* id);
+void set_typing_view_right_to_left(lv_obj_t* view, bool enabled);
+bool typing_view_right_to_left(lv_obj_t* view);
+void reset_typing_view_composition(lv_obj_t* view);
+bool authored_typing_view_style(lv_obj_t* editor, lv_style_prop_t property, bool& exists, lv_style_value_t& value);
 using WordBoundaryHandler = void (*)(void* context, lv_obj_t* editor);
 void set_typing_view_word_boundary_handler(lv_obj_t* view, WordBoundaryHandler handler, void* context);
 using DismissHandler = void (*)(void* context);

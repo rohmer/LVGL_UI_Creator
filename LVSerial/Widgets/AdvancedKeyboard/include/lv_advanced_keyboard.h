@@ -31,6 +31,11 @@ const char* lv_advanced_keyboard_get_language(lv_obj_t* object);
 size_t lv_advanced_keyboard_language_count(void);
 const char* lv_advanced_keyboard_language_id(size_t index);
 const char* lv_advanced_keyboard_language_name(size_t index);
+/* Logical Unicode order is preserved. Arabic/Urdu start with RTL enabled;
+ * switching to other layouts starts LTR. Applies direction to the active field
+ * and subsequent targets. Its authored font is retained. */
+void lv_advanced_keyboard_set_right_to_left(lv_obj_t* object, bool enabled);
+bool lv_advanced_keyboard_get_right_to_left(lv_obj_t* object);
 /* Bind watches focus without selecting or modifying the field. Set selects an
  * external textarea immediately (NULL clears and hides). Standard LVGL
  * textareas and the native Entry of a Creator Text box are accepted. Multiple
