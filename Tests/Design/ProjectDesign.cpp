@@ -24,8 +24,8 @@ json& Member(json& doc,const std::string& instance,int member)
 }
 void CheckProjectDesignCore()
 {
-    Require(D::Presets().size()>=28,"Theme gallery needs at least twenty-eight palettes");
-    std::set<std::string> ids,names;
+    Require(D::Presets().size()>=36,"Theme gallery needs at least thirty-six palettes");
+    std::set<std::string> ids,names,palettes;
     for(const auto& p:D::Presets()){
         const auto id=p.at("id").get<std::string>(),name=p.at("name").get<std::string>();
         Require(!id.empty()&&id.front()!='-'&&id.back()!='-'&&id.find_first_not_of("abcdefghijklmnopqrstuvwxyz0123456789-")==std::string::npos,"Theme ID is not a stable lowercase slug");
@@ -33,6 +33,7 @@ void CheckProjectDesignCore()
         Require(p.at("description").is_string()&&!p.at("description").get<std::string>().empty(),"Theme needs a gallery description");
         Require(p.at("dark").is_boolean(),"Theme appearance metadata must be Boolean");
         const auto& t=p.at("tokens");Require(t.is_object()&&t.size()==13,"Theme token schema is incomplete");
+        Require(palettes.insert(t.dump()).second,"Two theme choices have identical design tokens");
         for(const auto* color:{"background","surface","text","muted","primary","accent","success","warning","error","border","onPrimary"})
             Require(t.at(color).is_number_integer()&&t.at(color).get<std::int64_t>()>=0&&t.at(color).get<std::int64_t>()<=0xffffff,"Theme color is outside RGB24");
         for(const auto* metric:{"radius","spacing"})
@@ -50,7 +51,11 @@ void CheckProjectDesignCore()
         {"arctic-light","Glacier",false},{"arctic-dark","Polar Night",true},
         {"citrus-light","Citrus Grove",false},{"citrus-dark","Citrus After Dark",true},
         {"editorial-light","Editorial",false},{"editorial-dark","Edition Night",true},
-        {"paper-ink","Paper Ink",false},{"black-glass","Black Glass",true}};
+        {"paper-ink","Paper Ink",false},{"black-glass","Black Glass",true},
+        {"vault-light","Vault",false},{"vault-dark","Vault Night",true},
+        {"bloom-light","Bloom",false},{"bloom-dark","Bloom Night",true},
+        {"studio-light","Studio",false},{"studio-dark","Studio Night",true},
+        {"estate-light","Estate",false},{"estate-dark","Estate Night",true}};
     for(const auto& addition:additions){
         const auto& p=D::Preset(addition.id);const auto& t=p.at("tokens");
         Require(p.at("name")==addition.name&&p.at("dark")==addition.dark,"New palette gallery identity changed");
@@ -58,6 +63,29 @@ void CheckProjectDesignCore()
         for(const auto* foreground:{"text","muted"})for(const auto* background:{"background","surface"})
             Require(Contrast(t.at(foreground).get<unsigned>(),t.at(background).get<unsigned>())>=minimum,"New palette body or secondary text lacks promised contrast");
         Require(Contrast(t.at("onPrimary").get<unsigned>(),t.at("primary").get<unsigned>())>=minimum,"New palette action text lacks promised contrast");
+    }
+    for(const auto* id:{"vault-light","vault-dark","bloom-light","bloom-dark","studio-light","studio-dark","estate-light","estate-dark"}){
+        auto card=Record(0,-1,12,12),button=Record(1,0,20,20),label=Record(2,0,20,110),code=Record(3,0,200,20);
+        button["button"]={{"text","Save settings"}};label["text"]="Device name";
+        code["qrcode"]={{"data","Device identity"},{"dark",0x000000},{"light",0xffffff}};
+        D::Style(code)["bg_color"]=0xffffff;D::Style(code)["text_color"]=0x000000;
+        json themed={{"canvas",{{"width",480},{"height",320}}},{"obj",json::array({card,button,label,code})}};
+        themed["screens"]=json::array({{{"canvas",themed["canvas"]},{"obj",themed["obj"]}}});
+        const auto original=themed;const auto& tokens=D::Preset(id).at("tokens");D::ApplyTheme(themed,id);
+        Require(D::ThemeId(themed)==id,"Applying an added palette did not set the project theme");
+        auto exported=json::parse(themed.dump());D::Materialize(exported,true);
+        auto verify=[&](json& screen,const json& source){
+            Require(!screen.contains("projectTheme")&&!screen["canvas"]["base"].contains("design"),"Device export retained theme metadata");
+            Require(RGB(D::Style(screen["canvas"])["bg_color"])==tokens.at("background"),"Device export lost an added palette's screen color");
+            Require(RGB(D::Style(screen["obj"][0])["bg_color"])==tokens.at("surface"),"Device export lost an added palette's surface color");
+            Require(RGB(D::Style(screen["obj"][1])["bg_color"])==tokens.at("primary")&&RGB(D::Style(screen["obj"][1])["text_color"])==tokens.at("onPrimary"),"Device export lost an added palette's button colors");
+            Require(screen["obj"][1]["button"]==source["obj"][1]["button"]&&screen["obj"][2]["text"]==source["obj"][2]["text"]&&screen["obj"][3]["qrcode"]==source["obj"][3]["qrcode"]&&RGB(D::Style(screen["obj"][3])["bg_color"])==0xffffff,"An added palette changed content or QR contrast");
+            for(size_t i=0;i<screen["obj"].size();++i){
+                Require(!screen["obj"][i]["base"].contains("design"),"Device export retained widget theme metadata");
+                Require(screen["obj"][i]["base"]["coords"]==source["obj"][i]["base"]["coords"],"An added palette changed widget geometry");
+            }
+        };
+        verify(exported,original);verify(exported["screens"][0],original["screens"][0]);
     }
     json doc={{"obj",json::array({Record(4,-1,40,60),Record(7,4,10,12),Record(9,4,10,40)})},{"canvas",{{"width",320},{"height",240}}}};
     doc["obj"][0]["button"]=json::object();doc["obj"][1]["text"]="Master";doc["obj"][2]["advancedKeyboard"]={{"targetOid",7}};

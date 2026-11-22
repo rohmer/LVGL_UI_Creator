@@ -54,6 +54,14 @@ inline const json& Presets()
         add("editorial-dark","Edition Night","Warm charcoal, rose actions and calm blue details",true,0x191818,0x292725,0xf5f1e9,0xc6beb3,0xe9a7b8,0xa3c9e5,0x9ad0af,0xe6c483,0xf1a5a5,0x766c61,0x401524,0,16);
         add("paper-ink","Paper Ink","Sharp grayscale controls for a restrained paper aesthetic",false,0xf3f3f3,0xffffff,0x000000,0x454545,0x111111,0x666666,0x333333,0x555555,0x222222,0x777777,0xffffff,0,12);
         add("black-glass","Black Glass","True-black canvas, rounded blue actions and mint details",true,0x000000,0x11151c,0xf5f8ff,0xb0bdcf,0x91c4ff,0x9aeacb,0x91d9ac,0xeed58f,0xffadb9,0x526177,0x091a2b,16,12);
+        add("vault-light","Vault","Indigo finance controls, crisp white cards and electric lime",false,0xf5f5fc,0xffffff,0x222240,0x625f78,0x4636ae,0xb4cf28,0x26644d,0x895c0e,0xb03452,0xc5c4de,0xffffff,14,12);
+        add("vault-dark","Vault Night","Midnight indigo cards with bright lime actions and lilac details",true,0x121225,0x211f3a,0xf5f3ff,0xb5b0d0,0xc9f16b,0xaa9cff,0x9de0aa,0xefc975,0xffacbf,0x56516f,0x1f2a08,14,12);
+        add("bloom-light","Bloom","Cream, terracotta and botanical accents for calm wellness screens",false,0xfaf4eb,0xfffcf6,0x443029,0x786157,0x9e4930,0x536e59,0x306647,0x89600d,0xb33241,0xdbc5b4,0xffffff,20,14);
+        add("bloom-dark","Bloom Night","Cocoa surfaces, peach actions and soft botanical green",true,0x251b19,0x3a2824,0xfff2e6,0xcdb5a4,0xf0b593,0xb1c7a5,0xa2d7b1,0xefd08d,0xf5a7a9,0x76564b,0x3a2118,20,14);
+        add("studio-light","Studio","Violet workspace controls with lively orange and airy lavender",false,0xf6f3ff,0xffffff,0x281844,0x6d5b82,0x7029c9,0xdb6528,0x1f7453,0x926005,0xb92d5a,0xd3c6e8,0xffffff,16,12);
+        add("studio-dark","Studio Night","Ink-purple workspace, lilac actions and warm apricot highlights",true,0x1b102e,0x2c1c47,0xf8f0ff,0xc3add9,0xc6a2ff,0xffb277,0x95dfb9,0xf3ce88,0xffa2c4,0x695080,0x2b104c,16,12);
+        add("estate-light","Estate","Stone-white cards, deep forest actions and brass details",false,0xf2f0e9,0xfffdf8,0x27362e,0x5b6b60,0x235b44,0x9c703c,0x2d6d45,0x8a5f11,0xb43840,0xc2c6b7,0xffffff,4,16);
+        add("estate-dark","Estate Night","Layered evergreen, pale sage actions and understated brass",true,0x16231e,0x26392f,0xeef4e9,0xb4c4b5,0xb3d1ac,0xd9b786,0x9fd1ac,0xe7ca8b,0xf0b0a8,0x5e7563,0x1b3524,4,16);
         return all;
     }();
     return themes;

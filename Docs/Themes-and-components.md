@@ -2,9 +2,9 @@
 
 Open **Assets > Theme gallery** to choose a project palette. Each tile contains a miniature native LVGL screen and coordinated status swatches. Click a tile, then choose **Apply to project** or **Apply to selection**. Project themes also become the default for newly created widgets and Bootstrap components.
 
-The details panel also renders **your current screen** in the chosen palette, using an isolated native runtime. Choosing a palette does not change the project. **Preview and apply** opens a larger review with **Apply preview** and **Cancel preview**. The direct Apply commands remain available after inspecting the screen preview. Closing or cancelling a preview discards its candidate, and applying creates an undoable change. Project-wide theme changes resolve shared tokens on every screen.
+The details panel starts with **Sample controls**: native LVGL buttons, a text field, dropdown, slider, switch, checkbox and progress bar. This provides a useful preview even when your project is empty. Use **Preview content > Your current screen** to inspect your own design in the chosen palette. Both previews use an isolated native runtime and follow shared-token edits. Choosing a palette or switching previews does not change the project. **Preview and apply** opens a larger review of the selected preview content with **Apply preview** and **Cancel preview**. Applying changes only your project's palette; sample controls are never inserted into your design. The direct Apply commands remain available after inspecting the preview. Closing or cancelling a preview discards its candidate, and applying creates an undoable change. Project-wide theme changes resolve shared tokens on every screen.
 
-The gallery includes fourteen palettes:
+The gallery includes 36 palettes:
 
 | Palette | Appearance | Character |
 | --- | --- | --- |
@@ -22,6 +22,30 @@ The gallery includes fourteen palettes:
 | Velvet Rose | Dark | Burgundy, rose, pale blue |
 | Architect | Light | Sharp monochrome, electric blue |
 | Carbon | Dark | Black, silver, cyan |
+| Signal Paper | Light | High-contrast white, deep blue, strong outlines |
+| Signal Night | Dark | High-contrast black, yellow, cyan |
+| Blueprint | Light | Technical navy, teal, square controls |
+| Blueprint Night | Dark | Navy, bright blue, turquoise |
+| Kiln | Light | Clay, ivory, copper |
+| Copper Foundry | Dark | Earthen brown, soft copper, pale teal |
+| Glacier | Light | Ice white, deep teal, indigo |
+| Polar Night | Dark | Deep teal, icy cyan, lavender |
+| Citrus Grove | Light | Lime paper, olive, orange |
+| Citrus After Dark | Dark | Olive, citrus, warm peach |
+| Editorial | Light | Warm paper, burgundy, square controls |
+| Edition Night | Dark | Warm charcoal, rose, calm blue |
+| Paper Ink | Light | Restrained black and white, sharp corners |
+| Black Glass | Dark | True black, soft blue, mint |
+| Vault | Light | Indigo finance controls, white cards, electric lime |
+| Vault Night | Dark | Midnight indigo, bright lime, lilac |
+| Bloom | Light | Warm cream, terracotta, botanical green |
+| Bloom Night | Dark | Cocoa, peach, soft green |
+| Studio | Light | Violet controls, airy lavender, orange |
+| Studio Night | Dark | Ink purple, lilac, apricot |
+| Estate | Light | Stone white, deep forest, brass |
+| Estate Night | Dark | Evergreen, pale sage, understated brass |
+
+Vault, Bloom, Studio and Estate each include light and dark variants. These eight original palettes take inspiration from the finance dashboards, AI workspaces, wellness sites and real-estate templates in the [Dribbble UI Template gallery](https://dribbble.com/tags/ui-template). Their colors and native LVGL styling are original interpretations; they do not bundle artwork or template assets from the gallery. Each new palette keeps body and secondary text readable on its background and surfaces, and provides contrasting button text.
 
 Each palette defines background, surface, text, muted text, primary, accent, success, warning, error, border, and text-on-primary colors, plus spacing and corner radius. The **Shared design tokens** controls let you edit the chosen palette. Enter colors as `#RRGGBB` and sizes as decimal values from 0 to 128. **Update shared token** changes participating widgets together, including widgets themed by an earlier selection-only operation with that palette.
 

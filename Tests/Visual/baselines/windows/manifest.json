@@ -671,6 +671,198 @@
       "pixelHash": 16219341578783246650,
       "theme": "black-glass",
       "width": 800
+    },
+    {
+      "file": "vault-light-320x240.png",
+      "height": 240,
+      "id": "vault-light-320x240",
+      "pixelHash": 18345448148784842542,
+      "theme": "vault-light",
+      "width": 320
+    },
+    {
+      "file": "vault-light-480x320.png",
+      "height": 320,
+      "id": "vault-light-480x320",
+      "pixelHash": 2945357989256371825,
+      "theme": "vault-light",
+      "width": 480
+    },
+    {
+      "file": "vault-light-800x480.png",
+      "height": 480,
+      "id": "vault-light-800x480",
+      "pixelHash": 16009744151399796467,
+      "theme": "vault-light",
+      "width": 800
+    },
+    {
+      "file": "vault-dark-320x240.png",
+      "height": 240,
+      "id": "vault-dark-320x240",
+      "pixelHash": 13287321995369370958,
+      "theme": "vault-dark",
+      "width": 320
+    },
+    {
+      "file": "vault-dark-480x320.png",
+      "height": 320,
+      "id": "vault-dark-480x320",
+      "pixelHash": 13212319572441501874,
+      "theme": "vault-dark",
+      "width": 480
+    },
+    {
+      "file": "vault-dark-800x480.png",
+      "height": 480,
+      "id": "vault-dark-800x480",
+      "pixelHash": 13892833694802610428,
+      "theme": "vault-dark",
+      "width": 800
+    },
+    {
+      "file": "bloom-light-320x240.png",
+      "height": 240,
+      "id": "bloom-light-320x240",
+      "pixelHash": 3219440276763038320,
+      "theme": "bloom-light",
+      "width": 320
+    },
+    {
+      "file": "bloom-light-480x320.png",
+      "height": 320,
+      "id": "bloom-light-480x320",
+      "pixelHash": 7922626418862592765,
+      "theme": "bloom-light",
+      "width": 480
+    },
+    {
+      "file": "bloom-light-800x480.png",
+      "height": 480,
+      "id": "bloom-light-800x480",
+      "pixelHash": 13371534077060729497,
+      "theme": "bloom-light",
+      "width": 800
+    },
+    {
+      "file": "bloom-dark-320x240.png",
+      "height": 240,
+      "id": "bloom-dark-320x240",
+      "pixelHash": 4017073582599496978,
+      "theme": "bloom-dark",
+      "width": 320
+    },
+    {
+      "file": "bloom-dark-480x320.png",
+      "height": 320,
+      "id": "bloom-dark-480x320",
+      "pixelHash": 3230825189781847872,
+      "theme": "bloom-dark",
+      "width": 480
+    },
+    {
+      "file": "bloom-dark-800x480.png",
+      "height": 480,
+      "id": "bloom-dark-800x480",
+      "pixelHash": 5905457725624136039,
+      "theme": "bloom-dark",
+      "width": 800
+    },
+    {
+      "file": "studio-light-320x240.png",
+      "height": 240,
+      "id": "studio-light-320x240",
+      "pixelHash": 3456431785838358385,
+      "theme": "studio-light",
+      "width": 320
+    },
+    {
+      "file": "studio-light-480x320.png",
+      "height": 320,
+      "id": "studio-light-480x320",
+      "pixelHash": 13240810424178145460,
+      "theme": "studio-light",
+      "width": 480
+    },
+    {
+      "file": "studio-light-800x480.png",
+      "height": 480,
+      "id": "studio-light-800x480",
+      "pixelHash": 6284882614220813036,
+      "theme": "studio-light",
+      "width": 800
+    },
+    {
+      "file": "studio-dark-320x240.png",
+      "height": 240,
+      "id": "studio-dark-320x240",
+      "pixelHash": 5551880316877021431,
+      "theme": "studio-dark",
+      "width": 320
+    },
+    {
+      "file": "studio-dark-480x320.png",
+      "height": 320,
+      "id": "studio-dark-480x320",
+      "pixelHash": 3480665150925002675,
+      "theme": "studio-dark",
+      "width": 480
+    },
+    {
+      "file": "studio-dark-800x480.png",
+      "height": 480,
+      "id": "studio-dark-800x480",
+      "pixelHash": 11771595302706560007,
+      "theme": "studio-dark",
+      "width": 800
+    },
+    {
+      "file": "estate-light-320x240.png",
+      "height": 240,
+      "id": "estate-light-320x240",
+      "pixelHash": 12060752323674477037,
+      "theme": "estate-light",
+      "width": 320
+    },
+    {
+      "file": "estate-light-480x320.png",
+      "height": 320,
+      "id": "estate-light-480x320",
+      "pixelHash": 18232540049943282075,
+      "theme": "estate-light",
+      "width": 480
+    },
+    {
+      "file": "estate-light-800x480.png",
+      "height": 480,
+      "id": "estate-light-800x480",
+      "pixelHash": 1155658537339620515,
+      "theme": "estate-light",
+      "width": 800
+    },
+    {
+      "file": "estate-dark-320x240.png",
+      "height": 240,
+      "id": "estate-dark-320x240",
+      "pixelHash": 11870368505579386790,
+      "theme": "estate-dark",
+      "width": 320
+    },
+    {
+      "file": "estate-dark-480x320.png",
+      "height": 320,
+      "id": "estate-dark-480x320",
+      "pixelHash": 5162711786125206187,
+      "theme": "estate-dark",
+      "width": 480
+    },
+    {
+      "file": "estate-dark-800x480.png",
+      "height": 480,
+      "id": "estate-dark-800x480",
+      "pixelHash": 16838563464968843205,
+      "theme": "estate-dark",
+      "width": 800
     }
   ],
   "environment": {

@@ -21,6 +21,11 @@ lv_obj_t* First(lv_obj_t* root,const lv_obj_class_t* type)
     if(lv_obj_has_class(root,type))return root;
     for(uint32_t i=0;i<lv_obj_get_child_count(root);++i)if(auto* found=First(lv_obj_get_child(root,i),type))return found;return nullptr;
 }
+lv_obj_t* ThemeRole(lv_obj_t* root)
+{
+    if(lv_obj_has_class(root,&lv_dropdown_class)&&std::string(lv_dropdown_get_options(root)).rfind("Background\nSurface\n",0)==0)return root;
+    for(uint32_t i=0;i<lv_obj_get_child_count(root);++i)if(auto* found=ThemeRole(lv_obj_get_child(root,i)))return found;return nullptr;
+}
 lv_obj_t* Window(const char* title)
 {auto* label=Label(lv_layer_top(),title);Require(label,"Authoring window is missing");return lv_obj_get_parent(lv_obj_get_parent(label));}
 void Click(lv_obj_t* root,const char* text)
@@ -38,7 +43,7 @@ void CheckDesignToolsEditor(UI& editor,SdlSimulator& simulator)
     Click(gallery,"Deep Ocean");Click(gallery,"Apply to project");
     document=editor.ProjectDocument();Require(D::ThemeId(document)=="ocean-dark","Theme gallery did not apply the chosen palette");
     Require((D::Style(document["obj"][0])["bg_color"].get<unsigned>()&0xffffffu)==D::Preset("ocean-dark")["tokens"]["surface"],"Applied theme is missing from serialized native styles");
-    auto* role=First(gallery,&lv_dropdown_class);auto* value=First(gallery,&lv_textarea_class);Require(role&&value,"Theme token editor is missing");
+    auto* role=ThemeRole(gallery);auto* value=First(gallery,&lv_textarea_class);Require(role&&value,"Theme token editor is missing");
     lv_dropdown_set_selected(role,4);lv_obj_send_event(role,LV_EVENT_VALUE_CHANGED,nullptr);lv_textarea_set_text(value,"#326699");Click(gallery,"Update shared token");
     Require(D::Tokens(editor.ProjectDocument(),"ocean-dark")["primary"]==0x326699,"Shared theme token was not saved");
     auto roundtrip=editor.ProjectDocument();D::SetToken(roundtrip,"ocean-dark","surface",0x183746);editor.ApplyDocument(roundtrip);

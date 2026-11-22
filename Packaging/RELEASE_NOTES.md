@@ -5,6 +5,22 @@ Raspberry Pi Pico projects, and substantial generated-code and runtime memory
 improvements. It also includes the fixes and SDK updates made after the 0.9.0
 public release.
 
+## More themes and populated previews
+
+- Eight additional palettes bring the theme gallery to **36 themes**: Vault,
+  Bloom, Studio and Estate, each in light and dark. These original palettes
+  draw inspiration from finance dashboards, AI workspaces, wellness and
+  real-estate designs in the
+  [Dribbble UI Template gallery](https://dribbble.com/tags/ui-template).
+- Theme tiles now show native buttons, switches and sliders. The details
+  preview starts with a populated control panel containing a button, text
+  field, dropdown, slider, switch, checkbox and progress bar, including on an
+  empty project. **Preview content > Your current screen** switches to the
+  authored design; both previews follow shared-token edits.
+- **Preview and apply** reviews the chosen sample or screen. Applying updates
+  the project palette as one undoable change and never inserts sample controls
+  into the design. Preview controls do not capture editor input or focus.
+
 ## Import Figma designs
 
 - **File > Import Figma design...** imports a whole design or selected frames
