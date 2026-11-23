@@ -197,6 +197,34 @@
       "filename": "hi-IN-256.ngtr",
       "sha256": "8d1e557983655bf31fa93f7c462416cb62c81c21e37396c074fad903191bc518",
       "projectTrieId": "trie-3edc246033024cf3"
+    },
+    {
+      "id": "corpus-zh-CN-16",
+      "language": "zh-CN",
+      "name": "Mandarin Chinese - 16 KiB",
+      "sourceName": "zhZH16.ngtr",
+      "sourceLocale": "zh-ZH",
+      "sizeKiB": 16,
+      "bytes": 16383,
+      "indexBytes": 6100,
+      "nodeCount": 4045,
+      "filename": "zh-CN-16.ngtr",
+      "sha256": "dccdf3579020f69bcbfb0a8fe11946b9197435f954760cf165a7c96859cdd2f5",
+      "projectTrieId": "trie-cd6b5d1d0c45fdeb"
+    },
+    {
+      "id": "corpus-zh-CN-256",
+      "language": "zh-CN",
+      "name": "Mandarin Chinese - 256 KiB",
+      "sourceName": "zhZH256.ngtr",
+      "sourceLocale": "zh-ZH",
+      "sizeKiB": 256,
+      "bytes": 262400,
+      "indexBytes": 109220,
+      "nodeCount": 87366,
+      "filename": "zh-CN-256.ngtr",
+      "sha256": "267b94505741f852ab5c09131714c64e991a3e41750834f9e5f8b79c22c4baea",
+      "projectTrieId": "trie-089981be9358270a"
     }
   ]
 }

@@ -13,3 +13,5 @@
     {"corpus-ar-SA-256", "ar-SA", "Arabic - 256 KiB", "arAR256.ngtr", 256, 262480, "ar-SA-256.ngtr", "trie-3df69a2a315c17ef"},
     {"corpus-hi-IN-16", "hi-IN", "Hindi - 16 KiB", "hiHI16.ngtr", 16, 16384, "hi-IN-16.ngtr", "trie-f5ac28bb5877c36f"},
     {"corpus-hi-IN-256", "hi-IN", "Hindi - 256 KiB", "hiHI256.ngtr", 256, 262400, "hi-IN-256.ngtr", "trie-3edc246033024cf3"},
+    {"corpus-zh-CN-16", "zh-CN", "Mandarin Chinese - 16 KiB", "zhZH16.ngtr", 16, 16383, "zh-CN-16.ngtr", "trie-cd6b5d1d0c45fdeb"},
+    {"corpus-zh-CN-256", "zh-CN", "Mandarin Chinese - 256 KiB", "zhZH256.ngtr", 256, 262400, "zh-CN-256.ngtr", "trie-089981be9358270a"},

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <set>
+#include <string_view>
 #include <stdexcept>
 
 namespace {
@@ -25,9 +26,9 @@ void Write(const fs::path& path, const std::vector<uint8_t>& bytes)
     file.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
     Check(bool(file), "Cannot write isolated catalog corruption fixture");
 }
-json Keyboard(const std::string& id, uint32_t sizeKiB = 0)
+json Keyboard(const std::string& id, uint32_t sizeKiB = 0, const std::string& language = "en-US")
 {
-    return {{"advancedKeyboard", {{"trieId", id}, {"trieSizeKiB", sizeKiB}}}};
+    return {{"advancedKeyboard", {{"language", language}, {"trieId", id}, {"trieSizeKiB", sizeKiB}}}};
 }
 }
 
@@ -43,14 +44,14 @@ int main(int argc, char** argv)
         for (const auto& invalid : json::array({-1, 1, 64, 512, 1.5, "16", true}))
             Reject([&] { Serialization::AdvancedKeyboard::Normalize({{"trieSizeKiB", invalid}}); }, "Unsupported trie-size option was accepted");
         const auto& models = BundledTries::Models();
-        Check(models.size() == 14, "Bundled catalog does not contain fourteen supplied models");
+        Check(models.size() == 16, "Bundled catalog does not contain sixteen supplied models");
         std::set<std::string> languages, identifiers;
         json all = json::array();
         for (const auto& model : models) {
             Check(identifiers.insert(model.id).second, "Catalog IDs are not unique");
             languages.insert(model.language);
             Check(model.sizeKiB == 16 || model.sizeKiB == 256, "Catalog has an unknown size option");
-            Check(model.sizeKiB == 16 ? model.bytes == 16384 : model.bytes > 262144 && model.bytes < 262656,
+            Check(model.sizeKiB == 16 ? model.bytes <= 16384 : model.bytes > 262144 && model.bytes < 262656,
                 "Catalog confused nominal budget with exact payload length");
             Check(model.path.filename() == fs::path(model.language + "-" + std::to_string(model.sizeKiB) + ".ngtr"),
                 "Catalog resource name is not portable");
@@ -71,18 +72,25 @@ int main(int argc, char** argv)
             lv_advanced_keyboard_suggestion_t suggestions[3]{};
             const auto count = lv_advanced_keyboard_predictor_suggest_folded(predictor, nullptr, 0,
                 nullptr, 0, nullptr, 0, suggestions, 3);
+            if (model.language == "zh-CN") {
+                const auto contextual = lv_advanced_keyboard_predictor_suggest_folded(predictor, nullptr, 0,
+                    u8"世", 3, u8"全", 3, suggestions, 3);
+                Check(contextual > 0 && std::string_view(suggestions[0].text, suggestions[0].length) == u8"界",
+                    "Mandarin model did not back off to its real next-character bigram");
+            }
             lv_advanced_keyboard_predictor_destroy(predictor);
             Check(count > 0, "Supplied model has no usable unigram predictions");
             all.push_back(single[0]);
         }
-        Check(languages == std::set<std::string>({"en-US", "es-ES", "fr-FR", "de-DE", "el-GR", "ar-SA", "hi-IN"}),
+        Check(languages == std::set<std::string>({"en-US", "es-ES", "fr-FR", "de-DE", "el-GR", "ar-SA", "hi-IN", "zh-CN"}),
             "Bundled corpus locales do not match keyboard locales");
         Check(BundledTries::Find("es-ES", 16)->sourceName == "esMS16.ngtr" &&
             BundledTries::Find("ar-SA", 16)->sourceName == "arAR16.ngtr" &&
             BundledTries::Find("hi-IN", 16)->sourceName == "hiHI16.ngtr" &&
-            BundledTries::Find("el-GR", 16)->sourceName == "elEL16.ngtr",
+            BundledTries::Find("el-GR", 16)->sourceName == "elEL16.ngtr" &&
+            BundledTries::Find("zh-CN", 16)->sourceName == "zhZH16.ngtr",
             "Original corpus aliases were discarded");
-        Check(!BundledTries::Find("zh-CN", 16) && !BundledTries::Find("bn-BD", 256) &&
+        Check(!BundledTries::Find("bn-BD", 256) &&
             !BundledTries::Find("en-US", 64), "Catalog fabricated an unavailable model or size");
 
         auto damaged = models.front(); damaged.path = work / "changed.ngtr";
@@ -93,9 +101,9 @@ int main(int argc, char** argv)
         fs::remove(damaged.path);
         Reject([&] { BundledTries::Read(damaged); }, "Missing bundled model was accepted");
 
-        const auto* selected = BundledTries::Find("fr-FR", 16);
+        const auto* selected = BundledTries::Find("zh-CN", 16);
         json document = {{"canvas", {{"width", 320}, {"height", 240}}}, {"tries", all},
-            {"obj", json::array({Keyboard(selected->projectTrieId, selected->sizeKiB), Keyboard(selected->projectTrieId, selected->sizeKiB)})}};
+            {"obj", json::array({Keyboard(selected->projectTrieId, selected->sizeKiB, selected->language), Keyboard(selected->projectTrieId, selected->sizeKiB, selected->language)})}};
         Serialization::ProjectTries::PruneUnused(document);
         Check(document["tries"].size() == 1 && document["tries"][0]["id"] == selected->projectTrieId,
             "Generated project retained unreferenced models or duplicated a shared selection");
@@ -105,6 +113,8 @@ int main(int argc, char** argv)
             decoded.data.at("tries")[0].at("indexData").is_binary(), "Chosen model and index were not embedded as binary");
         Check(decoded.data.at("obj")[0].at("advancedKeyboard").at("trieSizeKiB") == selected->sizeKiB,
             "Selected trie-size metadata did not round-trip through Protobuf");
+        Check(decoded.data.at("obj")[0].at("advancedKeyboard").at("language") == "zh-CN",
+            "Mandarin model language did not round-trip through Protobuf");
         Check(wire.size() < selected->bytes * 3 + 4096, "Generated payload bundled the full corpus library");
         auto missing = document;
         missing["obj"][0]["advancedKeyboard"]["trieId"] = "missing-model";
@@ -115,7 +125,7 @@ int main(int argc, char** argv)
         document["obj"] = json::array({Keyboard("builtin-en-us"), Keyboard("")});
         Serialization::ProjectTries::PruneUnused(document);
         Check(!document.contains("tries"), "Built-in/None selections bundled external corpus blobs");
-        std::cout << "Fourteen bundled models: validated predictors, exact bytes, aliases, dedup, corruption rejection, and selected-only project embedding passed\n";
+        std::cout << "Sixteen bundled models: validated predictors, exact bytes, aliases, dedup, corruption rejection, and selected-only project embedding passed\n";
         return 0;
     } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 1; }
 }

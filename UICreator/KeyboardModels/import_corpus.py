@@ -1,4 +1,4 @@
-"""Copy the fourteen user-provided compact tries and regenerate their catalog."""
+"""Copy user-provided compact tries and regenerate their catalog."""
 from pathlib import Path
 import argparse
 import hashlib
@@ -14,6 +14,7 @@ PROFILES = [
     ("elEL", "el-EL", "el-GR", "Greek"),
     ("arAR", "ar-AR", "ar-SA", "Arabic"),
     ("hiHI", "hi-HI", "hi-IN", "Hindi"),
+    ("zhZH", "zh-ZH", "zh-CN", "Mandarin Chinese"),
 ]
 
 def identity(data):

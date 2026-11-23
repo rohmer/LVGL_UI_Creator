@@ -5,7 +5,9 @@
 #include "../../../UICreator/Utils/EditorWindow.h"
 #include "../../../UICreator/Windows/PropertyWindows/AdvancedProperties.h"
 #include <lv_advanced_keyboard.h>
+#include <lv_advanced_keyboard_prediction.h>
 #include <Serialization/Protobuf.h>
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -127,12 +129,16 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     };
     selectTrie(1);Require(lv_advanced_keyboard_get_predictor(keyboard),"Bundled trie selection did not attach a predictor");
     selectTrie(0);Require(!lv_advanced_keyboard_get_predictor(keyboard),"None trie selection kept its predictor");
-    selectLanguage("zh-CN");
+    selectLanguage("bn-BD");
     Require(!lv_advanced_keyboard_get_predictor(keyboard) && editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]=="" &&
         editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==0 && lv_dropdown_get_option_count(Field(properties(),"Trie size"))==1,
         "A language without bundled models retained another language's trie or offered unavailable sizes");
     uint32_t customChoice=2;for(const auto& model:properties()->Tries().ToJSON()){if(model.at("id")==customId)break;++customChoice;}
     selectTrie(customChoice);Require(lv_advanced_keyboard_get_predictor(keyboard),"Cannot restore the custom project model");
+    selectLanguage("zh-CN");
+    Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==customId &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==0,
+        "Selecting Mandarin replaced an explicitly selected custom trie with its new bundle");
     auto* target=Field(properties(),"Target text box");
     Require(lv_obj_has_class(target,&lv_dropdown_class),"Target text box inspector control is not a dropdown");
     lv_dropdown_set_selected(target,1);lv_obj_send_event(target,LV_EVENT_VALUE_CHANGED,nullptr);
@@ -174,11 +180,54 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     properties()->SetSelectedObject(keyboard);selectSize(16);
     Require(!lv_advanced_keyboard_get_right_to_left(keyboard) && editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16,
         "Choosing a bundled size reset the target language's explicit RTL override");
-    selectLanguage("zh-CN");Require(!lv_advanced_keyboard_get_predictor(keyboard),"Switching to an unavailable corpus retained the previous Arabic model");properties()->SetSelectedObject(entry);
+    selectLanguage("zh-CN");
+    const auto mandarinSmall=editor.ProjectDocument();const auto mandarinSmallId=mandarinSmall["obj"][1]["advancedKeyboard"]["trieId"];
+    const auto* mandarinSmallModel=BundledTries::Find("zh-CN",16);Require(mandarinSmallModel,"Small Mandarin model catalog entry missing");
+    Require(lv_advanced_keyboard_get_predictor(keyboard) && !lv_advanced_keyboard_get_right_to_left(keyboard) &&
+        mandarinSmallId==mandarinSmallModel->projectTrieId && mandarinSmall["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16,
+        "Switching from Arabic did not select the small Mandarin model and LTR direction");
+    selectSize(256);const auto mandarinLarge=editor.ProjectDocument();const auto mandarinLargeId=mandarinLarge["obj"][1]["advancedKeyboard"]["trieId"];
+    Require(mandarinLargeId!=mandarinSmallId && mandarinLarge["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256 &&
+        lv_advanced_keyboard_get_predictor(keyboard),"Mandarin size selection did not replace its model");
+    const auto mandarinDecoded=Serialization::Protobuf::Decode(Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",mandarinLarge)).data;
+    const auto* mandarinModel=BundledTries::Find("zh-CN",256);Require(mandarinModel,"Mandarin model catalog entry missing");
+    const auto mandarinBytes=BundledTries::Read(*mandarinModel);bool exactMandarin=false;
+    for(const auto& model:mandarinDecoded.at("tries"))if(model.at("id")==mandarinLargeId) {
+        Require(model.at("data").is_binary() && model.at("indexData").is_binary() && !model.at("indexData").empty(),
+            "Mandarin project did not embed its model and generated index as binary");
+        const auto& stored=model.at("data").get_binary();
+        exactMandarin=stored.size()==mandarinBytes.size() && std::equal(stored.begin(),stored.end(),mandarinBytes.begin());
+    }
+    Require(exactMandarin && mandarinDecoded["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256 &&
+        mandarinDecoded.dump().find("D:\\\\Corpus")==std::string::npos,"Saved Mandarin model lost its exact vocabulary/size or retained a corpus drive dependency");
+    Require(editor.Undo(),"Mandarin size change was not undoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
+    Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==mandarinSmallId &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16 && lv_advanced_keyboard_get_predictor(keyboard),
+        "Undo did not restore the small Mandarin model and its predictor");
+    Require(editor.Redo(),"Mandarin size change was not redoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
+    Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==mandarinLargeId &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256 && lv_advanced_keyboard_get_predictor(keyboard),
+        "Redo did not restore the large Mandarin model and its predictor");
+    // Both supplied models contain the real 世→界 bigram. A second prior Han
+    // character exercises backoff when those models have no retained trigrams.
+    for(const auto sizeKiB:{16u,256u}) {
+        properties()->SetSelectedObject(keyboard);selectSize(sizeKiB);properties()->SetSelectedObject(entry);
+        lv_textarea_set_text(entry,u8"全世");lv_textarea_set_cursor_pos(entry,LV_TEXTAREA_CURSOR_LAST);
+        auto* bar=lv_obj_get_child(keyboard,0);lv_obj_t* next=nullptr;
+        const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(2);
+        while(!(next=Label(bar,u8"界")) && std::chrono::steady_clock::now()<deadline)
+            Require(simulator.ProcessEvents(),"SDL stopped while waiting for Mandarin trie prediction");
+        Require(next && !lv_obj_has_state(lv_obj_get_parent(next),LV_STATE_DISABLED),"Bundled Mandarin model did not predict the next Han character");
+        lv_obj_send_event(lv_obj_get_parent(next),LV_EVENT_CLICKED,nullptr);
+        Require(std::string(lv_textarea_get_text(entry))==u8"全世界","Accepting a Mandarin trie prediction added spaces or replaced its Han context");
+    }
+    properties()->SetSelectedObject(entry);
     lv_textarea_set_text(entry,"");EditorInputTest::Text("ni",simulator);
     Require(std::string(lv_textarea_get_text(entry)).empty(),"Physical SDL Pinyin went directly into the target as Latin text");
     auto* candidate=Label(lv_obj_get_child(keyboard,0),u8"你");Require(candidate,"Physical Pinyin input did not show Chinese candidates");
     lv_obj_send_event(lv_obj_get_parent(candidate),LV_EVENT_CLICKED,nullptr);
-    Require(std::string(lv_textarea_get_text(entry))==u8"你","Selecting the Chinese candidate did not write to the active editor field");
-    std::cout<<"Keyboard language/bundled size selection, embedded Protobuf, custom model preservation, deduplication, undo/redo and C export passed\n";
+    Require(std::string(lv_textarea_get_text(entry))==u8"你" && lv_advanced_keyboard_get_predictor(keyboard) &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==mandarinLargeId,
+        "Pinyin input did not coexist with the selected Mandarin trie or inserted Latin spaces");
+    std::cout<<"Keyboard language/bundled size selection, exact Mandarin model embedding, Pinyin, custom model preservation, deduplication, undo/redo and C export passed\n";
 }

@@ -23,7 +23,7 @@ Select Advanced Keyboard in the Hierarchy to configure it:
   This setting is saved per keyboard and preserved in C exports.
 - **Trie size:** select a 16 KiB or 256 KiB corpus model for the chosen language.
   The bundled library contains both sizes for English, Spanish, French, German,
-  Greek, Arabic and Hindi. New keyboards start with the English 16 KiB model.
+  Greek, Arabic, Hindi and Mandarin Chinese. New keyboards start with the English 16 KiB model.
   Changing language keeps the selected size where available. The inspector
   reports actual model and index sizes; size labels describe the corpus tier,
   and a few supplied 256 KiB models exceed that nominal size by their headers.
@@ -43,7 +43,7 @@ Select Advanced Keyboard in the Hierarchy to configure it:
 - **Key colors/radius:** customize the key appearance. Geometry and font
   controls remain in the usual inspector.
 
-The fourteen corpus files supplied from `D:\Corpus` are included as editor
+The sixteen corpus files supplied from `D:\Corpus` are included as editor
 resources. Selecting a language and size imports that model and generates its
 index once; both are embedded and deduplicated in the project. Saving, moving
 or creating a firmware project does not require the original corpus folder.
