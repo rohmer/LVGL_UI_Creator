@@ -72,6 +72,17 @@ if(MSVC)
     target_compile_options(UICreator PRIVATE /utf-8)
 endif()
 if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
+    find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME UICreatorKeyboardSyncUnit COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${PROJECT_SOURCE_DIR}/Tests/UnitTests/KeyboardSync" -v)
+    add_test(NAME UICreatorKeyboardSyncSource COMMAND "${Python3_EXECUTABLE}"
+        "${PROJECT_SOURCE_DIR}/Integrations/ESPOS/sync_keyboard.py" --check-source)
+    add_test(NAME UICreatorESPOSBundledGenerator COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${PROJECT_SOURCE_DIR}/Integrations/ESPOS/tests" -p test_bundled_models.py -v)
+    set_tests_properties(UICreatorKeyboardSyncUnit UICreatorKeyboardSyncSource PROPERTIES
+        TIMEOUT 90 LABELS "unit;advanced-keyboard;sync")
+    set_tests_properties(UICreatorESPOSBundledGenerator PROPERTIES
+        TIMEOUT 90 LABELS "unit;advanced-keyboard;sync;language-models")
     add_executable(UICreatorBundledTrieTests
         "${PROJECT_SOURCE_DIR}/Tests/Integration/BundledTries.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/BundledTries.cpp")

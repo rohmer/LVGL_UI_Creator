@@ -1,4 +1,4 @@
-#include "espos_keyboard/TypingView.h"
+#include "espos_keyboard/AdvancedTypingView.h"
 
 #include <algorithm>
 #include <array>
@@ -15,7 +15,7 @@ extern "C" {
 LV_FONT_DECLARE(espos_keyboard_font)
 }
 
-namespace espos::keyboard {
+namespace espos::keyboard::view {
 namespace {
 
 using prediction::kSuggestionBytes;
@@ -765,4 +765,4 @@ void set_typing_view_dismiss_handler(lv_obj_t* root, DismissHandler handler, voi
     }
 }
 
-}  // namespace espos::keyboard
+}  // namespace espos::keyboard::view

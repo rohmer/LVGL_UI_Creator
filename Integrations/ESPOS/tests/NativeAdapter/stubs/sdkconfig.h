@@ -1,0 +1,2 @@
+#pragma once
+#define CONFIG_ESPOS_NGRAM_SCRATCH_PSRAM 1

@@ -11,6 +11,7 @@ foreach(platform ESP32 ArduinoESP32)
     add_executable(${test_target}
         Main.cpp
         "${prediction_sources}/Prediction.cpp"
+        "${prediction_sources}/PredictionStorage.cpp"
         "${prediction_sources}/PredictionModel.cpp"
         "${prediction_sources}/PredictionPrefix.cpp"
         "${prediction_sources}/Utf8Fold.cpp")

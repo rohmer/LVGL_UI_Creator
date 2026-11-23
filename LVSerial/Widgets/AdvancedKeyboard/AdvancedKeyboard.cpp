@@ -1,6 +1,6 @@
 #include "lv_advanced_keyboard.h"
 #include "lv_advanced_keyboard_prediction.h"
-#include "espos_keyboard/TypingView.h"
+#include "espos_keyboard/AdvancedTypingView.h"
 #include "espos_keyboard/Keyboard.h"
 #include "SuggestionText.h"
 #include "Utf8Fold.h"
@@ -235,11 +235,11 @@ bool Alive(lv_obj_t* root, uint64_t instance)
 const lv_font_t* Font(State& state)
 {
     const auto* font=lv_obj_get_style_text_font(state.root,LV_PART_MAIN);
-    return !font || font==LV_FONT_DEFAULT ? espos::keyboard::keyboard_language_font(espos::keyboard::keyboard_language(espos::keyboard::typing_view_keyboard(state.root))) : font;
+    return !font || font==LV_FONT_DEFAULT ? espos::keyboard::keyboard_language_font(espos::keyboard::keyboard_language(espos::keyboard::view::typing_view_keyboard(state.root))) : font;
 }
 void Style(State& state)
 {
-    auto* keyboard=espos::keyboard::typing_view_keyboard(state.root);
+    auto* keyboard=espos::keyboard::view::typing_view_keyboard(state.root);
     const auto* font=Font(state);
     if (state.styled_font==font && state.styled_radius==state.radius &&
         lv_color_eq(state.background,state.styled_background) && lv_color_eq(state.foreground,state.styled_foreground)) return;
@@ -282,7 +282,7 @@ bool Activate(State& state, lv_obj_t* field, bool focused)
     auto* root = state.root;
     const auto instance = state.instance;
     if (field && lv_obj_has_state(field, LV_STATE_DISABLED)) return false;
-    if (!espos::keyboard::set_typing_view_editor(state.root, field)) return false;
+    if (!espos::keyboard::view::set_typing_view_editor(state.root, field)) return false;
     if (!Alive(root, instance)) return false;
     if (state.target != field || !field) RestoreView(state);
     if (!Alive(root, instance)) return false;
@@ -417,14 +417,14 @@ std::size_t Lookup(void* context,std::string_view prefix,std::string_view previo
 }
 void UpdateLookup(State& state)
 {
-    espos::keyboard::set_typing_view_lookup(state.root, (state.lookup || state.predictor) ? Lookup : nullptr, &state);
+    espos::keyboard::view::set_typing_view_lookup(state.root, (state.lookup || state.predictor) ? Lookup : nullptr, &state);
 }
 void CorrectBoundary(void* context, lv_obj_t* editor)
 {
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
     auto& state = *static_cast<State*>(context);
     if (!state.autocorrect || !state.predictor || !editor) return;
-    const auto* language = espos::keyboard::keyboard_language(espos::keyboard::typing_view_keyboard(state.root));
+    const auto* language = espos::keyboard::keyboard_language(espos::keyboard::view::typing_view_keyboard(state.root));
     const bool han = !std::strcmp(language, "zh-CN");
     const auto input = espos::keyboard::detail::capture_suggestion_text(editor, han);
     if (input.selected || input.prefix.empty() || input.prefix.size() != input.end - input.start) return;
@@ -467,7 +467,7 @@ void ReadAuthoredKeyboardView(lv_obj_t* object, lv_point_t& position, lv_point_t
 }
 bool ReadAuthoredKeyboardStyle(lv_obj_t* object, lv_style_prop_t property, bool& exists, lv_style_value_t& value)
 {
-    if (espos::keyboard::authored_typing_view_style(object, property, exists, value)) return true;
+    if (espos::keyboard::view::authored_typing_view_style(object, property, exists, value)) return true;
     if (property != LV_STYLE_TRANSLATE_X && property != LV_STYLE_TRANSLATE_Y) return false;
     for (auto* view = visible_views; view; view = view->next) if (view->anchor == object) {
         exists = property == LV_STYLE_TRANSLATE_X ? view->local_x : view->local_y;
@@ -482,7 +482,7 @@ lv_obj_t* lv_advanced_keyboard_create(lv_obj_t* parent)
 {
     espos::keyboard::keyboard_view_query = espos::keyboard::ReadAuthoredKeyboardView;
     espos::keyboard::keyboard_style_query = espos::keyboard::ReadAuthoredKeyboardStyle;
-    auto* root=espos::keyboard::create_en_us_typing_view(parent,600,240,nullptr,nullptr);
+    auto* root=espos::keyboard::view::create_en_us_typing_view(parent,600,240,nullptr,nullptr);
     if (!root) return nullptr;
     auto* state=new(std::nothrow) State;
     if (!state) { lv_obj_delete(root);return nullptr; }
@@ -504,26 +504,26 @@ lv_obj_t* lv_advanced_keyboard_create(lv_obj_t* parent)
     if (!state->owned_predictor) { lv_obj_delete(root); return nullptr; }
     state->predictor = state->owned_predictor;
 #endif
-    espos::keyboard::set_typing_view_word_boundary_handler(root, CorrectBoundary, state);
-    espos::keyboard::set_typing_view_dismiss_handler(root, Dismiss, state);
+    espos::keyboard::view::set_typing_view_word_boundary_handler(root, CorrectBoundary, state);
+    espos::keyboard::view::set_typing_view_dismiss_handler(root, Dismiss, state);
     UpdateLookup(*state);
     Style(*state);
     lv_obj_add_flag(root, LV_OBJ_FLAG_HIDDEN);
     return root;
 }
 bool lv_advanced_keyboard_is_instance(lv_obj_t* object) { return Data(object)!=nullptr; }
-lv_obj_t* lv_advanced_keyboard_get_textarea(lv_obj_t* object) { return Data(object) ? espos::keyboard::typing_view_editor(object) : nullptr; }
-lv_obj_t* lv_advanced_keyboard_get_keyboard(lv_obj_t* object) { return Data(object) ? espos::keyboard::typing_view_keyboard(object) : nullptr; }
+lv_obj_t* lv_advanced_keyboard_get_textarea(lv_obj_t* object) { return Data(object) ? espos::keyboard::view::typing_view_editor(object) : nullptr; }
+lv_obj_t* lv_advanced_keyboard_get_keyboard(lv_obj_t* object) { return Data(object) ? espos::keyboard::view::typing_view_keyboard(object) : nullptr; }
 bool lv_advanced_keyboard_set_language(lv_obj_t* object, const char* language) {
-    if (!Data(object) || !espos::keyboard::set_typing_view_language(object, language)) return false;
+    if (!Data(object) || !espos::keyboard::view::set_typing_view_language(object, language)) return false;
     Style(*Data(object)); return true;
 }
-const char* lv_advanced_keyboard_get_language(lv_obj_t* object) { return Data(object) ? espos::keyboard::keyboard_language(espos::keyboard::typing_view_keyboard(object)) : ""; }
+const char* lv_advanced_keyboard_get_language(lv_obj_t* object) { return Data(object) ? espos::keyboard::keyboard_language(espos::keyboard::view::typing_view_keyboard(object)) : ""; }
 size_t lv_advanced_keyboard_language_count(void) { return espos::keyboard::keyboard_language_count(); }
 const char* lv_advanced_keyboard_language_id(size_t index) { return espos::keyboard::keyboard_language_id(index); }
 const char* lv_advanced_keyboard_language_name(size_t index) { return espos::keyboard::keyboard_language_name(index); }
-void lv_advanced_keyboard_set_right_to_left(lv_obj_t* object, bool enabled) { if (Data(object)) espos::keyboard::set_typing_view_right_to_left(object, enabled); }
-bool lv_advanced_keyboard_get_right_to_left(lv_obj_t* object) { return Data(object) && espos::keyboard::typing_view_right_to_left(object); }
+void lv_advanced_keyboard_set_right_to_left(lv_obj_t* object, bool enabled) { if (Data(object)) espos::keyboard::view::set_typing_view_right_to_left(object, enabled); }
+bool lv_advanced_keyboard_get_right_to_left(lv_obj_t* object) { return Data(object) && espos::keyboard::view::typing_view_right_to_left(object); }
 bool lv_advanced_keyboard_bind_textarea(lv_obj_t* object, lv_obj_t* field)
 {
     auto* state = Data(object);
@@ -604,7 +604,7 @@ void lv_advanced_keyboard_set_text(lv_obj_t* object,const char* text)
 const char* lv_advanced_keyboard_get_text(lv_obj_t* object) { auto* entry=lv_advanced_keyboard_get_textarea(object);return entry?lv_textarea_get_text(entry):""; }
 void lv_advanced_keyboard_set_placeholder(lv_obj_t* object,const char* text) { if(auto* entry=lv_advanced_keyboard_get_textarea(object))lv_textarea_set_placeholder_text(entry,text?text:""); }
 const char* lv_advanced_keyboard_get_placeholder(lv_obj_t* object) { auto* entry=lv_advanced_keyboard_get_textarea(object);const auto* text=entry?lv_textarea_get_placeholder_text(entry):nullptr;return text?text:""; }
-void lv_advanced_keyboard_set_password(lv_obj_t* object,bool enabled) { if(auto* entry=lv_advanced_keyboard_get_textarea(object)){espos::keyboard::reset_typing_view_composition(object);lv_textarea_set_password_mode(entry,enabled);} }
+void lv_advanced_keyboard_set_password(lv_obj_t* object,bool enabled) { if(auto* entry=lv_advanced_keyboard_get_textarea(object)){espos::keyboard::view::reset_typing_view_composition(object);lv_textarea_set_password_mode(entry,enabled);} }
 bool lv_advanced_keyboard_get_password(lv_obj_t* object) { auto* entry=lv_advanced_keyboard_get_textarea(object);return entry && lv_textarea_get_password_mode(entry); }
 void lv_advanced_keyboard_set_max_length(lv_obj_t* object,uint32_t length)
 {

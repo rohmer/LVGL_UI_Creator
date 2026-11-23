@@ -1,0 +1,706 @@
+{
+  "version": 1,
+  "manifestSha256": "f1abb85faf6b78c1231f3800b2fd59d185dfc6151363c4bb2f23198321e3f617",
+  "files": [
+    {
+      "source": "Integrations/ESPOS/templates/CMakeLists.txt",
+      "target": "CMakeLists.txt",
+      "sha256": "4a7f4fb43e288668c4b5d834dcd32dc326469a08c45e2b7f248c6ae6fd7a3a4e"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/BundledModels.cpp",
+      "target": "Keyboard/AdvancedKeyboard/BundledModels.cpp",
+      "sha256": "0dbac67dea70a1f123d45821a11a936b5d4f2d5dc0d80a0aadb975982743b54e"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/CMakeLists.txt",
+      "target": "Keyboard/AdvancedKeyboard/CMakeLists.txt",
+      "sha256": "2968c0d1a881484619fe67eecd2252b7994e1b38fae6064883f0e7c775eced35"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/generate_bundled_models.py",
+      "target": "Keyboard/AdvancedKeyboard/generate_bundled_models.py",
+      "sha256": "1c6d85661ac2b3554fedeefede483f5076b059aed0663f0f18a990dbfd2423e9"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/include/espos_keyboard/BundledModels.h",
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/BundledModels.h",
+      "sha256": "6e8688722d58e1be1a2ed2c329ab5a62d76bd594469fb716b125ff5409a581fc"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/CMakeLists.txt",
+      "target": "Keyboard/CMakeLists.txt",
+      "sha256": "188a3dcd8787242caf5805c0145ce34715feebb68631e255918c95bc55c94c6f"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/GenerateHindiFont.py",
+      "target": "Keyboard/GenerateHindiFont.py",
+      "sha256": "2bdbd2e8c26221b28ae3088104a922ade4dbf50a00ff49cfd6cfd071097bbbf8"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/README.md",
+      "target": "Keyboard/README.md",
+      "sha256": "0ef098b624184ec651769f5db48741432587a173dd4f0bbe14d9c3e3afa7d83d"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/TypingView.cpp",
+      "target": "Keyboard/TypingView.cpp",
+      "sha256": "b92e9fe85d99904b0d7e4c6cc094c5154c1739c96b6903f77292d6b561fabbff"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/TypingViewEsp.cpp",
+      "target": "Keyboard/TypingViewEsp.cpp",
+      "sha256": "aea9823ab571195f1cdf1af456b150374451c1f6c2340564facca8c892f29ae4"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/generate_layout.py",
+      "target": "Keyboard/generate_layout.py",
+      "sha256": "1861a4577f9ebd9c53c1befdfe149ab7e19d7a6f93d1ef1f0690c6000294fef5"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/Key.h",
+      "target": "Keyboard/include/espos_keyboard/Key.h",
+      "sha256": "d4b4c51d322b4baa95887064e6ded4835cc1531812923730e49843e886a07191"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/Keyboard.h",
+      "target": "Keyboard/include/espos_keyboard/Keyboard.h",
+      "sha256": "4b15f9fb199f7b24ae19f59056826595315c160fd29b01fd627d9d319cdd5c70"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/LegacyTypingView.h",
+      "target": "Keyboard/include/espos_keyboard/LegacyTypingView.h",
+      "sha256": "fc59405619da29c8c0163c603297c9f22cbcbea8f7bb41fae725a4153ff5fb5c"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/TypingView.h",
+      "target": "Keyboard/include/espos_keyboard/TypingView.h",
+      "sha256": "1bfa794a2b8722c1fdc86b4d177f6bf7b0f6d02c65a1fc7b6f3e3940d6f44907"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/CMakeLists.txt",
+      "target": "components/ngram_trie/CMakeLists.txt",
+      "sha256": "64fb944ac0695b55ca0839ef811e2ac23cc3de35b68f70f6aad8a7e242a6ea89"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/esp_runtime.cpp",
+      "target": "components/ngram_trie/esp_runtime.cpp",
+      "sha256": "d0ae0ed283114e96381e23f124abaf9930b94be6d0de9fc3ad15a4d391c93f73"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/autocorrect.h",
+      "target": "components/ngram_trie/include/ngram_trie/autocorrect.h",
+      "sha256": "a00b5669b529bbd296d9a7e48e555200c245959f48eaecf0244ea2d9c0e22f56"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/esp_runtime.h",
+      "target": "components/ngram_trie/include/ngram_trie/esp_runtime.h",
+      "sha256": "f0405d6e7ffb9d02ffe7ea06754fabea57236a8b140e39394c19678e23660c98"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/model.h",
+      "target": "components/ngram_trie/include/ngram_trie/model.h",
+      "sha256": "0c675bdde116d4e5d337cf80b4b830b2fb67bfbb738ee12d28c9985c8bbd14ac"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/prefix.h",
+      "target": "components/ngram_trie/include/ngram_trie/prefix.h",
+      "sha256": "2bceda6fb2f4b3b7ca67fd6e29936ab20aa53787305499272a879bd46aecea0a"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/AdvancedKeyboard.cpp",
+      "target": "Keyboard/AdvancedKeyboard/AdvancedKeyboard.cpp",
+      "sha256": "bce34cb664d1e7a9327f3029c277e19c37359ccf775e7628924aed83add2b54d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/GenerateHindiFont.py",
+      "target": "Keyboard/AdvancedKeyboard/GenerateHindiFont.py",
+      "sha256": "cdcb62e5ad2b2c265106b32e973da2f432a4f20200fcae4bd6daafc67e320ef1"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/Key.cpp",
+      "target": "Keyboard/AdvancedKeyboard/Key.cpp",
+      "sha256": "e0a51b5222e78fa654fe5adb8b09bfd338d67d4a8a2de76f05a28b83b29bb84c"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/Keyboard.cpp",
+      "target": "Keyboard/AdvancedKeyboard/Keyboard.cpp",
+      "sha256": "5287ca11550edb169a3415d773a0eedfc946f17d40b9e0c235aa08dc86d4eefe"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardBengaliFont.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardBengaliFont.LICENSE.txt",
+      "sha256": "754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardBengaliFont.c",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardBengaliFont.c",
+      "sha256": "673b1aee3d694df14f8f5f25063b666959c9ba43e8c8753af04761c00096de89"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardCyrillicFont.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardCyrillicFont.LICENSE.txt",
+      "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardCyrillicFont.c",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardCyrillicFont.c",
+      "sha256": "44cd58e71e58de34128dfdecd635b0f9106078a0f54895e985aed9a1511d9a25"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardFont.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardFont.LICENSE.txt",
+      "sha256": "d75938dec098f06f0ac3c00853065d94f020be1c3c62ef1dc2975ba15b4d9b0e"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardFont.c",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardFont.c",
+      "sha256": "0a4b93cd34097d903536d2cbc02d08d6e2e1a5dd86f16aeb6db56ff1fbf7e102"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardGreekFont.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardGreekFont.LICENSE.txt",
+      "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardGreekFont.c",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardGreekFont.c",
+      "sha256": "a0e97e3011319125a4c7748a4fc03d5bf1df918153302c2631093ab6d8e32eb1"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardHindiFont.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardHindiFont.LICENSE.txt",
+      "sha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardHindiFont.c",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardHindiFont.c",
+      "sha256": "af17e7611f7607ee845bbe1ae6cc62c637639806f9518137adda5698f942c25a"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardHindiFont.md",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardHindiFont.md",
+      "sha256": "72f866bc781b4fe6115c56cd57387aa7e9b40591384ffa5bc8e8516e8d2372ae"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardScriptFonts.md",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardScriptFonts.md",
+      "sha256": "9f3d9a8501e5154f986493c5d7ba972714eab55e05cd73c1ac707c6318f12719"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardUrduFont.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardUrduFont.LICENSE.txt",
+      "sha256": "a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardUrduFont.c",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardUrduFont.c",
+      "sha256": "68897cb28eba33c595668ce28658afacd3bd056d3ec409e1a1aaa2cb779091f7"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardVisibility.h",
+      "target": "Keyboard/AdvancedKeyboard/KeyboardVisibility.h",
+      "sha256": "946ea546d3d70cf0922a6498b52d3bb96a6133851aafd511ac3a8816ae9899a4"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/LayoutData.h",
+      "target": "Keyboard/AdvancedKeyboard/LayoutData.h",
+      "sha256": "ad1677c7b53e3106f2a69eaa1048f0c6d0e6626ecb9166b21e57917e63a4faf8"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PROVENANCE.md",
+      "target": "Keyboard/AdvancedKeyboard/PROVENANCE.md",
+      "sha256": "7fc99862fe7f8003c759cc337cfdf97f652205ff84ace19391423cb137e5c9db"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/Pinyin.h",
+      "target": "Keyboard/AdvancedKeyboard/Pinyin.h",
+      "sha256": "0811d9c99d0dd42dd8fc24022cc75df752208a720202262ce38f9b2b9903cbfa"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PinyinData.LICENSE.txt",
+      "target": "Keyboard/AdvancedKeyboard/PinyinData.LICENSE.txt",
+      "sha256": "27a80bd36832ab42d35ad60c08b2b230a807a9bc0d58e94ec1531543dc49cbe8"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PinyinData.inc",
+      "target": "Keyboard/AdvancedKeyboard/PinyinData.inc",
+      "sha256": "0fff6ac2f5d6f7316d08368fd2bc3e3a46907a4f6161f0d152c0a80667894f7c"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/Prediction.cpp",
+      "target": "Keyboard/AdvancedKeyboard/Prediction.cpp",
+      "sha256": "06ef6430c35a7a961bb0ddb16e49054f68e8f4a7f282ea3b92e88703f7130f3f"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionAutocorrect.h",
+      "target": "Keyboard/AdvancedKeyboard/PredictionAutocorrect.h",
+      "sha256": "6cfe996ed1a7397b833eea01be2c78d1e3273e49f85f695ce1d3cdf44d52161d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionBuiltin.inc",
+      "target": "Keyboard/AdvancedKeyboard/PredictionBuiltin.inc",
+      "sha256": "4ba3b75a4acb00853e1b7b35c93fb90c608100e121a14e22a84a619e6e0d233a"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionModel.cpp",
+      "target": "Keyboard/AdvancedKeyboard/PredictionModel.cpp",
+      "sha256": "909247f52b300d42456697f32bbef8a5ae4f480dcdb3e87d9625f3016d14c16f"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionModel.h",
+      "target": "Keyboard/AdvancedKeyboard/PredictionModel.h",
+      "sha256": "473b29e86cfce237b296b75d3d8a3894ad56efdb1008c6b62bf5d96cb618fd7c"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionPrefix.cpp",
+      "target": "Keyboard/AdvancedKeyboard/PredictionPrefix.cpp",
+      "sha256": "3f07afdd50b6b1f21f943e4b6ff0ebaba8ef01bc41a8e6072490d1cef99c3155"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionPrefix.h",
+      "target": "Keyboard/AdvancedKeyboard/PredictionPrefix.h",
+      "sha256": "6a5b2e24df50470a8a0f1b1a623501cb2fe009269f5310bfe8018b4e9a41216e"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionStorage.cpp",
+      "target": "Keyboard/AdvancedKeyboard/PredictionStorage.cpp",
+      "sha256": "9c268026d1b4e615f34df3ff0710857543b867fb1ccd351974622963cf5428da"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/PredictionStorage.h",
+      "target": "Keyboard/AdvancedKeyboard/PredictionStorage.h",
+      "sha256": "46004847189f4179a0cda2e8413a63525f64e89137e3568268482bd087cb0348"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/README.md",
+      "target": "Keyboard/AdvancedKeyboard/README.md",
+      "sha256": "92c71efeac9674e0b90caa37fbb6fa7e9ea86d708816c2c793f09050fb9080c4"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/SuggestionText.cpp",
+      "target": "Keyboard/AdvancedKeyboard/SuggestionText.cpp",
+      "sha256": "2be00e51cb932ccd7cd5a5fad37367268e2276dbb2d0499d50d4cb0cf6a57389"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/SuggestionText.h",
+      "target": "Keyboard/AdvancedKeyboard/SuggestionText.h",
+      "sha256": "ee5b52890440b68daafdabb3e74a6517aeae59b62f4e18298dbf765e054ff1aa"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/TypingView.cpp",
+      "target": "Keyboard/AdvancedKeyboard/TypingView.cpp",
+      "sha256": "d9c7e2667b29579b70f084dd4a4b28383bf6d8badc17af70fdb9b799ebdf1abe"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/UnicodeFold.inc",
+      "target": "Keyboard/AdvancedKeyboard/UnicodeFold.inc",
+      "sha256": "f05cd662e11a5503f9a8973e4459625a70e8895ecc78e647cbfb9956ef08b63f"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/UnicodeWordRanges.inc",
+      "target": "Keyboard/AdvancedKeyboard/UnicodeWordRanges.inc",
+      "sha256": "77cedb7551b4d1a8905ad3b858f4f5d2fc26959e8b18813ca0f69de502f12288"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/Utf8Fold.cpp",
+      "target": "Keyboard/AdvancedKeyboard/Utf8Fold.cpp",
+      "sha256": "3126e804ee9b9dc42ccab6b64f564ce1620e2a781f5f1960968b51a3e3018f13"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/Utf8Fold.h",
+      "target": "Keyboard/AdvancedKeyboard/Utf8Fold.h",
+      "sha256": "e2da3b95e9a65a631d9fcadea220b2d4f68abc29db963fdb627b65b966617168"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/ar_sa_arabic.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/ar_sa_arabic.generated.h",
+      "sha256": "2f5b51e4e6362a525924d88ffcfffeda77b0e5cfa3e01c7c99ad8f0948e1ee8c"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/bn_bd_inscript.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/bn_bd_inscript.generated.h",
+      "sha256": "1c859a3de5ea13762d37e9b089d734caf4a65b407d5445ac618a1b46410d82c2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/de_de_qwertz.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/de_de_qwertz.generated.h",
+      "sha256": "c72fdf30361a60455039aad4bf428625247229843cd5476b53584e9d1297ea22"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/el_gr_qwerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/el_gr_qwerty.generated.h",
+      "sha256": "6bf4c7291a2b115a23b8f949a21ccbea1c1116e269bf2d46331fbd0ba3ba1ed9"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/en_us_qwerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/en_us_qwerty.generated.h",
+      "sha256": "f8b811bcb4b5bcd0648c3fc8535eeb046459b04c8becf7d045b1fe882076a20d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/es_es_qwerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/es_es_qwerty.generated.h",
+      "sha256": "e16629842d065fd90430e98dfcd96d7f7b09805f741b1bfcb5755af1e570c053"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/fr_fr_azerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/fr_fr_azerty.generated.h",
+      "sha256": "158169fbbc1cf93c6317674d9a643c104618ee027b13d891644bc7109e38d6cd"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/generate_word_ranges.py",
+      "target": "Keyboard/AdvancedKeyboard/generate_word_ranges.py",
+      "sha256": "29cf26d4f07e032536f93fd998eba09d81bd13364fc9373420cca5a7cb23b9c4"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/hi_in_inscript.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/hi_in_inscript.generated.h",
+      "sha256": "d738bf3ed439e05c47b1e6c4f7fdca22e1cb5aa4869fe8be9c04188c7522c8fd"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/id_id_qwerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/id_id_qwerty.generated.h",
+      "sha256": "e85f425ce2997d7c99b59e61be58aa1f0934a31f50782dc66b05ae9a1ece7ac0"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/espos_keyboard/AdvancedTypingView.h",
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/AdvancedTypingView.h",
+      "sha256": "19e554f941d2116a69da677b0b239eaa8a3ce71cb43d91da55b0e742b0ad944a"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/espos_keyboard/Key.h",
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/Key.h",
+      "sha256": "f6fd0b73ef3b588bc9a167ec74a164be4184e709144b6832203806e9fd58610d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/espos_keyboard/Keyboard.h",
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/Keyboard.h",
+      "sha256": "dbeff28040a8a9b6a9c24c1548015378328183bf651080db5f821c2c698bb0bb"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/espos_keyboard/Prediction.h",
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/Prediction.h",
+      "sha256": "1d464256bd75ad88def97f54fbad5f4b95f6d8b657dafe54fc4af32173ae6fc7"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/espos_keyboard/TypingView.h",
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/TypingView.h",
+      "sha256": "eb2a241bc5d141bf88e2b788e4a0790d0f15ca5dd5287e712aa5c68ec6230646"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/lv_advanced_keyboard.h",
+      "target": "Keyboard/AdvancedKeyboard/include/lv_advanced_keyboard.h",
+      "sha256": "4cf7ba120928c67bdb5679e692941cea7b18556f1deb645cc76e932b29dd97b0"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/include/lv_advanced_keyboard_prediction.h",
+      "target": "Keyboard/AdvancedKeyboard/include/lv_advanced_keyboard_prediction.h",
+      "sha256": "3cccb79e58ff1dec43ed81cf4b1cc67c4e395a7b515480141756a6cb8e7e8ad5"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/it_it_qwerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/it_it_qwerty.generated.h",
+      "sha256": "32ce59254c770420d82d262a441bf9c28b9b61a39bb33e1dbe6aa93f70a96802"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/ar-SA-arabic.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/ar-SA-arabic.json",
+      "sha256": "51d1be47b2690a4df5a86ebb32ecaa4a2317af6c4dd486a2552cc683f5224981"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/ar-SA-arabic.json",
+      "target": "Keyboards/ar-SA-arabic.json",
+      "sha256": "51d1be47b2690a4df5a86ebb32ecaa4a2317af6c4dd486a2552cc683f5224981"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/bn-BD-inscript.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/bn-BD-inscript.json",
+      "sha256": "9375b229516b12cb3d3d92905cb6d6dbc798ac46bc28df1e1c2c6310a8f453d2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/bn-BD-inscript.json",
+      "target": "Keyboards/bn-BD-inscript.json",
+      "sha256": "9375b229516b12cb3d3d92905cb6d6dbc798ac46bc28df1e1c2c6310a8f453d2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/build_ngtr_index.py",
+      "target": "Keyboard/AdvancedKeyboard/layout/build_ngtr_index.py",
+      "sha256": "c5a6ab4e76b61c62927bc4a638d9990efc20b219745a87734b3d346cd0628c3e"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/de-DE-qwertz.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/de-DE-qwertz.json",
+      "sha256": "3628cfcbf774ff778cc8d941a859a61f124973aaf70aebcdb24d7e152fe8e868"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/de-DE-qwertz.json",
+      "target": "Keyboards/de-DE-qwertz.json",
+      "sha256": "3628cfcbf774ff778cc8d941a859a61f124973aaf70aebcdb24d7e152fe8e868"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/el-GR-qwerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/el-GR-qwerty.json",
+      "sha256": "e7916a17213cdbdd974068141e4963f5ab4c974ef63d37c58179af8bb453b1a2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/el-GR-qwerty.json",
+      "target": "Keyboards/el-GR-qwerty.json",
+      "sha256": "e7916a17213cdbdd974068141e4963f5ab4c974ef63d37c58179af8bb453b1a2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/en-US-qwerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/en-US-qwerty.json",
+      "sha256": "1cb2d7174997db0952bd657162588e4846bc3b6b2fb18d5cd2da363603453100"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/en-US-qwerty.json",
+      "target": "Keyboards/en-US-qwerty.json",
+      "sha256": "1cb2d7174997db0952bd657162588e4846bc3b6b2fb18d5cd2da363603453100"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/es-ES-qwerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/es-ES-qwerty.json",
+      "sha256": "0710f032af08f88eb9068f3ff888a921181a4607e04da0d0b23722fce243a748"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/es-ES-qwerty.json",
+      "target": "Keyboards/es-ES-qwerty.json",
+      "sha256": "0710f032af08f88eb9068f3ff888a921181a4607e04da0d0b23722fce243a748"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/fr-FR-azerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/fr-FR-azerty.json",
+      "sha256": "0d3ec6008f09c5278197899b13959851176b324d5830386fcaddca0c98777945"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/fr-FR-azerty.json",
+      "target": "Keyboards/fr-FR-azerty.json",
+      "sha256": "0d3ec6008f09c5278197899b13959851176b324d5830386fcaddca0c98777945"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/generate_languages.py",
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_languages.py",
+      "sha256": "2ca333e4421221905013ae6b6537ede7eb91177ef008acb87900286e17514e02"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/generate_layout.py",
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_layout.py",
+      "sha256": "d6af7986c1e28b6991740ba34771ff12767196f7609ccfb45ad96c51412959f3"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/generate_pinyin.py",
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_pinyin.py",
+      "sha256": "5fde169dfaaebf6af82e9304a4afe28d2dfa928f15d206c6c1f07cfd97b76e80"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/hi-IN-inscript.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/hi-IN-inscript.json",
+      "sha256": "eb493e656e0671ba396e3a09f7bb9e41d5e065ed9acba86fcf5b7468d62ecade"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/hi-IN-inscript.json",
+      "target": "Keyboards/hi-IN-inscript.json",
+      "sha256": "eb493e656e0671ba396e3a09f7bb9e41d5e065ed9acba86fcf5b7468d62ecade"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/id-ID-qwerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/id-ID-qwerty.json",
+      "sha256": "e43c9d542b8c8b6365affbe7fbfe2667e079fa523337bd9f4feaca21515eabc7"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/id-ID-qwerty.json",
+      "target": "Keyboards/id-ID-qwerty.json",
+      "sha256": "e43c9d542b8c8b6365affbe7fbfe2667e079fa523337bd9f4feaca21515eabc7"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/it-IT-qwerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/it-IT-qwerty.json",
+      "sha256": "0009efc8ef7c6a3675d8f08810e54c80f4738d4e9de1c2d0e87d03bee38a70b0"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/it-IT-qwerty.json",
+      "target": "Keyboards/it-IT-qwerty.json",
+      "sha256": "0009efc8ef7c6a3675d8f08810e54c80f4738d4e9de1c2d0e87d03bee38a70b0"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/keyboard.schema.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/keyboard.schema.json",
+      "sha256": "2f5d17c67322f266c3fd4c449abfd65e8cedf8124c7e7754d6e34be7d9ab4ad2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/keyboard.schema.json",
+      "target": "Keyboards/keyboard.schema.json",
+      "sha256": "2f5d17c67322f266c3fd4c449abfd65e8cedf8124c7e7754d6e34be7d9ab4ad2"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/pt-PT-qwerty.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/pt-PT-qwerty.json",
+      "sha256": "a0c2e3b4a2ffd9903d66b8d5d4c78f70b06b919b24c14a1a4be1861e08c5f34e"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/pt-PT-qwerty.json",
+      "target": "Keyboards/pt-PT-qwerty.json",
+      "sha256": "a0c2e3b4a2ffd9903d66b8d5d4c78f70b06b919b24c14a1a4be1861e08c5f34e"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/ru-RU-jcuken.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/ru-RU-jcuken.json",
+      "sha256": "e86fea52143ad80581a220da42a3247e862424482d99335e1e576454f82fb871"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/ru-RU-jcuken.json",
+      "target": "Keyboards/ru-RU-jcuken.json",
+      "sha256": "e86fea52143ad80581a220da42a3247e862424482d99335e1e576454f82fb871"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/ur-PK-phonetic.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/ur-PK-phonetic.json",
+      "sha256": "f20bdd6e134e6d2064df01dcc342a76e1be3ddabc922b73037dc72c8fc599a1d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/ur-PK-phonetic.json",
+      "target": "Keyboards/ur-PK-phonetic.json",
+      "sha256": "f20bdd6e134e6d2064df01dcc342a76e1be3ddabc922b73037dc72c8fc599a1d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/zh-CN-pinyin.json",
+      "target": "Keyboard/AdvancedKeyboard/layout/zh-CN-pinyin.json",
+      "sha256": "ab0520c8d1200f1d9ba5e452c66faab245da1f57b80b35f571c2f6aea7bfcbba"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/layout/zh-CN-pinyin.json",
+      "target": "Keyboards/zh-CN-pinyin.json",
+      "sha256": "ab0520c8d1200f1d9ba5e452c66faab245da1f57b80b35f571c2f6aea7bfcbba"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/models/EnglishWordList.LICENSE.md",
+      "target": "Keyboard/AdvancedKeyboard/models/EnglishWordList.LICENSE.md",
+      "sha256": "f56361c2b93bbf304dd2e54e30f04ba2bcd77d3c54b59156cbafcaf437cebf6d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/models/PROVENANCE.md",
+      "target": "Keyboard/AdvancedKeyboard/models/PROVENANCE.md",
+      "sha256": "95aacc26cd9998b10b11aa3b9fb141529d123ddbeaa51503eb2e452bbbdc355d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/models/enUS16.ngix",
+      "target": "Keyboard/AdvancedKeyboard/models/enUS16.ngix",
+      "sha256": "9759ccc1ffa5bcf35bacc9df5d44fd1edc72595afb2f6900c41de5613ba6785e"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/models/enUS16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/models/enUS16.ngtr",
+      "sha256": "ddff8e652ca7177e79e8e661e68a62b9edc2ddcaaea62f1af993bf423926b6fc"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/pt_pt_qwerty.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/pt_pt_qwerty.generated.h",
+      "sha256": "112e3a82e05f638c4b16c4bdf555c5cb89a50b08e91ae6b37f68a8ee3376c41b"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/ru_ru_jcuken.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/ru_ru_jcuken.generated.h",
+      "sha256": "f8e24a0343f93bff49838ae8acac9484a303335b7cf70dd481c1ed04ad2dc35d"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/ur_pk_phonetic.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/ur_pk_phonetic.generated.h",
+      "sha256": "7f21aee5db52a8baa097a9921163eec0abdf59ccfb6dea3b01a60f9890e0a953"
+    },
+    {
+      "source": "LVSerial/Widgets/AdvancedKeyboard/zh_cn_pinyin.generated.h",
+      "target": "Keyboard/AdvancedKeyboard/zh_cn_pinyin.generated.h",
+      "sha256": "4db02eaa5906367382d0b5dfabbb5c4c5884beac02190d6697ebe7b2d6fd4873"
+    },
+    {
+      "source": "UICreator/KeyboardModels/README.md",
+      "target": "Keyboard/AdvancedKeyboard/bundled/README.md",
+      "sha256": "6fd641948aab70ec1e12094908df45908533926341608cd8ab40cb635319bd99"
+    },
+    {
+      "source": "UICreator/KeyboardModels/catalog.json",
+      "target": "Keyboard/AdvancedKeyboard/bundled/catalog.json",
+      "sha256": "0c5a5ed3a707a0159001a8fa23a9ba0a4c3e25538b0c60b6e00fb3b8941c01ee"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/ar-SA-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/ar-SA-16.ngtr",
+      "sha256": "4528076c9c2695b8ca755a119440743ece651de9cfb7ae3011aa13922b95203b"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/ar-SA-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/ar-SA-256.ngtr",
+      "sha256": "103c35be20316130b8885763c53c6fc560fec7cd926874a804e73873495df3cb"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/de-DE-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/de-DE-16.ngtr",
+      "sha256": "a593cdcc4fa062800b369560e8080633e27ecc46fe9e9dbd65494e2af441e31d"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/de-DE-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/de-DE-256.ngtr",
+      "sha256": "b7cb4bba06d9ff2f2f29079ba1de9b835ac434d83c0d48fbaac6c806bc1aa71b"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/el-GR-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/el-GR-16.ngtr",
+      "sha256": "7ececf4cc9986316c0ac5480333403635c7fd854d274fb3a1e07143bc55bd8a1"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/el-GR-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/el-GR-256.ngtr",
+      "sha256": "968510026036f092c6116c8cdeed3ad65933af10bb83c57c207bff66e6c32273"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/en-US-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/en-US-16.ngtr",
+      "sha256": "94afa5c609b65164f320522975807f07f8b78618bbc9e3debefe28811fa6686d"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/en-US-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/en-US-256.ngtr",
+      "sha256": "29e53b1de9294a2cdabc1492a20a0d137e5c13607e0db904a5ff72732ba735c5"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/es-ES-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/es-ES-16.ngtr",
+      "sha256": "df0f960768a2402f26f0fda877b80636c925693a35a62c9dcfe47f2864f06d25"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/es-ES-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/es-ES-256.ngtr",
+      "sha256": "96d99ff02e564c8930289cf70d16638abfc88c147eaeea165a93644be10b28ed"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/fr-FR-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/fr-FR-16.ngtr",
+      "sha256": "39a806efd3d1c216021d3ea6670b067019c7683bfd1e57bdc902fea9e3d6cc09"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/fr-FR-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/fr-FR-256.ngtr",
+      "sha256": "cabe1ccd4d5266673344a38ac0d84bc9be1f7de322962983e392dffb88d8eaaa"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/hi-IN-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/hi-IN-16.ngtr",
+      "sha256": "1228476c2f8a491cce9ed6050c68bdc8caeabb45edcd7f5de07ffae407f8aee5"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/hi-IN-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/hi-IN-256.ngtr",
+      "sha256": "8d1e557983655bf31fa93f7c462416cb62c81c21e37396c074fad903191bc518"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/zh-CN-16.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/zh-CN-16.ngtr",
+      "sha256": "dccdf3579020f69bcbfb0a8fe11946b9197435f954760cf165a7c96859cdd2f5"
+    },
+    {
+      "source": "UICreator/KeyboardModels/models/zh-CN-256.ngtr",
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/zh-CN-256.ngtr",
+      "sha256": "267b94505741f852ab5c09131714c64e991a3e41750834f9e5f8b79c22c4baea"
+    }
+  ]
+}

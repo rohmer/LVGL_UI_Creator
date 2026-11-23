@@ -1,7 +1,9 @@
 // Ported from ESPOS components/ngram_trie; see PROVENANCE.md.
 // The project feature gates live in lv_conf.h. Load them before the portable
 // engine's fallback defaults, including in callback-only (no model) profiles.
+#if !defined(ESPOS_KEYBOARD_HEADLESS_PREDICTION) || !ESPOS_KEYBOARD_HEADLESS_PREDICTION
 #include <lvgl.h>
+#endif
 #include "Utf8Fold.h"
 #include "PredictionAutocorrect.h"
 

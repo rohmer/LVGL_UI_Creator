@@ -36,7 +36,7 @@ CUSTOM_DEPENDENCIES = {
 CUSTOM_SOURCES = {"LVSERIAL_USE_ADVANCED_KEYBOARD": ["LVSerial/Widgets/AdvancedKeyboard/" + name for name in (
     "Key.cpp", "Keyboard.cpp", "TypingView.cpp", "SuggestionText.cpp", "Utf8Fold.cpp", "AdvancedKeyboard.cpp", "KeyboardFont.c")]}
 CUSTOM_SOURCES[trie_assets.PREDICTION_GATE] = ["LVSerial/Widgets/AdvancedKeyboard/" + name for name in (
-    "PredictionModel.cpp", "PredictionPrefix.cpp", "Prediction.cpp")]
+    "PredictionModel.cpp", "PredictionPrefix.cpp", "Prediction.cpp", "PredictionStorage.cpp")]
 DEPENDENCIES = {
     "BUTTON": {"LABEL"},
     "SLIDER": {"BAR"}, "SPINBOX": {"TEXTAREA"}, "SPINNER": {"ARC"},

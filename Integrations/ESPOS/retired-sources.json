@@ -1,0 +1,110 @@
+[
+  {
+    "expectedSha256": "0582479a806fe52fe9eda4ae54084852cc970b5c9f155a2ea32aa5548ec32ebb",
+    "target": "Keyboard/Key.cpp"
+  },
+  {
+    "expectedSha256": "c3c58047ca4141fbee4a00460a44902a1d16ab34803078bbd92bc198554fa7c2",
+    "target": "Keyboard/Keyboard.cpp"
+  },
+  {
+    "expectedSha256": "ad1677c7b53e3106f2a69eaa1048f0c6d0e6626ecb9166b21e57917e63a4faf8",
+    "target": "Keyboard/LayoutData.h"
+  },
+  {
+    "expectedSha256": "0811d9c99d0dd42dd8fc24022cc75df752208a720202262ce38f9b2b9903cbfa",
+    "target": "Keyboard/Pinyin.h"
+  },
+  {
+    "expectedSha256": "0fff6ac2f5d6f7316d08368fd2bc3e3a46907a4f6161f0d152c0a80667894f7c",
+    "target": "Keyboard/PinyinData.inc"
+  },
+  {
+    "expectedSha256": "27a80bd36832ab42d35ad60c08b2b230a807a9bc0d58e94ec1531543dc49cbe8",
+    "target": "Keyboard/PinyinData.LICENSE.txt"
+  },
+  {
+    "expectedSha256": "bba189a6af542da33d67d457eba59dccd72c9c848e786c7c02cd3ca662cd55a2",
+    "target": "Keyboard/UnicodeText.cpp"
+  },
+  {
+    "expectedSha256": "fbc2556976a960cc3a0c2e1e069c73f7618a92e8e2a69d08f783ebeb8cbd158c",
+    "target": "Keyboard/Utf8Fold.h"
+  },
+  {
+    "expectedSha256": "77cedb7551b4d1a8905ad3b858f4f5d2fc26959e8b18813ca0f69de502f12288",
+    "target": "Keyboard/UnicodeWordRanges.inc"
+  },
+  {
+    "expectedSha256": "f3cf4f387a42d1e1816b4dc07ce6ab94db01d9f1df658c19d105c350a0d94673",
+    "target": "Keyboard/SuggestionText.cpp"
+  },
+  {
+    "expectedSha256": "426a60353b7235e205148fac5eacf8d1b52914ca54f387c62f44fc442f82a032",
+    "target": "Keyboard/SuggestionText.h"
+  },
+  {
+    "expectedSha256": "0a4b93cd34097d903536d2cbc02d08d6e2e1a5dd86f16aeb6db56ff1fbf7e102",
+    "target": "Keyboard/KeyboardFont.c"
+  },
+  {
+    "expectedSha256": "d75938dec098f06f0ac3c00853065d94f020be1c3c62ef1dc2975ba15b4d9b0e",
+    "target": "Keyboard/KeyboardFont.LICENSE.txt"
+  },
+  {
+    "expectedSha256": "af17e7611f7607ee845bbe1ae6cc62c637639806f9518137adda5698f942c25a",
+    "target": "Keyboard/KeyboardHindiFont.c"
+  },
+  {
+    "expectedSha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331",
+    "target": "Keyboard/KeyboardHindiFont.LICENSE.txt"
+  },
+  {
+    "expectedSha256": "72f866bc781b4fe6115c56cd57387aa7e9b40591384ffa5bc8e8516e8d2372ae",
+    "target": "Keyboard/KeyboardHindiFont.md"
+  },
+  {
+    "expectedSha256": "673b1aee3d694df14f8f5f25063b666959c9ba43e8c8753af04761c00096de89",
+    "target": "Keyboard/KeyboardBengaliFont.c"
+  },
+  {
+    "expectedSha256": "754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70",
+    "target": "Keyboard/KeyboardBengaliFont.LICENSE.txt"
+  },
+  {
+    "expectedSha256": "44cd58e71e58de34128dfdecd635b0f9106078a0f54895e985aed9a1511d9a25",
+    "target": "Keyboard/KeyboardCyrillicFont.c"
+  },
+  {
+    "expectedSha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
+    "target": "Keyboard/KeyboardCyrillicFont.LICENSE.txt"
+  },
+  {
+    "expectedSha256": "68897cb28eba33c595668ce28658afacd3bd056d3ec409e1a1aaa2cb779091f7",
+    "target": "Keyboard/KeyboardUrduFont.c"
+  },
+  {
+    "expectedSha256": "a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af",
+    "target": "Keyboard/KeyboardUrduFont.LICENSE.txt"
+  },
+  {
+    "expectedSha256": "ff1092a52ab00433a2815cfd4f1c3496050530f33bde6c7cc64e0ff8c35a863b",
+    "target": "Keyboard/KeyboardScriptFonts.md"
+  },
+  {
+    "expectedSha256": "002af3ba34818d8213b8937d895b42e5370a8d2927ec5e3c6db00b9d33f15a27",
+    "target": "components/ngram_trie/model.cpp"
+  },
+  {
+    "expectedSha256": "a0b3172854d1d5e574a01583fe62a6619e262d65cd93110aa19af14e05e11317",
+    "target": "components/ngram_trie/prefix.cpp"
+  },
+  {
+    "expectedSha256": "95a4ce247043c8e8fea916a850fed3ff431e76ef1e0f3198bed3f9e6506c2a46",
+    "target": "components/ngram_trie/autocorrect.cpp"
+  },
+  {
+    "expectedSha256": "6f0b7ad19c4c0716f68f1973c053eeac78dd17e22d5f5f429a0358cc3cb5b1bc",
+    "target": "components/ngram_trie/autocorrect_unicode.inc"
+  }
+]

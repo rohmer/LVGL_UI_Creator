@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Owned ESPOS keyboard synchronization paths",
+  "type": "object",
+  "required": ["version", "trees", "files", "tombstones"],
+  "properties": {
+    "version": {"const": 1},
+    "templateRoot": {"type": "string", "minLength": 1},
+    "trees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "include", "exclude"],
+        "properties": {
+          "source": {"type": "string", "minLength": 1},
+          "target": {"type": "string", "minLength": 1},
+          "discoverPeerAdditions": {"type": "boolean"},
+          "include": {"type": "array", "items": {"type": "string"}},
+          "exclude": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target"],
+        "properties": {
+          "source": {"type": "string", "minLength": 1},
+          "target": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tombstones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "expectedSha256"],
+        "properties": {
+          "target": {"type": "string", "minLength": 1},
+          "expectedSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

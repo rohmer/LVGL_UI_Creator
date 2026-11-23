@@ -1225,7 +1225,7 @@ The public setter types and oldest-first history access remain unchanged.
         output.insert(support.begin(),support.end());
         output["CMakeLists.txt"]+="\nenable_language(CXX)\nfile(GLOB_RECURSE advanced_keyboard_sources CONFIGURE_DEPENDS advanced_keyboard/*.cpp advanced_keyboard/*.c)\ntarget_sources(generated_ui PRIVATE ${advanced_keyboard_sources})\ntarget_compile_features(generated_ui PRIVATE cxx_std_17)\nset_target_properties(generated_ui PROPERTIES CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)\ntarget_include_directories(generated_ui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/advanced_keyboard/include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/advanced_keyboard)\n";
         output["CMakeLists.txt"]+="target_compile_definitions(generated_ui PRIVATE LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION="+std::string(usesPrediction?"1":"0")+" LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE="+std::string(requiredTries.count("builtin-en-us")?"1":"0")+")\n";
-        if(!usesPrediction)output["CMakeLists.txt"]+="get_target_property(keyboard_export_sources generated_ui SOURCES)\nlist(FILTER keyboard_export_sources EXCLUDE REGEX \"/Prediction(Model|Prefix)?[.]cpp$\")\nset_property(TARGET generated_ui PROPERTY SOURCES ${keyboard_export_sources})\n";
+        if(!usesPrediction)output["CMakeLists.txt"]+="get_target_property(keyboard_export_sources generated_ui SOURCES)\nlist(FILTER keyboard_export_sources EXCLUDE REGEX \"/Prediction(Model|Prefix|Storage)?[.]cpp$\")\nset_property(TARGET generated_ui PROPERTY SOURCES ${keyboard_export_sources})\n";
         output["CMakeLists.txt"]+="if(MSVC)\n target_compile_options(generated_ui PRIVATE /utf-8)\nendif()\n";
         auto& instructions=output["README.md"];
         const auto cpp=instructions.find("No editor, C++, JSON");

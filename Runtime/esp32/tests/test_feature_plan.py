@@ -115,7 +115,7 @@ class FeaturePlanTests(unittest.TestCase):
         for name in ("PREDICTION", "BUILTIN_TRIE"):
             self.assertIn("LVSERIAL_USE_ADVANCED_KEYBOARD_" + name, builtin["customFeatures"])
         sources = profile.source_plan(builtin, root)
-        for name in ("PredictionModel.cpp", "PredictionPrefix.cpp", "Prediction.cpp"):
+        for name in ("PredictionModel.cpp", "PredictionPrefix.cpp", "Prediction.cpp", "PredictionStorage.cpp"):
             self.assertIn("LVSerial/Widgets/AdvancedKeyboard/" + name, sources)
         model = struct.pack("<4sIII", b"NGTR", 3, 4, 0) + b"\0\2\0\2a\1\1a\1\1"
         document = project({"advancedKeyboard": {"trieId": "custom"}})

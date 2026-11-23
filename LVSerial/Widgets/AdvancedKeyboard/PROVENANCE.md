@@ -6,9 +6,10 @@ typing view, rather than the separate .NET simulator.
 
 `Key.cpp`, `Keyboard.cpp`, `LayoutData.h`, `SuggestionText.cpp/.h`, the keyboard
 public declarations, generated layout data, layout JSON/schema/generator and
-`KeyboardFont.c` derive from those ESPOS sources. `TypingView.cpp` retains the
-fixed-size typing UI and optional suggestion callback; board/display creation
-and orientation controls were removed for use as a nested Creator widget.
+`KeyboardFont.c` derive from those ESPOS sources. `TypingView.cpp` now implements
+the external-textarea typing view and optional suggestion callback under
+`espos::keyboard::view`; the C facade adds target binding, dismissal and scrolling.
+Board/display creation and orientation controls remain in an ESPOS adapter.
 `PredictionModel.cpp`, `PredictionPrefix.cpp`, `Utf8Fold.cpp`, the matching
 private declarations and `UnicodeFold.inc` port the complete portable model,
 prefix and autocorrect engine under `espos::keyboard::prediction`. The
@@ -18,6 +19,12 @@ benchmark code are excluded. `layout/build_ngtr_index.py` is the unchanged
 ESPOS index generator. The C index builder and predictor lifetime facade are
 Creator integration code. Built-in model details and available source notices
 are retained under `models/`.
+
+The portable implementation, layouts and bundled corpus catalog are mirrored
+back to ESPOS using the manifest and compatibility adapters maintained in
+`Integrations/ESPOS` in the Creator checkout. `PredictionStorage.cpp` provides
+the shared PSRAM model/index cache to both graphical and headless ESPOS builds;
+it has no LVGL dependency. Board startup remains outside the portable component.
 
 `AdvancedKeyboard.cpp`, the public C facade and the Creator serializer are
 integration code for LVGL UI Creator. The source checkout supplied no separate

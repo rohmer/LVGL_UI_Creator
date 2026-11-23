@@ -212,6 +212,7 @@
     <ClCompile Include="Widgets\AdvancedKeyboard\Utf8Fold.cpp" />
     <ClCompile Include="Widgets\AdvancedKeyboard\AdvancedKeyboard.cpp" />
     <ClCompile Include="Widgets\AdvancedKeyboard\Prediction.cpp" />
+    <ClCompile Include="Widgets\AdvancedKeyboard\PredictionStorage.cpp" />
     <ClCompile Include="Widgets\AdvancedKeyboard\PredictionModel.cpp" />
     <ClCompile Include="Widgets\AdvancedKeyboard\PredictionPrefix.cpp" />
     <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardFont.c" />
