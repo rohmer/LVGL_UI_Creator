@@ -9,6 +9,7 @@
 #include <Serialization/Protobuf.h>
 #include <Serialization/ProjectDesign.h>
 #include <Serialization/ProjectScreens.h>
+#include <Serialization/ProjectTries.h>
 #include <chrono>
 #include <fstream>
 #include <sstream>
@@ -106,6 +107,7 @@ Result Run(json request,const std::atomic<bool>* cancel){
             if(format=="protobuf" || native) {
                 project=Serialization::ProjectScreens::Device(project);
                 Serialization::ProjectDesign::Materialize(project,true);
+                Serialization::ProjectTries::PruneUnused(project);
                 CGeneration::ValidateTarget(target);CGeneration::EmbedLocalImages(project,std::filesystem::u8path(source));project["runtimeTarget"]=target;
                 auto bytes=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",project);
                 std::ofstream out(ui/"project.pb",std::ios::binary);out.write((const char*)bytes.data(),bytes.size());out.close();if(!out)throw std::runtime_error("Cannot write project Protobuf");

@@ -59,6 +59,7 @@
     <ClCompile Include="ProjectCreator\ProjectCreatorWindow.cpp" />
     <ClCompile Include="LanguageModels\Generator.cpp" />
     <ClCompile Include="LanguageModels\LanguageModelWindow.cpp" />
+    <ClCompile Include="KeyboardModels\BundledTries.cpp" />
     <ClCompile Include="Windows\PropertyWindow.cpp" />
     <ClCompile Include="Windows\SimWindow.cpp" />
     <ClCompile Include="Windows\ToolTray.cpp" />
@@ -68,6 +69,8 @@
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="LanguageModels\Generator.h" />
+    <ClInclude Include="KeyboardModels\BundledTries.h" />
+    <ClInclude Include="KeyboardModels\CatalogData.inc" />
     <ClInclude Include="LanguageModels\LanguageModelWindow.h" />
     <ClInclude Include="Utils\CrashReporter.h" />
     <ClInclude Include="custom_widget.h" />
@@ -156,6 +159,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
+    <None Include="KeyboardModels\catalog.json" />
+    <None Include="KeyboardModels\README.md" />
+    <None Include="KeyboardModels\import_corpus.py" />
+    <None Include="KeyboardModels\models\*.ngtr" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -335,11 +342,15 @@
       <LanguageModelWords Include="$(ProjectDir)LanguageModels\wordlists\*" />
       <LanguageModelExamples Include="$(ProjectDir)LanguageModels\examples\*" />
       <LanguageModelNotices Include="$(ProjectDir)LanguageModels\README.md;$(ProjectDir)LanguageModels\PROVENANCE.md" />
+      <BundledTrieFiles Include="$(ProjectDir)KeyboardModels\models\*.ngtr" />
+      <BundledTrieNotices Include="$(ProjectDir)KeyboardModels\catalog.json;$(ProjectDir)KeyboardModels\README.md" />
     </ItemGroup>
-    <MakeDir Directories="$(TargetDir)language-models\wordlists;$(TargetDir)language-models\examples" />
+    <MakeDir Directories="$(TargetDir)language-models\wordlists;$(TargetDir)language-models\examples;$(TargetDir)language-models\bundled" />
     <Copy SourceFiles="@(LanguageModelWords)" DestinationFolder="$(TargetDir)language-models\wordlists" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(LanguageModelExamples)" DestinationFolder="$(TargetDir)language-models\examples" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(LanguageModelNotices)" DestinationFolder="$(TargetDir)language-models" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(BundledTrieFiles)" DestinationFolder="$(TargetDir)language-models\bundled" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(BundledTrieNotices)" DestinationFolder="$(TargetDir)language-models\bundled" SkipUnchangedFiles="true" />
   </Target>
   <Target Name="BundleFigmaPlugin" AfterTargets="Build">
     <ItemGroup>

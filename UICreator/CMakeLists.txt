@@ -20,7 +20,18 @@ add_custom_target(UICreatorLanguageModelAssets
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/README.md"
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/PROVENANCE.md"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/PROVENANCE.md"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/models"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/bundled"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/catalog.json"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/bundled/catalog.json"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/README.md"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/bundled/README.md"
     VERBATIM)
+if(TARGET UICreatorProjectCreationTests)
+    target_sources(UICreatorProjectCreationTests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/BundledTries.cpp")
+    target_link_libraries(UICreatorProjectCreationTests PRIVATE SDL3::SDL3)
+    add_dependencies(UICreatorProjectCreationTests UICreatorLanguageModelAssets)
+endif()
 
 if(WIN32)
     add_library(UICreatorBreakpad STATIC
@@ -61,6 +72,17 @@ if(MSVC)
     target_compile_options(UICreator PRIVATE /utf-8)
 endif()
 if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
+    add_executable(UICreatorBundledTrieTests
+        "${PROJECT_SOURCE_DIR}/Tests/Integration/BundledTries.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/BundledTries.cpp")
+    target_link_libraries(UICreatorBundledTrieTests PRIVATE LVSerial SDL3::SDL3)
+    add_dependencies(UICreatorBundledTrieTests UICreatorLanguageModelAssets)
+    if(MSVC)
+        target_compile_options(UICreatorBundledTrieTests PRIVATE /utf-8)
+    endif()
+    add_test(NAME UICreatorBundledTries COMMAND UICreatorBundledTrieTests
+        "${PROJECT_BINARY_DIR}/bundled-trie-tests")
+    set_tests_properties(UICreatorBundledTries PROPERTIES TIMEOUT 120 LABELS "functional;language-models;prediction;advanced-keyboard")
     add_executable(UICreatorLanguageModelTests "${PROJECT_SOURCE_DIR}/Tests/Integration/LanguageModels/Generator.cpp")
     target_link_libraries(UICreatorLanguageModelTests PRIVATE UICreatorLanguageModels LVSerial)
     if(MSVC)

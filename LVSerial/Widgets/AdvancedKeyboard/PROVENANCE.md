@@ -25,7 +25,7 @@ project-wide ESPOS code license. Its existing ownership and applicable terms
 are unchanged by this port. The keyboard font's explicit Bitstream Vera,
 DejaVu and Arev terms are retained verbatim in `KeyboardFont.LICENSE.txt`.
 
-The French AZERTY and German QWERTZ definitions are retained from ESPOS.
+The French AZERTY, German QWERTZ and Greek QWERTY definitions are retained from ESPOS.
 The Spanish QWERTY definition derives from its `es-MX-qwerty.json`; it is
 exposed as the Spanish `es-ES` selection without changing its key set. Italian
 and Portuguese QWERTY definitions and their accent pages extend that portable

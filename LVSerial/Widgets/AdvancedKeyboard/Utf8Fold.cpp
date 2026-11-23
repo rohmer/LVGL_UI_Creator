@@ -88,7 +88,6 @@ bool Inside(const WordRange (&ranges)[Count], std::uint32_t scalar) noexcept {
     return next != std::begin(ranges) && scalar <= (next - 1)->last;
 }
 
-#if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
 std::uint32_t SimpleLower(std::uint32_t scalar) noexcept {
     if (scalar < 0x80) return AsciiLower(scalar);
     const auto override = std::lower_bound(std::begin(kSimpleLowerOverrides), std::end(kSimpleLowerOverrides), scalar,
@@ -98,6 +97,7 @@ std::uint32_t SimpleLower(std::uint32_t scalar) noexcept {
     return mapping < kExpansionBase ? mapping : scalar;
 }
 
+#if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
 bool IsNumber(std::uint32_t scalar) noexcept {
     if (scalar < 0x80) return scalar >= '0' && scalar <= '9';
     const auto* next = std::upper_bound(std::begin(kNumberRanges), std::end(kNumberRanges), scalar,
@@ -239,6 +239,34 @@ bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, s
 
 bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, std::string_view& folded) noexcept {
     return FoldUtf8(input, destination, capacity, folded, false);
+}
+
+bool PrepareKeyboardQuery(std::string_view input, char* destination, std::size_t capacity,
+                          std::string_view& prepared, const char* language, bool completeWord) noexcept {
+    const bool greek = language && !std::strcmp(language, "el-GR");
+    const bool french = language && !std::strcmp(language, "fr-FR");
+    const bool german = language && !std::strcmp(language, "de-DE");
+    if (!greek && !french && !german) {
+        const bool indic = language && (!std::strcmp(language, "hi-IN") || !std::strcmp(language, "bn-BD"));
+        return FoldUtf8(input, destination, capacity, prepared, indic);
+    }
+    // These vocabulary-filtered models retain lowercase spelling rather than
+    // Unicode case-fold expansions: German sharp S and Greek final sigma are
+    // distinct stored bytes. Their keyboard keys already emit NFC characters.
+    prepared = {};
+    if (!destination && !input.empty()) return false;
+    std::size_t used = 0, runes = 0;
+    while (!input.empty()) {
+        std::uint32_t scalar = 0; std::size_t width = 0;
+        if (DecodeUtf8(input, scalar, width) != Utf8Status::Done) return false;
+        const bool finalSigma = greek && completeWord && runes && width == input.size() && scalar == 0x3a3;
+        scalar = finalSigma ? 0x3c2 : SimpleLower(scalar);
+        if (french && scalar == 0x2019) scalar = '\'';
+        if (!AppendUtf8(scalar, destination, capacity, used)) return false;
+        input.remove_prefix(width); ++runes;
+    }
+    if (used) prepared = {destination, used};
+    return true;
 }
 
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION

@@ -240,6 +240,29 @@ nlohmann::json ProjectTries::ToWire(const json& tries)
     }
     return result;
 }
+void ProjectTries::PruneUnused(json& document)
+{
+    std::set<std::string> referenced;
+    auto walk = [&](const auto& self, const json& value) -> void {
+        if (value.is_array()) { for (const auto& child : value) self(self, child); return; }
+        if (!value.is_object()) return;
+        if (value.contains("advancedKeyboard")) {
+            const auto& settings = value.at("advancedKeyboard");
+            if (!settings.is_object()) throw std::invalid_argument("Advanced Keyboard properties must be an object");
+            const auto language = settings.value("language", std::string("en-US"));
+            const auto id = settings.value("trieId", language == "en-US" ? std::string(kBuiltin) : std::string{});
+            if (!id.empty() && id != kBuiltin) referenced.insert(id);
+        }
+        for (const auto& child : value.items()) if (child.key() != "tries") self(self, child.value());
+    };
+    walk(walk, document);
+    const auto normalized = Normalize(document.value("tries", json::array()));
+    auto selected = json::array();
+    for (const auto& item : normalized) if (referenced.erase(item.at("id").get<std::string>())) selected.push_back(item);
+    if (!referenced.empty()) throw std::invalid_argument("Unknown project trie: " + *referenced.begin());
+    if (selected.empty()) document.erase("tries");
+    else document["tries"] = std::move(selected);
+}
 namespace {
 ProjectTries::CatalogPtr LoadCatalog(json& document, const BorrowedAssets& borrowed, bool retainBorrowed)
 {

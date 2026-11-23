@@ -69,7 +69,6 @@ TypingView* live_views = nullptr;
 std::uint64_t next_direction_order = 0;
 void on_delete(lv_event_t* event);
 bool han_tokens(const TypingView& view) { return !std::strcmp(keyboard_language(view.keyboard), "zh-CN"); }
-bool indic_tokens(const TypingView& view) { const auto* language=keyboard_language(view.keyboard); return !std::strcmp(language,"hi-IN") || !std::strcmp(language,"bn-BD"); }
 bool pinyin(const TypingView& view) { return LV_ADVANCED_KEYBOARD_USE_PINYIN && han_tokens(view); }
 TypingView* data(lv_obj_t* root)
 {
@@ -252,13 +251,14 @@ void refresh(lv_timer_t* timer)
     const auto input = detail::capture_suggestion_text(view.editor, han_tokens(view));
     std::array<char, kSuggestionBytes> prefix_buffer, previous_buffer, older_buffer;
     std::string_view prefix, previous, older;
-    const bool indic = indic_tokens(view);
-    if (!prediction::FoldUtf8(input.prefix, prefix_buffer.data(), prefix_buffer.size(), prefix, indic)) {
+    const auto* language = keyboard_language(view.keyboard);
+    const bool listed = !std::strcmp(language,"fr-FR") || !std::strcmp(language,"de-DE") || !std::strcmp(language,"el-GR");
+    if (!prediction::PrepareKeyboardQuery(input.prefix, prefix_buffer.data(), prefix_buffer.size(), prefix, language, false)) {
         clear(view);
         return;
     }
-    if (prediction::FoldUtf8(input.previous, previous_buffer.data(), previous_buffer.size(), previous, indic)) {
-        (void)prediction::FoldUtf8(input.older, older_buffer.data(), older_buffer.size(), older, indic);
+    if (prediction::PrepareKeyboardQuery(input.previous, previous_buffer.data(), previous_buffer.size(), previous, language, true)) {
+        (void)prediction::PrepareKeyboardQuery(input.older, older_buffer.data(), older_buffer.size(), older, language, true);
     }
     const auto count = std::min(view.lookup(view.context, prefix, previous, older, view.suggestions.data()),
                                 kSuggestionCount);
@@ -266,7 +266,8 @@ void refresh(lv_timer_t* timer)
         auto& slot = view.slots[index];
         const auto& suggestion = view.suggestions[index];
         if (index < count && suggestion.length <= suggestion.text.size()) {
-            show_slot(slot, detail::display_suggestion(input, suggestion.Word(), slot.word.data(), slot.word.size()));
+            show_slot(slot, listed ? detail::display_suggestion(input, suggestion.Word(), slot.word.data(), slot.word.size(), prefix)
+                                   : detail::display_suggestion(input, suggestion.Word(), slot.word.data(), slot.word.size()));
         } else {
             show_slot(slot, 0);
         }

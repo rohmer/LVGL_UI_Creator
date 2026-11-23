@@ -90,7 +90,10 @@ UI::UI(lv_indev_t* kb_indev)
     toolBar->revealVariableTarget = [this](size_t screen, int oid) { SelectObjectOnScreen(screen, oid); };
     toolBar->variableRenamed = [this](const std::string& from, const std::string& to) { RenameVariableReferences(from, to); };
     toolBar->variableSelected = [this] { if (!restoringHistory) history.BreakGroup(); };
-    toolTray->onWidgetCreated = [this](lv_obj_t* object) { ProjectAuthoring::ApplyNewDefaults(object, ProjectDocument()); };
+    toolTray->onWidgetCreated = [this](lv_obj_t* object) {
+        ProjectAuthoring::ApplyNewDefaults(object, ProjectDocument());
+        propertyWindow->Tries().ApplyDefault(object);
+    };
     toolTray->onWidgetChanged = [this]{if(!restoringHistory&&!applyingDocument&&!serializingDocument){screenContentDirty=true;InvalidateDocument();}};
     propertyWindow->SetSelectedObject(simWindow->GetDrawSurface());
     history.Reset(CaptureHistory());
@@ -894,6 +897,7 @@ void UI::MenuAction(const std::string& action)
                     if (exportingBinary)
                     {
                         Serialization::ProjectDesign::Materialize(document, true);
+                        Serialization::ProjectTries::PruneUnused(document);
                         if (exportTarget)
                         {
                             char target[16];lv_dropdown_get_selected_str(exportTarget, target, sizeof(target));

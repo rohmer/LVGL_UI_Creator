@@ -321,9 +321,9 @@ void TestRevealCallbackDeletion(lv_event_code_t code)
 }
 void TestKeyboardLanguages()
 {
-    constexpr const char* ids[] = {"en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT", "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU"};
-    Check(lv_advanced_keyboard_language_count() == 13, "Keyboard language catalog must contain all thirteen stable layouts");
-    for (size_t i = 0; i < 13; ++i) {
+    constexpr const char* ids[] = {"en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT", "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU", "el-GR"};
+    Check(lv_advanced_keyboard_language_count() == 14, "Keyboard language catalog must contain all fourteen stable layouts");
+    for (size_t i = 0; i < 14; ++i) {
         const auto* id = lv_advanced_keyboard_language_id(i);
         const auto* name = lv_advanced_keyboard_language_name(i);
         Check(id && std::strcmp(id, ids[i]) == 0 && name && *name, "Language catalog has an invalid stable ID or label");
@@ -394,7 +394,7 @@ void TestScriptKeyboards(const std::filesystem::path& directory)
     struct Script { const char* id; const char* key; uint32_t glyph; bool rtl; };
     const Script scripts[] = {{"ar-SA",u8"س",0x0633,true},{"hi-IN",u8"क",0x0915,false},
         {"bn-BD",u8"ক",0x0995,false},{"id-ID","q",0x71,false},{"ur-PK",u8"پ",0x067e,true},
-        {"ru-RU",u8"й",0x0439,false},{"zh-CN","n",0x4f60,false}};
+        {"ru-RU",u8"й",0x0439,false},{"zh-CN","n",0x4f60,false},{"el-GR",u8"α",0x03b1,false}};
     for (const auto& script : scripts) {
         Check(lv_advanced_keyboard_set_language(keyboard, script.id), std::string("Cannot select script ") + script.id);
         Check(lv_advanced_keyboard_get_right_to_left(keyboard) == script.rtl &&
@@ -454,6 +454,9 @@ void TestScriptKeyboards(const std::filesystem::path& directory)
     lv_textarea_set_text(field,"");Tap(keys,u8"ক");Tap(keys,u8"◌ি");Text(keyboard,u8"কি");Tap(keys,u8"⌫");Text(keyboard,u8"ক");
     Check(lv_advanced_keyboard_set_language(keyboard,"ru-RU"),"Cannot select Russian");
     lv_textarea_set_text(field,"");Tap(keys,u8"й");Tap(keys,u8"⇧");Advance(320);Tap(keys,u8"Й");Text(keyboard,u8"йЙ");
+    Check(lv_advanced_keyboard_set_language(keyboard,"el-GR"),"Cannot select Greek");
+    lv_textarea_set_text(field,"");Tap(keys,u8"α");Tap(keys,u8"⇧");Advance(320);Tap(keys,u8"Α");
+    Tap(keys,u8"άέί");Tap(keys,u8"ά");Text(keyboard,u8"αΑά");
     Check(lv_advanced_keyboard_set_language(keyboard,"zh-CN"),"Cannot select Pinyin");
     auto* bar=lv_obj_get_child(keyboard,0);lv_textarea_set_text(field,"");Tap(keys,"n");Tap(keys,"i");Text(keyboard,"");
     Check(Button(bar,u8"你"),"Pinyin ni did not offer a real Chinese candidate");Tap(bar,u8"你");Text(keyboard,u8"你");
@@ -482,7 +485,7 @@ void TestScriptKeyboards(const std::filesystem::path& directory)
     lv_advanced_keyboard_close(peer);Check(lv_obj_get_style_base_dir(field,LV_PART_MAIN)==LV_BASE_DIR_LTR&&FieldStyles(field)==editedStyles,"Dismissing keyboard discarded an authored direction edit");
     lv_obj_delete(peer);
     lv_screen_load(previous);lv_obj_delete(screen);
-    std::cout<<"Thirteen layouts, real script glyphs, canonical RTL text, Indic matras, Pinyin candidates/paging and script JSON/Protobuf/C/runtime persistence passed\n";
+    std::cout<<"Fourteen layouts, real script glyphs, canonical RTL text, Indic matras, Pinyin candidates/paging and script JSON/Protobuf/C/runtime persistence passed\n";
 }
 
 std::vector<uint8_t> ScriptPredictionFixture()
@@ -490,7 +493,11 @@ std::vector<uint8_t> ScriptPredictionFixture()
     struct Node { uint8_t label=0; uint32_t terminal=0; std::map<uint8_t,std::unique_ptr<Node>> children; };
     Node all, unigrams;
     auto insert=[](Node& root,const std::string& text,uint32_t count){auto* node=&root;for(uint8_t value:text){auto& child=node->children[value];if(!child){child=std::make_unique<Node>();child->label=value;}node=child.get();}node->terminal=count;};
-    for(const auto& word:std::vector<std::pair<std::string,uint32_t>>{{u8"سلام",100},{u8"सुंदर",100},{u8"সুন্দর",100},{u8"پاکستان",100},{u8"привет",100},{"saya",100},
+    for(const auto& word:std::vector<std::pair<std::string,uint32_t>>{{u8"سلام",100},{u8"सुंदर",100},{u8"সুন্দর",100},{u8"پاکستان",100},{u8"привет",100},{"saya",100},{u8"γεια",100},
+        {u8"κόσμος",1000},{u8"μας",1000},{u8"φίλος",1000},{u8"κόσμος μας",1000},{u8"μας φίλος",1000},{u8"κόσμος μας φίλος",1000},
+        {u8"μας κόσμος",1000},{u8"κόσμος μας κόσμος",1000},
+        {u8"straße",1000},{u8"grüße",1000},{u8"schön",1000},{u8"straße grüße",1000},{u8"grüße schön",1000},{u8"straße grüße schön",1000},
+        {u8"grüße straße",1000},{u8"straße grüße straße",1000},
         {u8"\u0915\u093c\u0932\u092e",100},{u8"\u09a1\u09bc\u09be\u0995",100},
         {u8"你",1000},{u8"好",1000},{u8"吗",1000},{u8"你 好",1000},{u8"好 吗",1000},{u8"你 好 吗",1000}}){
         insert(all,word.first,word.second);if(word.first.find(' ')==std::string::npos)insert(unigrams,word.first,word.second);
@@ -510,11 +517,29 @@ void TestScriptPredictions(const std::filesystem::path& directory)
     const auto bytes=ScriptPredictionFixture();auto* predictor=lv_advanced_keyboard_predictor_create(bytes.data(),bytes.size());Check(predictor,"Cannot create script prediction model");
     lv_advanced_keyboard_set_predictor(keyboard,predictor);Check(lv_advanced_keyboard_set_textarea(keyboard,field),"Cannot bind script prediction field");
     struct Case {const char* language;const char* prefix;const char* suggestion;};
-    for(const auto& item:std::vector<Case>{{"ar-SA",u8"سل",u8"سلام"},{"hi-IN",u8"सु",u8"सुंदर"},{"bn-BD",u8"সু",u8"সুন্দর"},{"ur-PK",u8"پا",u8"پاکستان"},{"ru-RU",u8"пр",u8"привет"},{"ru-RU",u8"ПР",u8"ПРИВЕТ"},{"id-ID","sa","saya"},
+    for(const auto& item:std::vector<Case>{{"ar-SA",u8"سل",u8"سلام"},{"hi-IN",u8"सु",u8"सुंदर"},{"bn-BD",u8"সু",u8"সুন্দর"},{"ur-PK",u8"پا",u8"پاکستان"},{"ru-RU",u8"пр",u8"привет"},{"ru-RU",u8"ПР",u8"ПРИВЕТ"},{"id-ID","sa","saya"},{"el-GR",u8"γε",u8"γεια"},
+        {"el-GR",u8"κόσμο",u8"κόσμος"},{"el-GR",u8"ΚΌΣΜΟ",u8"ΚΌΣΜΟΣ"},{"de-DE",u8"straß",u8"straße"},{"de-DE",u8"STRAẞ",u8"STRAẞE"},
         {"hi-IN",u8"\u0958",u8"\u0915\u093c\u0932\u092e"},{"bn-BD",u8"\u09dc",u8"\u09a1\u09bc\u09be\u0995"}}){
         Check(lv_advanced_keyboard_set_language(keyboard,item.language),"Cannot choose prediction script");lv_textarea_set_text(field,item.prefix);lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);Advance(80);
         Check(Button(bar,item.suggestion),std::string("Trie prefix suggestions are missing for ")+item.language);Tap(bar,item.suggestion);Text(keyboard,std::string(item.suggestion)+" ");
     }
+    for(const auto& item:std::vector<Case>{{"el-GR",u8"ΚΌΣΜΟΣ ΜΑΣ ",u8"φίλος"},{"de-DE",u8"STRAẞE GRÜẞE ",u8"schön"}}) {
+        Check(lv_advanced_keyboard_set_language(keyboard,item.language),"Cannot choose listed-spelling context language");
+        lv_textarea_set_text(field,item.prefix);lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);Advance(80);
+        Check(Button(bar,item.suggestion),std::string("Listed-spelling previous/older context lost sigma or sharp S for ")+item.language);
+        Tap(bar,item.suggestion);Text(keyboard,std::string(item.prefix)+item.suggestion+" ");
+    }
+    lv_advanced_keyboard_set_autocorrect(keyboard,true);lv_advanced_keyboard_set_autocorrect_threshold(keyboard,0);
+    for(const auto& item:std::vector<Case>{{"el-GR",u8"ΚΌΣΜΟΣ ΜΑΣ κόσμος",u8"ΚΌΣΜΟΣ ΜΑΣ κόσμος"},{"el-GR",u8"ΚΌΣΜΟΣ ΜΑΣ κόσμο",u8"ΚΌΣΜΟΣ ΜΑΣ κόσμος"},
+        {"de-DE",u8"STRAẞE GRÜẞE straße",u8"STRAẞE GRÜẞE straße"},{"de-DE",u8"STRAẞE GRÜẞE straß",u8"STRAẞE GRÜẞE straße"}}) {
+        Check(lv_advanced_keyboard_set_language(keyboard,item.language),"Cannot choose listed-spelling autocorrect language");
+        lv_textarea_set_text(field,item.prefix);lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);
+        uint32_t enter=LV_KEY_ENTER;lv_obj_send_event(field,LV_EVENT_KEY,&enter);
+        Check(std::string(lv_textarea_get_text(field))==item.suggestion,std::string("Boundary autocorrect folded listed spelling incorrectly for ")+item.language+
+            ": typed '"+item.prefix+"', expected '"+item.suggestion+"', got '"+lv_textarea_get_text(field)+"'");
+        Check(lv_advanced_keyboard_set_textarea(keyboard,field),"Cannot reopen listed-spelling keyboard");
+    }
+    lv_advanced_keyboard_set_autocorrect(keyboard,false);lv_advanced_keyboard_set_autocorrect_threshold(keyboard,0.3);
     for(const auto& item:std::vector<Case>{{"hi-IN",u8"\u0958\u0932\u092e",u8"\u0958\u0932\u092e"},{"bn-BD",u8"\u09dc\u09be\u0995",u8"\u09dc\u09be\u0995"}}){
         Check(lv_advanced_keyboard_set_language(keyboard,item.language),"Cannot choose Indic autocorrect script");lv_advanced_keyboard_set_autocorrect(keyboard,true);
         lv_textarea_set_text(field,item.prefix);lv_textarea_set_cursor_pos(field,LV_TEXTAREA_CURSOR_LAST);Tap(lv_advanced_keyboard_get_keyboard(keyboard),"space");Text(keyboard,std::string(item.suggestion)+" ");

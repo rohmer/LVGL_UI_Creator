@@ -402,7 +402,7 @@ std::size_t Lookup(void* context,std::string_view prefix,std::string_view previo
             previous.data(), previous.size(), older.data(), older.size(), candidates.data(), candidates.size());
         if (!count && !prefix.empty()) {
             double probability = 0;
-            if (lv_advanced_keyboard_predictor_autocorrect_utf8(state->predictor, prefix.data(), prefix.size(),
+            if (lv_advanced_keyboard_predictor_autocorrect_folded(state->predictor, prefix.data(), prefix.size(),
                 previous.data(), previous.size(), older.data(), older.size(), 0, &candidates[0], &probability)) count = 1;
         }
     }
@@ -430,19 +430,19 @@ void CorrectBoundary(void* context, lv_obj_t* editor)
     if (input.selected || input.prefix.empty() || input.prefix.size() != input.end - input.start) return;
     auto prefix = input.prefix, previous = input.previous, older = input.older;
     std::array<char, LV_ADVANCED_KEYBOARD_SUGGESTION_BYTES + 1> prefix_buffer{}, previous_buffer{}, older_buffer{};
-    if (!std::strcmp(language, "hi-IN") || !std::strcmp(language, "bn-BD")) {
-        if (!espos::keyboard::prediction::FoldUtf8(input.prefix, prefix_buffer.data(), prefix_buffer.size(), prefix, true)) return;
-        if (!espos::keyboard::prediction::FoldUtf8(input.previous, previous_buffer.data(), previous_buffer.size(), previous, true)) previous = {};
-        if (!espos::keyboard::prediction::FoldUtf8(input.older, older_buffer.data(), older_buffer.size(), older, true)) older = {};
-    }
+    if (!espos::keyboard::prediction::PrepareKeyboardQuery(input.prefix, prefix_buffer.data(), prefix_buffer.size(), prefix, language, true)) return;
+    if (!espos::keyboard::prediction::PrepareKeyboardQuery(input.previous, previous_buffer.data(), previous_buffer.size(), previous, language, true)) previous = {};
+    if (!espos::keyboard::prediction::PrepareKeyboardQuery(input.older, older_buffer.data(), older_buffer.size(), older, language, true)) older = {};
     lv_advanced_keyboard_suggestion_t correction{};
     double probability = 0;
-    if (!lv_advanced_keyboard_predictor_autocorrect_utf8(state.predictor, prefix.data(), prefix.size(),
+    if (!lv_advanced_keyboard_predictor_autocorrect_folded(state.predictor, prefix.data(), prefix.size(),
         previous.data(), previous.size(), older.data(), older.size(),
         state.autocorrect_threshold, &correction, &probability)) return;
     std::array<char, LV_ADVANCED_KEYBOARD_SUGGESTION_BYTES + 1> text{};
-    const auto length = espos::keyboard::detail::display_suggestion(input,
-        {correction.text, correction.length}, text.data(), text.size());
+    const bool listed = !std::strcmp(language,"fr-FR") || !std::strcmp(language,"de-DE") || !std::strcmp(language,"el-GR");
+    const auto length = listed ? espos::keyboard::detail::display_suggestion(input,
+        {correction.text, correction.length}, text.data(), text.size(), prefix)
+        : espos::keyboard::detail::display_suggestion(input,{correction.text,correction.length},text.data(),text.size());
     if (length) espos::keyboard::detail::accept_suggestion(editor, input, {text.data(), length}, false, han);
 #else
     (void)context; (void)editor;

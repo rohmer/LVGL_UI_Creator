@@ -287,5 +287,20 @@ bool lv_advanced_keyboard_predictor_autocorrect_utf8(lv_advanced_keyboard_predic
     if (probability) *probability=result.probability;
     return true;
 }
+bool lv_advanced_keyboard_predictor_autocorrect_folded(lv_advanced_keyboard_predictor_t* predictor,
+    const char* typed,size_t typed_size,const char* previous,size_t previous_size,
+    const char* older,size_t older_size,double threshold,lv_advanced_keyboard_suggestion_t* output,double* probability)
+{
+    if (output) *output={};
+    if (probability) *probability=0;
+    std::string_view t,v,o;
+    if (!predictor || !output || !(threshold>=0 && threshold<=1) || !Token(typed,typed_size,t) || !Token(previous,previous_size,v) || !Token(older,older_size,o)) return false;
+    prediction::AutocorrectResult result;
+    if (!prediction::BestAutocorrection(predictor->model,predictor->autocorrect,t,result,v,o) || result.probability<threshold || result.word.size()>sizeof(output->text)) return false;
+    output->length=static_cast<uint16_t>(result.word.size());
+    std::memcpy(output->text,result.word.data(),result.word.size());
+    if (probability) *probability=result.probability;
+    return true;
+}
 }
 #endif

@@ -38,5 +38,8 @@ public:
         bool autocorrect = true, double threshold = 0.3);
     // Used by Protobuf encoding to store catalog data as native BINARY values.
     static nlohmann::json ToWire(const nlohmann::json& tries);
+    // Device exports retain only models referenced by their screen records.
+    // The authoring library stays intact. Validation finishes before mutation.
+    static void PruneUnused(nlohmann::json& document);
 };
 }

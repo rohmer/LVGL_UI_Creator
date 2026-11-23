@@ -39,7 +39,7 @@ bool lv_advanced_keyboard_build_trie_index(const void* trie, size_t trie_size, v
 void lv_advanced_keyboard_free_trie_index(void* index);
 
 /* Token views use explicit byte counts and need not be NUL terminated. Prefix
- * and context must already be Unicode folded. Results retain trie vocabulary
+ * and context must already match the model's normalization. Results retain trie vocabulary
  * case; the typing view applies the target's capitalization when displaying. */
 size_t lv_advanced_keyboard_predictor_suggest_folded(lv_advanced_keyboard_predictor_t* predictor,
     const char* prefix, size_t prefix_size, const char* previous, size_t previous_size,
@@ -50,6 +50,14 @@ size_t lv_advanced_keyboard_predictor_suggest_folded(lv_advanced_keyboard_predic
  * protected calendar/number words are kept. Output and probability are reset
  * when no correction is accepted. */
 bool lv_advanced_keyboard_predictor_autocorrect_utf8(lv_advanced_keyboard_predictor_t* predictor,
+    const char* typed, size_t typed_size, const char* previous, size_t previous_size,
+    const char* older, size_t older_size, double threshold,
+    lv_advanced_keyboard_suggestion_t* output, double* probability);
+
+/* Same scorer for tokens already normalized for the model. This preserves
+ * language-specific spelling (for example German sharp S and Greek final
+ * sigma) without applying a second Unicode case fold. */
+bool lv_advanced_keyboard_predictor_autocorrect_folded(lv_advanced_keyboard_predictor_t* predictor,
     const char* typed, size_t typed_size, const char* previous, size_t previous_size,
     const char* older, size_t older_size, double threshold,
     lv_advanced_keyboard_suggestion_t* output, double* probability);

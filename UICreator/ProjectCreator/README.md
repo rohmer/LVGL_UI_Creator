@@ -2,6 +2,13 @@
 
 Open Export > Create firmware project... to create a board project around the current design. The bundled catalog includes 67 official templates from https://github.com/lvgl/lvgl_project_creator (manifest_all_v1.1.0.json), plus built-in Raspberry Pi Linux, Pico 1 and Pico 2 projects. The upstream application is not open source; this implementation consumes its public manifest format independently.
 
+Set each Advanced Keyboard's **Language** and **Trie size** before creating the
+project. Selecting a bundled model embeds its NGTR vocabulary and NGIX index in
+the design. Created Protobuf screens and C sources include only referenced
+models, shared by keyboards using the same bytes. The editable project JSON
+keeps the full imported model library. Neither the original corpus folder nor
+the editor's bundled-model directory is required to build or run the result.
+
 Select **Chip / board vendor > Raspberry Pi**, then **Project template > Raspberry Pi Pico 1** or **Raspberry Pi Pico 2** for native Pico SDK firmware. The templates are available on Windows, Linux and macOS and retain the fixed bundled LVGL 9.6 configuration. **C code + project JSON** links the generated C screen directly through `generated_ui`; **Protobuf + project JSON** includes a minimum display library and embedded screen. The JSON choice also includes the runnable Protobuf screen. C mode omits the JSON/Protobuf runtime from the linked firmware while retaining the editable design files.
 
 Pico project creation uses the bundled, hash-checked `pico-toolkit.zip` offline. Building requires Pico SDK 2.3.1 or newer, its documented ARM compiler tools, CMake, Ninja and Python. Set `PICO_SDK_PATH`, then configure and build:

@@ -218,6 +218,7 @@
     <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardHindiFont.c" />
     <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardBengaliFont.c" />
     <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardCyrillicFont.c" />
+    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardGreekFont.c" />
     <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardUrduFont.c" />
   </ItemGroup>
   <ItemGroup>

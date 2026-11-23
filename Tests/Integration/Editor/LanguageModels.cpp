@@ -73,7 +73,7 @@ void CheckLanguageModelsEditor(UI& editor, SdlSimulator& simulator) {
     const auto before = editor.ProjectDocument();
     editor.MenuAction("language-model-generator");
     auto* window = LanguageModelWindow::ActiveWindow(); Require(window, "Generator menu action did not open the LVGL window");
-    Require(lv_dropdown_get_option_count(Field(window, "Corpus language")) == 5, "Corpus language choices differ from the C# generator");
+    Require(lv_dropdown_get_option_count(Field(window, "Corpus language")) == 12, "Corpus language choices differ from the C# generator");
     Text(window, "Corpus folders (one per line)", (work / "corpus").u8string());
     Text(window, "Trie output file", (work / "generated.ngtr").u8string());
     Text(window, "Maximum trie bytes", "16384"); Text(window, "Worker threads", "0");
@@ -86,18 +86,22 @@ void CheckLanguageModelsEditor(UI& editor, SdlSimulator& simulator) {
     Require(editor.ProjectDocument() == before, "Generating a file changed the authored project before import");
     Click(window, "Load into project");
     const auto imported = editor.ProjectDocument();
-    Require(imported["tries"].size() == 1 && imported["obj"][1]["advancedKeyboard"]["trieId"] == imported["tries"][0]["id"],
+    const auto generatedId = imported["obj"][1]["advancedKeyboard"]["trieId"];
+    bool hasGenerated = false;
+    for (const auto& model : imported["tries"]) if (model["id"] == generatedId) hasGenerated = true;
+    Require(imported["tries"].size() == before["tries"].size() + 1 && hasGenerated &&
+            generatedId != before["obj"][1]["advancedKeyboard"]["trieId"] && imported["obj"][1]["advancedKeyboard"]["trieSizeKiB"] == 0,
             "Generated model was not embedded and assigned to the selected Advanced Keyboard");
     auto* predictor = lv_advanced_keyboard_get_predictor(keyboard);
     lv_advanced_keyboard_suggestion_t suggestions[3]{};
     Require(predictor && lv_advanced_keyboard_predictor_suggest_folded(predictor, "hel", 3, nullptr, 0, nullptr, 0, suggestions, 3) >= 1,
             "Imported generated model did not supply real suggestions");
-    Click(window, "Load into project"); Require(editor.ProjectDocument()["tries"].size() == 1, "Importing the same generated model duplicated its project asset");
+    Click(window, "Load into project"); Require(editor.ProjectDocument() == imported, "Importing the same generated model duplicated or changed its project asset");
     LanguageModelWindow::Close(); Require(!LanguageModelWindow::ActiveWindow(), "Completed generator window did not close");
     Require(fs::is_regular_file(session / "language-model-settings.json"), "Generator settings were not saved in the isolated session");
     Require(editor.Undo(), "Loading the generated model was not undoable");
-    Require(editor.ProjectDocument()["tries"].empty() && editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"] == "builtin-en-us", "Undo did not restore the original model choice");
-    Require(editor.Redo() && editor.ProjectDocument()["tries"].size() == 1, "Redo did not restore the embedded generated model");
+    Require(editor.ProjectDocument() == before, "Undo did not restore the original bundled model, size and project catalog");
+    Require(editor.Redo() && editor.ProjectDocument() == imported, "Redo did not restore the embedded generated model");
     keyboard = lv_obj_get_child(surface, 1); properties->SetSelectedObject(keyboard);
     editor.MenuAction("language-model-generator"); window = LanguageModelWindow::ActiveWindow();
     Require(std::string(lv_textarea_get_text(Field(window, "Worker threads"))) == "2", "Generator settings did not reload");

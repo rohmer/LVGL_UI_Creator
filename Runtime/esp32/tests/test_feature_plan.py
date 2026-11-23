@@ -143,8 +143,8 @@ class FeaturePlanTests(unittest.TestCase):
 
     def test_keyboard_script_dependencies_are_selected_per_language(self):
         root = profile.repository_root()
-        fonts = {"hi-IN": "Hindi", "bn-BD": "Bengali", "ur-PK": "Urdu", "ru-RU": "Cyrillic"}
-        for language in ("en-US", "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU"):
+        fonts = {"hi-IN": "Hindi", "bn-BD": "Bengali", "ur-PK": "Urdu", "ru-RU": "Cyrillic", "el-GR": "Greek"}
+        for language in ("en-US", "zh-CN", "ar-SA", "hi-IN", "bn-BD", "id-ID", "ur-PK", "ru-RU", "el-GR"):
             with self.subTest(language=language):
                 plan = profile.analyze_projects([project({"advancedKeyboard": {"language": language, "trieId": ""}})])
                 self.assertEqual(plan["keyboardLanguages"], [language])
@@ -163,7 +163,7 @@ class FeaturePlanTests(unittest.TestCase):
 
     def test_keyboard_language_defaults_keep_unused_prediction_out(self):
         root = profile.repository_root()
-        for language in ("es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT"):
+        for language in ("es-ES", "fr-FR", "de-DE", "it-IT", "pt-PT", "el-GR"):
             with self.subTest(language=language):
                 document = project({"advancedKeyboard": {"language": language}})
                 encoded = profile.encode_project(document)

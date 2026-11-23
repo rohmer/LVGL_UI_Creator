@@ -1,6 +1,6 @@
 # Optional keyboard script fonts
 
-The keyboard has four 16-pixel, 4-bpp glyph assets. Each includes its own complete
+The keyboard has five 16-pixel, 4-bpp glyph assets. Each includes its own complete
 SIL Open Font License 1.1 notice. Source font binaries are downloaded only for
 regeneration and are not needed by applications or firmware builds.
 
@@ -9,6 +9,7 @@ regeneration and are not needed by applications or firmware builds.
 | Hindi | Noto Sans Devanagari | `espos_keyboard_hindi_font` | `LV_ADVANCED_KEYBOARD_USE_HINDI_FONT` |
 | Bengali | Noto Sans Bengali | `espos_keyboard_bengali_font` | `LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT` |
 | Russian/Cyrillic | Noto Sans | `espos_keyboard_cyrillic_font` | `LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT` |
+| Greek | Noto Sans | `espos_keyboard_greek_font` | `LV_ADVANCED_KEYBOARD_USE_GREEK_FONT` |
 | Urdu | Noto Naskh Arabic | `espos_keyboard_urdu_font` | `LV_ADVANCED_KEYBOARD_USE_URDU_FONT` |
 
 Feature flags default to zero for portable builds. Enable the relevant flag and
@@ -17,7 +18,7 @@ the existing Latin/control-symbol font. Mandarin uses LVGL's bundled Source Han
 Sans SC CJK font and its matching Pinyin character dictionary. Arabic uses
 LVGL's bundled DejaVu Persian/Hebrew glyph font. Indonesian needs no extra font.
 
-`GenerateHindiFont.py --font all` regenerates all four assets. Individual script
+`GenerateHindiFont.py --font all` regenerates all five assets. Individual script
 names select a single asset. The script pins Google Fonts commits and verifies
 SHA256 for every source font and OFL license. Its generated C header also records
 the original source hash. Use `--cache` for offline regeneration or `--converter`

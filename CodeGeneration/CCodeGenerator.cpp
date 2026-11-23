@@ -1087,7 +1087,8 @@ std::map<std::string,std::string> Generator::files(const json& input) {
     for(auto& r:requirements) {const auto macro=r=="BIN_DECODER_RAM_LOAD"?"LV_BIN_DECODER_RAM_LOAD":r=="FLEX"||r=="GRID"?"LV_USE_"+r:r=="DRAW_SW_COMPLEX_GRADIENTS"?"LV_DRAW_SW_COMPLEX_GRADIENTS":"LV_USE_"+r;requirementsFile<<"#if !"<<macro<<"\n#error Enable "<<macro<<" in lv_conf.h for this project\n#endif\n";}
     for(const auto& feature:std::vector<std::pair<std::string,std::string>>{{"zh-CN","LV_FONT_SOURCE_HAN_SANS_SC_16_CJK"},{"zh-CN","LV_ADVANCED_KEYBOARD_USE_PINYIN"},
         {"ar-SA","LV_FONT_DEJAVU_16_PERSIAN_HEBREW"},{"hi-IN","LV_ADVANCED_KEYBOARD_USE_HINDI_FONT"},{"bn-BD","LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT"},
-        {"ur-PK","LV_ADVANCED_KEYBOARD_USE_URDU_FONT"},{"ru-RU","LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT"}})
+        {"ur-PK","LV_ADVANCED_KEYBOARD_USE_URDU_FONT"},{"ru-RU","LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT"},
+        {"el-GR","LV_ADVANCED_KEYBOARD_USE_GREEK_FONT"}})
         if(keyboardLanguages.count(feature.first))requirementsFile<<"#if !"<<feature.second<<"\n#error Enable "<<feature.second<<" in lv_conf.h for this keyboard language\n#endif\n";
     if(usesAdvancedKeyboard)requirementsFile<<"#if LV_USE_ARABIC_PERSIAN_CHARS\n#error Disable LV_USE_ARABIC_PERSIAN_CHARS to preserve logical Unicode in editable textareas\n#endif\n";
     std::string h="#pragma once\n#include <lvgl.h>\n#include <stdbool.h>\n#include <stdint.h>\n#include <stddef.h>\n#ifdef __cplusplus\nextern \"C\" {\n#endif\nbool ui_init(void);\nvoid ui_deinit(void);\nsize_t ui_screen_count(void);\nlv_obj_t *ui_get_screen(size_t index);\nlv_obj_t *ui_get_object(size_t screen, int32_t object_id);\nbool ui_show_screen(size_t index);\n"+header.str()+"#ifdef __cplusplus\n}\n#endif\n";

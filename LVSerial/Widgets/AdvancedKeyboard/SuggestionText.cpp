@@ -228,13 +228,21 @@ SuggestionText capture_suggestion_text(lv_obj_t* textarea, bool hanTokens)
 std::size_t display_suggestion(const SuggestionText& input, std::string_view raw,
                                char* output, std::size_t capacity)
 {
+    if (!output || !capacity) return 0;
+    output[0] = '\0';
+    std::array<char, prediction::kSuggestionBytes> folded_storage;
+    std::string_view folded;
+    if (!prediction::FoldUtf8(input.prefix, folded_storage.data(), folded_storage.size(), folded)) return 0;
+    return display_suggestion(input, raw, output, capacity, folded);
+}
+
+std::size_t display_suggestion(const SuggestionText& input, std::string_view raw,
+                               char* output, std::size_t capacity, std::string_view folded)
+{
     if (output == nullptr || capacity == 0) return 0;
     output[0] = '\0';
     if (input.selected || raw.empty() || raw.size() > prediction::kSuggestionBytes) return 0;
 
-    std::array<char, prediction::kSuggestionBytes> folded_storage;
-    std::string_view folded;
-    if (!prediction::FoldUtf8(input.prefix, folded_storage.data(), folded_storage.size(), folded)) return 0;
     const bool completion = !folded.empty() && raw.substr(0, folded.size()) == folded;
     const auto preserved = completion ? input.prefix : std::string_view{};
     const auto suffix = completion ? raw.substr(folded.size()) : raw;

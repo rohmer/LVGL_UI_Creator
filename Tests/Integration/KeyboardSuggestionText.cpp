@@ -146,11 +146,32 @@ void NfcProbe(lv_obj_t* field) {
     lv_advanced_keyboard_predictor_destroy(predictor);
 }
 }
+void ListedQueries(lv_obj_t* field) {
+    std::array<char, 256> output{}; std::string_view prepared;
+    struct Case { const char* language; const char* input; bool complete; const char* expected; };
+    for(const auto& item : std::array<Case,8>{{
+        {"de-DE",u8"STRAẞE",false,u8"straße"},{"el-GR",u8"κόσμος",false,u8"κόσμος"},
+        {"el-GR",u8"ΚΌΣΜΟΣ",true,u8"κόσμος"},{"el-GR",u8"ΟΣ",false,u8"οσ"},
+        {"el-GR",u8"ΟΣ",true,u8"ος"},{"el-GR",u8"Σ",true,u8"σ"},
+        {"fr-FR",u8"L’HEURE",false,"l'heure"},{"en-US",u8"Straße",false,"strasse"},
+    }}) {
+        Check(Unicode::PrepareKeyboardQuery(item.input,output.data(),output.size(),prepared,item.language,item.complete) && prepared==item.expected,
+              "Model query changed listed spelling or legacy folding");
+    }
+    Check(Unicode::FoldUtf8(u8"κόσμος",output.data(),output.size(),prepared) && prepared==u8"κόσμοσ", "Legacy Unicode case fold changed");
+    std::array<char,1> shortBuffer{};
+    Check(!Unicode::PrepareKeyboardQuery(u8"ß",shortBuffer.data(),shortBuffer.size(),prepared,"de-DE",false) && prepared.empty(), "Listed query overflowed a fixed buffer");
+    Check(!Unicode::PrepareKeyboardQuery(std::string_view("\xce",1),output.data(),output.size(),prepared,"el-GR",true) && prepared.empty(), "Partial Greek UTF-8 query was accepted");
+    Set(field,u8"STRAẞ"); const auto input=Text::capture_suggestion_text(field);
+    Check(Unicode::PrepareKeyboardQuery(input.prefix,output.data(),output.size(),prepared,"de-DE",false),"Cannot prepare sharp-S display prefix");
+    std::array<char,256> display{};const auto size=Text::display_suggestion(input,u8"straße",display.data(),display.size(),prepared);
+    Check(std::string_view(display.data(),size)==u8"STRAẞE" && std::string_view(lv_textarea_get_text(field))==u8"STRAẞ", "Model-normalized display changed typed prefix or lost German casing");
+}
 int main() {
     try {
         lv_init(); auto* display = lv_display_create(320, 240); Check(display, "Cannot create a helper-test display");
         auto* field = lv_textarea_create(lv_screen_active());
-        Context(field); Scripts(field); Guards(field);
+        Context(field); Scripts(field); Guards(field); ListedQueries(field);
         NfcProbe(field);
         lv_obj_delete(field); lv_display_delete(display);
         std::cout << "Unicode/Han context, caret, casing, acceptance and privacy guards passed\n"; return 0;

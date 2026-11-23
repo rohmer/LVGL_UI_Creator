@@ -19,6 +19,7 @@
 #include "id_id_qwerty.generated.h"
 #include "ur_pk_phonetic.generated.h"
 #include "ru_ru_jcuken.generated.h"
+#include "el_gr_qwerty.generated.h"
 
 #ifndef LV_ADVANCED_KEYBOARD_USE_HINDI_FONT
 #define LV_ADVANCED_KEYBOARD_USE_HINDI_FONT 0
@@ -31,6 +32,9 @@
 #endif
 #ifndef LV_ADVANCED_KEYBOARD_USE_URDU_FONT
 #define LV_ADVANCED_KEYBOARD_USE_URDU_FONT 0
+#endif
+#ifndef LV_ADVANCED_KEYBOARD_USE_GREEK_FONT
+#define LV_ADVANCED_KEYBOARD_USE_GREEK_FONT 0
 #endif
 
 extern "C" {
@@ -46,6 +50,9 @@ LV_FONT_DECLARE(espos_keyboard_cyrillic_font)
 #endif
 #if LV_ADVANCED_KEYBOARD_USE_URDU_FONT
 LV_FONT_DECLARE(espos_keyboard_urdu_font)
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_GREEK_FONT
+LV_FONT_DECLARE(espos_keyboard_greek_font)
 #endif
 }
 
@@ -78,12 +85,14 @@ constexpr Language languages[] = {
     {"id-ID", "Indonesian", &detail::id_id_qwerty},
     {"ur-PK", "Urdu", &detail::ur_pk_phonetic},
     {"ru-RU", "Russian", &detail::ru_ru_jcuken},
+    {"el-GR", "Greek", &detail::el_gr_qwerty},
 };
 constexpr std::size_t max_keys = (std::max)({detail::en_us_qwerty.max_keys, detail::es_es_qwerty.max_keys,
     detail::fr_fr_azerty.max_keys, detail::de_de_qwertz.max_keys,
     detail::it_it_qwerty.max_keys, detail::pt_pt_qwerty.max_keys,
     detail::zh_cn_pinyin.max_keys, detail::ar_sa_arabic.max_keys, detail::hi_in_inscript.max_keys,
-    detail::bn_bd_inscript.max_keys, detail::id_id_qwerty.max_keys, detail::ur_pk_phonetic.max_keys, detail::ru_ru_jcuken.max_keys});
+    detail::bn_bd_inscript.max_keys, detail::id_id_qwerty.max_keys, detail::ur_pk_phonetic.max_keys, detail::ru_ru_jcuken.max_keys,
+    detail::el_gr_qwerty.max_keys});
 
 constexpr std::uint32_t double_tap_ms = 300;
 constexpr std::int32_t key_gap = 4;
@@ -468,6 +477,9 @@ const lv_font_t* keyboard_language_font(const char* id)
 #endif
 #if LV_ADVANCED_KEYBOARD_USE_URDU_FONT
     if (!std::strcmp(id, "ur-PK")) { static const auto font = [] { auto value = espos_keyboard_urdu_font; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
+#endif
+#if LV_ADVANCED_KEYBOARD_USE_GREEK_FONT
+    if (!std::strcmp(id, "el-GR")) { static const auto font = [] { auto value = espos_keyboard_greek_font; value.fallback = &espos_keyboard_font; return value; }(); return &font; }
 #endif
     return &espos_keyboard_font;
 }

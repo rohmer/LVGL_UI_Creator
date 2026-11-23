@@ -47,7 +47,8 @@ def main():
     for locale, shape in (("en-US", "qwerty"), ("es-ES", "qwerty"), ("fr-FR", "azerty"),
                           ("de-DE", "qwertz"), ("it-IT", "qwerty"), ("pt-PT", "qwerty"),
                           ("zh-CN", "pinyin"), ("ar-SA", "arabic"), ("hi-IN", "inscript"),
-                          ("bn-BD", "inscript"), ("id-ID", "qwerty"), ("ur-PK", "phonetic"), ("ru-RU", "jcuken")):
+                          ("bn-BD", "inscript"), ("id-ID", "qwerty"), ("ur-PK", "phonetic"), ("ru-RU", "jcuken"),
+                          ("el-GR", "qwerty")):
         name = locale + "-" + shape
         definition = json.loads((HERE / (name + ".json")).read_text(encoding="utf-8"))
         symbol = name.replace("-", "_").lower()

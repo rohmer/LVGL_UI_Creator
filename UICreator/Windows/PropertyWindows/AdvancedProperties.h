@@ -6,6 +6,7 @@
 
 #include "../PropertyWindow.h"
 #include "../../Utils/EditorControls.h"
+#include "../../KeyboardModels/BundledTries.h"
 #include <Serialization/ExtendedWidgets.h>
 #include <Serialization/CustomWidgets.h>
 #include <Serialization/LVCanvas.h>
@@ -464,8 +465,8 @@ public:
             if(settings.value("language",std::string("en-US"))==lv_advanced_keyboard_language_id(index))languageIndex=static_cast<uint32_t>(index);
         }
         lv_dropdown_set_options(language,languageNames.c_str());lv_dropdown_set_selected(language,languageIndex);
-        struct Language {PropertyWindow* window;lv_obj_t* object;lv_obj_t* trie=nullptr;};
-        auto* languageBinding=new Language{window,window->GetSelectedObject()};
+        struct Language {PropertyWindow* window;lv_obj_t* object;uint32_t selected;lv_obj_t* status=nullptr;};
+        auto* languageBinding=new Language{window,window->GetSelectedObject(),languageIndex};
         lv_obj_add_event_cb(language,[](lv_event_t* event) {
             auto* state=static_cast<Language*>(lv_event_get_user_data(event));
             const auto code=lv_event_get_code(event);
@@ -476,29 +477,71 @@ public:
             const auto* id=lv_advanced_keyboard_language_id(lv_dropdown_get_selected(field));if(!id)return;
             try {
                 EditorEdit::Scope edit;
-                const auto previous=Serialization::AdvancedKeyboard::ToJSON(state->object).at("advancedKeyboard");
-                json update={{"language",id},{"rightToLeft",std::string(id)=="ar-SA" || std::string(id)=="ur-PK"}};
-                const bool clearEnglish=std::string(id)!="en-US" && previous.value("trieId",std::string{})=="builtin-en-us";
-                if(clearEnglish)update["trieId"]="";
-                state->window->Tries().ApplySettings(state->object,update);
-                if(clearEnglish && state->trie)lv_dropdown_set_selected(state->trie,0);
+                state->window->Tries().ApplyLanguage(state->object,id);
                 lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Border),LV_PART_MAIN);
                 Refresh(state->window,state->object);
-            }catch(const std::exception& error){lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Error),LV_PART_MAIN);}
+            }catch(const std::exception& error){lv_dropdown_set_selected(field,state->selected);lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Error),LV_PART_MAIN);if(state->status)lv_label_set_text(state->status,error.what());}
         },LV_EVENT_ALL,languageBinding);
 #endif
+
+        auto* sizeField=Column(parent);
+        auto* sizeTitle=lv_label_create(sizeField);lv_label_set_text(sizeTitle,"Trie size");
+        auto* sizeSelector=lv_dropdown_create(sizeField);lv_obj_set_width(sizeSelector,LV_PCT(100));
+        struct SizeChoice {uint32_t sizeKiB;std::string id;};
+        struct SizeSelection {PropertyWindow* window;lv_obj_t* object;std::vector<SizeChoice> choices;uint32_t selected=0;lv_obj_t* status=nullptr;};
+        auto* sizes=new SizeSelection{window,window->GetSelectedObject(),{{0,""}}};
+        const auto languageId=settings.value("language",std::string("en-US"));
+        const auto trieId=settings.value("trieId",std::string("builtin-en-us"));
+        const auto tier=settings.value("trieSizeKiB",0u);
+        std::string sizeNames="None";
+        if(languageId=="en-US" || trieId=="builtin-en-us") {
+            sizes->choices.push_back({0,"builtin-en-us"});sizeNames+="\nBuilt-in English";
+            if(trieId=="builtin-en-us")sizes->selected=static_cast<uint32_t>(sizes->choices.size()-1);
+        }
+        for(const auto& model:BundledTries::Models())if(model.language==languageId) {
+            sizes->choices.push_back({model.sizeKiB,{}});
+            sizeNames+='\n';sizeNames+=std::to_string(model.sizeKiB)+" KiB"+(model.sizeKiB==16?" (small)":" (large)");
+            if(tier==model.sizeKiB && !trieId.empty())sizes->selected=static_cast<uint32_t>(sizes->choices.size()-1);
+        }
+        if(tier && !trieId.empty() && sizes->selected==0) {
+            // Saved projects keep their embedded model even if the local catalog
+            // is unavailable; merely inspecting them must not replace assets.
+            sizes->choices.push_back({tier,trieId});sizeNames+='\n';sizeNames+=std::to_string(tier)+" KiB (embedded)";
+            sizes->selected=static_cast<uint32_t>(sizes->choices.size()-1);
+        } else if(!tier && !trieId.empty() && trieId!="builtin-en-us") {
+            sizes->choices.push_back({0,trieId});sizeNames+="\nCustom / project trie";
+            sizes->selected=static_cast<uint32_t>(sizes->choices.size()-1);
+        }
+        lv_dropdown_set_options(sizeSelector,sizeNames.c_str());lv_dropdown_set_selected(sizeSelector,sizes->selected);
+        lv_obj_add_event_cb(sizeSelector,[](lv_event_t* event) {
+            auto* state=static_cast<SizeSelection*>(lv_event_get_user_data(event));
+            const auto code=lv_event_get_code(event);
+            if(code==LV_EVENT_DELETE){delete state;return;}
+            auto* field=lv_event_get_target_obj(event);
+            if(code==LV_EVENT_CLICKED){FocusEditorControl(state->window->GetKBGroup(),field);return;}
+            if(code!=LV_EVENT_VALUE_CHANGED || state->window->Drawing() || state->window->GetSelectedObject()!=state->object)return;
+            const auto index=lv_dropdown_get_selected(field);if(index>=state->choices.size())return;
+            try {
+                EditorEdit::Scope edit;
+                const auto choice=state->choices[index];
+                if(choice.sizeKiB && choice.id.empty()) {
+                    const auto language=Serialization::AdvancedKeyboard::ToJSON(state->object).at("advancedKeyboard").at("language").get<std::string>();
+                    state->window->Tries().ApplyBundled(state->object,language,choice.sizeKiB);
+                } else if(index!=state->selected)state->window->Tries().Apply(state->object,choice.id);
+                lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Border),LV_PART_MAIN);
+                Refresh(state->window,state->object);
+            }catch(const std::exception& error){lv_dropdown_set_selected(field,state->selected);lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Error),LV_PART_MAIN);if(state->status)lv_label_set_text(state->status,error.what());}
+        },LV_EVENT_ALL,sizes);
+
         Build(window,parent,"/advancedKeyboard/rightToLeft","rightToLeft",
             settings.value("rightToLeft",settings.value("language",std::string{})=="ar-SA" || settings.value("language",std::string{})=="ur-PK"),
             {{"advancedKeyboard",settings}});
         auto* trieField=Column(parent);
         auto* trieTitle=lv_label_create(trieField);lv_label_set_text(trieTitle,"Prediction trie");
         auto* selector=lv_dropdown_create(trieField);lv_obj_set_width(selector,LV_PCT(100));
-#if LVSERIAL_USE_ADVANCED_KEYBOARD
-        languageBinding->trie=selector;
-#endif
         struct Selection {PropertyWindow* window;lv_obj_t* object;std::vector<std::string> ids;};
         auto* selection=new Selection{window,window->GetSelectedObject(),{"","builtin-en-us"}};
-        std::string names="None\nEnglish (ESPOS bundled)";uint32_t selected=0;
+        std::string names="None\nEnglish (built-in)";uint32_t selected=0;
         const auto id=settings.value("trieId",std::string("builtin-en-us"));
         for(const auto& entry:window->Tries().ToJSON()) {
             selection->ids.push_back(entry.at("id"));names+='\n';names+=entry.at("name").get<std::string>();
@@ -509,17 +552,41 @@ public:
             auto* state=static_cast<Selection*>(lv_event_get_user_data(event));
             if(lv_event_get_code(event)==LV_EVENT_DELETE){delete state;return;}
             if(lv_event_get_code(event)==LV_EVENT_CLICKED){FocusEditorControl(state->window->GetKBGroup(),lv_event_get_target_obj(event));return;}
-            if(lv_event_get_code(event)!=LV_EVENT_VALUE_CHANGED || state->window->Drawing())return;
+            if(lv_event_get_code(event)!=LV_EVENT_VALUE_CHANGED || state->window->Drawing() || state->window->GetSelectedObject()!=state->object)return;
             auto* field=lv_event_get_target_obj(event);
             try {
                 const auto choice=lv_dropdown_get_selected(field);
-                if(choice<state->ids.size())state->window->Tries().Apply(state->object,state->ids[choice]);
+                if(choice<state->ids.size()) {
+                    state->window->Tries().Apply(state->object,state->ids[choice]);
+                    Refresh(state->window,state->object);
+                }
             } catch(const std::exception& error) {lv_obj_set_style_border_color(field,lv_color_hex(EditorStyle::Error),LV_PART_MAIN);}
         },LV_EVENT_ALL,selection);
         auto* button=lv_button_create(parent);lv_obj_set_size(button,LV_PCT(100),36);
         auto* caption=lv_label_create(button);lv_label_set_text(caption,"Load trie...");lv_obj_center(caption);
         auto* status=lv_label_create(parent);lv_obj_set_width(status,LV_PCT(100));lv_label_set_long_mode(status,LV_LABEL_LONG_MODE_WRAP);
-        lv_label_set_text(status,"Load a matching NGTR v3 language model for suggestions and autocorrect. Tries are embedded in the project.");
+        std::string modelStatus;
+        if(trieId.empty()) {
+            modelStatus="Suggestions are off. Choose a bundled size or load a custom trie.";
+            if(!BundledTries::Find(languageId,16) && !BundledTries::Find(languageId,256))modelStatus+=" No bundled model is available for this language yet.";
+        } else if(trieId=="builtin-en-us")modelStatus="Using the built-in English dictionary. Choose a corpus size to embed its model in this project.";
+        else {
+            auto decodedSize=[](const json& record,const char* name)->size_t {
+                const auto entry=record.find(name);if(entry==record.end() || !entry->is_string())return 0;
+                const auto& encoded=entry->get_ref<const std::string&>();if(encoded.empty())return 0;
+                return encoded.size()/4*3-(encoded.back()=='='?1:0)-(encoded.size()>1 && encoded[encoded.size()-2]=='='?1:0);
+            };
+            for(const auto& record:window->Tries().ToJSON())if(record.at("id")==trieId) {
+                std::ostringstream text;text<<"Embedded model: "<<record.at("name").get<std::string>()<<". Model "<<std::fixed<<std::setprecision(1)<<double(decodedSize(record,"data"))/1024.0<<" KiB; index "<<double(decodedSize(record,"indexData"))/1024.0<<" KiB.";
+                if(tier)text<<" Corpus size tier: "<<tier<<" KiB.";
+                modelStatus=text.str();break;
+            }
+            if(modelStatus.empty())modelStatus="The selected project trie is unavailable. Load it again before exporting.";
+        }
+        lv_label_set_text(status,modelStatus.c_str());sizes->status=status;
+#if LVSERIAL_USE_ADVANCED_KEYBOARD
+        languageBinding->status=status;
+#endif
         struct Picker {PropertyWindow* window;lv_obj_t* status;};
         lv_obj_add_event_cb(button,[](lv_event_t* event) {
             auto* picker=static_cast<Picker*>(lv_event_get_user_data(event));
@@ -596,7 +663,7 @@ public:
         {
             if (section.key() == "base" || !section.value().is_object()) continue;
             for (const auto& field : section.value().items()) {
-                if(section.key()=="advancedKeyboard" && (field.key()=="language" || field.key()=="rightToLeft" || field.key()=="trieId" || field.key()=="targetOid" || field.key()=="hideOnDefocus"))continue;
+                if(section.key()=="advancedKeyboard" && (field.key()=="language" || field.key()=="rightToLeft" || field.key()=="trieId" || field.key()=="trieSizeKiB" || field.key()=="targetOid" || field.key()=="hideOnDefocus"))continue;
                 Build(window, content, "/" + section.key() + "/" + field.key(), field.key(), field.value(), record);
             }
         }

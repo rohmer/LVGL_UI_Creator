@@ -28,6 +28,10 @@ Additional native and managed checks cover Arabic, Hindi, Mandarin Chinese,
 Bengali, Indonesian, Urdu and Russian normalization and token boundaries.
 `UICreatorKeyboardSuggestionText` checks real trie queries for Indic Nukta
 normalization, Han-character context, UTF-8 caret edits and protected fields.
+`UICreatorBundledTries` validates all fourteen supplied corpus models, their
+source aliases and size metadata, shared imports and selected-only device
+payloads. Editor and project-creator tests cover language/size changes,
+undo/redo, custom models, and portable generated C/Protobuf projects.
 
 Advanced Keyboard coverage includes actual pointer input, Shift/Shift Lock,
 localized layouts, symbol pages, UTF-8 editing, suggestion callbacks,

@@ -16,6 +16,8 @@ SPECS = {
                 'dcd42978094e584a849c84a51450eeac40c8826057d566ea6d4b9627a403a05a', '754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70', '0x0980-0x09ff,0x25cc'),
     'cyrillic': ('Cyrillic', 'NotoSans', 'notosans', '2984c575fdce412ee02b2baaba67672b9a9434d8', '[wdth,wght]',
                  'bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d', 'cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a', '0x0400-0x052f,0x2116'),
+    'greek': ('Greek', 'NotoSans', 'notosans', '2984c575fdce412ee02b2baaba67672b9a9434d8', '[wdth,wght]',
+              'bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d', 'cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a', '0x0370-0x03ff,0x1f00-0x1fff'),
     'urdu': ('Urdu', 'NotoNaskhArabic', 'notonaskharabic', '35ddfc50b8c0dda6a1e0eb5d48d962c26a2ec5ff', '[wght]',
              '67b5a525a661b607971fbd3f96a81b89d3a768e74534fca84f18ac97e6fab72f', 'a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af', '0x0600-0x06ff,0x0750-0x077f,0x08a0-0x08ff,0xfb50-0xfdff,0xfe70-0xfeff,0x25cc'),
 }

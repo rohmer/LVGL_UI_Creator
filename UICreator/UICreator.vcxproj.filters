@@ -315,4 +315,16 @@
     <ClCompile Include="Imports\FigmaOnline.cpp" />
     <ClInclude Include="Imports\FigmaOnline.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Keyboard Models">
+      <UniqueIdentifier>{5C6EA806-A8A8-4EA1-8DD0-1C9EFC85DB44}</UniqueIdentifier>
+    </Filter>
+    <ClCompile Include="KeyboardModels\BundledTries.cpp"><Filter>Keyboard Models</Filter></ClCompile>
+    <ClInclude Include="KeyboardModels\BundledTries.h"><Filter>Keyboard Models</Filter></ClInclude>
+    <ClInclude Include="KeyboardModels\CatalogData.inc"><Filter>Keyboard Models</Filter></ClInclude>
+    <None Include="KeyboardModels\catalog.json"><Filter>Keyboard Models</Filter></None>
+    <None Include="KeyboardModels\README.md"><Filter>Keyboard Models</Filter></None>
+    <None Include="KeyboardModels\import_corpus.py"><Filter>Keyboard Models</Filter></None>
+    <None Include="KeyboardModels\models\*.ngtr"><Filter>Keyboard Models</Filter></None>
+  </ItemGroup>
 </Project>

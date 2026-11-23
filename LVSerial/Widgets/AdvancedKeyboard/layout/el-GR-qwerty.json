@@ -1,0 +1,303 @@
+{
+  "$schema": "./keyboard.schema.json",
+  "version": 1,
+  "id": "el-GR-qwerty",
+  "initialLayout": "letters",
+  "width": 10,
+  "layouts": {
+    "letters": {
+      "shiftedLayout": "letters_shifted",
+      "rows": [
+        {
+          "keys": [
+            {"id": "q", "label": ";", "action": {"type": "insert", "text": ";"}},
+            {"id": "w", "label": "ς", "action": {"type": "insert", "text": "ς"}},
+            {"id": "e", "label": "ε", "action": {"type": "insert", "text": "ε"}},
+            {"id": "r", "label": "ρ", "action": {"type": "insert", "text": "ρ"}},
+            {"id": "t", "label": "τ", "action": {"type": "insert", "text": "τ"}},
+            {"id": "y", "label": "υ", "action": {"type": "insert", "text": "υ"}},
+            {"id": "u", "label": "θ", "action": {"type": "insert", "text": "θ"}},
+            {"id": "i", "label": "ι", "action": {"type": "insert", "text": "ι"}},
+            {"id": "o", "label": "ο", "action": {"type": "insert", "text": "ο"}},
+            {"id": "p", "label": "π", "action": {"type": "insert", "text": "π"}}
+          ]
+        },
+        {
+          "offset": 0.5,
+          "keys": [
+            {"id": "a", "label": "α", "action": {"type": "insert", "text": "α"}},
+            {"id": "s", "label": "σ", "action": {"type": "insert", "text": "σ"}},
+            {"id": "d", "label": "δ", "action": {"type": "insert", "text": "δ"}},
+            {"id": "f", "label": "φ", "action": {"type": "insert", "text": "φ"}},
+            {"id": "g", "label": "γ", "action": {"type": "insert", "text": "γ"}},
+            {"id": "h", "label": "η", "action": {"type": "insert", "text": "η"}},
+            {"id": "j", "label": "ξ", "action": {"type": "insert", "text": "ξ"}},
+            {"id": "k", "label": "κ", "action": {"type": "insert", "text": "κ"}},
+            {"id": "l", "label": "λ", "action": {"type": "insert", "text": "λ"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "shift", "label": "⇧", "width": 1.5, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "z", "label": "ζ", "action": {"type": "insert", "text": "ζ"}},
+            {"id": "x", "label": "χ", "action": {"type": "insert", "text": "χ"}},
+            {"id": "c", "label": "ψ", "action": {"type": "insert", "text": "ψ"}},
+            {"id": "v", "label": "ω", "action": {"type": "insert", "text": "ω"}},
+            {"id": "b", "label": "β", "action": {"type": "insert", "text": "β"}},
+            {"id": "n", "label": "ν", "action": {"type": "insert", "text": "ν"}},
+            {"id": "m", "label": "μ", "action": {"type": "insert", "text": "μ"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 2, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "άέί", "width": 1.5, "action": {"type": "switch_layout", "layout": "accents"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "κενό", "width": 3.75, "action": {"type": "insert", "text": " "}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "letters_shifted": {
+      "rows": [
+        {
+          "keys": [
+            {"id": "q", "label": ":", "action": {"type": "insert", "text": ":"}},
+            {"id": "w", "label": "Σ", "action": {"type": "insert", "text": "Σ"}},
+            {"id": "e", "label": "Ε", "action": {"type": "insert", "text": "Ε"}},
+            {"id": "r", "label": "Ρ", "action": {"type": "insert", "text": "Ρ"}},
+            {"id": "t", "label": "Τ", "action": {"type": "insert", "text": "Τ"}},
+            {"id": "y", "label": "Υ", "action": {"type": "insert", "text": "Υ"}},
+            {"id": "u", "label": "Θ", "action": {"type": "insert", "text": "Θ"}},
+            {"id": "i", "label": "Ι", "action": {"type": "insert", "text": "Ι"}},
+            {"id": "o", "label": "Ο", "action": {"type": "insert", "text": "Ο"}},
+            {"id": "p", "label": "Π", "action": {"type": "insert", "text": "Π"}}
+          ]
+        },
+        {
+          "offset": 0.5,
+          "keys": [
+            {"id": "a", "label": "Α", "action": {"type": "insert", "text": "Α"}},
+            {"id": "s", "label": "Σ", "action": {"type": "insert", "text": "Σ"}},
+            {"id": "d", "label": "Δ", "action": {"type": "insert", "text": "Δ"}},
+            {"id": "f", "label": "Φ", "action": {"type": "insert", "text": "Φ"}},
+            {"id": "g", "label": "Γ", "action": {"type": "insert", "text": "Γ"}},
+            {"id": "h", "label": "Η", "action": {"type": "insert", "text": "Η"}},
+            {"id": "j", "label": "Ξ", "action": {"type": "insert", "text": "Ξ"}},
+            {"id": "k", "label": "Κ", "action": {"type": "insert", "text": "Κ"}},
+            {"id": "l", "label": "Λ", "action": {"type": "insert", "text": "Λ"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "shift", "label": "⬆", "width": 1.5, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "z", "label": "Ζ", "action": {"type": "insert", "text": "Ζ"}},
+            {"id": "x", "label": "Χ", "action": {"type": "insert", "text": "Χ"}},
+            {"id": "c", "label": "Ψ", "action": {"type": "insert", "text": "Ψ"}},
+            {"id": "v", "label": "Ω", "action": {"type": "insert", "text": "Ω"}},
+            {"id": "b", "label": "Β", "action": {"type": "insert", "text": "Β"}},
+            {"id": "n", "label": "Ν", "action": {"type": "insert", "text": "Ν"}},
+            {"id": "m", "label": "Μ", "action": {"type": "insert", "text": "Μ"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 2, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "άέί", "width": 1.5, "action": {"type": "switch_layout", "layout": "accents"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "κενό", "width": 3.75, "action": {"type": "insert", "text": " "}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "accents": {
+      "shiftedLayout": "accents_shifted",
+      "rows": [
+        {
+          "offset": 0.625,
+          "keys": [
+            {"id": "alpha_tonos", "label": "ά", "width": 1.25, "action": {"type": "insert", "text": "ά"}},
+            {"id": "epsilon_tonos", "label": "έ", "width": 1.25, "action": {"type": "insert", "text": "έ"}},
+            {"id": "eta_tonos", "label": "ή", "width": 1.25, "action": {"type": "insert", "text": "ή"}},
+            {"id": "iota_tonos", "label": "ί", "width": 1.25, "action": {"type": "insert", "text": "ί"}},
+            {"id": "omicron_tonos", "label": "ό", "width": 1.25, "action": {"type": "insert", "text": "ό"}},
+            {"id": "upsilon_tonos", "label": "ύ", "width": 1.25, "action": {"type": "insert", "text": "ύ"}},
+            {"id": "omega_tonos", "label": "ώ", "width": 1.25, "action": {"type": "insert", "text": "ώ"}}
+          ]
+        },
+        {
+          "offset": 1,
+          "keys": [
+            {"id": "shift", "label": "⇧", "width": 1.5, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "iota_dialytika", "label": "ϊ", "width": 1.25, "action": {"type": "insert", "text": "ϊ"}},
+            {"id": "upsilon_dialytika", "label": "ϋ", "width": 1.25, "action": {"type": "insert", "text": "ϋ"}},
+            {"id": "iota_dialytika_tonos", "label": "ΐ", "width": 1.25, "action": {"type": "insert", "text": "ΐ"}},
+            {"id": "upsilon_dialytika_tonos", "label": "ΰ", "width": 1.25, "action": {"type": "insert", "text": "ΰ"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 2, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "ΑΒΓ", "width": 1.5, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "κενό", "width": 3.75, "action": {"type": "insert", "text": " "}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "accents_shifted": {
+      "rows": [
+        {
+          "offset": 0.625,
+          "keys": [
+            {"id": "alpha_tonos", "label": "Ά", "width": 1.25, "action": {"type": "insert", "text": "Ά"}},
+            {"id": "epsilon_tonos", "label": "Έ", "width": 1.25, "action": {"type": "insert", "text": "Έ"}},
+            {"id": "eta_tonos", "label": "Ή", "width": 1.25, "action": {"type": "insert", "text": "Ή"}},
+            {"id": "iota_tonos", "label": "Ί", "width": 1.25, "action": {"type": "insert", "text": "Ί"}},
+            {"id": "omicron_tonos", "label": "Ό", "width": 1.25, "action": {"type": "insert", "text": "Ό"}},
+            {"id": "upsilon_tonos", "label": "Ύ", "width": 1.25, "action": {"type": "insert", "text": "Ύ"}},
+            {"id": "omega_tonos", "label": "Ώ", "width": 1.25, "action": {"type": "insert", "text": "Ώ"}}
+          ]
+        },
+        {
+          "offset": 1,
+          "keys": [
+            {"id": "shift", "label": "⬆", "width": 1.5, "action": {"type": "shift"}, "doubleTapAction": {"type": "shift_lock"}},
+            {"id": "iota_dialytika", "label": "Ϊ", "width": 1.25, "action": {"type": "insert", "text": "Ϊ"}},
+            {"id": "upsilon_dialytika", "label": "Ϋ", "width": 1.25, "action": {"type": "insert", "text": "Ϋ"}},
+            {"id": "iota_dialytika_tonos", "label": "Ϊ́", "width": 1.25, "action": {"type": "insert", "text": "Ϊ́"}},
+            {"id": "upsilon_dialytika_tonos", "label": "Ϋ́", "width": 1.25, "action": {"type": "insert", "text": "Ϋ́"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "#@!", "width": 2, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "accents", "label": "ΑΒΓ", "width": 1.5, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "comma", "label": ",", "width": 0.75, "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "κενό", "width": 3.75, "action": {"type": "insert", "text": " "}},
+            {"id": "period", "label": ".", "width": 0.75, "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 1.25, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "symbols": {
+      "rows": [
+        {
+          "keys": [
+            {"id": "symbol_1", "label": "1", "action": {"type": "insert", "text": "1"}},
+            {"id": "symbol_2", "label": "2", "action": {"type": "insert", "text": "2"}},
+            {"id": "symbol_3", "label": "3", "action": {"type": "insert", "text": "3"}},
+            {"id": "symbol_4", "label": "4", "action": {"type": "insert", "text": "4"}},
+            {"id": "symbol_5", "label": "5", "action": {"type": "insert", "text": "5"}},
+            {"id": "symbol_6", "label": "6", "action": {"type": "insert", "text": "6"}},
+            {"id": "symbol_7", "label": "7", "action": {"type": "insert", "text": "7"}},
+            {"id": "symbol_8", "label": "8", "action": {"type": "insert", "text": "8"}},
+            {"id": "symbol_9", "label": "9", "action": {"type": "insert", "text": "9"}},
+            {"id": "symbol_10", "label": "0", "action": {"type": "insert", "text": "0"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_11", "label": "@", "action": {"type": "insert", "text": "@"}},
+            {"id": "symbol_12", "label": "#", "action": {"type": "insert", "text": "#"}},
+            {"id": "symbol_13", "label": "$", "action": {"type": "insert", "text": "$"}},
+            {"id": "symbol_14", "label": "%", "action": {"type": "insert", "text": "%"}},
+            {"id": "symbol_15", "label": "&", "action": {"type": "insert", "text": "&"}},
+            {"id": "symbol_16", "label": "-", "action": {"type": "insert", "text": "-"}},
+            {"id": "symbol_17", "label": "+", "action": {"type": "insert", "text": "+"}},
+            {"id": "symbol_18", "label": "(", "action": {"type": "insert", "text": "("}},
+            {"id": "symbol_19", "label": ")", "action": {"type": "insert", "text": ")"}},
+            {"id": "symbol_20", "label": "/", "action": {"type": "insert", "text": "/"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_page", "label": "=\\<", "width": 1.5, "action": {"type": "switch_layout", "layout": "more_symbols"}},
+            {"id": "symbol_21", "label": "*", "action": {"type": "insert", "text": "*"}},
+            {"id": "symbol_22", "label": "\"", "action": {"type": "insert", "text": "\""}},
+            {"id": "symbol_23", "label": "'", "action": {"type": "insert", "text": "'"}},
+            {"id": "symbol_24", "label": ":", "action": {"type": "insert", "text": ":"}},
+            {"id": "symbol_25", "label": ";", "action": {"type": "insert", "text": ";"}},
+            {"id": "symbol_26", "label": "!", "action": {"type": "insert", "text": "!"}},
+            {"id": "symbol_27", "label": "?", "action": {"type": "insert", "text": "?"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "ΑΒΓ", "width": 2, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "comma", "label": ",", "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "κενό", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "period", "label": ".", "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 2, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    },
+    "more_symbols": {
+      "rows": [
+        {
+          "keys": [
+            {"id": "symbol_1", "label": "_", "action": {"type": "insert", "text": "_"}},
+            {"id": "symbol_2", "label": "\\", "action": {"type": "insert", "text": "\\"}},
+            {"id": "symbol_3", "label": "[", "action": {"type": "insert", "text": "["}},
+            {"id": "symbol_4", "label": "]", "action": {"type": "insert", "text": "]"}},
+            {"id": "symbol_5", "label": "{", "action": {"type": "insert", "text": "{"}},
+            {"id": "symbol_6", "label": "}", "action": {"type": "insert", "text": "}"}},
+            {"id": "symbol_7", "label": "<", "action": {"type": "insert", "text": "<"}},
+            {"id": "symbol_8", "label": ">", "action": {"type": "insert", "text": ">"}},
+            {"id": "symbol_9", "label": "=", "action": {"type": "insert", "text": "="}},
+            {"id": "symbol_10", "label": "^", "action": {"type": "insert", "text": "^"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_11", "label": "`", "action": {"type": "insert", "text": "`"}},
+            {"id": "symbol_12", "label": "~", "action": {"type": "insert", "text": "~"}},
+            {"id": "symbol_13", "label": "|", "action": {"type": "insert", "text": "|"}},
+            {"id": "symbol_14", "label": "€", "action": {"type": "insert", "text": "€"}},
+            {"id": "symbol_15", "label": "£", "action": {"type": "insert", "text": "£"}},
+            {"id": "symbol_16", "label": "¥", "action": {"type": "insert", "text": "¥"}},
+            {"id": "symbol_17", "label": "¢", "action": {"type": "insert", "text": "¢"}},
+            {"id": "symbol_18", "label": "©", "action": {"type": "insert", "text": "©"}},
+            {"id": "symbol_19", "label": "®", "action": {"type": "insert", "text": "®"}},
+            {"id": "symbol_20", "label": "™", "action": {"type": "insert", "text": "™"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "symbol_page", "label": "123", "width": 1.5, "action": {"type": "switch_layout", "layout": "symbols"}},
+            {"id": "symbol_21", "label": "·", "action": {"type": "insert", "text": "·"}},
+            {"id": "symbol_22", "label": "…", "action": {"type": "insert", "text": "…"}},
+            {"id": "symbol_23", "label": "«", "action": {"type": "insert", "text": "«"}},
+            {"id": "symbol_24", "label": "»", "action": {"type": "insert", "text": "»"}},
+            {"id": "symbol_25", "label": "÷", "action": {"type": "insert", "text": "÷"}},
+            {"id": "symbol_26", "label": "×", "action": {"type": "insert", "text": "×"}},
+            {"id": "symbol_27", "label": "°", "action": {"type": "insert", "text": "°"}},
+            {"id": "backspace", "label": "⌫", "width": 1.5, "action": {"type": "backspace"}}
+          ]
+        },
+        {
+          "keys": [
+            {"id": "keyboard", "label": "ΑΒΓ", "width": 2, "action": {"type": "switch_layout", "layout": "letters"}},
+            {"id": "comma", "label": ",", "action": {"type": "insert", "text": ","}},
+            {"id": "space", "label": "κενό", "width": 4, "action": {"type": "insert", "text": " "}},
+            {"id": "period", "label": ".", "action": {"type": "insert", "text": "."}},
+            {"id": "enter", "label": "↵", "width": 2, "action": {"type": "enter"}}
+          ]
+        }
+      ]
+    }
+  }
+}

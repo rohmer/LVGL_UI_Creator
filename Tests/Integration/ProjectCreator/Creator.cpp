@@ -1,6 +1,10 @@
 #include "ProjectCreator.h"
 #include "lvgl_runtime.h"
 #include <Serialization/Protobuf.h>
+#include <Serialization/ProjectTries.h>
+#include <lv_advanced_keyboard.h>
+#include <lv_advanced_keyboard_prediction.h>
+#include "../../../UICreator/KeyboardModels/BundledTries.h"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -128,6 +132,57 @@ void CheckPiPico(const std::filesystem::path& output) {
         }
     }
 }
+void CheckBundledTrieProjects(const std::filesystem::path& output,const json& manifest,const char* archive) {
+    const auto* french=BundledTries::Find("fr-FR",256);
+    const auto* english=BundledTries::Find("en-US",16);
+    CHECK(french && english);
+    const auto frenchBytes=BundledTries::Read(*french),englishBytes=BundledTries::Read(*english);
+    std::string selected,unused;
+    auto catalog=Serialization::ProjectTries::Import(json::array(),french->name,frenchBytes.data(),frenchBytes.size(),&selected);
+    catalog=Serialization::ProjectTries::Import(catalog,english->name,englishBytes.data(),englishBytes.size(),&unused);
+    CHECK(catalog.size()==2 && selected!=unused);
+    auto project=PiProject();project["tries"]=catalog;
+    auto& settings=project["obj"][1]["advancedKeyboard"];
+    settings["language"]="fr-FR";settings["trieId"]=selected;settings["trieSizeKiB"]=256;
+    auto shared=project["obj"][1];shared["oid"]=4;project["obj"].push_back(shared);
+    for(const auto* format:{"protobuf","c"}) {
+        const auto destination=output/(std::string("bundled-trie-")+format);
+        const json request={{"operation","create"},{"manifest",manifest},{"sourceArchive",archive},
+            {"destination",destination.u8string()},{"project",project},{"format",format},
+            {"lvglVersion","template"},{"cache",(output/"cache").u8string()}};
+        const auto result=ProjectCreation::Run(request);
+        if(!result.success)throw std::runtime_error(result.message);
+        const auto authoring=ReadJson(destination/"ui/project.json");
+        CHECK(authoring["tries"].size()==2);
+        CHECK(authoring["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256);
+        CHECK(authoring.dump().find("D:\\Corpus")==std::string::npos);
+        if(std::string(format)=="protobuf") {
+            const auto payload=ReadBinary(destination/"ui/project.pb");
+            const auto decoded=Serialization::Protobuf::Decode(payload);
+            CHECK(decoded.data["tries"].size()==1);
+            CHECK(decoded.data["tries"][0]["id"]==selected);
+            CHECK(decoded.data["tries"][0]["data"].is_binary() && decoded.data["tries"][0]["indexData"].is_binary());
+            CHECK(decoded.data["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256);
+            lv_init();auto* display=lv_display_create(640,400);lvgl_runtime_t* runtime=nullptr;char error[512]{};
+            if(!lvgl_runtime_load_memory(payload.data(),payload.size(),nullptr,&runtime,error,sizeof error))throw std::runtime_error(error);
+            for(const auto oid:{1,4}) {
+                auto* keyboard=lvgl_runtime_object(runtime,0,oid);
+                CHECK(keyboard && std::string(lv_advanced_keyboard_get_language(keyboard))=="fr-FR");
+                auto* predictor=lv_advanced_keyboard_get_predictor(keyboard);CHECK(predictor);
+                lv_advanced_keyboard_suggestion_t words[3]{};
+                CHECK(lv_advanced_keyboard_predictor_suggest_folded(predictor,nullptr,0,nullptr,0,nullptr,0,words,3)>0);
+            }
+            lvgl_runtime_destroy(runtime);lv_display_delete(display);lv_deinit();
+        } else {
+            const auto generated=ReadText(destination/"ui/ui.c");
+            CHECK(generated.find("lv_advanced_keyboard_set_language")!=std::string::npos && generated.find("fr-FR")!=std::string::npos);
+            const auto requirements=ReadText(destination/"ui/CMakeLists.txt");
+            CHECK(requirements.find("LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE=0")!=std::string::npos);
+            const auto assets=ReadText(destination/"ui/ui_assets.c");
+            CHECK(assets.find("D:\\Corpus")==std::string::npos && !assets.empty());
+        }
+    }
+}
 }
 int main(int argc,char** argv){try {
     CHECK(argc==4);auto root=std::filesystem::u8path(argv[1]),output=std::filesystem::u8path(argv[2]);std::filesystem::create_directories(output);
@@ -147,6 +202,7 @@ int main(int argc,char** argv){try {
     CHECK(lvgl_runtime_load_memory(bytes.data(),bytes.size(),nullptr,&runtime,error,sizeof error));CHECK(lv_arc_get_value(lvgl_runtime_object(runtime,0,0))==37);
     lvgl_runtime_destroy(runtime);lv_display_delete(display);lv_deinit();
     request["destination"]=(output/"json-project").u8string();request["format"]="json";auto data=ProjectCreation::Run(request);CHECK(data.success);CHECK(std::filesystem::is_regular_file(output/"json-project/ui/project.json"));
+    CheckBundledTrieProjects(output,manifest,argv[3]);
     CheckPiLinux(output);
     CheckPiPico(output);
     std::cout<<"Bundled creator produced JSON, C and Protobuf projects; Raspberry Pi Linux defaults generate a minimal runnable keyboard/action project and survive cached catalogs\n";return 0;

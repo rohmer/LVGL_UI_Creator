@@ -19,13 +19,21 @@ Select Advanced Keyboard in the Hierarchy to configure it:
   keyboard to a particular text area/Text box.
 - **Language:** choose English (US), Spanish, French, German, Italian,
   Portuguese, Mandarin Chinese (Pinyin), Arabic, Hindi, Bengali, Indonesian,
-  Urdu or Russian. The keys use that language's layout and letters.
+  Urdu, Russian or Greek. The keys use that language's layout and letters.
   This setting is saved per keyboard and preserved in C exports.
+- **Trie size:** select a 16 KiB or 256 KiB corpus model for the chosen language.
+  The bundled library contains both sizes for English, Spanish, French, German,
+  Greek, Arabic and Hindi. New keyboards start with the English 16 KiB model.
+  Changing language keeps the selected size where available. The inspector
+  reports actual model and index sizes; size labels describe the corpus tier,
+  and a few supplied 256 KiB models exceed that nominal size by their headers.
+  **None** disables predictions. **Built-in English** selects the earlier
+  constant dictionary. An explicitly loaded model remains a custom selection.
 - **Right-to-left display:** Arabic and Urdu enable this by default. Toggle it
   to choose the active text box's typing direction. Saved text stays in logical
   Unicode order. The field's authored direction is restored on dismissal or a
   target switch; temporary editing styles do not enter saved projects.
-- **Prediction trie:** choose bundled English, an imported project trie, or
+- **Prediction trie:** choose built-in English, an embedded project trie, or
   None. Click **Load trie…** to select a compact NGTR v3 file for the desired
   prediction and autocorrect vocabulary. Loaded models and
   their indices are embedded and shared in the project, so designs travel
@@ -35,10 +43,19 @@ Select Advanced Keyboard in the Hierarchy to configure it:
 - **Key colors/radius:** customize the key appearance. Geometry and font
   controls remain in the usual inspector.
 
-The included dictionary is English. Selecting another language clears the
-bundled English trie; load a matching model to enable that language's
-suggestions and autocorrect. Changing the layout preserves an explicitly
-loaded trie. Language and trie selection are separate settings.
+The fourteen corpus files supplied from `D:\Corpus` are included as editor
+resources. Selecting a language and size imports that model and generates its
+index once; both are embedded and deduplicated in the project. Saving, moving
+or creating a firmware project does not require the original corpus folder.
+Created Protobuf projects and generated C include only referenced models;
+the editable project's model library keeps the imported choices.
+
+The other keyboard languages currently have no supplied corpus model. Their
+inspector says so and offers **Load trie…**. Changing to one of these languages
+clears a previously selected corpus bundle rather than using another language's
+vocabulary. Changing the layout preserves an explicitly loaded custom trie.
+See [the bundled model catalog](KeyboardModels/README.md) for original filename
+aliases, byte counts and checksums.
 The key labels use the bundled language font. The target field keeps its own
 font; choose one containing the language's glyphs to display accented text.
 

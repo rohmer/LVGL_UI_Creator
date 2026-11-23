@@ -24,7 +24,7 @@ trie for other languages. No extra dictionary is implied by a key layout.
 
 Additional layouts are Mandarin Chinese Pinyin (`zh-CN`), Arabic (`ar-SA`), Hindi
 (`hi-IN`), Bengali (`bn-BD`), Indonesian (`id-ID`), Urdu (`ur-PK`) and Russian
-(`ru-RU`). Mandarin has an independent Pinyin preedit buffer and paged Chinese
+(`ru-RU`), plus Greek QWERTY (`el-GR`) with an accented-letter page. Mandarin has an independent Pinyin preedit buffer and paged Chinese
 character candidates. Choose a candidate or press Space to commit; Enter commits
 and dismisses. Backspace first edits preedit. Switching targets or languages,
 pressing X, or entering password mode clears uncommitted composition.
@@ -74,6 +74,10 @@ include keeping the typed word. Digit-bearing tokens and protected number
 and calendar words are retained. Password fields suppress predictions.
 Suggestion acceptance preserves capitalization and replaces the word at the
 caret. Custom project tries select another vocabulary or domain model.
+French, German and Greek vocabulary-filtered models keep lowercase spelling;
+their query path preserves German sharp S and Greek final sigma instead of
+applying a second Unicode case fold. The keyboard's precomposed script keys
+match the models' NFC spelling. Original Unicode-fold APIs remain available.
 
 `include/lv_advanced_keyboard_prediction.h` exposes the portable engine.
 `lv_advanced_keyboard_predictor_create_builtin()` uses shared immutable

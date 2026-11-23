@@ -57,12 +57,16 @@ public:
         if (language != "en-US" && language != "es-ES" && language != "fr-FR" &&
             language != "de-DE" && language != "it-IT" && language != "pt-PT" &&
             language != "zh-CN" && language != "ar-SA" && language != "hi-IN" &&
-            language != "bn-BD" && language != "id-ID" && language != "ur-PK" && language != "ru-RU")
+            language != "bn-BD" && language != "id-ID" && language != "ur-PK" && language != "ru-RU" && language != "el-GR")
             throw std::invalid_argument("Unsupported Advanced Keyboard language");
         result["language"] = language;
         if (input.contains("rightToLeft") && !input.at("rightToLeft").is_boolean()) throw std::invalid_argument("rightToLeft must be a boolean");
         result["rightToLeft"] = input.value("rightToLeft", language == "ar-SA" || language == "ur-PK");
         result["trieId"] = text("trieId", language == "en-US" ? "builtin-en-us" : "");
+        const auto trieSize = number("trieSizeKiB", 0, 256);
+        if (trieSize != 0 && trieSize != 16 && trieSize != 256)
+            throw std::invalid_argument("trieSizeKiB must be 0, 16 or 256");
+        result["trieSizeKiB"] = trieSize;
         const auto threshold = input.find("autocorrectThreshold");
         if (threshold != input.end() && (!threshold->is_number() || !std::isfinite(threshold->get<double>()) || threshold->get<double>() < 0 || threshold->get<double>() > 1))
             throw std::invalid_argument("autocorrectThreshold must be between zero and one");

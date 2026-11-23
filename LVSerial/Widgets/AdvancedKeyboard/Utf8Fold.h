@@ -9,6 +9,12 @@ namespace espos::keyboard::prediction {
 bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity, std::string_view& folded) noexcept;
 bool FoldUtf8(std::string_view input, char* destination, std::size_t capacity,
               std::string_view& folded, bool canonicalIndic) noexcept;
+// Match the selected corpus model's spelling without editing the target.
+// Listed French/German/Greek use simple lowercase; complete Greek words also
+// apply terminal capital sigma. Other languages preserve the original folding.
+// This bounded, allocation-free helper is not a general NFC normalizer.
+bool PrepareKeyboardQuery(std::string_view input, char* destination, std::size_t capacity,
+                          std::string_view& prepared, const char* language, bool completeWord) noexcept;
 // Unicode 14 categories match the corpus generator. These classifiers allocate
 // no memory; marks and joiners are handled by the word-boundary caller.
 bool IsWordScalar(std::uint32_t scalar) noexcept;

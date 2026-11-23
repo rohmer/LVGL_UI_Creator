@@ -24,6 +24,8 @@ struct SuggestionText {
 SuggestionText capture_suggestion_text(lv_obj_t* textarea, bool hanTokens = false);
 std::size_t display_suggestion(const SuggestionText& input, std::string_view raw,
                                char* output, std::size_t capacity);
+std::size_t display_suggestion(const SuggestionText& input, std::string_view raw,
+                               char* output, std::size_t capacity, std::string_view preparedPrefix);
 bool accept_suggestion(lv_obj_t* textarea, const SuggestionText& input, std::string_view word,
                        bool add_space = true, bool hanTokens = false);
 

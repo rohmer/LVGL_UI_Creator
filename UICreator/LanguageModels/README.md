@@ -60,7 +60,10 @@ dropdown. The model is embedded in JSON/Protobuf projects and C exports.
 
 The corpus-language filter is separate from the keyboard's key layout. A French
 model, for example, should be paired with the French keyboard layout. Greek
-corpora can be trained even though a Greek key layout is not currently bundled.
+models can use the Greek layout. Advanced Keyboard's **Trie size** selector
+also offers the supplied 16 KiB and 256 KiB corpus models for seven languages;
+see [the bundled catalog](../KeyboardModels/README.md). Selection embeds the
+model and its index in the current project.
 
 Keep the `language-models/wordlists` directory next to the editor executable.
 The bundled `language-models/examples` folder contains a tiny English corpus

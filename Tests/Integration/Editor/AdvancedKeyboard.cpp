@@ -9,6 +9,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 namespace {
 void Require(bool value,const char* message) {if(!value)throw std::runtime_error(message);}
@@ -42,7 +43,10 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     Require(lv_obj_get_child_count(keyboard)==2,"Keyboard still owns a text field");
     auto properties=[&]{return static_cast<ObjectUserData*>(lv_obj_get_user_data(keyboard))->toolTray->GetPropertyWindow();};
     Require(Label(properties()->ObjectPropWin()->GetWindow(),"Language") && Label(properties()->ObjectPropWin()->GetWindow(),"Load trie...") &&
-        Label(properties()->ObjectPropWin()->GetWindow(),"Prediction trie") && Label(properties()->ObjectPropWin()->GetWindow(),"Target text box"),"Language/trie/target controls missing");
+        Label(properties()->ObjectPropWin()->GetWindow(),"Trie size") && Label(properties()->ObjectPropWin()->GetWindow(),"Prediction trie") && Label(properties()->ObjectPropWin()->GetWindow(),"Target text box"),"Language/size/trie/target controls missing");
+    const auto englishDefault=editor.ProjectDocument();
+    Require(englishDefault["obj"][1]["advancedKeyboard"].value("trieSizeKiB",0u)==16 && englishDefault["tries"].size()==1 &&
+        englishDefault["obj"][1]["advancedKeyboard"]["trieId"]==englishDefault["tries"][0]["id"],"New keyboard did not embed its default English corpus model");
     const auto beforeFocus=editor.ProjectDocument();properties()->SetSelectedObject(entry);
     Require(lv_advanced_keyboard_get_textarea(keyboard)==entry && !lv_obj_has_flag(keyboard,LV_OBJ_FLAG_HIDDEN),"Selecting an external text field did not show/target the keyboard");
     Require(editor.ProjectDocument()==beforeFocus,"Focus visibility changed the saved document");
@@ -62,33 +66,73 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
         lv_dropdown_set_selected(control,static_cast<uint32_t>(index));lv_obj_send_event(control,LV_EVENT_VALUE_CHANGED,nullptr);
         EditorInputTest::Drain(simulator);
     };
-    Require(lv_dropdown_get_option_count(Field(properties(),"Language"))==13 && std::string(lv_advanced_keyboard_get_language(keyboard))=="en-US","Language defaults/list are incorrect");
+    Require(lv_dropdown_get_option_count(Field(properties(),"Language"))==14 && std::string(lv_advanced_keyboard_get_language(keyboard))=="en-US","Language defaults/list are incorrect");
     selectLanguage("es-ES");
-    Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="es-ES" && !lv_advanced_keyboard_get_predictor(keyboard),"Spanish selection did not change native layout or retained the English dictionary");
-    Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["language"]=="es-ES" && lv_dropdown_get_selected(Field(properties(),"Prediction trie"))==0,"Language/trie selection was not persisted or refreshed");
+    Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="es-ES" && lv_advanced_keyboard_get_predictor(keyboard),"Spanish selection did not attach its bundled corpus model");
+    const auto spanishDefault=editor.ProjectDocument();
+    Require(spanishDefault["obj"][1]["advancedKeyboard"]["language"]=="es-ES" && spanishDefault["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16 &&
+        spanishDefault["obj"][1]["advancedKeyboard"]["trieId"]!=englishDefault["obj"][1]["advancedKeyboard"]["trieId"],"Language/model selection was not persisted or refreshed");
     Require(editor.Undo(),"Keyboard language change was not undoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
     Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="en-US" && lv_advanced_keyboard_get_predictor(keyboard),"Undo lost the English language/model");
     Require(editor.Redo(),"Keyboard language change was not redoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
-    Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="es-ES" && !lv_advanced_keyboard_get_predictor(keyboard),"Redo lost the selected language/model");
+    Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="es-ES" && lv_advanced_keyboard_get_predictor(keyboard) &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16,"Redo lost the selected language/model");
+    properties()->SetSelectedObject(keyboard);selectLanguage("fr-FR");
+    auto selectSize=[&](uint32_t sizeKiB) {
+        auto* control=Field(properties(),"Trie size");Require(lv_obj_has_class(control,&lv_dropdown_class),"Trie size is not a dropdown");
+        const auto prefix=std::to_string(sizeKiB)+" KiB";std::istringstream options(lv_dropdown_get_options(control));
+        std::string option;uint32_t index=0;bool found=false;
+        while(std::getline(options,option)){if(option.rfind(prefix,0)==0){found=true;break;}++index;}
+        Require(found,"Expected bundled trie size is unavailable");
+        lv_dropdown_set_selected(control,index);lv_obj_send_event(control,LV_EVENT_VALUE_CHANGED,nullptr);EditorInputTest::Drain(simulator);
+    };
+    const auto frenchSmall=editor.ProjectDocument();const auto frenchSmallId=frenchSmall["obj"][1]["advancedKeyboard"]["trieId"];
+    selectSize(256);const auto frenchLarge=editor.ProjectDocument();const auto frenchLargeId=frenchLarge["obj"][1]["advancedKeyboard"]["trieId"];
+    Require(frenchLargeId!=frenchSmallId && frenchLarge["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256 &&
+        lv_advanced_keyboard_get_predictor(keyboard),"Larger French trie did not replace the small model");
+    const auto bundledBinary=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",frenchLarge);
+    const auto bundledDecoded=Serialization::Protobuf::Decode(bundledBinary).data;
+    Require(bundledDecoded["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256 && bundledDecoded["obj"][1]["advancedKeyboard"]["trieId"]==frenchLargeId,
+        "Protobuf lost bundled model size/identity");
+    bool embedded=false;for(const auto& model:bundledDecoded.at("tries"))if(model.at("id")==frenchLargeId)embedded=model.contains("data")&&!model.at("data").empty();
+    Require(embedded && bundledDecoded.dump().find("D:\\\\Corpus")==std::string::npos,"Selected corpus model depends on its source drive instead of embedded bytes");
+    const auto bundledCount=frenchLarge.at("tries").size();selectSize(16);selectSize(256);
+    Require(editor.ProjectDocument()["tries"].size()==bundledCount,"Switching bundled sizes duplicated model assets");
+    Require(editor.Undo(),"Trie size change was not undoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
+    Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16 &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==frenchSmallId,"Undo did not restore the small model and its size together");
+    Require(editor.Redo(),"Trie size change was not redoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
+    Require(editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==256 &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==frenchLargeId,"Redo did not restore the larger model and size together");
     properties()->SetSelectedObject(keyboard);Edit(Field(properties(),"Autocorrect Threshold"),"0.7");
     const uint8_t trie[]={'N','G','T','R',3,0,0,0,4,0,0,0,0,0,0,0,0,2,0,2,'a',1,1,'a',1,1};
     auto path=std::filesystem::temp_directory_path()/("creator-trie-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())+".ngtr");
     {std::ofstream file(path,std::ios::binary);file.write(reinterpret_cast<const char*>(trie),sizeof trie);}
+    const auto beforeCustomCount=editor.ProjectDocument()["tries"].size();
     try {AdvancedProperties::LoadTrie(properties(),path);AdvancedProperties::LoadTrie(properties(),path);}
     catch(...){std::filesystem::remove(path);throw;}std::filesystem::remove(path);
-    const auto imported=editor.ProjectDocument();Require(imported["tries"].size()==1,"Trie import did not content-deduplicate");
+    const auto imported=editor.ProjectDocument();Require(imported["tries"].size()==beforeCustomCount+1,"Trie import did not content-deduplicate");
     const auto& settings=imported["obj"][1]["advancedKeyboard"];
-    Require(settings["trieId"]==imported["tries"][0]["id"] && settings["autocorrectThreshold"]==0.7,"Selected trie/settings were not saved");
-    selectLanguage("fr-FR");
-    Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="fr-FR" && lv_advanced_keyboard_get_predictor(keyboard) &&
-        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==imported["tries"][0]["id"],"Language change discarded an explicitly loaded trie");
+    const auto customId=settings.at("trieId");
+    Require(settings["autocorrectThreshold"]==0.7 && settings["trieSizeKiB"]==0,"Selected custom trie/settings were not saved");
+    selectLanguage("de-DE");
+    Require(std::string(lv_advanced_keyboard_get_language(keyboard))=="de-DE" && lv_advanced_keyboard_get_predictor(keyboard) &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]==customId && editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==0,
+        "Language change discarded an explicitly loaded trie or marked it bundled");
     Require(!settings.contains("text") && !settings.contains("password"),"Keyboard retained private text field properties");
     auto selectTrie=[&](uint32_t index) {
         auto* control=Field(properties(),"Prediction trie");Require(lv_obj_has_class(control,&lv_dropdown_class),"Trie selector is not a dropdown");
         lv_dropdown_set_selected(control,index);lv_obj_send_event(control,LV_EVENT_VALUE_CHANGED,nullptr);
+        EditorInputTest::Drain(simulator);
     };
     selectTrie(1);Require(lv_advanced_keyboard_get_predictor(keyboard),"Bundled trie selection did not attach a predictor");
-    selectTrie(0);Require(!lv_advanced_keyboard_get_predictor(keyboard),"None trie selection kept its predictor");selectTrie(2);
+    selectTrie(0);Require(!lv_advanced_keyboard_get_predictor(keyboard),"None trie selection kept its predictor");
+    selectLanguage("zh-CN");
+    Require(!lv_advanced_keyboard_get_predictor(keyboard) && editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieId"]=="" &&
+        editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==0 && lv_dropdown_get_option_count(Field(properties(),"Trie size"))==1,
+        "A language without bundled models retained another language's trie or offered unavailable sizes");
+    uint32_t customChoice=2;for(const auto& model:properties()->Tries().ToJSON()){if(model.at("id")==customId)break;++customChoice;}
+    selectTrie(customChoice);Require(lv_advanced_keyboard_get_predictor(keyboard),"Cannot restore the custom project model");
     auto* target=Field(properties(),"Target text box");
     Require(lv_obj_has_class(target,&lv_dropdown_class),"Target text box inspector control is not a dropdown");
     lv_dropdown_set_selected(target,1);lv_obj_send_event(target,LV_EVENT_VALUE_CHANGED,nullptr);
@@ -108,7 +152,7 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     inspect(inspect,lv_layer_top());Require(ready,"Trie/target C export preflight failed");editor.MenuAction("cancel-file");
     properties()->SetSelectedObject(entry);for(int frame=0;frame<5;++frame)simulator.ProcessEvents();
     properties()->SetSelectedObject(keyboard);
-    for(const auto* id:{"zh-CN","ar-SA","hi-IN","bn-BD","id-ID","ur-PK","ru-RU"}) {
+    for(const auto* id:{"zh-CN","ar-SA","hi-IN","bn-BD","id-ID","ur-PK","ru-RU","el-GR"}) {
         const auto* authoredFont=lv_obj_get_style_text_font(entry,LV_PART_MAIN);selectLanguage(id);
         const bool rtl=std::string(id)=="ar-SA"||std::string(id)=="ur-PK";
         Require(std::string(lv_advanced_keyboard_get_language(keyboard))==id && lv_advanced_keyboard_get_right_to_left(keyboard)==rtl,"Inspector did not select the script layout/direction");
@@ -127,11 +171,14 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     Require(lv_advanced_keyboard_get_right_to_left(keyboard),"Undo did not restore default Arabic direction");
     Require(editor.Redo(),"RTL edit was not redoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
     Require(!lv_advanced_keyboard_get_right_to_left(keyboard),"Redo did not restore the RTL override");
-    properties()->SetSelectedObject(keyboard);selectLanguage("zh-CN");properties()->SetSelectedObject(entry);
+    properties()->SetSelectedObject(keyboard);selectSize(16);
+    Require(!lv_advanced_keyboard_get_right_to_left(keyboard) && editor.ProjectDocument()["obj"][1]["advancedKeyboard"]["trieSizeKiB"]==16,
+        "Choosing a bundled size reset the target language's explicit RTL override");
+    selectLanguage("zh-CN");Require(!lv_advanced_keyboard_get_predictor(keyboard),"Switching to an unavailable corpus retained the previous Arabic model");properties()->SetSelectedObject(entry);
     lv_textarea_set_text(entry,"");EditorInputTest::Text("ni",simulator);
     Require(std::string(lv_textarea_get_text(entry)).empty(),"Physical SDL Pinyin went directly into the target as Latin text");
     auto* candidate=Label(lv_obj_get_child(keyboard,0),u8"你");Require(candidate,"Physical Pinyin input did not show Chinese candidates");
     lv_obj_send_event(lv_obj_get_parent(candidate),LV_EVENT_CLICKED,nullptr);
     Require(std::string(lv_textarea_get_text(entry))==u8"你","Selecting the Chinese candidate did not write to the active editor field");
-    std::cout<<"Keyboard external target, focus visibility, language selection, trie loading, persistence, undo/redo and C export passed\n";
+    std::cout<<"Keyboard language/bundled size selection, embedded Protobuf, custom model preservation, deduplication, undo/redo and C export passed\n";
 }

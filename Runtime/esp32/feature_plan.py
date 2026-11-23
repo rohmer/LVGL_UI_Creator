@@ -555,7 +555,7 @@ def lvgl_config(plan: dict, root: Path) -> str:
     definitions["LV_FONT_SOURCE_HAN_SANS_SC_16_CJK"] = int("zh-CN" in languages)
     definitions["LV_FONT_DEJAVU_16_PERSIAN_HEBREW"] = int("ar-SA" in languages)
     definitions["LV_ADVANCED_KEYBOARD_USE_PINYIN"] = int("zh-CN" in languages)
-    for language, name in (("hi-IN", "HINDI"), ("bn-BD", "BENGALI"), ("ur-PK", "URDU"), ("ru-RU", "CYRILLIC")):
+    for language, name in (("hi-IN", "HINDI"), ("bn-BD", "BENGALI"), ("ur-PK", "URDU"), ("ru-RU", "CYRILLIC"), ("el-GR", "GREEK")):
         definitions["LV_ADVANCED_KEYBOARD_USE_" + name + "_FONT"] = int(language in languages)
     formats = set(re.findall(r"#ifndef\s+(LV_DRAW_SW_SUPPORT_[A-Z0-9_]+)", internal))
     for name in formats:
@@ -595,7 +595,7 @@ def source_plan(plan: dict, root: Path) -> list[str]:
     languages = set(plan.get("keyboardLanguages", []))
     if "zh-CN" in languages: add("src/font/lv_font_source_han_sans_sc_16_cjk.c")
     if "ar-SA" in languages: add("src/font/lv_font_dejavu_16_persian_hebrew.c")
-    for language, name in (("hi-IN", "Hindi"), ("bn-BD", "Bengali"), ("ur-PK", "Urdu"), ("ru-RU", "Cyrillic")):
+    for language, name in (("hi-IN", "Hindi"), ("bn-BD", "Bengali"), ("ur-PK", "Urdu"), ("ru-RU", "Cyrillic"), ("el-GR", "Greek")):
         if language in languages:
             selected.add("LVSerial/Widgets/AdvancedKeyboard/Keyboard" + name + "Font.c")
     enabled = set(plan["enabledFeatures"])
