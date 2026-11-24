@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import shutil
 import subprocess
 import sys
 
@@ -31,6 +32,23 @@ def run(command, log, *, capture=False):
     return log.read_text(encoding='utf-8') if capture else ''
 
 
+def check_inventory(directory, configuration, micropython):
+    inventory = json.loads(run(['ctest', '--test-dir', directory, '-C', configuration,
+                                '--show-only=json-v1'], directory / 'test-inventory.json', capture=True))
+    names = {test['name'] for test in inventory['tests']}
+    required = {prefix + version for prefix in ('LVGLGenerator', 'LVGLRuntimeBackend')
+                for version in ('96', '95', '93', '92', '91', '83')}
+    required |= {'UICreatorSmoke', 'UICreatorScreenMemory', 'UICreatorAdvancedKeyboard',
+                 'UICreatorMicroPythonExport', 'UICreatorESP32Profile', 'UICreatorArduinoProfile',
+                 'UICreatorPicoProfile', 'UICreatorKeyboardSyncSource', 'UICreatorMacOSPackaging',
+                 'LVSerialProtobufConformance'}
+    if micropython:
+        required.add('UICreatorMicroPythonNative')
+    if missing := required - names:
+        raise RuntimeError('CI coverage is missing registered tests: ' + ', '.join(sorted(missing)))
+    print('Validated CI inventory: ' + str(len(names)) + ' registered tests', flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--architecture', choices=('x86', 'x64', 'x86_64', 'arm64'), required=True)
@@ -42,6 +60,11 @@ def main():
     directory = ROOT / 'build' / 'ci-desktop'
     os.environ.update(SDL_VIDEO_DRIVER='dummy', SDL_RENDER_DRIVER='software')
     if args.phase in ('configure', 'all'):
+        protoc = os.environ.get('UICREATOR_CI_PROTOC') or shutil.which('protoc')
+        if not protoc or not Path(protoc).is_file():
+            raise RuntimeError('The official protoc executable is required for the CI conformance test')
+        protoc = Path(protoc).resolve()
+        run([protoc, '--version'], directory / 'protoc-version.log')
         sources = ROOT / 'build' / 'compat-lvgl'
         run([sys.executable, ROOT / 'Tests/Integration/CodeGeneration/Versions/DownloadSources.py', sources],
             directory / 'download-lvgl.log')
@@ -49,6 +72,7 @@ def main():
                    '-DCMAKE_BUILD_TYPE=' + args.configuration, '-DBUILD_TESTING=ON',
                    '-DUICREATOR_TEST_LVGL_VERSIONS=ON', '-DUICREATOR_LVGL_TEST_SOURCES=' + str(sources),
                    '-DPython3_EXECUTABLE=' + sys.executable,
+                   '-DUICREATOR_PROTOC=' + str(protoc),
                    '-DFT_DISABLE_HARFBUZZ=ON', '-DFT_DISABLE_BROTLI=ON',
                    '-DSDL_TESTS=OFF', '-DSDL_EXAMPLES=OFF']
         if platform.system() == 'Windows':
@@ -61,23 +85,12 @@ def main():
         if args.micropython:
             command.append('-DUICREATOR_MICROPYTHON_EXECUTABLE=' + str(args.micropython.resolve()))
         run(command, directory / 'configure.log')
+        check_inventory(directory, args.configuration, args.micropython)
     if args.phase in ('build', 'all'):
         run(['cmake', '--build', directory, '--config', args.configuration, '--parallel', max(1, args.jobs)],
             directory / 'build.log')
     if args.phase in ('test', 'all'):
-        inventory = json.loads(run(['ctest', '--test-dir', directory, '-C', args.configuration,
-                                    '--show-only=json-v1'], directory / 'test-inventory.json', capture=True))
-        names = {test['name'] for test in inventory['tests']}
-        required = {prefix + version for prefix in ('LVGLGenerator', 'LVGLRuntimeBackend')
-                    for version in ('96', '95', '93', '92', '91', '83')}
-        required |= {'UICreatorSmoke', 'UICreatorScreenMemory', 'UICreatorAdvancedKeyboard',
-                     'UICreatorMicroPythonExport', 'UICreatorESP32Profile', 'UICreatorArduinoProfile',
-                     'UICreatorPicoProfile', 'UICreatorKeyboardSyncSource', 'UICreatorMacOSPackaging',
-                     'LVSerialProtobufConformance'}
-        if args.micropython:
-            required.add('UICreatorMicroPythonNative')
-        if missing := required - names:
-            raise RuntimeError('CI coverage is missing registered tests: ' + ', '.join(sorted(missing)))
+        check_inventory(directory, args.configuration, args.micropython)
         run(['ctest', '--test-dir', directory, '-C', args.configuration, '--output-on-failure',
              '--no-tests=error', '--parallel', '2', '--output-junit', str(directory / 'tests.xml')],
             directory / 'tests.log')

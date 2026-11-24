@@ -96,8 +96,7 @@ jobs:
         run: brew install pkg-config protobuf
       - name: Install Windows protobuf compiler
         if: runner.os == 'Windows'
-        shell: pwsh
-        run: choco install protoc --yes --no-progress
+        run: python .github/scripts/setup_protoc.py
       - name: Build real MicroPython with the pinned LVGL binding
         if: matrix.binding
         shell: bash

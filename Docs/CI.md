@@ -35,6 +35,11 @@ ESP-IDF 6.0 container digest, Arduino CLI 1.3.1 with Nano ESP32 core
 IDs. Cargo/npm download caches reduce repeated setup; compiled outputs are
 rebuilt from each checked-in source tree.
 
+Windows uses the official protoc 36.2 ZIP with a pinned SHA-256. Every desktop
+configuration validates its protoc executable before configuration and supplies
+its absolute path to CMake, so a missing dependency cannot silently omit the
+Protobuf conformance test.
+
 Linux dependencies use Ubuntu's signed official HTTPS repositories through a
 temporary APT source file. This avoids a slow regional runner mirror without
 replacing the machine's repository configuration; package installation is
