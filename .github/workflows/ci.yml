@@ -89,8 +89,8 @@ jobs:
             protobuf-compiler libcurl4-openssl-dev zlib1g-dev libpng-dev libjpeg-dev \
             libasound2-dev libpulse-dev libudev-dev libdbus-1-dev \
             libdrm-dev libgbm-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev \
-            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
-            libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxtst-dev libxss-dev \
+            libxkbcommon-dev libwayland-dev libwayland-bin wayland-protocols libdecor-0-dev \
             libunwind-dev liburing-dev libusb-1.0-0-dev libpipewire-0.3-dev libsdl2-dev
       - name: Install macOS development dependencies
         if: runner.os == 'macOS'
@@ -221,6 +221,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi \
             libstdc++-arm-none-eabi-newlib libusb-1.0-0-dev libssl-dev pkg-config build-essential
+      - name: Install Arduino image-tool Python dependencies
+        if: matrix.target == 'arduino'
+        run: python -m pip install esptool==4.5.1
       - name: Generate and compile device firmware
         shell: bash
         run: |
