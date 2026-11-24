@@ -16,6 +16,9 @@ extern char** environ;
 #endif
 
 namespace NativeFileDialog {
+#ifdef __APPLE__
+Result ShowMac(const Options& options);
+#endif
 namespace {
 std::string Utf8(const wchar_t* source) {
     std::string output;if(!source)return output;
@@ -30,7 +33,7 @@ std::string Utf8(const wchar_t* source) {
     }return output;
 }
 Result Failure(std::string error,Status status=Status::Failed){return {status,{},std::move(error)};}
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
 struct Pipe {int read=-1,write=-1;~Pipe(){if(read>=0)close(read);if(write>=0)close(write);}bool Open(){int descriptors[2];if(pipe(descriptors)!=0)return false;read=descriptors[0];write=descriptors[1];fcntl(read,F_SETFD,FD_CLOEXEC);fcntl(write,F_SETFD,FD_CLOEXEC);return true;}void CloseWrite(){close(write);write=-1;}};
 struct Execution {int exit=-1,spawnError=0;bool truncated=false;std::string output,error;};
 std::string ExecutablePath(const char* name) {
@@ -86,6 +89,8 @@ Options FromWindows(bool save,bool folder,const wchar_t* title,const wchar_t* fi
 Result Show(const Options& options) {
 #ifdef _WIN32
     (void)options;return Failure("Use the existing native Windows file dialog.",Status::Unavailable);
+#elif defined(__APPLE__)
+    return ShowMac(options);
 #else
     // Some POSIX spawn implementations/emulators report an absent executable
     // through child exit127 instead of ENOENT. Resolve a real executable first;

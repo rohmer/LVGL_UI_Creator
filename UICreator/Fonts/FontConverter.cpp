@@ -1,4 +1,5 @@
 #include "FontConverter.h"
+#include "../Utils/ApplicationPaths.h"
 #include "../../3rdParty/JSON/json.hpp"
 #include <algorithm>
 #include <chrono>
@@ -29,12 +30,7 @@ template<class T> bool OneOf(T value,std::initializer_list<T> values) {return st
 std::string Read(const std::filesystem::path& path) { std::ifstream in(path,std::ios::binary);if(!in)throw std::runtime_error("Cannot read "+path.u8string());return {(std::istreambuf_iterator<char>(in)),{}}; }
 void Write(const std::filesystem::path& path,const std::string& data) {std::ofstream out(path,std::ios::binary|std::ios::trunc);out.write(data.data(),data.size());out.close();if(!out)throw std::runtime_error("Cannot write "+path.u8string());}
 std::filesystem::path ExecutableDirectory() {
-#ifdef _WIN32
-    std::wstring path(32768,L'\0');const auto length=GetModuleFileNameW(nullptr,path.data(),static_cast<DWORD>(path.size()));
-    if(!length||length==path.size())throw std::runtime_error("Cannot find the application folder");path.resize(length);return std::filesystem::path(path).parent_path();
-#else
-    char path[4096];auto size=readlink("/proc/self/exe",path,sizeof(path));return size>0?std::filesystem::path(std::string(path,size)).parent_path():std::filesystem::current_path();
-#endif
+    return ApplicationPaths::ResourceDirectory();
 }
 #ifdef _WIN32
 std::wstring Quote(const std::wstring& text) {

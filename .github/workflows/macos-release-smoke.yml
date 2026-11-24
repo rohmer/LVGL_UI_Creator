@@ -1,0 +1,77 @@
+name: macOS release packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Published release containing the Mac ZIP packages
+        required: true
+        default: '0.9.2'
+      expected_source_commit:
+        description: Full source commit recorded in both package manifests
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-release-${{ github.event.inputs.release_tag }}-${{ github.event.inputs.expected_source_commit }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Released app (${{ matrix.architecture }})
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            architecture: x86_64
+          - runner: macos-15
+            architecture: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Check out the verification workflow
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Check out fixtures from the exact package source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ inputs.expected_source_commit }}
+          path: package-source
+          sparse-checkout: |
+            3rdParty/LVGL/lvgl/src/libs/freetype/LiberationSans-Regular.ttf
+            3rdParty/LVGL/lvgl/src/display/lv_display.c
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Set up the verification interpreter
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - name: Verify and execute the published app
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SOURCE_COMMIT: ${{ inputs.expected_source_commit }}
+          TARGET_ARCHITECTURE: ${{ matrix.architecture }}
+        run: >-
+          python .github/scripts/macos_release_smoke.py
+          --tag "$RELEASE_TAG"
+          --expected-source-commit "$SOURCE_COMMIT"
+          --architecture "$TARGET_ARCHITECTURE"
+          --source "$GITHUB_WORKSPACE/package-source"
+          --output "$RUNNER_TEMP/macos-release-smoke"
+      - name: Preserve verification results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: macos-release-${{ matrix.architecture }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/macos-release-smoke/*.log
+            ${{ runner.temp }}/macos-release-smoke/report.json
+            ${{ runner.temp }}/macos-release-smoke/*.manifest.json
+            ${{ runner.temp }}/macos-release-smoke/*.bmp
+            ${{ runner.temp }}/macos-release-smoke/language-model/report.json
+          if-no-files-found: warn
+          retention-days: 14

@@ -243,6 +243,9 @@ Options Detect(Options o,const std::filesystem::path& workspace) {
 std::vector<std::string> SerialPorts(){std::vector<std::string> ports;
 #ifdef _WIN32
     wchar_t target[2048];for(int i=1;i<=256;++i){const auto port="COM"+std::to_string(i);if(QueryDosDeviceW(Wide(port).c_str(),target,2048))ports.push_back(port);}
+#elif defined(__APPLE__)
+    std::error_code ec;for(const auto& entry:std::filesystem::directory_iterator("/dev",ec)){const auto n=entry.path().filename().string();if(n.rfind("cu.",0)==0||n.rfind("tty.",0)==0)ports.push_back(entry.path().string());}
+    std::sort(ports.begin(),ports.end());
 #else
     std::error_code ec;for(const auto& entry:std::filesystem::directory_iterator("/dev",ec)){const auto n=entry.path().filename().string();if(n.rfind("ttyUSB",0)==0||n.rfind("ttyACM",0)==0||n.rfind("ttyS",0)==0)ports.push_back(entry.path().string());}
 #endif

@@ -1,4 +1,5 @@
 #include "PreviewSurface.h"
+#include "../Drivers/SDL3/NativeSDL3.h"
 #include "../../CodeGeneration/ProjectAssets.h"
 #include <Serialization/Protobuf.h>
 #include <Serialization/ProjectDesign.h>
@@ -132,10 +133,14 @@ void PreviewSurface::Blur(){focused=nullptr;}
 bool PreviewSurface::HandleEvent(const SDL_Event& event)
 {
     auto& s=*state;if(!s.keyboard||focused!=this)return false;
-    if(event.type==SDL_EVENT_TEXT_INPUT){const auto* p=reinterpret_cast<const unsigned char*>(event.text.text);while(p&&*p&&s.keys.size()<1024){uint32_t cp=*p++;int n=0;if(cp>=0xf0){cp&=7;n=3;}else if(cp>=0xe0){cp&=15;n=2;}else if(cp>=0xc0){cp&=31;n=1;}while(n--&&*p)cp=(cp<<6)|(*p++&63);if(cp>=32&&cp<=0x10ffff)s.keys.push_back(cp);}return true;}
+    if(event.type==SDL_EVENT_TEXT_INPUT){
+#ifdef __APPLE__
+        if(SDL_GetModState()&SDL_KMOD_GUI)return true;
+#endif
+        const auto* p=reinterpret_cast<const unsigned char*>(event.text.text);while(p&&*p&&s.keys.size()<1024){uint32_t cp=*p++;int n=0;if(cp>=0xf0){cp&=7;n=3;}else if(cp>=0xe0){cp&=15;n=2;}else if(cp>=0xc0){cp&=31;n=1;}while(n--&&*p)cp=(cp<<6)|(*p++&63);if(cp>=32&&cp<=0x10ffff)s.keys.push_back(cp);}return true;}
     if(event.type==SDL_EVENT_TEXT_EDITING||event.type==SDL_EVENT_KEY_UP)return true;
     if(event.type!=SDL_EVENT_KEY_DOWN)return false;
-    if(event.key.mod&(SDL_KMOD_CTRL|SDL_KMOD_ALT))return false;
+    if(uicreator_sdl3_primary_modifier(event.key.mod)||(event.key.mod&SDL_KMOD_ALT))return false;
     uint32_t key=0;switch(event.key.key){case SDLK_BACKSPACE:key=LV_KEY_BACKSPACE;break;case SDLK_DELETE:key=LV_KEY_DEL;break;case SDLK_RETURN:case SDLK_KP_ENTER:key=LV_KEY_ENTER;break;case SDLK_LEFT:key=LV_KEY_LEFT;break;case SDLK_RIGHT:key=LV_KEY_RIGHT;break;case SDLK_UP:key=LV_KEY_UP;break;case SDLK_DOWN:key=LV_KEY_DOWN;break;case SDLK_HOME:key=LV_KEY_HOME;break;case SDLK_END:key=LV_KEY_END;break;case SDLK_TAB:key=event.key.mod&SDL_KMOD_SHIFT?LV_KEY_PREV:LV_KEY_NEXT;break;default:break;}
     if(key&&s.keys.size()<1024)s.keys.push_back(key);return true;
 }

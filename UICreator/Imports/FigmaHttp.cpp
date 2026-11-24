@@ -189,9 +189,15 @@ public:
     decltype(&curl_slist_append) append;
     decltype(&curl_slist_free_all) freeList;
     CurlLibrary() {
+#ifdef __APPLE__
+        module = dlopen("/usr/lib/libcurl.4.dylib", RTLD_NOW | RTLD_LOCAL);
+        if(!module) module = dlopen("/usr/lib/libcurl.dylib", RTLD_NOW | RTLD_LOCAL);
+        if(!module) throw std::runtime_error("Online Figma import requires the macOS system libcurl runtime.");
+#else
         module = dlopen("libcurl.so.4", RTLD_NOW | RTLD_LOCAL);
         if(!module) module = dlopen("libcurl.so", RTLD_NOW | RTLD_LOCAL);
         if(!module) throw std::runtime_error("Online Figma import requires the system libcurl runtime. Install libcurl4 (or the libcurl package for your distribution).");
+#endif
         try {
             const auto global = Symbol<decltype(&curl_global_init)>("curl_global_init");
             init = Symbol<decltype(init)>("curl_easy_init");

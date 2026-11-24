@@ -1,5 +1,13 @@
 #pragma once
 #include <SDL3/SDL.h>
+static inline bool uicreator_sdl3_primary_modifier(SDL_Keymod modifiers)
+{
+#if defined(__APPLE__)
+    return (modifiers & (SDL_KMOD_CTRL | SDL_KMOD_GUI)) != 0;
+#else
+    return (modifiers & SDL_KMOD_CTRL) != 0;
+#endif
+}
 #ifdef __cplusplus
 extern "C" {
 #endif

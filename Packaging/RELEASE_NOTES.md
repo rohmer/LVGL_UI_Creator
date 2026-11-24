@@ -5,6 +5,33 @@ languages and bundled prediction models, faster corpus processing, populated
 theme previews, and shared Advanced Keyboard sources for ESPOS. It includes
 all changes since 0.9.1.
 
+## macOS packages added to 0.9.2
+
+- Separate Intel x86_64 and Apple Silicon arm64 app archives require macOS
+  13.5 or newer. Extract the matching ZIP and copy `LVGL UI Creator.app` to
+  Applications.
+- Both include native font/image/project conversion helpers, the protobuf
+  viewer and display library, bundled models and device SDK archives.
+- The Linux/WSL build downloads and prepares the Apple SDK, OSXCross, LLVM
+  runtime and helper toolchains. See `Packaging/MACOS.md` and `BUILD.md`.
+- Packages pass cross-build, architecture, library-path, code-signature seal
+  and archive-content checks. They are ad-hoc signed and are not notarized.
+  A separate GitHub workflow checks published packages with Apple's verifier
+  and exercises their native tools on Intel and Apple Silicon Mac runners.
+- These packages are built from the follow-up packaging commit recorded in
+  their manifests. The original 0.9.2 tag and Windows/Linux assets are retained.
+
+## Automatic builds and tests
+
+- GitHub Actions builds Windows x86/x64 Debug and Release, Linux x64/ARM64,
+  and macOS Intel/Apple Silicon on pushes and pull requests.
+- Desktop jobs run all registered CTests, including generated-C and runtime
+  checks against six LVGL versions. Linux x64 also runs the real MicroPython
+  binding. Separate jobs test the managed corpus/keyboard tools and compile
+  ESP32, Arduino, Pico 1 and Pico 2 firmware.
+- Build logs, test inventories, JUnit results and firmware artifacts are kept
+  for 14 days. See `Docs/CI.md` for coverage and reproduction commands.
+
 ## Screen Memory in the screen frame
 
 - The screen's window frame displays **Screen Memory: N bytes** and refreshes

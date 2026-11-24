@@ -19,7 +19,7 @@ struct Result {
     std::vector<std::filesystem::path> paths;
     std::string error;
 };
-// Linux desktop backend; selection is passed as argv, never a shell command.
+// Native macOS panels or the Linux desktop backend (argv, never shell text).
 Result Show(const Options&);
 // Existing desktop dialogs use NUL-separated Windows label/pattern pairs.
 Options FromWindows(bool save,bool folder,const wchar_t* title,const wchar_t* filter=nullptr,

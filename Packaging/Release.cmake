@@ -1,4 +1,8 @@
 # Release artifacts contain editor/compiler runtimes, converters and license notices.
+if(APPLE)
+    include("${CMAKE_CURRENT_LIST_DIR}/MacOSRelease.cmake")
+    return()
+endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include("${CMAKE_CURRENT_LIST_DIR}/LinuxRelease.cmake")
     return()
@@ -75,6 +79,7 @@ install(FILES "${PROJECT_SOURCE_DIR}/LVSerial/Serialization/Xml.md" DESTINATION 
 install(FILES "${PROJECT_SOURCE_DIR}/CodeGeneration/MicroPython/README.md" DESTINATION docs/CodeGeneration/MicroPython)
 install(FILES "${PROJECT_SOURCE_DIR}/Runtime/pico/README.md" DESTINATION docs/Runtime/pico)
 install(FILES "${PROJECT_SOURCE_DIR}/EDITOR_WORKFLOWS.md" DESTINATION docs)
+install(FILES "${PROJECT_SOURCE_DIR}/Docs/CI.md" DESTINATION docs/Docs)
 install(FILES "${PROJECT_SOURCE_DIR}/Docs/Themes-and-components.md" DESTINATION docs/Docs)
 install(FILES "${PROJECT_SOURCE_DIR}/Docs/Responsive-previews.md" "${PROJECT_SOURCE_DIR}/Docs/Professional-workflows.md" DESTINATION docs/Docs)
 install(FILES "${PROJECT_SOURCE_DIR}/Packaging/WINDOWS.md" DESTINATION docs/Packaging)

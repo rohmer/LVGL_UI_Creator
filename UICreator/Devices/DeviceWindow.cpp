@@ -174,7 +174,11 @@ void Open(PropertyWindow* properties){if(active){lv_obj_move_foreground(active->
     w->toolPath=Field(w,body,"Extra tool PATH","Compiler / Ninja folders; separate with ; on Windows or : on Linux");
     w->config=Field(w,body,"Arduino CLI config","Optional arduino-cli.yaml",true);
     w->library=Field(w,body,"Arduino library","Optional; generated LVGLProtobuf library is detected automatically",true,true);w->fqbn=Field(w,body,"Arduino board FQBN","arduino:esp32:nano_nora");
+#ifdef __APPLE__
+    w->port=Field(w,body,"Serial port","/dev/cu.usbmodem...");
+#else
     w->port=Field(w,body,"Serial port","COM3 or /dev/ttyACM0");
+#endif
     auto* portsRow=Row(body);Button(w,portsRow,"Find ports",[w]{const auto ports=DeviceTools::SerialPorts();std::string text="Detected ports: ";for(const auto& p:ports){if(text.back()!=' ')text+=", ";text+=p;}if(ports.empty())text+="none";else if(std::string(lv_textarea_get_text(w->port)).empty())lv_textarea_set_text(w->port,ports.front().c_str());Status(w,text);});
     w->baud=Field(w,body,"Serial / flash baud","115200");w->jobs=Field(w,body,"Build workers","4");
     w->wsl=lv_checkbox_create(body);lv_checkbox_set_text(w->wsl,"Build / run this Linux CMake project through WSL");Focus(w,w->wsl);

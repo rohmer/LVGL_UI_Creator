@@ -45,6 +45,9 @@ public:
         if (!directory.empty()) return std::filesystem::path(directory) / "LVGL_UI_Creator" / "Session";
 #else
         if (const auto* directory = std::getenv("UICREATOR_SESSION_DIR")) return directory;
+#ifdef __APPLE__
+        if (const auto* directory = std::getenv("HOME")) return std::filesystem::path(directory) / "Library/Application Support/LVGL UI Creator/Session";
+#endif
         if (const auto* directory = std::getenv("XDG_STATE_HOME")) return std::filesystem::path(directory) / "LVGL_UI_Creator";
         if (const auto* directory = std::getenv("HOME")) return std::filesystem::path(directory) / ".local/state/LVGL_UI_Creator";
 #endif

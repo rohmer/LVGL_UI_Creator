@@ -1,6 +1,7 @@
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 set(UICREATOR_PREBUILT_IMAGE_TOOL_DIR "" CACHE PATH "Prepared target-native image-converter assets")
 set(UICREATOR_LINUX_PYTHON_DIR "" CACHE PATH "Target-native relocatable Python runtime for Linux helpers")
+set(UICREATOR_RUNTIME_PYTHON_DIR "" CACHE PATH "Target-native relocatable Python runtime for desktop helpers")
 if(UICREATOR_PREBUILT_IMAGE_TOOL_DIR)
     set(image_dist "${UICREATOR_PREBUILT_IMAGE_TOOL_DIR}")
     set(image_runtime "${image_dist}/UICreatorImageTool${CMAKE_EXECUTABLE_SUFFIX}")
@@ -68,12 +69,17 @@ add_custom_target(UICreatorImageConverterAssets
         "${image_dist}" "${PROJECT_SOURCE_DIR}/3rdParty/lvgl_image_converter" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image-converter"
     DEPENDS "${image_runtime}" VERBATIM)
 endif()
-if(UICREATOR_LINUX_PYTHON_DIR)
-    if(NOT EXISTS "${UICREATOR_LINUX_PYTHON_DIR}/bin/python3")
-        message(FATAL_ERROR "Prepared Linux Python runtime is missing")
+if(UICREATOR_RUNTIME_PYTHON_DIR OR UICREATOR_LINUX_PYTHON_DIR)
+    # Keep the Linux frontend's existing option working, including old caches.
+    set(helper_python "${UICREATOR_RUNTIME_PYTHON_DIR}")
+    if(NOT helper_python)
+        set(helper_python "${UICREATOR_LINUX_PYTHON_DIR}")
+    endif()
+    if(NOT EXISTS "${helper_python}/bin/python3")
+        message(FATAL_ERROR "Prepared target Python runtime is missing")
     endif()
     add_custom_command(TARGET UICreatorImageConverterAssets POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy_directory "${UICREATOR_LINUX_PYTHON_DIR}"
+        COMMAND "${CMAKE_COMMAND}" -E copy_directory "${helper_python}"
             "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/python-runtime" VERBATIM)
 endif()
 add_library(UICreatorImageConversion STATIC ImageConverter.cpp)

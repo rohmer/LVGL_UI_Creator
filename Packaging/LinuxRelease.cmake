@@ -83,7 +83,7 @@ install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/JSON/json.hpp" DESTINATION "${UICR
 install(FILES "${PROJECT_SOURCE_DIR}/ImgLib/stb_image.h" "${PROJECT_SOURCE_DIR}/ImgLib/stb.h" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/stb")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard/" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/AdvancedKeyboard"
     FILES_MATCHING PATTERN "*LICENSE*" PATTERN "README.md" PATTERN "PROVENANCE.md")
-foreach(document BUILD.md EDITOR_WORKFLOWS.md Packaging/RELEASE_NOTES.md Packaging/LINUX.md
+foreach(document BUILD.md EDITOR_WORKFLOWS.md Packaging/RELEASE_NOTES.md Packaging/LINUX.md Docs/CI.md
         Runtime/PERFORMANCE.md Runtime/INTERACTIONS.md Runtime/pico/README.md CodeGeneration/PERFORMANCE.md
         CodeGeneration/MicroPython/README.md CodeGeneration/XML.md LVSerial/Serialization/Xml.md
         Integrations/Figma/README.md UICreator/README.md UICreator/SESSION.md UICreator/AdvancedKeyboard.md

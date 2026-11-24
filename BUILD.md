@@ -451,6 +451,72 @@ published checksums, copies them and writes `release.json`. It refuses to replac
 different existing release files; choose a new output directory for a changed
 release.
 
+## Cross-build macOS with OSXCross
+
+The macOS frontend runs on **Linux x86_64**, including Ubuntu under WSL2 on
+Windows. It produces separate Intel `x86_64` and Apple Silicon `arm64` builds.
+The application and bundled Node 24 converter require **macOS 13.5 or newer**.
+Mac binaries cannot be executed by this Linux build host.
+
+No existing Mac SDK or Xcode installation is required. The prepare command
+downloads the pinned Apple SDK 15.4 from Apple's public software-update service,
+OSXCross, CMake 4.5.1, host Node 24.11.1, isolated Rust 1.85.1 with both Apple
+targets, and native Mac Node/Python converter runtimes. Download versions,
+source URLs and hashes are recorded in the private cache. The bootstrap can
+install the versioned LLVM 21.1.8 build prerequisites on a supported Ubuntu
+host after checking the package plan; it refuses plans that upgrade or remove
+existing packages. Python 3.12 or newer and Git are host prerequisites.
+
+From the repository in an Ubuntu terminal:
+
+```sh
+sh Packaging/BuildMacOS.sh --prepare --install-dependencies --architecture both --jobs 6 --package --output "$PWD/build/macos-desktop/packages"
+```
+
+On Windows, open an Ubuntu WSL2 terminal and change to the checkout, for example
+`cd /mnt/e/source/LVGL_UI_Creator`, then run the same command. The prepared
+toolchain and source mirror live in `/var/tmp/lvgl-ui-macos` by default; use
+`--base` consistently to choose another Linux filesystem cache.
+
+Use `--architecture x86_64` or `--architecture arm64` for one target. Omit
+`--prepare` on later builds to reuse the tools and helper runtimes. The normal
+build refreshes the source mirror. `--skip-sync` deliberately reuses that mirror
+and should only be used while building an unchanged source snapshot.
+
+Published device SDK inputs are downloaded and checked against the matching
+release manifest automatically. To use already verified release inputs, pass
+`--sdk-directory /absolute/path/to/sdk-inputs`. Development builds can use
+`--without-sdks`; the editor still embeds its project-creation toolkits.
+`--configure-only` validates the configuration without compiling, and
+`--sdk-release 0.9.2` selects existing SDK inputs for an unreleased source tree.
+
+Each architecture has a `build-<architecture>` directory under the cache, with
+its generated CMake toolchain, configure/build logs and `build-metadata.json`.
+The frontend configures the actual Darwin C, C++, Objective-C and Objective-C++
+compilers and selects the matching Apple Rust target. Host npm/Python run build
+steps; target-native Mac helpers are copied into the application.
+
+The packages contain a conventional `LVGL UI Creator.app`, its display library
+and CLI tools, bundled converters and project resources. Packaging relocates
+private dylibs, checks Mach-O architecture/deployment/load paths, and applies
+ad-hoc signatures. These builds are not Developer ID signed or notarized.
+Runtime and Gatekeeper testing requires an actual Mac. Apple SDK/toolchain
+inputs stay in the build cache and are not included in application packages.
+
+See [Packaging/MACOS.md](Packaging/MACOS.md) for bundle layout, verification,
+signing details and troubleshooting. The frontend follows the upstream
+[OSXCross workflow](https://github.com/tpoechtrager/osxcross); the bundled Node
+runtime's platform baseline is documented in
+[Node 24.11.1 BUILDING.md](https://github.com/nodejs/node/blob/v24.11.1/BUILDING.md).
+
+## Automatic builds and tests
+
+GitHub Actions builds and tests every push and pull request across Windows
+x86/x64 Debug and Release, Linux x64/ARM64, and macOS Intel/Apple Silicon.
+Separate jobs compile ESP32, Arduino, Pico 1 and Pico 2 firmware and test the
+managed corpus tools. See [Docs/CI.md](Docs/CI.md) for coverage, logs, artifacts
+and local reproduction commands.
+
 ## Troubleshooting
 
 - **Architecture/compiler mismatch:** use a separate build directory and the

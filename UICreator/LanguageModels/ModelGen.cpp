@@ -4,6 +4,9 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#ifdef __APPLE__
+#include "../Utils/ExecutablePaths.h"
+#endif
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -57,8 +60,20 @@ int ModelGenMain(int argc, char** argv) {
         // Match Corpus Workbench's CLI: omitted budget is unlimited, --compact
         // and --low-memory select v3 and external counting explicitly.
         options.maximumBytes.reset(); options.compact = false; options.lowMemory = false;
-        const auto directory = fs::absolute(fs::u8path(argv[0])).parent_path();
-        for (const auto& candidate : {directory / "language-models/wordlists", directory / "wordlists", directory.parent_path() / "wordlists"})
+        const auto directory =
+#ifdef __APPLE__
+            ApplicationPaths::ExecutableDirectory();
+#else
+            fs::absolute(fs::u8path(argv[0])).parent_path();
+#endif
+        std::vector<fs::path> candidates = {directory / "language-models/wordlists", directory / "wordlists", directory.parent_path() / "wordlists"};
+#ifdef __APPLE__
+        // Installed CLI tools live in Contents/MacOS, while their data belongs
+        // in Contents/Resources. Keep the standalone build's fallbacks too.
+        if (directory.filename() == "MacOS" && directory.parent_path().filename() == "Contents")
+            candidates.insert(candidates.begin(), directory.parent_path() / "Resources/language-models/wordlists");
+#endif
+        for (const auto& candidate : candidates)
             if (fs::is_directory(candidate)) { options.wordListDirectory = candidate; break; }
         bool inputs = false;
         for (int index = 1; index < argc; ++index) {

@@ -112,6 +112,9 @@ void uicreator_sdl3_set_shortcut_handler(uicreator_sdl3_shortcut_t handler, void
 bool uicreator_sdl3_text_input_allowed(void)
 {
     const SDL_Keymod modifiers = SDL_GetModState();
+#if defined(__APPLE__)
+    if(modifiers & SDL_KMOD_GUI) return false;
+#endif
     return (modifiers & (SDL_KMOD_RALT | SDL_KMOD_MODE)) || !(modifiers & (SDL_KMOD_CTRL | SDL_KMOD_ALT));
 }
 static void flush_keyboard(lv_indev_t * indev)

@@ -2,6 +2,7 @@
 #include "EditorEdit.h"
 #include "EditorObjectRef.h"
 #include "EditorFocus.h"
+#include "../Drivers/SDL3/NativeSDL3.h"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -154,7 +155,7 @@ bool HandleEvent(const SDL_Event& event,lv_group_t* group) {
     }
     EditorObjectRef alive(object);
     if(event.type==SDL_EVENT_TEXT_INPUT) {
-        if(SDL_GetModState()&(SDL_KMOD_CTRL|SDL_KMOD_ALT))return false;
+        if(uicreator_sdl3_primary_modifier(SDL_GetModState()) || (SDL_GetModState()&SDL_KMOD_ALT))return false;
         return Insert(object,event.text.text);
     }
     if(event.type!=SDL_EVENT_KEY_DOWN)return false;

@@ -1,4 +1,5 @@
 #include "ImageConverter.h"
+#include "../Utils/ApplicationPaths.h"
 #include "../Fonts/FontConverter.h"
 #include <Serialization/WidgetRecords.h>
 #include <Serialization/Base64.h>
@@ -17,11 +18,7 @@ json Defaults() {return {{"colorFormat","ARGB8888"},{"format","C"},{"compression
 namespace {
 std::string Read(const std::filesystem::path& path) {std::ifstream in(path,std::ios::binary);if(!in)throw std::runtime_error("Cannot read converter result");return {(std::istreambuf_iterator<char>(in)),{}};}
 std::filesystem::path Directory() {
-#ifdef _WIN32
-    std::wstring text(32768,L'\0');const auto size=GetModuleFileNameW(nullptr,text.data(),static_cast<DWORD>(text.size()));text.resize(size);return std::filesystem::path(text).parent_path();
-#else
-    char path[4096];auto size=readlink("/proc/self/exe",path,sizeof path);return std::filesystem::path(std::string(path,size)).parent_path();
-#endif
+    return ApplicationPaths::ResourceDirectory();
 }
 }
 Result Convert(const std::vector<std::filesystem::path>& sources,const json& options,const std::filesystem::path& output,const std::atomic<bool>* cancel,const json& embedded) {

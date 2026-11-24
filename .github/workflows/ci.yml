@@ -1,0 +1,256 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Workflow and packaging checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - name: Validate workflows and Python helpers
+        run: |
+          python .github/scripts/lint_workflows.py
+          python -m compileall -q .github/scripts
+          python -m unittest discover -s Tests/UnitTests/Packaging -p 'test_*.py' -v
+          python -m unittest discover -s Tests/Integration/Packaging -p 'test_macos_cross.py' -v
+          python Integrations/ESPOS/sync_keyboard.py --check-source
+
+  desktop:
+    name: Desktop ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: Windows-x64-Release, runner: windows-2025-vs2026, architecture: x64, configuration: Release, binding: false, binding_args: ''}
+          - {name: Windows-x64-Debug, runner: windows-2025-vs2026, architecture: x64, configuration: Debug, binding: false, binding_args: ''}
+          - {name: Windows-x86-Release, runner: windows-2025-vs2026, architecture: x86, configuration: Release, binding: false, binding_args: ''}
+          - {name: Windows-x86-Debug, runner: windows-2025-vs2026, architecture: x86, configuration: Debug, binding: false, binding_args: ''}
+          - {name: Linux-x64, runner: ubuntu-24.04, architecture: x86_64, configuration: Release, binding: true, binding_args: '--micropython build/ci-micropython/lv_micropython/ports/unix/build-lvgl/micropython'}
+          - {name: Linux-ARM64, runner: ubuntu-24.04-arm, architecture: arm64, configuration: Release, binding: false, binding_args: ''}
+          - {name: macOS-Intel, runner: macos-15-intel, architecture: x86_64, configuration: Release, binding: false, binding_args: ''}
+          - {name: macOS-Apple-Silicon, runner: macos-15, architecture: arm64, configuration: Release, binding: false, binding_args: ''}
+    env:
+      SDL_VIDEO_DRIVER: dummy
+      SDL_RENDER_DRIVER: software
+      CMAKE_BUILD_PARALLEL_LEVEL: '2'
+      RUSTUP_TOOLCHAIN: 1.85.1
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.11.1
+          cache: npm
+          cache-dependency-path: 3rdParty/lv_font_conv/package-lock.json
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-${{ runner.os }}-${{ runner.arch }}-${{ matrix.architecture }}-${{ hashFiles('3rdParty/libimagequant/Cargo.lock') }}
+      - name: Install CMake, Ninja, npm and Rust target
+        shell: bash
+        run: |
+          python -m pip install cmake==4.5.1 ninja==1.11.1.4
+          npm install --global npm@11.6.2
+          rustup toolchain install 1.85.1 --profile minimal
+          if [ '${{ matrix.architecture }}' = 'x86' ]; then
+            rustup target add --toolchain 1.85.1 i686-pc-windows-msvc
+          fi
+      - name: Install Linux development dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential pkg-config python3-dev \
+            protobuf-compiler libcurl4-openssl-dev zlib1g-dev libpng-dev libjpeg-dev \
+            libasound2-dev libpulse-dev libudev-dev libdbus-1-dev \
+            libdrm-dev libgbm-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+            libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev \
+            libunwind-dev liburing-dev libusb-1.0-0-dev libpipewire-0.3-dev libsdl2-dev
+      - name: Install macOS development dependencies
+        if: runner.os == 'macOS'
+        run: brew install pkg-config protobuf
+      - name: Install Windows protobuf compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install protoc --yes --no-progress
+      - name: Build real MicroPython with the pinned LVGL binding
+        if: matrix.binding
+        shell: bash
+        run: sh .github/scripts/micropython.sh
+      - name: Configure Windows with all LVGL versions
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .github/scripts/windows.ps1 -Architecture '${{ matrix.architecture }}' -Configuration '${{ matrix.configuration }}' -Phase configure
+      - name: Build all Windows targets
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .github/scripts/windows.ps1 -Architecture '${{ matrix.architecture }}' -Configuration '${{ matrix.configuration }}' -Phase build
+      - name: Run complete Windows CTest suite
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: .github/scripts/windows.ps1 -Architecture '${{ matrix.architecture }}' -Configuration '${{ matrix.configuration }}' -Phase test
+      - name: Configure native Linux or macOS with all LVGL versions
+        if: runner.os != 'Windows'
+        run: python .github/scripts/desktop.py --architecture '${{ matrix.architecture }}' --phase configure ${{ matrix.binding_args }}
+      - name: Build all native Linux or macOS targets
+        if: runner.os != 'Windows'
+        run: python .github/scripts/desktop.py --architecture '${{ matrix.architecture }}' --phase build --jobs 2
+      - name: Run complete native Linux or macOS CTest suite
+        if: runner.os != 'Windows'
+        run: python .github/scripts/desktop.py --architecture '${{ matrix.architecture }}' --phase test ${{ matrix.binding_args }}
+      - name: Preserve build and test evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: tests-${{ matrix.name }}
+          retention-days: 14
+          path: |
+            build/ci-desktop/**/*.log
+            build/ci-desktop/tests.xml
+            build/ci-desktop/test-inventory.json
+            build/ci-desktop/**/native-verification.json
+            build/ci-desktop/**/CMakeConfigureLog.yaml
+          if-no-files-found: warn
+
+  managed:
+    name: Corpus Workbench and keyboard simulator
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
+        with:
+          dotnet-version: 8.0.x
+      - name: Install CMake and Ninja
+        run: python -m pip install cmake==4.5.1 ninja==1.11.1.4
+      - name: Build tools and run real managed language and keyboard checks
+        shell: pwsh
+        run: .github/scripts/windows.ps1 -Managed
+      - name: Preserve corpus test evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: managed-language-tests
+          retention-days: 14
+          path: build/corpus-language-tests/**
+          if-no-files-found: warn
+
+  esp32:
+    name: ESP32 firmware
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container: espressif/idf:v6.0@sha256:59df146f64aa0b13886a13a74682ad157482b446f5cc16582500803c95c71401
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Generate and compile the complete ESP32 keyboard profile
+        shell: bash
+        run: |
+          . /opt/esp/idf/export.sh
+          mkdir -p build/ci-esp32
+          python .github/scripts/firmware.py esp32 2>&1 | tee build/ci-esp32/build.log
+      - name: Preserve firmware and logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: firmware-esp32
+          retention-days: 14
+          path: |
+            build/ci-esp32/build.log
+            build/ci-esp32/verification.json
+            build/ci-esp32/firmware/*.bin
+            build/ci-esp32/firmware/*.elf
+            build/ci-esp32/firmware/log/**
+
+  firmware:
+    name: Firmware ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [arduino, pico, pico2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+      - name: Install CMake and Ninja
+        run: python -m pip install cmake==4.5.1 ninja==1.11.1.4
+      - name: Install Pico host compiler and tools
+        if: matrix.target != 'arduino'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi \
+            libstdc++-arm-none-eabi-newlib libusb-1.0-0-dev libssl-dev pkg-config build-essential
+      - name: Generate and compile device firmware
+        shell: bash
+        run: |
+          mkdir -p 'build/ci-${{ matrix.target }}'
+          python .github/scripts/firmware.py '${{ matrix.target }}' 2>&1 | tee 'build/ci-${{ matrix.target }}/build.log'
+      - name: Preserve firmware and logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: firmware-${{ matrix.target }}
+          retention-days: 14
+          path: |
+            build/ci-${{ matrix.target }}/build.log
+            build/ci-${{ matrix.target }}/verification.json
+            build/ci-${{ matrix.target }}/firmware/*.uf2
+            build/ci-${{ matrix.target }}/firmware/*.elf
+            build/ci-${{ matrix.target }}/firmware/*.bin
+            build/ci-${{ matrix.target }}/firmware/CMakeFiles/CMakeConfigureLog.yaml
+
+  result:
+    name: CI result
+    if: always()
+    needs: [checks, desktop, managed, esp32, firmware]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every build and test job to pass
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          results = json.loads(os.environ['RESULTS'])
+          failed = [name for name, job in results.items() if job['result'] != 'success']
+          for name, job in results.items():
+              print(name + ': ' + job['result'])
+          if failed:
+              raise SystemExit('Build/test jobs did not pass: ' + ', '.join(failed))
+          PY

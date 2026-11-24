@@ -1,4 +1,5 @@
 #include "DebugPreview.h"
+#include "ApplicationPaths.h"
 #include "EditorSession.h"
 #include "../../CodeGeneration/ProjectAssets.h"
 #include <Serialization/Protobuf.h>
@@ -91,7 +92,7 @@ void DebugPreview::Start(nlohmann::json document,const std::string& sourceDirect
 #else
     const char* viewer="UICreatorViewer";
 #endif
-    const auto executable=std::filesystem::u8path(SDL_GetBasePath())/viewer;
+    const auto executable=ApplicationPaths::ExecutableDirectory()/viewer;
     if(!std::filesystem::is_regular_file(executable))throw std::runtime_error(std::string(viewer)+" is missing. Keep the display-library viewer beside the editor.");
     if(document.contains("screens"))document["activeScreen"]=document.value("editorScreen",document.value("activeScreen",size_t(0)));
     document=Serialization::ProjectScreens::Device(document);

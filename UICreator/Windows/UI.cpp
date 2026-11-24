@@ -1232,7 +1232,7 @@ bool UI::CanvasEvent(const SDL_Event &event)
     if (menuPopup && event.type == SDL_EVENT_KEY_DOWN) {
         int key = static_cast<int>(event.key.key);
         if (key >= 'A' && key <= 'Z') key += 'a' - 'A';
-        HandleShortcut(key, (event.key.mod & SDL_KMOD_CTRL) != 0, (event.key.mod & SDL_KMOD_SHIFT) != 0, (event.key.mod & SDL_KMOD_ALT) != 0);
+        HandleShortcut(key, uicreator_sdl3_primary_modifier(event.key.mod), (event.key.mod & SDL_KMOD_SHIFT) != 0, (event.key.mod & SDL_KMOD_ALT) != 0);
         return true;
     }
     if (menuPopup && event.type == SDL_EVENT_WINDOW_FOCUS_LOST) CloseMenu();
@@ -1259,7 +1259,7 @@ bool UI::CanvasEvent(const SDL_Event &event)
             DeleteEditorTextSelection(group)) return true;
     }
     if(Running() && !menuPopup) {
-        if(event.type==SDL_EVENT_KEY_DOWN && !(event.key.mod&(SDL_KMOD_RALT|SDL_KMOD_MODE)) && HandleShortcut(static_cast<int>(event.key.key),(event.key.mod&SDL_KMOD_CTRL)!=0,(event.key.mod&SDL_KMOD_SHIFT)!=0,(event.key.mod&SDL_KMOD_ALT)!=0))return true;
+        if(event.type==SDL_EVENT_KEY_DOWN && !(event.key.mod&(SDL_KMOD_RALT|SDL_KMOD_MODE)) && HandleShortcut(static_cast<int>(event.key.key),uicreator_sdl3_primary_modifier(event.key.mod),(event.key.mod&SDL_KMOD_SHIFT)!=0,(event.key.mod&SDL_KMOD_ALT)!=0))return true;
         if(runPreview.HandleEvent(event))return true;
     }
     if (event.type == SDL_EVENT_QUIT || event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)

@@ -1,4 +1,5 @@
 #include "ProjectCreator.h"
+#include "../Utils/ApplicationPaths.h"
 #include "../Fonts/FontConverter.h"
 #include "../../CodeGeneration/CCodeGenerator.h"
 #include "../../CodeGeneration/ProjectAssets.h"
@@ -38,13 +39,7 @@ json WithBundledTemplates(json catalog,const json& bundled){
     return catalog;
 }
 std::filesystem::path ExecutableFolder(){
-#ifdef _WIN32
-    std::wstring path(32768,L'\0');auto n=GetModuleFileNameW(nullptr,path.data(),(DWORD)path.size());if(!n || n>=path.size())throw std::runtime_error("Cannot locate application folder");path.resize(n);return std::filesystem::path(path).parent_path();
-#elif defined(__APPLE__)
-    uint32_t size=0;_NSGetExecutablePath(nullptr,&size);std::string path(size,'\0');if(_NSGetExecutablePath(path.data(),&size))throw std::runtime_error("Cannot locate application folder");return std::filesystem::weakly_canonical(path.c_str()).parent_path();
-#else
-    char path[4096];auto n=readlink("/proc/self/exe",path,sizeof path);if(n<=0)throw std::runtime_error("Cannot locate application folder");return std::filesystem::path(std::string(path,n)).parent_path();
-#endif
+    return ApplicationPaths::ResourceDirectory();
 }
 #ifndef _WIN32
 bool Launch(const std::string& arg){auto child=fork();if(child<0)return false;if(child==0){
@@ -63,6 +58,9 @@ std::filesystem::path DefaultCache(){
 #ifdef _WIN32
     wchar_t path[32768];auto count=GetEnvironmentVariableW(L"LOCALAPPDATA",path,32768);if(count && count<32768)return std::filesystem::path(path)/"UICreator"/"project-creator";
 #else
+#ifdef __APPLE__
+    if(const char* home=std::getenv("HOME"))return std::filesystem::path(home)/"Library/Caches/LVGL UI Creator/project-creator";
+#endif
     if(const char* cache=std::getenv("XDG_CACHE_HOME"))return std::filesystem::path(cache)/"UICreator"/"project-creator";
     if(const char* home=std::getenv("HOME"))return std::filesystem::path(home)/".cache"/"UICreator"/"project-creator";
 #endif

@@ -57,7 +57,7 @@ void SdlSimulator::SetShortcutHandler(std::function<bool(int,bool,bool,bool)> ha
     uicreator_sdl3_set_shortcut_handler([](SDL_Keycode key,SDL_Keymod modifiers,void* context)->bool {
         auto* self=static_cast<SdlSimulator*>(context);
         int code=(int)key;if(code>='A' && code<='Z')code=code-'A'+'a';
-        return self->shortcutHandler && self->shortcutHandler(code,(modifiers&SDL_KMOD_CTRL)!=0,(modifiers&SDL_KMOD_SHIFT)!=0,(modifiers&SDL_KMOD_ALT)!=0);
+        return self->shortcutHandler && self->shortcutHandler(code,uicreator_sdl3_primary_modifier(modifiers),(modifiers&SDL_KMOD_SHIFT)!=0,(modifiers&SDL_KMOD_ALT)!=0);
     },this);
 }
 SdlSimulator::~SdlSimulator()
