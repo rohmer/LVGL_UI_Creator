@@ -35,6 +35,11 @@ ESP-IDF 6.0 container digest, Arduino CLI 1.3.1 with Nano ESP32 core
 IDs. Cargo/npm download caches reduce repeated setup; compiled outputs are
 rebuilt from each checked-in source tree.
 
+Linux dependencies use Ubuntu's signed official HTTPS repositories through a
+temporary APT source file. This avoids a slow regional runner mirror without
+replacing the machine's repository configuration; package installation is
+noninteractive with bounded connection retries.
+
 Open a workflow run to see each build/test step. Its artifacts retain CTest
 JUnit reports, complete test inventories, nested build logs and firmware
 hashes/binaries for 14 days, including on failure. A failed platform does not

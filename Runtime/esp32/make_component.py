@@ -136,7 +136,11 @@ else()
     target_compile_options(${pb_target} PRIVATE -ffunction-sections -fdata-sections
         $<$<COMPILE_LANGUAGE:CXX>:-fexceptions> $<$<COMPILE_LANGUAGE:CXX>:-frtti>
         $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
-    target_link_options(${pb_target} INTERFACE -Wl,--gc-sections)
+    if(APPLE)
+        target_link_options(${pb_target} INTERFACE -Wl,-dead_strip)
+    else()
+        target_link_options(${pb_target} INTERFACE -Wl,--gc-sections)
+    endif()
 endif()
 '''.replace("@XML_DEFAULT@", "ON" if enable_xml else "OFF")
 

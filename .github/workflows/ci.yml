@@ -84,8 +84,7 @@ jobs:
       - name: Install Linux development dependencies
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends build-essential pkg-config python3-dev \
+          sh .github/scripts/apt_install.sh build-essential pkg-config python3-dev \
             protobuf-compiler libcurl4-openssl-dev zlib1g-dev libpng-dev libjpeg-dev \
             libasound2-dev libpulse-dev libudev-dev libdbus-1-dev \
             libdrm-dev libgbm-dev libegl1-mesa-dev libgl1-mesa-dev libgles2-mesa-dev \
@@ -218,8 +217,7 @@ jobs:
       - name: Install Pico host compiler and tools
         if: matrix.target != 'arduino'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi \
+          sh .github/scripts/apt_install.sh gcc-arm-none-eabi libnewlib-arm-none-eabi \
             libstdc++-arm-none-eabi-newlib libusb-1.0-0-dev libssl-dev pkg-config build-essential
       - name: Install Arduino image-tool Python dependencies
         if: matrix.target == 'arduino'

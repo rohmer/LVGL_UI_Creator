@@ -4,6 +4,7 @@
 #include <Serialization/CustomWidgets.h>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #define CHECK(x) do {if(!(x))throw std::runtime_error(std::string("Line ")+std::to_string(__LINE__)+": " #x);}while(0)
 using namespace Serialization;
@@ -12,6 +13,29 @@ static void Flush(lv_disp_drv_t* d,const lv_area_t*,lv_color_t*){lv_disp_flush_r
 #else
 static void Flush(lv_display_t* d,const lv_area_t*,uint8_t*){lv_display_flush_ready(d);}
 #endif
+void CheckChartCursorCoordinates() {
+    using Coordinate = decltype(lv_point_t{}.x);
+    auto* chart = lv_chart_create(lv_screen_active());
+    json data{{"cursors", json::array({{{"positionSet", true},
+        {"x", (std::numeric_limits<int64_t>::lowest)()}, {"y", (std::numeric_limits<uint64_t>::max)()}}})}};
+    const auto position = [chart] {
+        auto* cursor = static_cast<lv_chart_cursor_t*>(lv_ll_get_head(&reinterpret_cast<lv_chart_t*>(chart)->cursor_ll));
+        CHECK(cursor); return lv_chart_get_cursor_point(chart, cursor);
+    };
+    ExtendedWidgets::Apply(chart, data, false);
+    auto saved = position();
+    CHECK(saved.x == (std::numeric_limits<Coordinate>::lowest)());
+    CHECK(saved.y == (std::numeric_limits<Coordinate>::max)());
+    data["cursors"][0]["x"] = 12.75; data["cursors"][0]["y"] = -9.5;
+    ExtendedWidgets::Apply(chart, data, false);
+    saved = position();
+    CHECK(saved.x == 12); CHECK(saved.y == -9);
+    data["cursors"][0].erase("x"); data["cursors"][0].erase("y");
+    ExtendedWidgets::Apply(chart, data, false);
+    saved = position();
+    CHECK(saved.x == 0); CHECK(saved.y == 0);
+    lv_obj_delete(chart);
+}
 void Inspect(lvgl_runtime_t* runtime,const json& doc) {
     auto screens=doc.contains("screens")?doc.at("screens"):json::array({doc});
     CHECK(lvgl_runtime_screen_count(runtime)==screens.size());
@@ -75,6 +99,7 @@ int main(int argc,char** argv) {
     auto* display=lv_display_create(800,600);lv_display_set_flush_cb(display,Flush);
     lv_display_set_buffers(display,pixels,nullptr,sizeof pixels,LV_DISPLAY_RENDER_MODE_PARTIAL);
 #endif
+    CheckChartCursorCoordinates();
     auto* previous=lv_screen_active();char error[512];
     for(int iteration=0;iteration<10;++iteration) {
         lvgl_runtime_t* runtime=nullptr;bool loaded=lvgl_runtime_load_memory(bytes.data(),bytes.size(),nullptr,&runtime,error,sizeof error);

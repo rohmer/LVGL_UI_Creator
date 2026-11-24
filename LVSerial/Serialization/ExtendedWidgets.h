@@ -7,6 +7,8 @@
 #include <array>
 #include <vector>
 #include <algorithm>
+#include <cmath>
+#include <limits>
 #include <map>
 #include <stdexcept>
 
@@ -64,6 +66,28 @@ namespace Serialization
         static bool Changed(const json& previous, const json& data, const char* key)
         {
             return data.contains(key) && (!previous.contains(key) || previous[key] != data[key]);
+        }
+
+        static auto PointCoordinate(const json& data, const char* key) -> decltype(lv_point_t{}.x)
+        {
+            using Coordinate = decltype(lv_point_t{}.x);
+            // LVGL 8 can use 16-bit points; newer versions use wider fields.
+            // Keep ordinary coordinates on integer paths, including values
+            // outside the target field's range. Only fractional JSON uses FP.
+            const auto found = data.find(key);
+            if (found == data.end()) return 0;
+            if (found->is_number_unsigned())
+                return static_cast<Coordinate>((std::min)(found->get<uint64_t>(),
+                    static_cast<uint64_t>((std::numeric_limits<Coordinate>::max)())));
+            if (found->is_number_integer())
+                return static_cast<Coordinate>((std::clamp)(found->get<int64_t>(),
+                    static_cast<int64_t>((std::numeric_limits<Coordinate>::lowest)()),
+                    static_cast<int64_t>((std::numeric_limits<Coordinate>::max)())));
+            const auto value = found->get<double>();
+            if (std::isnan(value)) throw std::invalid_argument("Chart cursor coordinate must be a number");
+            if (value <= (std::numeric_limits<Coordinate>::lowest)()) return (std::numeric_limits<Coordinate>::lowest)();
+            if (value >= (std::numeric_limits<Coordinate>::max)()) return (std::numeric_limits<Coordinate>::max)();
+            return static_cast<Coordinate>(value);
         }
 
 #if !LVSERIAL_MINIMAL_RUNTIME || LV_USE_TABVIEW || LV_USE_TILEVIEW
@@ -673,7 +697,7 @@ namespace Serialization
                             (std::min<uint32_t>)(item.value("point", 0u), lv_chart_get_point_count(object) - 1));
                     else
                     {
-                        lv_point_t position{item.value("x", 0), item.value("y", 0)};
+                        lv_point_t position{PointCoordinate(item, "x"), PointCoordinate(item, "y")};
                         lv_chart_set_cursor_pos(object, cursor, &position);
                     }
                 }
