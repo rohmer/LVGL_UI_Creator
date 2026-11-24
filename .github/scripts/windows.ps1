@@ -11,6 +11,7 @@ $vs=& $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.
 if(!$vs){throw 'No Visual Studio C++ desktop compiler found'}
 Import-Module (Join-Path $vs 'Common7/Tools/Microsoft.VisualStudio.DevShell.dll')
 Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments "-arch=$Architecture -host_arch=x64"
+if($env:UICREATOR_CI_CMAKE_BIN){$env:PATH=$env:UICREATOR_CI_CMAKE_BIN+[IO.Path]::PathSeparator+$env:PATH}
 Set-Location -LiteralPath $repo
 if($Managed){
     cmake -S Tools/NativeTrieGenerator -B build/ci-trie -G Ninja -DCMAKE_BUILD_TYPE=Release

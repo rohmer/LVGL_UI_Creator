@@ -74,7 +74,8 @@ jobs:
       - name: Install CMake, Ninja, npm and Rust target
         shell: bash
         run: |
-          python -m pip install cmake==4.5.1 ninja==1.11.1.4
+          python .github/scripts/setup_cmake.py
+          python -m pip install ninja==1.11.1.4
           npm install --global npm@11.6.2
           rustup toolchain install 1.85.1 --profile minimal
           if [ '${{ matrix.architecture }}' = 'x86' ]; then
@@ -152,7 +153,9 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - name: Install CMake and Ninja
-        run: python -m pip install cmake==4.5.1 ninja==1.11.1.4
+        run: |
+          python .github/scripts/setup_cmake.py
+          python -m pip install ninja==1.11.1.4
       - name: Build tools and run real managed language and keyboard checks
         shell: pwsh
         run: .github/scripts/windows.ps1 -Managed
@@ -209,7 +212,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install CMake and Ninja
-        run: python -m pip install cmake==4.5.1 ninja==1.11.1.4
+        run: |
+          python .github/scripts/setup_cmake.py
+          python -m pip install ninja==1.11.1.4
       - name: Install Pico host compiler and tools
         if: matrix.target != 'arduino'
         run: |
