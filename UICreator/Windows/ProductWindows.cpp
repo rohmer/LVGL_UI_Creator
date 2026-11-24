@@ -55,9 +55,9 @@ lv_obj_t* TemplateButton(lv_obj_t* parent, const char* text, int preset, std::fu
     if (auto* icon = ObjectIcons::Create(button, ObjectIcons::Preset(preset), 32))
     {
         lv_obj_move_to_index(icon, 0);
-        lv_obj_remove_flag(icon, LV_OBJ_FLAG_CLICKABLE);
-        lv_obj_remove_flag(icon, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-        lv_obj_remove_flag(icon, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_clickable(icon, false);
+        lv_obj_set_click_focusable(icon, false);
+        lv_obj_set_scrollable(icon, false);
     }
     return button;
 }

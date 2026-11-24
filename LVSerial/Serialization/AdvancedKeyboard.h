@@ -156,7 +156,7 @@ public:
             LVObject::FromJSON(record.value("base", json::object()), object);
             Apply(object, properties);
             if (record.contains("contentChildren")) RestoreChildren(object, record.at("contentChildren"));
-            lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_hidden(object, true);
             return object;
         }
         catch (...) { lv_obj_delete(object); throw; }
@@ -197,7 +197,7 @@ public:
             for (auto* field : fields)
                 if (!lv_advanced_keyboard_bind_textarea(keyboard, field)) throw std::runtime_error("Could not bind Advanced Keyboard target");
             active = lv_advanced_keyboard_get_textarea(keyboard);
-            if (!active) lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+            if (!active) lv_obj_set_hidden(keyboard, true);
             if (lv_advanced_keyboard_is_dismissed(keyboard)) continue;
             if (targetId >= 0 && !settings.at("autoFocus").get<bool>() && active != fields.front())
                 lv_advanced_keyboard_set_textarea(keyboard, fields.front());

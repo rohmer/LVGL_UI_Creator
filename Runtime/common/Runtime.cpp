@@ -311,7 +311,7 @@ void Apply(VariableBindingState &v, const json& x)
         throw std::invalid_argument("Text binding widget is disabled");
     }
     if(v.property=="checked"){lv_obj_set_state(v.object,LV_STATE_CHECKED,numeric()!=0);return;}
-    if(v.property=="hidden"){lv_obj_set_flag(v.object,LV_OBJ_FLAG_HIDDEN,numeric()!=0);return;}
+    if(v.property=="hidden"){lv_obj_set_hidden(v.object,numeric()!=0);return;}
     if(v.property=="disabled"){lv_obj_set_state(v.object,LV_STATE_DISABLED,numeric()!=0);return;}
     if(v.property=="x"){lv_obj_set_x(v.object,number());return;}
     if(v.property=="y"){lv_obj_set_y(v.object,number());return;}
@@ -762,7 +762,7 @@ json SnapshotObject(lv_obj_t* object)
     // Advanced Keyboard's transient overlay geometry or attached text twice.
     if(saved.contains("advancedKeyboard"))return saved;
     auto& base=saved["base"];
-    base["hidden"]=lv_obj_has_flag(object,LV_OBJ_FLAG_HIDDEN);
+    base["hidden"]=lv_obj_is_hidden(object);
     base["checked"]=lv_obj_has_state(object,LV_STATE_CHECKED);
     base["disabled"]=lv_obj_has_state(object,LV_STATE_DISABLED);
     if(base.contains("flags")&&base["flags"].is_object()) {

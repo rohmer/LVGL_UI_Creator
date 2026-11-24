@@ -110,7 +110,7 @@
     {
       "source": "LVSerial/Widgets/AdvancedKeyboard/AdvancedKeyboard.cpp",
       "target": "Keyboard/AdvancedKeyboard/AdvancedKeyboard.cpp",
-      "sha256": "bce34cb664d1e7a9327f3029c277e19c37359ccf775e7628924aed83add2b54d"
+      "sha256": "154f255ed10afd3c257848d63b6a0a01010cd3e8fdf2597551aa0d7359e2825b"
     },
     {
       "source": "LVSerial/Widgets/AdvancedKeyboard/GenerateHindiFont.py",
@@ -120,12 +120,12 @@
     {
       "source": "LVSerial/Widgets/AdvancedKeyboard/Key.cpp",
       "target": "Keyboard/AdvancedKeyboard/Key.cpp",
-      "sha256": "e0a51b5222e78fa654fe5adb8b09bfd338d67d4a8a2de76f05a28b83b29bb84c"
+      "sha256": "d413b6d5f70108933908054ff77bb849dea581a815256ac56a9000ecce3b6603"
     },
     {
       "source": "LVSerial/Widgets/AdvancedKeyboard/Keyboard.cpp",
       "target": "Keyboard/AdvancedKeyboard/Keyboard.cpp",
-      "sha256": "04c9a6bae5ebc56d7a4a59246cbe1202b5750e6a6d7a750ad2d4ac20ac114865"
+      "sha256": "5b5b05200394eb33c802f8aacf9e5263062ac06b43c7ae991aab88350311b8a7"
     },
     {
       "source": "LVSerial/Widgets/AdvancedKeyboard/KeyboardBengaliFont.LICENSE.txt",

@@ -147,9 +147,9 @@ bool Context::Execute(Binding& binding, const json& a) {
     }
     int id = a.value("targetOid", -1); auto* target = id == -1 ? binding.source : hooks.object ? hooks.object(a.value("targetScreen", binding.screen), id) : nullptr;
     if (!target) throw std::invalid_argument("Action references a missing widget");
-    if (action == "show") lv_obj_remove_flag(target, LV_OBJ_FLAG_HIDDEN);
-    else if (action == "hide") lv_obj_add_flag(target, LV_OBJ_FLAG_HIDDEN);
-    else if (action == "toggle") { if (lv_obj_has_flag(target, LV_OBJ_FLAG_HIDDEN)) lv_obj_remove_flag(target, LV_OBJ_FLAG_HIDDEN); else lv_obj_add_flag(target, LV_OBJ_FLAG_HIDDEN); }
+    if (action == "show") lv_obj_set_hidden(target, false);
+    else if (action == "hide") lv_obj_set_hidden(target, true);
+    else if (action == "toggle") lv_obj_set_hidden(target, !lv_obj_is_hidden(target));
     else if (action == "validate") {
         auto text = Text(target); const auto first = text.find_first_not_of(" \t\r\n"); bool valid = !a.value("required", true) || first != std::string::npos;
         if (valid && first != std::string::npos && (a.contains("min") || a.contains("max"))) { char* end = nullptr; double value = std::strtod(text.c_str(), &end); while (end && *end && std::isspace(static_cast<unsigned char>(*end))) ++end; valid = end != text.c_str() && end && !*end && std::isfinite(value) && (!a.contains("min") || value >= a.at("min").get<double>()) && (!a.contains("max") || value <= a.at("max").get<double>()); }

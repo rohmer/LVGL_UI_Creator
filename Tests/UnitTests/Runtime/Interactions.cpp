@@ -20,8 +20,8 @@ json Document(){auto button=Widget(7,"button",10,10,100,50),entry=Widget(9,"text
 TEST_CASE("Portable interactions validate input before typed variable and widget actions", "[runtime][interactions]") {
     auto document=Document();auto bytes=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",document);lvgl_runtime_t* raw=nullptr;char error[256]{};REQUIRE(lvgl_runtime_load_memory(bytes.data(),bytes.size(),nullptr,&raw,error,sizeof error));std::unique_ptr<lvgl_runtime_t,decltype(&lvgl_runtime_destroy)> runtime(raw,lvgl_runtime_destroy);
     auto* button=static_cast<lv_obj_t*>(lvgl_runtime_object(raw,0,7));auto* entry=static_cast<lv_obj_t*>(lvgl_runtime_object(raw,0,9));auto* panel=static_cast<lv_obj_t*>(lvgl_runtime_object(raw,0,10));REQUIRE(button);REQUIRE(entry);REQUIRE(panel);
-    lv_obj_send_event(button,LV_EVENT_CLICKED,nullptr);lvgl_runtime_value_t value{};REQUIRE(lvgl_runtime_get_variable(raw,"count",&value));CHECK(value.integer_value==0);CHECK(lv_obj_has_state(entry,LV_STATE_USER_4));CHECK_FALSE(lv_obj_has_flag(panel,LV_OBJ_FLAG_HIDDEN));
-    lv_textarea_set_text(entry,"17");lv_obj_send_event(button,LV_EVENT_CLICKED,nullptr);REQUIRE(lvgl_runtime_get_variable(raw,"count",&value));CHECK(value.integer_value==2);CHECK_FALSE(lv_obj_has_state(entry,LV_STATE_USER_4));CHECK(lv_obj_has_flag(panel,LV_OBJ_FLAG_HIDDEN));
+    lv_obj_send_event(button,LV_EVENT_CLICKED,nullptr);lvgl_runtime_value_t value{};REQUIRE(lvgl_runtime_get_variable(raw,"count",&value));CHECK(value.integer_value==0);CHECK(lv_obj_has_state(entry,LV_STATE_USER_4));CHECK_FALSE(lv_obj_is_hidden(panel));
+    lv_textarea_set_text(entry,"17");lv_obj_send_event(button,LV_EVENT_CLICKED,nullptr);REQUIRE(lvgl_runtime_get_variable(raw,"count",&value));CHECK(value.integer_value==2);CHECK_FALSE(lv_obj_has_state(entry,LV_STATE_USER_4));CHECK(lv_obj_is_hidden(panel));
     lvgl_runtime_value_t enabled{};enabled.type=LVGL_RUNTIME_BOOLEAN;enabled.boolean_value=false;REQUIRE(lvgl_runtime_set_variable(raw,"enabled",&enabled));lv_obj_send_event(button,LV_EVENT_CLICKED,nullptr);REQUIRE(lvgl_runtime_get_variable(raw,"count",&value));CHECK(value.integer_value==2);
     lv_obj_delete(panel);lv_obj_send_event(button,LV_EVENT_CLICKED,nullptr);CHECK(std::strstr(lvgl_runtime_error(raw),"missing widget")!=nullptr);lv_obj_delete(button);
 }
@@ -30,6 +30,37 @@ TEST_CASE("Authored action targets follow objects through dense save IDs and del
     static_cast<ObjectUserData*>(lv_obj_get_user_data(objects[0]))->objectID=1000;static_cast<ObjectUserData*>(lv_obj_get_user_data(objects[1]))->objectID=2000;
     auto saved=Serialization::Page::ToJSON({objects[1],objects[0]});CHECK(saved["obj"][1]["base"]["events"][0]["targetOid"]==0);
     auto* source=objects[0];lv_obj_delete(objects[1]);saved=Serialization::Page::ToJSON({source});CHECK(saved["obj"][0]["base"]["events"][0]["targetOid"]==-2);lv_obj_delete(source);
+}
+TEST_CASE("Runtime visibility actions preserve unrelated object flags", "[runtime][interactions]") {
+    auto document = Document();
+    document["obj"][0]["base"]["events"] = json::array({
+        {{"event", "clicked"}, {"action", "toggle"}, {"targetOid", 10}},
+        {{"event", "ready"}, {"action", "hide"}, {"targetOid", 10}},
+        {{"event", "value_changed"}, {"action", "show"}, {"targetOid", 10}}
+    });
+    auto bytes = Serialization::Protobuf::Encode(Serialization::EntityKind::Project, "project", document);
+    lvgl_runtime_t* raw = nullptr;
+    char error[256]{};
+    REQUIRE(lvgl_runtime_load_memory(bytes.data(), bytes.size(), nullptr, &raw, error, sizeof error));
+    std::unique_ptr<lvgl_runtime_t, decltype(&lvgl_runtime_destroy)> runtime(raw, lvgl_runtime_destroy);
+    auto* source = static_cast<lv_obj_t*>(lvgl_runtime_object(raw, 0, 7));
+    auto* panel = static_cast<lv_obj_t*>(lvgl_runtime_object(raw, 0, 10));
+    REQUIRE(source);
+    REQUIRE(panel);
+    lv_obj_set_clickable(panel, true);
+    lv_obj_set_scrollable(panel, false);
+    auto check = [&](bool hidden) {
+        CHECK(lv_obj_is_hidden(panel) == hidden);
+        CHECK(lv_obj_is_clickable(panel));
+        CHECK_FALSE(lv_obj_is_scrollable(panel));
+        CHECK(std::strlen(lvgl_runtime_error(raw)) == 0);
+    };
+    lv_obj_send_event(source, LV_EVENT_CLICKED, nullptr); check(true);
+    lv_obj_send_event(source, LV_EVENT_CLICKED, nullptr); check(false);
+    lv_obj_send_event(source, LV_EVENT_READY, nullptr); check(true);
+    lv_obj_send_event(source, LV_EVENT_READY, nullptr); check(true);
+    lv_obj_send_event(source, LV_EVENT_VALUE_CHANGED, nullptr); check(false);
+    lv_obj_send_event(source, LV_EVENT_VALUE_CHANGED, nullptr); check(false);
 }
 TEST_CASE("Action schema rejects invalid bounds and conditions", "[runtime][interactions]") {
     CHECK_THROWS(Serialization::InteractionActions::Normalize(json::array({{{"action","validate"},{"min",20},{"max",10}}})));

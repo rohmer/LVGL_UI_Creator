@@ -8,7 +8,7 @@
 bool IsEditorControlAvailable(const lv_obj_t* control) {
     if (!control) return false;
     for (auto* parent = control; parent; parent = lv_obj_get_parent(parent)) {
-        if (lv_obj_has_flag(parent, LV_OBJ_FLAG_HIDDEN) || lv_obj_has_state(parent, LV_STATE_DISABLED)) return false;
+        if (lv_obj_is_hidden(parent) || lv_obj_has_state(parent, LV_STATE_DISABLED)) return false;
         auto* content = lv_obj_get_parent(parent);
         auto* tabs = content ? lv_obj_get_parent(content) : nullptr;
         if (tabs && lv_obj_has_class(tabs, &lv_tabview_class) && lv_tabview_get_content(tabs) == content &&
@@ -25,7 +25,7 @@ lv_obj_t* Scope(lv_obj_t* control) {
 void Collect(lv_obj_t* parent, std::vector<lv_obj_t*>& fields) {
     if (!IsEditorControlAvailable(parent)) return;
     if (IsEditorInputControl(parent)) {
-        if (lv_obj_has_flag(parent, LV_OBJ_FLAG_CLICKABLE) && lv_obj_has_flag(parent, LV_OBJ_FLAG_CLICK_FOCUSABLE))
+        if (lv_obj_is_clickable(parent) && lv_obj_is_click_focusable(parent))
             fields.push_back(parent);
         return;
     }

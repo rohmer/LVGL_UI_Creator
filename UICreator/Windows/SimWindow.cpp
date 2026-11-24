@@ -131,7 +131,7 @@ void SimWindow::createObjects()
     SetEditorEventCallback<settings>(winBtn);
 #if LVGL_VERSION_MAJOR >= 9
     memoryLabel = lv_label_create(EditorWindow::Header(window));
-    lv_obj_add_flag(memoryLabel, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_ignore_layout(memoryLabel, true);
     lv_obj_set_width(memoryLabel, LV_PCT(100));
     lv_label_set_long_mode(memoryLabel, LV_LABEL_LONG_MODE_SCROLL_CIRCULAR);
     lv_obj_set_style_text_color(memoryLabel, lv_color_hex(EditorStyle::Muted), LV_PART_MAIN);

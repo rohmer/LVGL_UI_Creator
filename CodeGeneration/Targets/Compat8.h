@@ -248,12 +248,20 @@ static inline void lv_obj_set_hidden(lv_obj_t *object, bool enabled)
     else
         lv_obj_clear_flag(object, LV_OBJ_FLAG_HIDDEN);
 }
+static inline bool lv_obj_is_hidden(const lv_obj_t *object)
+{
+    return lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN);
+}
 static inline void lv_obj_set_clickable(lv_obj_t *object, bool enabled)
 {
     if (enabled)
         lv_obj_add_flag(object, LV_OBJ_FLAG_CLICKABLE);
     else
         lv_obj_clear_flag(object, LV_OBJ_FLAG_CLICKABLE);
+}
+static inline bool lv_obj_is_clickable(const lv_obj_t *object)
+{
+    return lv_obj_has_flag(object, LV_OBJ_FLAG_CLICKABLE);
 }
 static inline void lv_obj_set_click_focusable(lv_obj_t *object, bool enabled)
 {

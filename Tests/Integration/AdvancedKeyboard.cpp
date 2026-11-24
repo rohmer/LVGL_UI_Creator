@@ -46,7 +46,7 @@ lv_obj_t* Button(lv_obj_t* container, const char* caption)
 {
     for (uint32_t i = 0; i < lv_obj_get_child_count(container); ++i) {
         auto* child = lv_obj_get_child(container, static_cast<int32_t>(i));
-        if (lv_obj_has_flag(child, LV_OBJ_FLAG_HIDDEN) || !lv_obj_has_class(child, &lv_button_class)) continue;
+        if (lv_obj_is_hidden(child) || !lv_obj_has_class(child, &lv_button_class)) continue;
         for (uint32_t j = 0; j < lv_obj_get_child_count(child); ++j) {
             auto* label = lv_obj_get_child(child, static_cast<int32_t>(j));
             if (lv_obj_has_class(label, &lv_label_class) && std::strcmp(lv_label_get_text(label), caption) == 0)
@@ -117,7 +117,7 @@ struct DeleteOnReady { lv_obj_t* keyboard; bool cleared = false; };
 void DeleteKeyboardReady(lv_event_t* event)
 {
     auto& state = *static_cast<DeleteOnReady*>(lv_event_get_user_data(event));
-    state.cleared = lv_obj_has_flag(state.keyboard, LV_OBJ_FLAG_HIDDEN) && !lv_advanced_keyboard_get_textarea(state.keyboard);
+    state.cleared = lv_obj_is_hidden(state.keyboard) && !lv_advanced_keyboard_get_textarea(state.keyboard);
     lv_obj_delete(state.keyboard); state.keyboard = nullptr;
 }
 void TargetAboveKeyboard(lv_obj_t* field, lv_obj_t* keyboard, const char* scenario)
@@ -198,7 +198,7 @@ void TestTargetReveal()
           std::strcmp(lv_textarea_get_text(visible), "Visible retained text") == 0,
           "Automatic reveal changed field contents");
     lv_advanced_keyboard_close(keyboard);
-    Check(lv_obj_has_flag(keyboard, LV_OBJ_FLAG_HIDDEN), "Reveal prevented keyboard dismissal");
+    Check(lv_obj_is_hidden(keyboard), "Reveal prevented keyboard dismissal");
     lv_screen_load(previous);
     lv_obj_delete(screen);
 }
@@ -272,7 +272,7 @@ void TestNestedViewportReveal()
           "Nested dismissal left transient scroll offsets or ancestor hooks");
     lv_obj_send_event(field, LV_EVENT_FOCUSED, nullptr); Advance(500);
     lv_obj_delete(outer); Advance(20);
-    Check(lv_obj_has_flag(keyboard, LV_OBJ_FLAG_HIDDEN) && !lv_advanced_keyboard_get_textarea(keyboard) &&
+    Check(lv_obj_is_hidden(keyboard) && !lv_advanced_keyboard_get_textarea(keyboard) &&
           lv_advanced_keyboard_bound_textarea_count(keyboard) == 0 && AuthoredView(keyboard) == beforeKeyboard,
           "Deleting the target's parent left a visible keyboard, dangling bindings or pinning");
     auto* replacement = lv_obj_create(screen); lv_obj_remove_style_all(replacement); lv_obj_set_size(replacement, 640, 480);
@@ -287,7 +287,7 @@ void DeleteKeyboardDuringReveal(lv_event_t* event)
     auto& state = *static_cast<DeleteDuringReveal*>(lv_event_get_user_data(event));
     // Ignore LVGL's initial focus scroll; delete only after the keyboard has
     // opened and installed its transient viewport callback on this ancestor.
-    if (!state.armed || !state.keyboard || lv_obj_has_flag(state.keyboard, LV_OBJ_FLAG_HIDDEN) ||
+    if (!state.armed || !state.keyboard || lv_obj_is_hidden(state.keyboard) ||
         lv_obj_get_event_count(lv_event_get_target_obj(event)) < state.minimumEvents) return;
     state.armed = false; ++state.calls;
     auto* keyboard = state.keyboard; state.keyboard = nullptr;
@@ -341,7 +341,7 @@ void TestKeyboardLanguages()
         const std::string retained = lv_textarea_get_text(field);
         Check(lv_advanced_keyboard_set_language(keyboard, id) && std::strcmp(lv_advanced_keyboard_get_language(keyboard), id) == 0,
               std::string("Cannot select keyboard language ") + id);
-        Check(lv_advanced_keyboard_get_textarea(keyboard) == field && !lv_obj_has_flag(keyboard, LV_OBJ_FLAG_HIDDEN) &&
+        Check(lv_advanced_keyboard_get_textarea(keyboard) == field && !lv_obj_is_hidden(keyboard) &&
               std::string(lv_textarea_get_text(field)) == retained, "Changing keyboard language lost its target or edited its text");
         Check(ObjectSerializer::SerializeObject(keyboard).at("advancedKeyboard").at("language") == id,
               "Native language choice did not serialize");
@@ -794,41 +794,41 @@ void TestLongPressVariants()
     Check(!popup(), "Resizing left a stale variant row");
     lv_obj_set_width(object, 640); lv_obj_update_layout(object);
     hold("a");
-    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); Advance(60);
+    lv_obj_set_hidden(object, true); Advance(60);
     Check(!popup(), "Hiding the keyboard left an active variant row");
-    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(object, false);
     // Visibility can change between two input samples, before the periodic
     // cleanup timer observes it. A release must recheck the active owner.
     blank(); holdContinuously("a"); dragChoice(u8"à");
-    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); release();
+    lv_obj_set_hidden(object, true); release();
     Check(!popup(), "Immediate release after hiding the keyboard retained its popup");
     Text(object, "");
-    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(object, false);
     blank(); holdContinuously("a"); dragChoice(u8"à");
-    lv_obj_add_flag(screen, LV_OBJ_FLAG_HIDDEN); release();
+    lv_obj_set_hidden(screen, true); release();
     Check(!popup(), "Immediate release after hiding an ancestor retained its popup");
     Text(object, "");
-    lv_obj_remove_flag(screen, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(screen, false);
     blank(); hold("a");
     auto* hiddenOwnerChoice = Button(popup(), u8"à");
-    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); Click(hiddenOwnerChoice);
+    lv_obj_set_hidden(object, true); Click(hiddenOwnerChoice);
     Check(!popup(), "A stale overlay remained after clicking while its owner was hidden");
     Text(object, "");
-    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(object, false);
     blank(); hold("a");
     auto* hiddenAncestorChoice = Button(popup(), u8"à");
-    lv_obj_add_flag(screen, LV_OBJ_FLAG_HIDDEN); Click(hiddenAncestorChoice);
+    lv_obj_set_hidden(screen, true); Click(hiddenAncestorChoice);
     Check(!popup(), "A stale overlay remained after clicking while an ancestor was hidden");
     Text(object, "");
-    lv_obj_remove_flag(screen, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(screen, false);
     blank(); holdContinuously("a"); dragChoice(u8"à");
-    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); Advance(60); release();
+    lv_obj_set_hidden(object, true); Advance(60); release();
     Check(!popup(), "Hiding the keyboard left a drag selection active"); Text(object, "");
-    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(object, false);
     hold("a");
-    lv_obj_add_flag(screen, LV_OBJ_FLAG_HIDDEN); Advance(60);
+    lv_obj_set_hidden(screen, true); Advance(60);
     Check(!popup(), "Hiding an ancestor left an active variant row");
-    lv_obj_remove_flag(screen, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(screen, false);
 
     // A second widget's language and lifetime must not touch the first popup.
     hold("a");
@@ -918,10 +918,10 @@ int main(int argc, char** argv)
         lv_obj_set_pos(inspector, 20, 80); lv_obj_set_size(inspector, 280, 40); lv_textarea_set_text(inspector, "Inspector");
         lv_obj_set_pos(object, 20, 130);
         AdvancedKeyboard::BindTargets(previous, std::map<int, lv_obj_t*>{{7, object}, {8, editor}, {9, second}});
-        Check(lv_advanced_keyboard_bound_textarea_count(object) == 2 && lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Unfocused keyboard should be hidden and bound only to authored fields");
+        Check(lv_advanced_keyboard_bound_textarea_count(object) == 2 && lv_obj_is_hidden(object), "Unfocused keyboard should be hidden and bound only to authored fields");
         const auto unfocused = ObjectSerializer::SerializeObject(object);
         Click(editor);
-        Check(lv_advanced_keyboard_get_textarea(object) == editor && !lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Focusing an external field did not activate keyboard");
+        Check(lv_advanced_keyboard_get_textarea(object) == editor && !lv_obj_is_hidden(object), "Focusing an external field did not activate keyboard");
         Check(ObjectSerializer::SerializeObject(object) == unfocused, "Focus changed authored keyboard data");
         lv_advanced_keyboard_set_autocorrect(object, false);
         lv_obj_update_layout(object);
@@ -945,7 +945,7 @@ int main(int argc, char** argv)
         Tap(keyboard, "\xe2\x8c\xab");
         Text(object, "hiAbCDe1@");
         Tap(keyboard, "\xe2\x86\xb5");
-        Check(lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN) && !lv_advanced_keyboard_get_textarea(object) && ready == 1 && fieldReady == 1,
+        Check(lv_obj_is_hidden(object) && !lv_advanced_keyboard_get_textarea(object) && ready == 1 && fieldReady == 1,
               "Enter did not dismiss and emit READY on field and keyboard");
         Check(std::string(lv_textarea_get_text(editor)) == "hiAbCDe1@", "Enter inserted an unwanted newline");
         Click(editor); lv_textarea_set_cursor_pos(editor, LV_TEXTAREA_CURSOR_LAST);
@@ -1059,14 +1059,14 @@ int main(int argc, char** argv)
         AdvancedKeyboard::BindTargets(previous, std::map<int, lv_obj_t*>{{7, object}, {8, editor}, {9, second}});
         Check(lv_obj_get_event_count(second) == callbacks && lv_advanced_keyboard_get_textarea(object) == second, "Repeated binding churned events or reset target");
         Click(inspector); Advance(20);
-        Check(!lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN) && lv_advanced_keyboard_get_textarea(object) == second, "Outside click dismissed the persistent keyboard");
+        Check(!lv_obj_is_hidden(object) && lv_advanced_keyboard_get_textarea(object) == second, "Outside click dismissed the persistent keyboard");
         Check(AdvancedKeyboard::Normalize({{"hideOnDefocus", true}}).at("hideOnDefocus") == false, "Earlier hide-on-defocus records were not upgraded");
         lv_advanced_keyboard_set_hide_on_defocus(object, true);
         Click(second); Click(inspector); Advance(20);
-        Check(lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Explicit low-level legacy hide-on-defocus option stopped working");
+        Check(lv_obj_is_hidden(object), "Explicit low-level legacy hide-on-defocus option stopped working");
         lv_advanced_keyboard_set_hide_on_defocus(object, false);
         Click(editor); lv_textarea_set_cursor_pos(editor, LV_TEXTAREA_CURSOR_LAST);
-        Check(!lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Refocus did not show keyboard");
+        Check(!lv_obj_is_hidden(object), "Refocus did not show keyboard");
         lv_obj_delete(second);
         auto* doomed = ObjectSerializer::Create("textarea", previous);
         struct TargetDeletion { bool deleting=false; unsigned styleEvents=0; } targetDeletion;
@@ -1077,7 +1077,7 @@ int main(int argc, char** argv)
         },LV_EVENT_ALL,&targetDeletion);
         Check(lv_advanced_keyboard_set_textarea(object, doomed), "Cannot attach temporary field");
         lv_obj_delete(doomed);
-        Check(!lv_advanced_keyboard_get_textarea(object) && lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Deleted target left a dangling keyboard attachment");
+        Check(!lv_advanced_keyboard_get_textarea(object) && lv_obj_is_hidden(object), "Deleted target left a dangling keyboard attachment");
         Check(targetDeletion.deleting&&!targetDeletion.styleEvents,"Deleting a keyboard target reentered its application style handlers");
         auto* custom = CustomWidgets::Create("textBox", previous);
         lv_obj_set_pos(custom, 320, 80); lv_obj_set_size(custom, 280, 40);
@@ -1103,28 +1103,28 @@ int main(int argc, char** argv)
         Tap(lv_obj_get_child(object, 0), "the"); Text(object, "the ");
         lv_advanced_keyboard_set_text(object, "first\nsecond");
         Text(object, "first\nsecond");
-        Check(!lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN), "Programmatic newline closed the keyboard");
+        Check(!lv_obj_is_hidden(object), "Programmatic newline closed the keyboard");
         unsigned formCancelled = 0;
         lv_obj_add_event_cb(previous, CountEdits, LV_EVENT_CANCEL, &formCancelled);
         lv_obj_set_event_bubble(object, true);
         Click(lv_obj_get_child(lv_obj_get_child(object, 0), LV_ADVANCED_KEYBOARD_SUGGESTION_COUNT));
-        Check(lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN) && !lv_advanced_keyboard_get_textarea(object) && cancelled == 1 && fieldCancelled == 0 && formCancelled == 0,
+        Check(lv_obj_is_hidden(object) && !lv_advanced_keyboard_get_textarea(object) && cancelled == 1 && fieldCancelled == 0 && formCancelled == 0,
               "X failed to close or cancelled the external field/form");
         lv_obj_set_event_bubble(object, false);
         lv_obj_remove_event_cb_with_user_data(previous, CountEdits, &formCancelled);
         Check(std::string(lv_textarea_get_text(editor)) == "first\nsecond", "X changed external text");
         AdvancedKeyboard::BindTargets(previous, std::map<int, lv_obj_t*>{{7, object}, {8, editor}});
-        Check(lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN) && lv_advanced_keyboard_is_dismissed(object), "Automatic rebind immediately reopened a dismissed keyboard");
+        Check(lv_obj_is_hidden(object) && lv_advanced_keyboard_is_dismissed(object), "Automatic rebind immediately reopened a dismissed keyboard");
         Click(editor); lv_obj_add_state(editor, LV_STATE_DISABLED);
         Tap(keyboard, "\xe2\x86\xb5");
-        Check(lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN) && !lv_advanced_keyboard_get_textarea(object) && std::string(lv_textarea_get_text(editor)) == "first\nsecond",
+        Check(lv_obj_is_hidden(object) && !lv_advanced_keyboard_get_textarea(object) && std::string(lv_textarea_get_text(editor)) == "first\nsecond",
               "Done failed to close a disabled target or altered its text");
         lv_obj_remove_state(editor, LV_STATE_DISABLED);
         Click(editor); lv_advanced_keyboard_set_text(object, "teh");
         lv_obj_add_event_cb(editor, RefocusReady, LV_EVENT_READY, editor);
         uint32_t enter = LV_KEY_ENTER;
         lv_obj_send_event(editor, LV_EVENT_KEY, &enter);
-        Check(std::string(lv_textarea_get_text(editor)) == "the" && lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN) && !lv_advanced_keyboard_get_textarea(object),
+        Check(std::string(lv_textarea_get_text(editor)) == "the" && lv_obj_is_hidden(object) && !lv_advanced_keyboard_get_textarea(object),
               "Physical Enter failed to commit and stay closed after a READY focus callback");
         lv_obj_remove_event_cb_with_user_data(editor, RefocusReady, editor);
         {

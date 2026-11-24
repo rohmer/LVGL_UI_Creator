@@ -47,7 +47,7 @@ void Numeric(PropertyWindow* properties,SdlSimulator& simulator) {
     Text("2.50",simulator);Require(lv_spinbox_get_value(input)==250,"Spinbox could not type after selected deletion");
     lv_obj_add_state(input,LV_STATE_DISABLED);Text("9",simulator);Key(SDLK_UP,SDL_SCANCODE_UP,simulator);
     Require(lv_spinbox_get_value(input)==250,"Disabled spinbox accepted keyboard edits");
-    lv_obj_remove_state(input,LV_STATE_DISABLED);lv_obj_add_flag(window,LV_OBJ_FLAG_HIDDEN);Text("9",simulator);
+    lv_obj_remove_state(input,LV_STATE_DISABLED);lv_obj_set_hidden(window, true);Text("9",simulator);
     Require(lv_spinbox_get_value(input)==250,"Hidden numeric editor accepted keyboard edits");
     lv_obj_delete(window);Drain(simulator);
 }

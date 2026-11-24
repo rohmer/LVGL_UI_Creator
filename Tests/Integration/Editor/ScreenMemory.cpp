@@ -123,7 +123,7 @@ void CheckScreenMemory(UI& editor, SdlSimulator& simulator)
     lv_label_set_text(text, "Nested button label");
     auto* hidden = lv_label_create(container);
     lv_label_set_text(hidden, "Hidden objects still occupy memory");
-    lv_obj_add_flag(hidden, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(hidden, true);
     auto* textarea = lv_textarea_create(container);
     Require(lv_obj_get_child_count(textarea) == 1, "The textarea fixture must own one internal label");
     auto* outside = lv_label_create(lv_layer_top());

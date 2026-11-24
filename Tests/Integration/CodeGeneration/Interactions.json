@@ -13,6 +13,7 @@
           {"event": "clicked", "action": "set_variable", "variable": "temperature", "value": 0.5},
           {"event": "clicked", "action": "increment_variable", "variable": "temperature", "value": 0.25},
           {"event": "clicked", "action": "hide", "targetOid": 10},
+          {"event": "ready", "action": "toggle", "targetOid": 10},
           {"event": "value_changed", "action": "set_variable", "variable": "caption", "value": "Compared", "condition": {"variable": "count", "op": "gt", "value": 1.5}}
         ]}, "button": {}},
         {"oid": 9, "par": -1, "base": {"coords": {"x": 10, "y": 70, "width": 140, "height": 48}}, "textarea": {"text": ""}},

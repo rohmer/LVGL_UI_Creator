@@ -393,7 +393,7 @@ void show_variants(KeyboardView& view, const Slot& slot)
     lv_obj_set_pos(overlay, 0, 0);
     lv_obj_set_size(overlay, screen_width, screen_height);
     lv_obj_set_scrollable(overlay, false);
-    lv_obj_remove_flag(overlay, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    lv_obj_set_click_focusable(overlay, false);
     lv_group_remove_obj(overlay);
     if (!lv_obj_add_event_cb(overlay, on_overlay, LV_EVENT_CLICKED, &view) ||
         !lv_obj_add_event_cb(overlay, on_overlay, LV_EVENT_DELETE, &view)) {
@@ -404,7 +404,7 @@ void show_variants(KeyboardView& view, const Slot& slot)
     if (!row) { dismiss_variants(view); return; }
     view.variant_row = row;
     lv_obj_remove_style_all(row);
-    lv_obj_remove_flag(row, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    lv_obj_set_click_focusable(row, false);
     lv_group_remove_obj(row);
     lv_obj_set_pos(row, left, top);
     lv_obj_set_size(row, row_width, row_height);
@@ -429,8 +429,8 @@ void show_variants(KeyboardView& view, const Slot& slot)
     view.suppress_click = slot.button;
     view.held_button = nullptr;
     view.drag_source = slot.button;
-    view.drag_scroll_chain_hor = lv_obj_has_flag(slot.button, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
-    view.drag_scroll_chain_ver = lv_obj_has_flag(slot.button, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+    view.drag_scroll_chain_hor = lv_obj_is_scroll_chain_hor(slot.button);
+    view.drag_scroll_chain_ver = lv_obj_is_scroll_chain_ver(slot.button);
     // Keep the original touch until release, even while it crosses the overlay.
     // Prevent a slide over the options from scrolling an enclosing form.
     lv_obj_set_press_lock(slot.button, true);

@@ -133,7 +133,9 @@ lv_obj_t* Create(lv_obj_t* parent, const Icon* icon, int size) {
     auto* object=lv_obj_create(parent); lv_obj_remove_style_all(object);
     lv_obj_set_size(object,size,size); lv_obj_set_style_pad_all(object,0,LV_PART_MAIN);
     lv_obj_set_style_border_width(object,0,LV_PART_MAIN); lv_obj_set_style_bg_opa(object,LV_OPA_TRANSP,LV_PART_MAIN);
-    lv_obj_remove_flag(object, static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_SCROLLABLE));
+    lv_obj_set_clickable(object, false);
+    lv_obj_set_click_focusable(object, false);
+    lv_obj_set_scrollable(object, false);
     lv_obj_add_event_cb(object,Paint,LV_EVENT_DRAW_MAIN,const_cast<Icon*>(icon));
     return object;
 }

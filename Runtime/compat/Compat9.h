@@ -36,8 +36,13 @@ static inline void lv_obj_set_hidden(lv_obj_t *object, bool enabled)
     else
         lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
 }
-static inline bool lv_obj_is_hidden(const lv_obj_t* object) { return lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN); }
+#endif
 
+#if (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 5) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 3) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 2) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 1)
+static inline bool lv_obj_is_hidden(const lv_obj_t *object)
+{
+    return lv_obj_has_flag(object, LV_OBJ_FLAG_HIDDEN);
+}
 #endif
 
 #if (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 5) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 3) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 2) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 1)
@@ -48,8 +53,13 @@ static inline void lv_obj_set_clickable(lv_obj_t *object, bool enabled)
     else
         lv_obj_remove_flag(object, LV_OBJ_FLAG_CLICKABLE);
 }
-static inline bool lv_obj_is_clickable(const lv_obj_t* object) { return lv_obj_has_flag(object, LV_OBJ_FLAG_CLICKABLE); }
+#endif
 
+#if (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 5) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 3) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 2) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 1)
+static inline bool lv_obj_is_clickable(const lv_obj_t *object)
+{
+    return lv_obj_has_flag(object, LV_OBJ_FLAG_CLICKABLE);
+}
 #endif
 
 #if (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 5) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 3) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 2) || (LVGL_VERSION_MAJOR == 9 && LVGL_VERSION_MINOR == 1)

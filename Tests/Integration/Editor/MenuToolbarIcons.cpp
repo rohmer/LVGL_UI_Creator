@@ -46,7 +46,7 @@ constexpr Entry entries[]={
     {"Help","Diagnostics report","diagnostics"},{"Help","About LVGL UI Creator","about"}
 };
 constexpr const char* menuNames[]={"File","Edit","View","Assets","Language Models","Export","Debug","Help"};
-bool Hidden(lv_obj_t* object) {for(auto* p=object;p;p=lv_obj_get_parent(p))if(lv_obj_has_flag(p,LV_OBJ_FLAG_HIDDEN))return true;return false;}
+bool Hidden(lv_obj_t* object) {for(auto* p=object;p;p=lv_obj_get_parent(p))if(lv_obj_is_hidden(p))return true;return false;}
 lv_obj_t* Decorated(lv_obj_t* parent,const char* action) {
     const auto* key=EditorIcons::Action(parent);
     if(key&&std::string(key)==action)return parent;
@@ -59,7 +59,7 @@ lv_obj_t* IconChild(lv_obj_t* row,const ObjectIcons::Icon* expected) {
         Input::Require(!result&&descriptor==expected,"Command row has an incorrect or duplicate icon");result=lv_obj_get_child(row,i);
     }
     Input::Require(result,"Command row is missing its vector icon");
-    Input::Require(!lv_obj_has_flag(result,LV_OBJ_FLAG_CLICKABLE)&&!lv_obj_has_flag(result,LV_OBJ_FLAG_CLICK_FOCUSABLE)&&!lv_obj_get_group(result),"Decorative command icon intercepts input or keyboard focus");
+    Input::Require(!lv_obj_is_clickable(result)&&!lv_obj_is_click_focusable(result)&&!lv_obj_get_group(result),"Decorative command icon intercepts input or keyboard focus");
     return result;
 }
 void Bounds(lv_obj_t* child,lv_obj_t* parent,const char* message) {
@@ -70,7 +70,7 @@ void CheckButton(lv_obj_t* button,const char* action) {
     Input::Require(button,std::string("Toolbar button missing: ")+action);
     auto* icon=IconChild(button,ObjectIcons::Action(action));Bounds(icon,button,"Toolbar icon is clipped by its button");
     auto* label=lv_obj_get_child(button,0);Input::Require(lv_obj_has_class(label,&lv_label_class),"Toolbar caption child0 compatibility was lost");
-    if(!lv_obj_has_flag(label,LV_OBJ_FLAG_HIDDEN)) {
+    if(!lv_obj_is_hidden(label)) {
         Bounds(label,button,"Toolbar caption is clipped by its button");lv_area_t a{},b{};lv_obj_get_coords(icon,&a);lv_obj_get_coords(label,&b);
         Input::Require(a.x2<b.x1,"Toolbar icon overlaps its caption");
     }

@@ -57,7 +57,7 @@ uint64_t PixelHash(const std::vector<uint32_t>& pixels){
 }
 void CheckDecoration(lv_obj_t* object,const ObjectIcons::Icon* expected){
     Input::Require(object&&ObjectIcons::Get(object)==expected,"Icon object lost its explicit catalog descriptor");
-    Input::Require(!lv_obj_has_flag(object,LV_OBJ_FLAG_CLICKABLE)&&!lv_obj_has_flag(object,LV_OBJ_FLAG_CLICK_FOCUSABLE),
+    Input::Require(!lv_obj_is_clickable(object)&&!lv_obj_is_click_focusable(object),
         std::string(expected->key)+": decorative icon intercepts pointer or keyboard focus");
 }
 std::vector<const ObjectIcons::Icon*> CheckCatalog(){

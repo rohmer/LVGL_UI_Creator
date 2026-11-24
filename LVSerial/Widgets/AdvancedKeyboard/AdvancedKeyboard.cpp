@@ -268,7 +268,7 @@ void CheckFocus(lv_timer_t* timer)
     auto* state = static_cast<State*>(lv_timer_get_user_data(timer));
     lv_timer_pause(timer);
     if (state->hide_on_defocus && !state->target_focused && !state->keyboard_focused)
-        lv_obj_add_flag(state->root, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_hidden(state->root, true);
 }
 void DeferHide(State& state)
 {
@@ -291,7 +291,7 @@ bool Activate(State& state, lv_obj_t* field, bool focused)
     state.target_focused = focused;
     state.keyboard_focused = false;
     lv_timer_pause(state.focus_timer);
-    lv_obj_set_flag(state.root, LV_OBJ_FLAG_HIDDEN, field == nullptr);
+    lv_obj_set_hidden(state.root, field == nullptr);
     if (!Alive(root, instance)) return false;
     if (field) {
         if (!state.visibility) {
@@ -331,7 +331,7 @@ void KeyFocus(lv_event_t* event)
     auto& state = *static_cast<State*>(lv_event_get_user_data(event));
     if (lv_event_get_code(event) == LV_EVENT_FOCUSED) {
         state.keyboard_focused = true;
-        if (state.target) lv_obj_remove_flag(state.root, LV_OBJ_FLAG_HIDDEN);
+        if (state.target) lv_obj_set_hidden(state.root, false);
     }
     else if (lv_event_get_code(event) == LV_EVENT_DEFOCUSED) {
         state.keyboard_focused = false;
@@ -508,7 +508,7 @@ lv_obj_t* lv_advanced_keyboard_create(lv_obj_t* parent)
     espos::keyboard::view::set_typing_view_dismiss_handler(root, Dismiss, state);
     UpdateLookup(*state);
     Style(*state);
-    lv_obj_add_flag(root, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_hidden(root, true);
     return root;
 }
 bool lv_advanced_keyboard_is_instance(lv_obj_t* object) { return Data(object)!=nullptr; }

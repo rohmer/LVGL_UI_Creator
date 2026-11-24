@@ -26,7 +26,7 @@ namespace EditorInputTest {
 void Require(bool condition,const std::string& message){if(!condition)throw std::runtime_error(message);}
 void Drain(SdlSimulator& simulator){for(int frame=0;frame<12;++frame)Require(simulator.ProcessEvents(),"SDL stopped during editor input test");}
 namespace {
-bool Hidden(lv_obj_t* object){for(auto* parent=object;parent;parent=lv_obj_get_parent(parent))if(lv_obj_has_flag(parent,LV_OBJ_FLAG_HIDDEN))return true;return false;}
+bool Hidden(lv_obj_t* object){for(auto* parent=object;parent;parent=lv_obj_get_parent(parent))if(lv_obj_is_hidden(parent))return true;return false;}
 std::string Description(lv_obj_t* object){
     if(!object||!lv_obj_is_valid(object))return "missing field";
     if(lv_obj_has_class(object,&lv_textarea_class)){const auto* placeholder=lv_textarea_get_placeholder_text(object);if(placeholder&&*placeholder)return placeholder;}
@@ -181,10 +181,10 @@ void FocusScope(SdlSimulator& simulator){
     Input::Require(chosePhysical,"Editor input resolver selected a private preview keyboard instead of the physical main display");
     auto* body=EditorWindow::Content(window);lv_obj_set_flex_flow(body,LV_FLEX_FLOW_COLUMN);
     auto field=[&](const char* value){auto* object=lv_textarea_create(body);lv_textarea_set_one_line(object,true);lv_textarea_set_text(object,value);lv_obj_set_size(object,350,38);BindEditorControl(group,object);return object;};
-    auto* first=field("first");auto* hidden=field("hidden");lv_obj_add_flag(hidden,LV_OBJ_FLAG_HIDDEN);auto* disabled=field("disabled");lv_obj_add_state(disabled,LV_STATE_DISABLED);auto* second=field("second");
+    auto* first=field("first");auto* hidden=field("hidden");lv_obj_set_hidden(hidden, true);auto* disabled=field("disabled");lv_obj_add_state(disabled,LV_STATE_DISABLED);auto* second=field("second");
     Input::Replace(first,u8"Typed \u00e9 123",simulator);Input::Key(SDLK_TAB,SDL_SCANCODE_TAB,simulator);Input::AssertFocused(second,simulator);
     auto* dynamic=field("dynamic");Input::Click(second,simulator);Input::Key(SDLK_TAB,SDL_SCANCODE_TAB,simulator);Input::AssertFocused(dynamic,simulator);
-    lv_obj_remove_flag(hidden,LV_OBJ_FLAG_HIDDEN);Input::Click(first,simulator);Input::Key(SDLK_TAB,SDL_SCANCODE_TAB,simulator);Input::AssertFocused(hidden,simulator);
+    lv_obj_set_hidden(hidden, false);Input::Click(first,simulator);Input::Key(SDLK_TAB,SDL_SCANCODE_TAB,simulator);Input::AssertFocused(hidden,simulator);
     Input::Click(disabled,simulator);Input::Require(lv_group_get_focused(group)!=disabled,"Disabled editor field acquired keyboard focus");
     auto* tabs=lv_tabview_create(body);lv_obj_set_size(tabs,420,180);lv_tabview_set_tab_bar_size(tabs,28);
     auto* activePage=lv_tabview_add_tab(tabs,"Active");auto* inactivePage=lv_tabview_add_tab(tabs,"Inactive");lv_obj_set_flex_flow(activePage,LV_FLEX_FLOW_COLUMN);

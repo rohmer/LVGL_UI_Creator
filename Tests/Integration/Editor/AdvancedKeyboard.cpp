@@ -50,7 +50,7 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     Require(englishDefault["obj"][1]["advancedKeyboard"].value("trieSizeKiB",0u)==16 && englishDefault["tries"].size()==1 &&
         englishDefault["obj"][1]["advancedKeyboard"]["trieId"]==englishDefault["tries"][0]["id"],"New keyboard did not embed its default English corpus model");
     const auto beforeFocus=editor.ProjectDocument();properties()->SetSelectedObject(entry);
-    Require(lv_advanced_keyboard_get_textarea(keyboard)==entry && !lv_obj_has_flag(keyboard,LV_OBJ_FLAG_HIDDEN),"Selecting an external text field did not show/target the keyboard");
+    Require(lv_advanced_keyboard_get_textarea(keyboard)==entry && !lv_obj_is_hidden(keyboard),"Selecting an external text field did not show/target the keyboard");
     Require(editor.ProjectDocument()==beforeFocus,"Focus visibility changed the saved document");
     auto* key=Label(lv_advanced_keyboard_get_keyboard(keyboard),"q");Require(key,"Virtual typing key missing");
     lv_obj_send_event(lv_obj_get_parent(key),LV_EVENT_CLICKED,nullptr);

@@ -21,7 +21,7 @@ int main(void) {
         lv_obj_t* entry=ui_get_object(0,8);CHECK(entry && lv_obj_has_class(entry,&lv_textarea_class));
         CHECK(lv_obj_get_child_count(keyboard)==2);
         lv_obj_send_event(entry,LV_EVENT_FOCUSED,NULL);CHECK(lv_advanced_keyboard_get_textarea(keyboard)==entry);
-        CHECK(!lv_obj_has_flag(keyboard,LV_OBJ_FLAG_HIDDEN));
+        CHECK(!lv_obj_is_hidden(keyboard));
         CHECK(strcmp(lv_advanced_keyboard_get_text(keyboard),"Hello")==0);
         CHECK(lv_textarea_get_max_length(entry)==64);
         CHECK(strcmp(lv_textarea_get_placeholder_text(entry),"Type a message")==0);

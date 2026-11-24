@@ -41,7 +41,7 @@ void ClickAt(float x,float y,SdlSimulator& simulator) {
     Require(SDL_PushEvent(&event),"Cannot queue TFT pointer release");Drain(simulator);
 }
 void Click(lv_obj_t* object,SdlSimulator& simulator) {
-    Require(object&&!lv_obj_has_flag(object,LV_OBJ_FLAG_HIDDEN),"TFT pointer target is missing or hidden");
+    Require(object&&!lv_obj_is_hidden(object),"TFT pointer target is missing or hidden");
     lv_obj_update_layout(lv_screen_active());lv_area_t area{};lv_obj_get_coords(object,&area);
     lv_obj_get_transformed_area(object,&area,LV_OBJ_POINT_TRANSFORM_FLAG_RECURSIVE);
     ClickAt(float((area.x1+area.x2)/2),float((area.y1+area.y2)/2),simulator);
@@ -72,14 +72,14 @@ void Clear(lv_obj_t* field,SdlSimulator& simulator) {
     for(size_t index=0;index<length;++index)Key(SDLK_DELETE,SDL_SCANCODE_DELETE,simulator);
     Require(std::string(lv_textarea_get_text(field)).empty(),"Physical Home/Delete did not clear the TFT field");
 }
-bool Ready(lv_obj_t* button) { return !lv_obj_has_flag(button,LV_OBJ_FLAG_HIDDEN)&&!lv_obj_has_state(button,LV_STATE_DISABLED); }
+bool Ready(lv_obj_t* button) { return !lv_obj_is_hidden(button)&&!lv_obj_has_state(button,LV_STATE_DISABLED); }
 lv_obj_t* OpenSettings(SdlSimulator& simulator) {
     auto* title=Label(lv_screen_active(),[](const std::string& text){return text.find("Simulator [Size:")==0;});
     Require(title,"Simulator title is missing");
     Click(ParentButton(Label(lv_obj_get_parent(title),LV_SYMBOL_SETTINGS)),simulator);
     auto* settings=Label(lv_screen_active(),"TFT Settings");Require(settings,"TFT Settings did not open");
     auto* window=lv_obj_get_parent(lv_obj_get_parent(settings));
-    Require(!lv_obj_has_flag(window,LV_OBJ_FLAG_HIDDEN),"TFT Settings stayed hidden");return window;
+    Require(!lv_obj_is_hidden(window),"TFT Settings stayed hidden");return window;
 }
 std::vector<lv_obj_t*> Fields(lv_obj_t* window) {
     std::vector<lv_obj_t*> fields;auto* content=EditorWindow::Content(window);
@@ -88,7 +88,7 @@ std::vector<lv_obj_t*> Fields(lv_obj_t* window) {
     std::sort(fields.begin(),fields.end(),[](lv_obj_t* a,lv_obj_t* b){return lv_obj_get_y(a)<lv_obj_get_y(b);});return fields;
 }
 void Keypad(lv_obj_t* keyboard,const char* text,SdlSimulator& simulator) {
-    Require(keyboard&&!lv_obj_has_flag(keyboard,LV_OBJ_FLAG_HIDDEN),"TFT on-screen keypad is not visible");lv_obj_update_layout(keyboard);
+    Require(keyboard&&!lv_obj_is_hidden(keyboard),"TFT on-screen keypad is not visible");lv_obj_update_layout(keyboard);
     auto* matrix=reinterpret_cast<lv_buttonmatrix_t*>(keyboard);
     for(uint32_t index=0;index<matrix->btn_cnt;++index)if(std::string(lv_buttonmatrix_get_button_text(keyboard,index))==text){
         lv_area_t area{};lv_obj_get_coords(keyboard,&area);const auto& key=matrix->button_areas[index];
@@ -122,13 +122,13 @@ void CheckTftSettings(UI& editor,SdlSimulator& simulator) {
     Key(SDLK_BACKSPACE,SDL_SCANCODE_BACKSPACE,simulator);
     Require(std::string(lv_textarea_get_text(height))=="272","Physical input did not resume after on-screen keypad use");
     Require(Ready(submit),"Valid TFT dimension edits did not leave Submit available");Click(submit,simulator);
-    Require(lv_obj_has_flag(window,LV_OBJ_FLAG_HIDDEN),"Submitting TFT dimensions did not close settings");
+    Require(lv_obj_is_hidden(window),"Submitting TFT dimensions did not close settings");
     Require(lv_group_get_focused(group)!=width&&lv_group_get_focused(group)!=height,"Submitting left a hidden TFT field focused");
     const auto canvas=editor.ProjectDocument().at("canvas");Require(canvas.at("width")==480&&canvas.at("height")==272,"Submitted TFT dimensions did not resize the authored canvas");
     editor.MenuAction("fit-canvas");Drain(simulator);
     window=OpenSettings(simulator);Click(Fields(window)[0],simulator);
     Click(ParentButton(Label(EditorWindow::Header(window),LV_SYMBOL_CLOSE)),simulator);
-    Require(lv_obj_has_flag(window,LV_OBJ_FLAG_HIDDEN),"TFT close button did not hide settings");
+    Require(lv_obj_is_hidden(window),"TFT close button did not hide settings");
     Require(lv_group_get_focused(group)!=width&&lv_group_get_focused(group)!=height,"Closing left hidden TFT fields consuming physical input");
     window=OpenSettings(simulator);const auto deleting=Fields(window);Click(deleting[1],simulator);
     // LVGL shutdown deletes indevs before displays. Removing the binding first
@@ -139,7 +139,7 @@ void CheckTftSettings(UI& editor,SdlSimulator& simulator) {
     lv_indev_set_group(simulator.GetKeyboard(),group);Drain(simulator);
     window=OpenSettings(simulator);const auto recreated=Fields(window);Click(recreated[1],simulator);
     Clear(recreated[1],simulator);Digits("273",simulator);Key(SDLK_RETURN,SDL_SCANCODE_RETURN,simulator);
-    Require(lv_obj_has_flag(window,LV_OBJ_FLAG_HIDDEN),"Physical Enter did not apply recreated TFT Settings");
+    Require(lv_obj_is_hidden(window),"Physical Enter did not apply recreated TFT Settings");
     Require(editor.ProjectDocument().at("canvas").at("height")==273,"Recreated TFT Settings kept a stale callback binding");
     Require(lv_group_get_focused(group)!=recreated[0]&&lv_group_get_focused(group)!=recreated[1],"Enter left a hidden recreated TFT field focused");
     editor.SelectObjectIds({0});const auto x=editor.ProjectDocument().at("obj").at(0).at("base").at("coords").at("x").get<int>();

@@ -1019,9 +1019,9 @@ void Generator::interactions(const json& project) {
                 const int targetId=a.value("targetOid",-1);const size_t targetScreen=a.value("targetScreen",si);auto ref=std::make_pair(targetScreen,targetId==-1?oid:targetId);
                 if(!handles.count(ref))throw std::runtime_error("Action references a missing widget");const auto target=handles.at(ref);
                 actionCode<<"            if (!"<<target<<") {ui_action_error=\"Widget unavailable\";break;}\n";
-                if(action=="show")actionCode<<"            lv_obj_remove_flag("<<target<<", LV_OBJ_FLAG_HIDDEN);\n";
-                else if(action=="hide")actionCode<<"            lv_obj_add_flag("<<target<<", LV_OBJ_FLAG_HIDDEN);\n";
-                else if(action=="toggle")actionCode<<"            if(lv_obj_has_flag("<<target<<", LV_OBJ_FLAG_HIDDEN))lv_obj_remove_flag("<<target<<", LV_OBJ_FLAG_HIDDEN);else lv_obj_add_flag("<<target<<", LV_OBJ_FLAG_HIDDEN);\n";
+                if(action=="show")actionCode<<"            lv_obj_set_hidden("<<target<<", false);\n";
+                else if(action=="hide")actionCode<<"            lv_obj_set_hidden("<<target<<", true);\n";
+                else if(action=="toggle")actionCode<<"            lv_obj_set_hidden("<<target<<", !lv_obj_is_hidden("<<target<<"));\n";
                 else if(action=="validate") {
                     auto widget=types.at(ref);if(widget!="textarea"&&widget!="textBox")throw std::runtime_error("Validation target must be a text box");
                     requirements.insert("TEXTAREA");auto entry=widget=="textarea"?target:target+"_custom.entry";

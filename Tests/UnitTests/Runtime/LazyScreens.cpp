@@ -135,7 +135,7 @@ TEST_CASE("Lazy snapshots retain unbound interactive values and flags", "[runtim
     lv_obj_add_state(object(41),LV_STATE_CHECKED);lv_dropdown_set_selected(object(42),2);lv_roller_set_selected(object(43),1,LV_ANIM_OFF);
     lv_spinbox_set_value(object(44),-17);lv_obj_add_state(object(45),LV_STATE_CHECKED);lv_obj_add_state(object(45),LV_STATE_DISABLED);
     lv_arc_set_value(object(46),17);lv_bar_set_value(object(47),32,LV_ANIM_OFF);
-    lv_obj_add_flag(object(7),LV_OBJ_FLAG_HIDDEN);lv_obj_add_state(object(7),LV_STATE_DISABLED);
+    lv_obj_set_hidden(object(7), true);lv_obj_add_state(object(7),LV_STATE_DISABLED);
     REQUIRE(lvgl_runtime_show_screen(runtime.get(),1));Timers();CHECK(lvgl_runtime_screen(runtime.get(),0)==nullptr);
     REQUIRE(lvgl_runtime_back(runtime.get()));Timers();
     CHECK(lv_slider_get_value(object(40))==123);CHECK(lv_slider_get_left_value(object(40))==-66);
@@ -143,7 +143,7 @@ TEST_CASE("Lazy snapshots retain unbound interactive values and flags", "[runtim
     CHECK(lv_obj_has_state(object(41),LV_STATE_CHECKED));CHECK(lv_dropdown_get_selected(object(42))==2);CHECK(lv_roller_get_selected(object(43))==1);
     CHECK(lv_spinbox_get_value(object(44))==-17);CHECK(lv_obj_has_state(object(45),LV_STATE_CHECKED));CHECK(lv_obj_has_state(object(45),LV_STATE_DISABLED));
     CHECK(lv_arc_get_value(object(46))==17);CHECK(lv_bar_get_value(object(47))==32);
-    CHECK(lv_obj_has_flag(object(7),LV_OBJ_FLAG_HIDDEN));CHECK(lv_obj_has_state(object(7),LV_STATE_DISABLED));
+    CHECK(lv_obj_is_hidden(object(7)));CHECK(lv_obj_has_state(object(7),LV_STATE_DISABLED));
 }
 #endif
 TEST_CASE("Runtime keyboard groups contain active-screen controls in authored tab order", "[runtime][lazy][focus]") {

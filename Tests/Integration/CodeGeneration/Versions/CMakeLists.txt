@@ -27,6 +27,15 @@ foreach(kind main assets)
     target_compile_features(test_cpp_${kind} PRIVATE cxx_std_17)
     set_target_properties(test_cpp_${kind} PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON)
     set_target_properties(test_${kind} PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON)
+    # Compile the exported C and public C++ headers against each supported LVGL
+    # version without allowing deprecated APIs back into generated applications.
+    foreach(test_target test_${kind} test_cpp_${kind})
+        if(MSVC)
+            target_compile_options(${test_target} PRIVATE /we4996)
+        else()
+            target_compile_options(${test_target} PRIVATE -Werror=deprecated-declarations)
+        endif()
+    endforeach()
     if(MSVC)
         target_compile_options(test_${kind} PRIVATE /W3 /we4013 /utf-8 /Zi
         )

@@ -28,14 +28,14 @@ lv_obj_t* Named(TreeView* tree,const std::string& name){
     for(auto* object:tree->GetObjects()){const auto* data=static_cast<ObjectUserData*>(lv_obj_get_user_data(object));if(data&&data->objectName==name)return object;}
     throw std::runtime_error("Hierarchy object is missing: "+name);
 }
-bool Hidden(lv_obj_t* object){for(auto* parent=object;parent;parent=lv_obj_get_parent(parent))if(lv_obj_has_flag(parent,LV_OBJ_FLAG_HIDDEN))return true;return false;}
+bool Hidden(lv_obj_t* object){for(auto* parent=object;parent;parent=lv_obj_get_parent(parent))if(lv_obj_is_hidden(parent))return true;return false;}
 TreeNode* CheckRow(Model model,lv_obj_t* object,const ObjectIcons::Icon* expected){
     Input::Require(ObjectIcons::ForObject(object)==expected,std::string(expected->key)+": object resolved to the wrong hierarchy icon");
     auto* node=model.tree->GetNodeByObject(object);Input::Require(node,"Authored object has no hierarchy node");
     auto* row=node->GetRowObject();auto* icon=node->GetIconObject();
     Input::Require(row&&icon&&lv_obj_get_parent(icon)==row&&ObjectIcons::Get(icon)==expected,"Hierarchy row lost its object-specific icon");
     Input::Require(lv_obj_get_width(icon)==24&&lv_obj_get_height(icon)==24,"Hierarchy icon must use its dedicated 24px size");
-    Input::Require(!lv_obj_has_flag(icon,LV_OBJ_FLAG_CLICKABLE)&&!lv_obj_has_flag(icon,LV_OBJ_FLAG_CLICK_FOCUSABLE),"Hierarchy decoration intercepts selection or keyboard focus");
+    Input::Require(!lv_obj_is_clickable(icon)&&!lv_obj_is_click_focusable(icon),"Hierarchy decoration intercepts selection or keyboard focus");
     lv_obj_t* caption=nullptr;for(uint32_t i=0;i<lv_obj_get_child_count(row);++i){auto* child=lv_obj_get_child(row,i);if(lv_obj_has_class(child,&lv_label_class)){Input::Require(!caption,"Hierarchy row has multiple direct caption labels");caption=child;}}
     Input::Require(caption,"Hierarchy caption must remain a direct row child");
     lv_obj_update_layout(lv_screen_active());lv_area_t ib{},cb{},rb{};lv_obj_get_coords(icon,&ib);lv_obj_get_coords(caption,&cb);lv_obj_get_coords(row,&rb);

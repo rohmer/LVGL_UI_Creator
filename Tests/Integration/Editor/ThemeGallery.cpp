@@ -50,7 +50,7 @@ lv_obj_t* Card(lv_obj_t* gallery,const char* id){
     throw std::runtime_error(std::string("Theme card is missing: ")+id);
 }
 void Passive(lv_obj_t* object){
-    Input::Require(!lv_obj_has_flag(object,LV_OBJ_FLAG_CLICKABLE)&&!lv_obj_get_group(object),"A theme miniature intercepted editor input or focus");
+    Input::Require(!lv_obj_is_clickable(object)&&!lv_obj_get_group(object),"A theme miniature intercepted editor input or focus");
     for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)Passive(lv_obj_get_child(object,i));
 }
 void Click(lv_obj_t* window,const char* caption,SdlSimulator& simulator){
@@ -58,7 +58,7 @@ void Click(lv_obj_t* window,const char* caption,SdlSimulator& simulator){
 }
 uint64_t PreviewHash(lv_obj_t* window){
     auto* image=Input::FindClass(window,&lv_image_class);Input::Require(image,"Theme preview is missing");
-    Input::Require(!lv_obj_has_flag(image,LV_OBJ_FLAG_CLICKABLE)&&!lv_obj_has_flag(image,LV_OBJ_FLAG_CLICK_FOCUSABLE)&&!lv_obj_get_group(image),"Theme preview is interactive");
+    Input::Require(!lv_obj_is_clickable(image)&&!lv_obj_is_click_focusable(image)&&!lv_obj_get_group(image),"Theme preview is interactive");
     const auto* source=static_cast<const lv_image_dsc_t*>(lv_image_get_src(image));
     Input::Require(source&&source->header.magic==LV_IMAGE_HEADER_MAGIC&&source->data&&source->data_size,"Actual-screen theme preview has no rendered framebuffer");
     uint64_t hash=1469598103934665603ull;for(uint32_t i=0;i<source->data_size;++i){hash^=source->data[i];hash*=1099511628211ull;}return hash;

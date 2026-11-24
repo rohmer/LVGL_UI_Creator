@@ -33,10 +33,10 @@ void HideHint(Decoration* state) {
 }
 void Layout(Decoration* state) {
     if(state->iconOnly) {
-        lv_obj_add_flag(state->label,LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_hidden(state->label,true);
         lv_obj_center(state->icon);
     } else {
-        lv_obj_remove_flag(state->label,LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_hidden(state->label,false);
         const int left=state->size+8;
         lv_obj_set_width(state->label,(std::max)(1,int(lv_obj_get_content_width(state->button))-left));
         lv_obj_set_height(state->label,lv_font_get_line_height(lv_obj_get_style_text_font(state->label,LV_PART_MAIN)));
@@ -60,9 +60,12 @@ void ShowHint(Decoration* state) {
     lv_obj_set_style_bg_color(tooltip,lv_color_hex(EditorStyle::Input),0);
     lv_obj_set_style_bg_opa(tooltip,LV_OPA_COVER,0);
     lv_obj_set_style_text_color(tooltip,lv_color_hex(EditorStyle::Text),0);
-    lv_obj_remove_flag(tooltip,static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_CLICK_FOCUSABLE|LV_OBJ_FLAG_SCROLLABLE));
+    lv_obj_set_clickable(tooltip,false);
+    lv_obj_set_click_focusable(tooltip,false);
+    lv_obj_set_scrollable(tooltip,false);
     auto* label=lv_label_create(tooltip);lv_label_set_text(label,descriptor->name);
-    lv_obj_remove_flag(label,static_cast<lv_obj_flag_t>(LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_CLICK_FOCUSABLE));
+    lv_obj_set_clickable(label,false);
+    lv_obj_set_click_focusable(label,false);
     lv_obj_update_layout(tooltip);
     lv_area_t anchor{};lv_obj_get_coords(state->button,&anchor);
     const int width=lv_obj_get_width(tooltip),height=lv_obj_get_height(tooltip);

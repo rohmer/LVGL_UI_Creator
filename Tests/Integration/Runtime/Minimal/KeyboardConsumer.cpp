@@ -49,9 +49,9 @@ int main()
             auto* textarea=lvgl_runtime_object(runtime,0,8);
             Require(textarea && lv_obj_get_class(textarea)==&lv_textarea_class,"External textarea missing");
             Require(lv_advanced_keyboard_bound_textarea_count(keyboard)==1,"External textarea was not registered");
-            Require(!lv_advanced_keyboard_get_textarea(keyboard) && lv_obj_has_flag(keyboard,LV_OBJ_FLAG_HIDDEN),"Keyboard appeared before a textarea received focus");
+            Require(!lv_advanced_keyboard_get_textarea(keyboard) && lv_obj_is_hidden(keyboard),"Keyboard appeared before a textarea received focus");
             lv_obj_add_state(textarea,LV_STATE_FOCUSED);lv_obj_send_event(textarea,LV_EVENT_FOCUSED,nullptr);
-            Require(lv_advanced_keyboard_get_textarea(keyboard)==textarea && !lv_obj_has_flag(keyboard,LV_OBJ_FLAG_HIDDEN),"Focus did not activate the keyboard popup");
+            Require(lv_advanced_keyboard_get_textarea(keyboard)==textarea && !lv_obj_is_hidden(keyboard),"Focus did not activate the keyboard popup");
             Require(lv_advanced_keyboard_get_keyboard(keyboard),"Native keys missing");
             auto* predictor=lv_advanced_keyboard_get_predictor(keyboard);
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION

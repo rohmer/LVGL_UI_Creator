@@ -18,7 +18,7 @@ lv_obj_t* create_key(lv_obj_t* parent, const char* text, std::int32_t width,
     lv_obj_set_size(button, width, height);
     lv_obj_set_press_lock(button, false);
     lv_obj_set_scroll_on_focus(button, false);
-    lv_obj_remove_flag(button, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    lv_obj_set_click_focusable(button, false);
     lv_group_remove_obj(button); // Private touch keys must not steal keypad focus from the external field.
 
     constexpr lv_style_selector_t normal = LV_PART_MAIN;
