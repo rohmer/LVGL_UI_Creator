@@ -5,49 +5,59 @@
 
 namespace espos::keyboard::detail {
 
+inline constexpr const char* id_id_qwerty_0_row_0_key_2_variants[] = {"\303\250", "\303\251", "\303\252", "\303\253"};
+inline constexpr const char* id_id_qwerty_0_row_0_key_5_variants[] = {"\303\275", "\303\277"};
+inline constexpr const char* id_id_qwerty_0_row_0_key_6_variants[] = {"\303\271", "\303\272", "\303\273", "\303\274"};
+inline constexpr const char* id_id_qwerty_0_row_0_key_7_variants[] = {"\303\254", "\303\255", "\303\256", "\303\257"};
+inline constexpr const char* id_id_qwerty_0_row_0_key_8_variants[] = {"\303\262", "\303\263", "\303\264", "\303\265", "\303\266", "\303\270", "\305\223"};
 inline constexpr Key id_id_qwerty_0_row_0[] = {
-    {"q", "q", 1.0f, {ActionType::Insert, "q", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"w", "w", 1.0f, {ActionType::Insert, "w", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"e", "e", 1.0f, {ActionType::Insert, "e", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"r", "r", 1.0f, {ActionType::Insert, "r", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"t", "t", 1.0f, {ActionType::Insert, "t", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"y", "y", 1.0f, {ActionType::Insert, "y", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"u", "u", 1.0f, {ActionType::Insert, "u", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"i", "i", 1.0f, {ActionType::Insert, "i", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"o", "o", 1.0f, {ActionType::Insert, "o", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"p", "p", 1.0f, {ActionType::Insert, "p", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"q", "q", 1.0f, {ActionType::Insert, "q", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"w", "w", 1.0f, {ActionType::Insert, "w", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"e", "e", 1.0f, {ActionType::Insert, "e", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_0_key_2_variants, 4},
+    {"r", "r", 1.0f, {ActionType::Insert, "r", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"t", "t", 1.0f, {ActionType::Insert, "t", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"y", "y", 1.0f, {ActionType::Insert, "y", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_0_key_5_variants, 2},
+    {"u", "u", 1.0f, {ActionType::Insert, "u", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_0_key_6_variants, 4},
+    {"i", "i", 1.0f, {ActionType::Insert, "i", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_0_key_7_variants, 4},
+    {"o", "o", 1.0f, {ActionType::Insert, "o", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_0_key_8_variants, 7},
+    {"p", "p", 1.0f, {ActionType::Insert, "p", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_0_row_1_key_0_variants[] = {"\303\240", "\303\241", "\303\242", "\303\243", "\303\244", "\303\245", "\303\246"};
+inline constexpr const char* id_id_qwerty_0_row_1_key_1_variants[] = {"\303\237"};
 inline constexpr Key id_id_qwerty_0_row_1[] = {
-    {"a", "a", 1.0f, {ActionType::Insert, "a", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"s", "s", 1.0f, {ActionType::Insert, "s", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"d", "d", 1.0f, {ActionType::Insert, "d", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"f", "f", 1.0f, {ActionType::Insert, "f", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"g", "g", 1.0f, {ActionType::Insert, "g", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"h", "h", 1.0f, {ActionType::Insert, "h", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"j", "j", 1.0f, {ActionType::Insert, "j", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"k", "k", 1.0f, {ActionType::Insert, "k", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"l", "l", 1.0f, {ActionType::Insert, "l", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"a", "a", 1.0f, {ActionType::Insert, "a", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_1_key_0_variants, 7},
+    {"s", "s", 1.0f, {ActionType::Insert, "s", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_1_key_1_variants, 1},
+    {"d", "d", 1.0f, {ActionType::Insert, "d", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"f", "f", 1.0f, {ActionType::Insert, "f", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"g", "g", 1.0f, {ActionType::Insert, "g", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"h", "h", 1.0f, {ActionType::Insert, "h", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"j", "j", 1.0f, {ActionType::Insert, "j", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"k", "k", 1.0f, {ActionType::Insert, "k", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"l", "l", 1.0f, {ActionType::Insert, "l", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_0_row_2_key_3_variants[] = {"\303\247"};
+inline constexpr const char* id_id_qwerty_0_row_2_key_6_variants[] = {"\303\261"};
 inline constexpr Key id_id_qwerty_0_row_2[] = {
-    {"shift", "\342\207\247", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}},
-    {"z", "z", 1.0f, {ActionType::Insert, "z", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"x", "x", 1.0f, {ActionType::Insert, "x", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"c", "c", 1.0f, {ActionType::Insert, "c", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"v", "v", 1.0f, {ActionType::Insert, "v", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"b", "b", 1.0f, {ActionType::Insert, "b", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"n", "n", 1.0f, {ActionType::Insert, "n", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"m", "m", 1.0f, {ActionType::Insert, "m", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"shift", "\342\207\247", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}, nullptr, 0},
+    {"z", "z", 1.0f, {ActionType::Insert, "z", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"x", "x", 1.0f, {ActionType::Insert, "x", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"c", "c", 1.0f, {ActionType::Insert, "c", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_2_key_3_variants, 1},
+    {"v", "v", 1.0f, {ActionType::Insert, "v", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"b", "b", 1.0f, {ActionType::Insert, "b", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"n", "n", 1.0f, {ActionType::Insert, "n", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_2_key_6_variants, 1},
+    {"m", "m", 1.0f, {ActionType::Insert, "m", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_0_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key id_id_qwerty_0_row_3[] = {
-    {"keyboard", "#@!", 2.0f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "#@!", 2.0f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_0_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row id_id_qwerty_0_rows[] = {
@@ -57,49 +67,59 @@ inline constexpr Row id_id_qwerty_0_rows[] = {
     {0.0f, id_id_qwerty_0_row_3, 5},
 };
 
+inline constexpr const char* id_id_qwerty_1_row_0_key_2_variants[] = {"\303\210", "\303\211", "\303\212", "\303\213"};
+inline constexpr const char* id_id_qwerty_1_row_0_key_5_variants[] = {"\303\235", "\305\270"};
+inline constexpr const char* id_id_qwerty_1_row_0_key_6_variants[] = {"\303\231", "\303\232", "\303\233", "\303\234"};
+inline constexpr const char* id_id_qwerty_1_row_0_key_7_variants[] = {"\303\214", "\303\215", "\303\216", "\303\217"};
+inline constexpr const char* id_id_qwerty_1_row_0_key_8_variants[] = {"\303\222", "\303\223", "\303\224", "\303\225", "\303\226", "\303\230", "\305\222"};
 inline constexpr Key id_id_qwerty_1_row_0[] = {
-    {"q", "Q", 1.0f, {ActionType::Insert, "Q", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"w", "W", 1.0f, {ActionType::Insert, "W", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"e", "E", 1.0f, {ActionType::Insert, "E", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"r", "R", 1.0f, {ActionType::Insert, "R", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"t", "T", 1.0f, {ActionType::Insert, "T", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"y", "Y", 1.0f, {ActionType::Insert, "Y", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"u", "U", 1.0f, {ActionType::Insert, "U", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"i", "I", 1.0f, {ActionType::Insert, "I", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"o", "O", 1.0f, {ActionType::Insert, "O", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"p", "P", 1.0f, {ActionType::Insert, "P", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"q", "Q", 1.0f, {ActionType::Insert, "Q", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"w", "W", 1.0f, {ActionType::Insert, "W", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"e", "E", 1.0f, {ActionType::Insert, "E", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_0_key_2_variants, 4},
+    {"r", "R", 1.0f, {ActionType::Insert, "R", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"t", "T", 1.0f, {ActionType::Insert, "T", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"y", "Y", 1.0f, {ActionType::Insert, "Y", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_0_key_5_variants, 2},
+    {"u", "U", 1.0f, {ActionType::Insert, "U", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_0_key_6_variants, 4},
+    {"i", "I", 1.0f, {ActionType::Insert, "I", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_0_key_7_variants, 4},
+    {"o", "O", 1.0f, {ActionType::Insert, "O", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_0_key_8_variants, 7},
+    {"p", "P", 1.0f, {ActionType::Insert, "P", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_1_row_1_key_0_variants[] = {"\303\200", "\303\201", "\303\202", "\303\203", "\303\204", "\303\205", "\303\206"};
+inline constexpr const char* id_id_qwerty_1_row_1_key_1_variants[] = {"\341\272\236"};
 inline constexpr Key id_id_qwerty_1_row_1[] = {
-    {"a", "A", 1.0f, {ActionType::Insert, "A", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"s", "S", 1.0f, {ActionType::Insert, "S", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"d", "D", 1.0f, {ActionType::Insert, "D", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"f", "F", 1.0f, {ActionType::Insert, "F", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"g", "G", 1.0f, {ActionType::Insert, "G", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"h", "H", 1.0f, {ActionType::Insert, "H", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"j", "J", 1.0f, {ActionType::Insert, "J", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"k", "K", 1.0f, {ActionType::Insert, "K", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"l", "L", 1.0f, {ActionType::Insert, "L", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"a", "A", 1.0f, {ActionType::Insert, "A", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_1_key_0_variants, 7},
+    {"s", "S", 1.0f, {ActionType::Insert, "S", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_1_key_1_variants, 1},
+    {"d", "D", 1.0f, {ActionType::Insert, "D", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"f", "F", 1.0f, {ActionType::Insert, "F", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"g", "G", 1.0f, {ActionType::Insert, "G", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"h", "H", 1.0f, {ActionType::Insert, "H", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"j", "J", 1.0f, {ActionType::Insert, "J", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"k", "K", 1.0f, {ActionType::Insert, "K", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"l", "L", 1.0f, {ActionType::Insert, "L", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_1_row_2_key_3_variants[] = {"\303\207"};
+inline constexpr const char* id_id_qwerty_1_row_2_key_6_variants[] = {"\303\221"};
 inline constexpr Key id_id_qwerty_1_row_2[] = {
-    {"shift", "\342\254\206", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}},
-    {"z", "Z", 1.0f, {ActionType::Insert, "Z", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"x", "X", 1.0f, {ActionType::Insert, "X", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"c", "C", 1.0f, {ActionType::Insert, "C", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"v", "V", 1.0f, {ActionType::Insert, "V", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"b", "B", 1.0f, {ActionType::Insert, "B", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"n", "N", 1.0f, {ActionType::Insert, "N", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"m", "M", 1.0f, {ActionType::Insert, "M", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"shift", "\342\254\206", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}, nullptr, 0},
+    {"z", "Z", 1.0f, {ActionType::Insert, "Z", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"x", "X", 1.0f, {ActionType::Insert, "X", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"c", "C", 1.0f, {ActionType::Insert, "C", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_2_key_3_variants, 1},
+    {"v", "V", 1.0f, {ActionType::Insert, "V", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"b", "B", 1.0f, {ActionType::Insert, "B", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"n", "N", 1.0f, {ActionType::Insert, "N", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_2_key_6_variants, 1},
+    {"m", "M", 1.0f, {ActionType::Insert, "M", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_1_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key id_id_qwerty_1_row_3[] = {
-    {"keyboard", "#@!", 2.0f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "#@!", 2.0f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_1_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row id_id_qwerty_1_rows[] = {
@@ -109,50 +129,73 @@ inline constexpr Row id_id_qwerty_1_rows[] = {
     {0.0f, id_id_qwerty_1_row_3, 5},
 };
 
+inline constexpr const char* id_id_qwerty_2_row_0_key_0_variants[] = {"\302\271", "\342\202\201", "\302\275", "\302\274"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_1_variants[] = {"\302\262", "\342\202\202"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_2_variants[] = {"\302\263", "\342\202\203", "\302\276"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_3_variants[] = {"\342\201\264", "\342\202\204"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_4_variants[] = {"\342\201\265", "\342\202\205"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_5_variants[] = {"\342\201\266", "\342\202\206"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_6_variants[] = {"\342\201\267", "\342\202\207"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_7_variants[] = {"\342\201\270", "\342\202\210"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_8_variants[] = {"\342\201\271", "\342\202\211"};
+inline constexpr const char* id_id_qwerty_2_row_0_key_9_variants[] = {"\342\201\260", "\342\202\200"};
 inline constexpr Key id_id_qwerty_2_row_0[] = {
-    {"symbol_1", "1", 1.0f, {ActionType::Insert, "1", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_2", "2", 1.0f, {ActionType::Insert, "2", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_3", "3", 1.0f, {ActionType::Insert, "3", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_4", "4", 1.0f, {ActionType::Insert, "4", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_5", "5", 1.0f, {ActionType::Insert, "5", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_6", "6", 1.0f, {ActionType::Insert, "6", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_7", "7", 1.0f, {ActionType::Insert, "7", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_8", "8", 1.0f, {ActionType::Insert, "8", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_9", "9", 1.0f, {ActionType::Insert, "9", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_10", "0", 1.0f, {ActionType::Insert, "0", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_1", "1", 1.0f, {ActionType::Insert, "1", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_0_variants, 4},
+    {"symbol_2", "2", 1.0f, {ActionType::Insert, "2", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_1_variants, 2},
+    {"symbol_3", "3", 1.0f, {ActionType::Insert, "3", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_2_variants, 3},
+    {"symbol_4", "4", 1.0f, {ActionType::Insert, "4", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_3_variants, 2},
+    {"symbol_5", "5", 1.0f, {ActionType::Insert, "5", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_4_variants, 2},
+    {"symbol_6", "6", 1.0f, {ActionType::Insert, "6", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_5_variants, 2},
+    {"symbol_7", "7", 1.0f, {ActionType::Insert, "7", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_6_variants, 2},
+    {"symbol_8", "8", 1.0f, {ActionType::Insert, "8", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_7_variants, 2},
+    {"symbol_9", "9", 1.0f, {ActionType::Insert, "9", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_8_variants, 2},
+    {"symbol_10", "0", 1.0f, {ActionType::Insert, "0", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_0_key_9_variants, 2},
 };
 
+inline constexpr const char* id_id_qwerty_2_row_1_key_2_variants[] = {"\302\242", "\342\202\254", "\302\243", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* id_id_qwerty_2_row_1_key_3_variants[] = {"\342\200\260"};
+inline constexpr const char* id_id_qwerty_2_row_1_key_5_variants[] = {"\342\200\223", "\342\200\224", "\342\210\222"};
+inline constexpr const char* id_id_qwerty_2_row_1_key_6_variants[] = {"\302\261"};
+inline constexpr const char* id_id_qwerty_2_row_1_key_7_variants[] = {"[", "{"};
+inline constexpr const char* id_id_qwerty_2_row_1_key_8_variants[] = {"]", "}"};
+inline constexpr const char* id_id_qwerty_2_row_1_key_9_variants[] = {"\\", "\303\267"};
 inline constexpr Key id_id_qwerty_2_row_1[] = {
-    {"symbol_11", "@", 1.0f, {ActionType::Insert, "@", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_12", "#", 1.0f, {ActionType::Insert, "#", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_13", "$", 1.0f, {ActionType::Insert, "$", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_14", "%", 1.0f, {ActionType::Insert, "%", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_15", "&", 1.0f, {ActionType::Insert, "&", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_16", "-", 1.0f, {ActionType::Insert, "-", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_17", "+", 1.0f, {ActionType::Insert, "+", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_18", "(", 1.0f, {ActionType::Insert, "(", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_19", ")", 1.0f, {ActionType::Insert, ")", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_20", "/", 1.0f, {ActionType::Insert, "/", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_11", "@", 1.0f, {ActionType::Insert, "@", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_12", "#", 1.0f, {ActionType::Insert, "#", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_13", "$", 1.0f, {ActionType::Insert, "$", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_2_variants, 7},
+    {"symbol_14", "%", 1.0f, {ActionType::Insert, "%", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_3_variants, 1},
+    {"symbol_15", "&", 1.0f, {ActionType::Insert, "&", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_16", "-", 1.0f, {ActionType::Insert, "-", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_5_variants, 3},
+    {"symbol_17", "+", 1.0f, {ActionType::Insert, "+", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_6_variants, 1},
+    {"symbol_18", "(", 1.0f, {ActionType::Insert, "(", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_7_variants, 2},
+    {"symbol_19", ")", 1.0f, {ActionType::Insert, ")", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_8_variants, 2},
+    {"symbol_20", "/", 1.0f, {ActionType::Insert, "/", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_1_key_9_variants, 2},
 };
 
+inline constexpr const char* id_id_qwerty_2_row_2_key_1_variants[] = {"\303\227", "\302\267"};
+inline constexpr const char* id_id_qwerty_2_row_2_key_2_variants[] = {"\342\200\234", "\342\200\235", "\342\200\236", "\302\253", "\302\273"};
+inline constexpr const char* id_id_qwerty_2_row_2_key_3_variants[] = {"\342\200\231", "\342\200\230"};
+inline constexpr const char* id_id_qwerty_2_row_2_key_6_variants[] = {"\302\241"};
+inline constexpr const char* id_id_qwerty_2_row_2_key_7_variants[] = {"\302\277"};
 inline constexpr Key id_id_qwerty_2_row_2[] = {
-    {"symbol_page", "=\\<", 1.5f, {ActionType::SwitchLayout, nullptr, 3}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_21", "*", 1.0f, {ActionType::Insert, "*", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_22", "\"", 1.0f, {ActionType::Insert, "\"", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_23", "'", 1.0f, {ActionType::Insert, "'", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_24", ":", 1.0f, {ActionType::Insert, ":", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_25", ";", 1.0f, {ActionType::Insert, ";", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_26", "!", 1.0f, {ActionType::Insert, "!", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_27", "?", 1.0f, {ActionType::Insert, "?", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_page", "=\\<", 1.5f, {ActionType::SwitchLayout, nullptr, 3}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_21", "*", 1.0f, {ActionType::Insert, "*", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_2_key_1_variants, 2},
+    {"symbol_22", "\"", 1.0f, {ActionType::Insert, "\"", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_2_key_2_variants, 5},
+    {"symbol_23", "'", 1.0f, {ActionType::Insert, "'", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_2_key_3_variants, 2},
+    {"symbol_24", ":", 1.0f, {ActionType::Insert, ":", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_25", ";", 1.0f, {ActionType::Insert, ";", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_26", "!", 1.0f, {ActionType::Insert, "!", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_2_key_6_variants, 1},
+    {"symbol_27", "?", 1.0f, {ActionType::Insert, "?", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_2_key_7_variants, 1},
+    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_2_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key id_id_qwerty_2_row_3[] = {
-    {"keyboard", "ABC", 2.0f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "ABC", 2.0f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_2_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row id_id_qwerty_2_rows[] = {
@@ -162,50 +205,70 @@ inline constexpr Row id_id_qwerty_2_rows[] = {
     {0.0f, id_id_qwerty_2_row_3, 5},
 };
 
+inline constexpr const char* id_id_qwerty_3_row_0_key_1_variants[] = {"/", "\303\267"};
+inline constexpr const char* id_id_qwerty_3_row_0_key_2_variants[] = {"(", "{"};
+inline constexpr const char* id_id_qwerty_3_row_0_key_3_variants[] = {")", "}"};
+inline constexpr const char* id_id_qwerty_3_row_0_key_4_variants[] = {"(", "["};
+inline constexpr const char* id_id_qwerty_3_row_0_key_5_variants[] = {")", "]"};
+inline constexpr const char* id_id_qwerty_3_row_0_key_6_variants[] = {"\342\211\244", "\342\200\271", "\302\253"};
+inline constexpr const char* id_id_qwerty_3_row_0_key_7_variants[] = {"\342\211\245", "\342\200\272", "\302\273"};
+inline constexpr const char* id_id_qwerty_3_row_0_key_8_variants[] = {"\342\211\240", "\342\211\210"};
 inline constexpr Key id_id_qwerty_3_row_0[] = {
-    {"symbol_1", "_", 1.0f, {ActionType::Insert, "_", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_2", "\\", 1.0f, {ActionType::Insert, "\\", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_3", "[", 1.0f, {ActionType::Insert, "[", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_4", "]", 1.0f, {ActionType::Insert, "]", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_5", "{", 1.0f, {ActionType::Insert, "{", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_6", "}", 1.0f, {ActionType::Insert, "}", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_7", "<", 1.0f, {ActionType::Insert, "<", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_8", ">", 1.0f, {ActionType::Insert, ">", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_9", "=", 1.0f, {ActionType::Insert, "=", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_10", "^", 1.0f, {ActionType::Insert, "^", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_1", "_", 1.0f, {ActionType::Insert, "_", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_2", "\\", 1.0f, {ActionType::Insert, "\\", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_1_variants, 2},
+    {"symbol_3", "[", 1.0f, {ActionType::Insert, "[", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_2_variants, 2},
+    {"symbol_4", "]", 1.0f, {ActionType::Insert, "]", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_3_variants, 2},
+    {"symbol_5", "{", 1.0f, {ActionType::Insert, "{", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_4_variants, 2},
+    {"symbol_6", "}", 1.0f, {ActionType::Insert, "}", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_5_variants, 2},
+    {"symbol_7", "<", 1.0f, {ActionType::Insert, "<", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_6_variants, 3},
+    {"symbol_8", ">", 1.0f, {ActionType::Insert, ">", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_7_variants, 3},
+    {"symbol_9", "=", 1.0f, {ActionType::Insert, "=", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_0_key_8_variants, 2},
+    {"symbol_10", "^", 1.0f, {ActionType::Insert, "^", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_3_row_1_key_3_variants[] = {"$", "\302\242", "\302\243", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* id_id_qwerty_3_row_1_key_4_variants[] = {"$", "\302\242", "\342\202\254", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* id_id_qwerty_3_row_1_key_5_variants[] = {"$", "\302\242", "\342\202\254", "\302\243", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* id_id_qwerty_3_row_1_key_6_variants[] = {"$", "\342\202\254", "\302\243", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* id_id_qwerty_3_row_1_key_7_variants[] = {"\302\256", "\342\204\242"};
+inline constexpr const char* id_id_qwerty_3_row_1_key_8_variants[] = {"\302\251", "\342\204\242"};
+inline constexpr const char* id_id_qwerty_3_row_1_key_9_variants[] = {"\302\251", "\302\256"};
 inline constexpr Key id_id_qwerty_3_row_1[] = {
-    {"symbol_11", "`", 1.0f, {ActionType::Insert, "`", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_12", "~", 1.0f, {ActionType::Insert, "~", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_13", "|", 1.0f, {ActionType::Insert, "|", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_14", "\342\202\254", 1.0f, {ActionType::Insert, "\342\202\254", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_15", "\302\243", 1.0f, {ActionType::Insert, "\302\243", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_16", "\302\245", 1.0f, {ActionType::Insert, "\302\245", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_17", "\302\242", 1.0f, {ActionType::Insert, "\302\242", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_18", "\302\251", 1.0f, {ActionType::Insert, "\302\251", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_19", "\302\256", 1.0f, {ActionType::Insert, "\302\256", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_20", "\342\204\242", 1.0f, {ActionType::Insert, "\342\204\242", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_11", "`", 1.0f, {ActionType::Insert, "`", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_12", "~", 1.0f, {ActionType::Insert, "~", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_13", "|", 1.0f, {ActionType::Insert, "|", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_14", "\342\202\254", 1.0f, {ActionType::Insert, "\342\202\254", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_3_variants, 7},
+    {"symbol_15", "\302\243", 1.0f, {ActionType::Insert, "\302\243", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_4_variants, 7},
+    {"symbol_16", "\302\245", 1.0f, {ActionType::Insert, "\302\245", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_5_variants, 7},
+    {"symbol_17", "\302\242", 1.0f, {ActionType::Insert, "\302\242", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_6_variants, 7},
+    {"symbol_18", "\302\251", 1.0f, {ActionType::Insert, "\302\251", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_7_variants, 2},
+    {"symbol_19", "\302\256", 1.0f, {ActionType::Insert, "\302\256", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_8_variants, 2},
+    {"symbol_20", "\342\204\242", 1.0f, {ActionType::Insert, "\342\204\242", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_1_key_9_variants, 2},
 };
 
+inline constexpr const char* id_id_qwerty_3_row_2_key_1_variants[] = {".", "\342\200\246", "\302\267"};
+inline constexpr const char* id_id_qwerty_3_row_2_key_2_variants[] = {".", "\302\267", "\342\200\242"};
+inline constexpr const char* id_id_qwerty_3_row_2_key_5_variants[] = {"/", "\\"};
+inline constexpr const char* id_id_qwerty_3_row_2_key_6_variants[] = {"*", "\302\267"};
 inline constexpr Key id_id_qwerty_3_row_2[] = {
-    {"symbol_page", "123", 1.5f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_21", "\342\200\242", 1.0f, {ActionType::Insert, "\342\200\242", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_22", "\342\200\246", 1.0f, {ActionType::Insert, "\342\200\246", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_23", "\342\210\232", 1.0f, {ActionType::Insert, "\342\210\232", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_24", "\317\200", 1.0f, {ActionType::Insert, "\317\200", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_25", "\303\267", 1.0f, {ActionType::Insert, "\303\267", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_26", "\303\227", 1.0f, {ActionType::Insert, "\303\227", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_27", "\302\260", 1.0f, {ActionType::Insert, "\302\260", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_page", "123", 1.5f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_21", "\342\200\242", 1.0f, {ActionType::Insert, "\342\200\242", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_2_key_1_variants, 3},
+    {"symbol_22", "\342\200\246", 1.0f, {ActionType::Insert, "\342\200\246", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_2_key_2_variants, 3},
+    {"symbol_23", "\342\210\232", 1.0f, {ActionType::Insert, "\342\210\232", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_24", "\317\200", 1.0f, {ActionType::Insert, "\317\200", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_25", "\303\267", 1.0f, {ActionType::Insert, "\303\267", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_2_key_5_variants, 2},
+    {"symbol_26", "\303\227", 1.0f, {ActionType::Insert, "\303\227", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_2_key_6_variants, 2},
+    {"symbol_27", "\302\260", 1.0f, {ActionType::Insert, "\302\260", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* id_id_qwerty_3_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key id_id_qwerty_3_row_3[] = {
-    {"keyboard", "ABC", 2.0f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "ABC", 2.0f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 4.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, id_id_qwerty_3_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.0f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row id_id_qwerty_3_rows[] = {

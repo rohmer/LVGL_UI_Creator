@@ -7,7 +7,7 @@ idf_component_register(SRCS "${keyboard_core}/PredictionModel.cpp"
                             "${keyboard_core}/PredictionStorage.cpp" "esp_runtime.cpp"
                        INCLUDE_DIRS "include" "${keyboard_core}" "${keyboard_core}/include"
                        REQUIRES esp_partition
-                       PRIV_REQUIRES esp_timer freertos heap log)
+                       PRIV_REQUIRES esp_timer freertos heap log task_scheduler)
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_17)
 target_compile_definitions(${COMPONENT_LIB} PRIVATE ESPOS_KEYBOARD_HEADLESS_PREDICTION=1)
 target_compile_options(${COMPONENT_LIB} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fexceptions>)

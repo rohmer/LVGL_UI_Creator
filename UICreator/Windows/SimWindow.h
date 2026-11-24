@@ -17,6 +17,7 @@ public:
     int GetHeight() const { return height; }
     void SetSize(int newWidth, int newHeight) { resize(newWidth, newHeight, false, false); }
     void SetKeyboardGroup(lv_group_t* group) { keyboardGroup = group; }
+    void RefreshMemoryUsage();
 
     lv_obj_t* GetDrawSurface()
     {
@@ -27,6 +28,10 @@ private:
     int width, height;
     lv_obj_t *window, *settingsWindow = nullptr, *drawSurface;
     lv_group_t* keyboardGroup = nullptr;
+    lv_obj_t* memoryLabel = nullptr;
+    size_t memoryBytes = static_cast<size_t>(-1);
+
+    int updateFrame();
 
     struct cbStruct
     {

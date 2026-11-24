@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import json
 from pathlib import Path
 import shutil
 import struct
 import sys
+import time
 import uuid
 
 from feature_plan import (MAX_INPUT, analyze_projects, decode_project, encode_project,
@@ -23,6 +25,25 @@ def text_file(path: Path, text: str):
 def copy_file(source: Path, destination: Path):
     destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, destination)
+
+
+def rename_generated_directory(source: Path, destination: Path):
+    """Publish a generated directory, tolerating brief Windows sharing locks."""
+    delays = (0.05, 0.1, 0.2, 0.4, 0.8, 1.0)
+    for attempt in range(len(delays) + 1):
+        # Never replace a destination that appeared after the caller's guard or
+        # during a retry, including an empty directory or dangling symlink.
+        if destination.exists() or destination.is_symlink():
+            raise FileExistsError(errno.EEXIST, "Generated output destination already exists", str(destination))
+        try:
+            source.rename(destination)
+            return
+        except OSError as error:
+            # Windows scanners can briefly hold a freshly written directory.
+            # Other platforms/errors and persistent failures retain their error.
+            if getattr(error, "winerror", None) not in (5, 32, 33) or attempt == len(delays):
+                raise
+            time.sleep(delays[attempt])
 
 
 def cpp_string(value: str) -> str:
@@ -240,15 +261,15 @@ def make_component(inputs, output: Path, *, color_depth=16, default_font=14, emb
         text_file(stage / "cmake/project_sources.cmake", "set(LVGL_PB_PROJECT_SOURCES\n" + "".join('    "vendor/' + source + '"\n' for source in sources) + ")\n")
         text_file(stage / "features.json", json.dumps(plan, indent=2, ensure_ascii=False) + "\n")
         text_file(stage / "lvgl-pb-component.json", json.dumps({"generator": "LVGL UI Creator ESP32 component", "formatVersion": 1, "lvgl": "9.6.0"}, indent=2) + "\n")
-        text_file(stage / "idf_component.yml", 'description: "Project-specific LVGL Protobuf runtime with bundled LVGL"\nversion: "0.9.1"\ndependencies:\n  idf: ">=5.3"\n')
+        text_file(stage / "idf_component.yml", 'description: "Project-specific LVGL Protobuf runtime with bundled LVGL"\nversion: "0.9.2"\ndependencies:\n  idf: ">=5.3"\n')
         backup = None
         if output.exists():
             backup = output.parent / ("." + output.name + "-previous-" + uuid.uuid4().hex)
-            output.rename(backup)
+            rename_generated_directory(output, backup)
         try:
-            stage.rename(output)
+            rename_generated_directory(stage, output)
         except BaseException:
-            if backup: backup.rename(output)
+            if backup: rename_generated_directory(backup, output)
             raise
         if backup:
             if backup.resolve().parent != output.parent or not backup.name.startswith("." + output.name + "-previous-"):

@@ -125,6 +125,7 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/RunMode.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/Performance.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/TftSettings.cpp"
+        "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/ScreenMemory.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/EditorInputMatrix.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/EditorInputAssets.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/EditorInputProperties.cpp"
@@ -162,6 +163,8 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     endif()
     add_test(NAME UICreatorKeyboardModeRepeat COMMAND UICreatorEditorTests --keyboard-mode-repeat)
     add_test(NAME UICreatorTftSettings COMMAND UICreatorEditorTests --tft-settings)
+    add_test(NAME UICreatorScreenMemory COMMAND UICreatorEditorTests --screen-memory)
+    set_tests_properties(UICreatorScreenMemory PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 30 LABELS "functional;editor;memory")
     add_test(NAME UICreatorEditorInputMatrix COMMAND UICreatorEditorTests --editor-input-matrix)
     add_test(NAME UICreatorObjectIcons COMMAND UICreatorEditorTests --object-icons "${PROJECT_BINARY_DIR}/object-icon-tests")
     add_test(NAME UICreatorHierarchyIcons COMMAND UICreatorEditorTests --hierarchy-icons "${PROJECT_BINARY_DIR}/hierarchy-icon-tests")

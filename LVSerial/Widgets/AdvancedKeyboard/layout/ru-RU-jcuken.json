@@ -16,7 +16,8 @@
               "action": {
                 "type": "insert",
                 "text": "ё"
-              }
+              },
+              "variants": ["е"]
             },
             {
               "id": "w",
@@ -24,7 +25,8 @@
               "action": {
                 "type": "insert",
                 "text": "й"
-              }
+              },
+              "variants": ["и"]
             },
             {
               "id": "e",
@@ -56,7 +58,8 @@
               "action": {
                 "type": "insert",
                 "text": "е"
-              }
+              },
+              "variants": ["ё"]
             },
             {
               "id": "u",
@@ -261,7 +264,8 @@
               "action": {
                 "type": "insert",
                 "text": "и"
-              }
+              },
+              "variants": ["й"]
             },
             {
               "id": "n",
@@ -301,7 +305,8 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": ["…", "·", "•"]
             },
             {
               "id": "backspace",
@@ -347,7 +352,8 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": ["…", "·", "•"]
             },
             {
               "id": "enter",
@@ -373,7 +379,8 @@
               "action": {
                 "type": "insert",
                 "text": "Ё"
-              }
+              },
+              "variants": ["Е"]
             },
             {
               "id": "w",
@@ -381,7 +388,8 @@
               "action": {
                 "type": "insert",
                 "text": "Й"
-              }
+              },
+              "variants": ["И"]
             },
             {
               "id": "e",
@@ -413,7 +421,8 @@
               "action": {
                 "type": "insert",
                 "text": "Е"
-              }
+              },
+              "variants": ["Ё"]
             },
             {
               "id": "u",
@@ -618,7 +627,8 @@
               "action": {
                 "type": "insert",
                 "text": "И"
-              }
+              },
+              "variants": ["Й"]
             },
             {
               "id": "n",
@@ -704,7 +714,8 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": ["…", "·", "•"]
             },
             {
               "id": "enter",
@@ -729,7 +740,8 @@
                 "type": "insert",
                 "text": "1"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["¹", "₁", "½", "¼"]
             },
             {
               "id": "symbol_2",
@@ -738,7 +750,8 @@
                 "type": "insert",
                 "text": "2"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["²", "₂"]
             },
             {
               "id": "symbol_3",
@@ -747,7 +760,8 @@
                 "type": "insert",
                 "text": "3"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["³", "₃", "¾"]
             },
             {
               "id": "symbol_4",
@@ -756,7 +770,8 @@
                 "type": "insert",
                 "text": "4"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁴", "₄"]
             },
             {
               "id": "symbol_5",
@@ -765,7 +780,8 @@
                 "type": "insert",
                 "text": "5"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁵", "₅"]
             },
             {
               "id": "symbol_6",
@@ -774,7 +790,8 @@
                 "type": "insert",
                 "text": "6"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁶", "₆"]
             },
             {
               "id": "symbol_7",
@@ -783,7 +800,8 @@
                 "type": "insert",
                 "text": "7"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁷", "₇"]
             },
             {
               "id": "symbol_8",
@@ -792,7 +810,8 @@
                 "type": "insert",
                 "text": "8"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁸", "₈"]
             },
             {
               "id": "symbol_9",
@@ -801,7 +820,8 @@
                 "type": "insert",
                 "text": "9"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁹", "₉"]
             },
             {
               "id": "symbol_10",
@@ -810,7 +830,8 @@
                 "type": "insert",
                 "text": "0"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["⁰", "₀"]
             }
           ],
           "offset": 0.0
@@ -842,7 +863,8 @@
                 "type": "insert",
                 "text": "$"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["¢", "€", "£", "¥", "₹", "₽", "₩"]
             },
             {
               "id": "symbol_14",
@@ -851,7 +873,8 @@
                 "type": "insert",
                 "text": "%"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["‰"]
             },
             {
               "id": "symbol_15",
@@ -869,7 +892,8 @@
                 "type": "insert",
                 "text": "-"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["–", "—", "−"]
             },
             {
               "id": "symbol_17",
@@ -878,7 +902,8 @@
                 "type": "insert",
                 "text": "+"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["±"]
             },
             {
               "id": "symbol_18",
@@ -887,7 +912,8 @@
                 "type": "insert",
                 "text": "("
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["[", "{"]
             },
             {
               "id": "symbol_19",
@@ -896,7 +922,8 @@
                 "type": "insert",
                 "text": ")"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["]", "}"]
             },
             {
               "id": "symbol_20",
@@ -905,7 +932,8 @@
                 "type": "insert",
                 "text": "/"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["\\", "÷"]
             }
           ],
           "offset": 0.0
@@ -928,7 +956,8 @@
                 "type": "insert",
                 "text": "*"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["×", "·"]
             },
             {
               "id": "symbol_22",
@@ -937,7 +966,8 @@
                 "type": "insert",
                 "text": "\""
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["“", "”", "„", "«", "»"]
             },
             {
               "id": "symbol_23",
@@ -946,7 +976,8 @@
                 "type": "insert",
                 "text": "'"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["’", "‘"]
             },
             {
               "id": "symbol_24",
@@ -973,7 +1004,8 @@
                 "type": "insert",
                 "text": "!"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["¡"]
             },
             {
               "id": "symbol_27",
@@ -982,7 +1014,8 @@
                 "type": "insert",
                 "text": "?"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["¿"]
             },
             {
               "id": "backspace",
@@ -1031,7 +1064,8 @@
                 "type": "insert",
                 "text": "."
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["…", "·", "•"]
             },
             {
               "id": "enter",
@@ -1066,7 +1100,8 @@
                 "type": "insert",
                 "text": "\\"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["/", "÷"]
             },
             {
               "id": "symbol_3",
@@ -1075,7 +1110,8 @@
                 "type": "insert",
                 "text": "["
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["(", "{"]
             },
             {
               "id": "symbol_4",
@@ -1084,7 +1120,8 @@
                 "type": "insert",
                 "text": "]"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": [")", "}"]
             },
             {
               "id": "symbol_5",
@@ -1093,7 +1130,8 @@
                 "type": "insert",
                 "text": "{"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["(", "["]
             },
             {
               "id": "symbol_6",
@@ -1102,7 +1140,8 @@
                 "type": "insert",
                 "text": "}"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": [")", "]"]
             },
             {
               "id": "symbol_7",
@@ -1111,7 +1150,8 @@
                 "type": "insert",
                 "text": "<"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["≤", "‹", "«"]
             },
             {
               "id": "symbol_8",
@@ -1120,7 +1160,8 @@
                 "type": "insert",
                 "text": ">"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["≥", "›", "»"]
             },
             {
               "id": "symbol_9",
@@ -1129,7 +1170,8 @@
                 "type": "insert",
                 "text": "="
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["≠", "≈"]
             },
             {
               "id": "symbol_10",
@@ -1179,7 +1221,8 @@
                 "type": "insert",
                 "text": "€"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["$", "¢", "£", "¥", "₹", "₽", "₩"]
             },
             {
               "id": "symbol_15",
@@ -1188,7 +1231,8 @@
                 "type": "insert",
                 "text": "£"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["$", "¢", "€", "¥", "₹", "₽", "₩"]
             },
             {
               "id": "symbol_16",
@@ -1197,7 +1241,8 @@
                 "type": "insert",
                 "text": "¥"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["$", "¢", "€", "£", "₹", "₽", "₩"]
             },
             {
               "id": "symbol_17",
@@ -1206,7 +1251,8 @@
                 "type": "insert",
                 "text": "¢"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["$", "€", "£", "¥", "₹", "₽", "₩"]
             },
             {
               "id": "symbol_18",
@@ -1215,7 +1261,8 @@
                 "type": "insert",
                 "text": "©"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["®", "™"]
             },
             {
               "id": "symbol_19",
@@ -1224,7 +1271,8 @@
                 "type": "insert",
                 "text": "®"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["©", "™"]
             },
             {
               "id": "symbol_20",
@@ -1233,7 +1281,8 @@
                 "type": "insert",
                 "text": "™"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["©", "®"]
             }
           ],
           "offset": 0.0
@@ -1256,7 +1305,8 @@
                 "type": "insert",
                 "text": "•"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": [".", "…", "·"]
             },
             {
               "id": "symbol_22",
@@ -1265,7 +1315,8 @@
                 "type": "insert",
                 "text": "…"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": [".", "·", "•"]
             },
             {
               "id": "symbol_23",
@@ -1292,7 +1343,8 @@
                 "type": "insert",
                 "text": "÷"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["/", "\\"]
             },
             {
               "id": "symbol_26",
@@ -1301,7 +1353,8 @@
                 "type": "insert",
                 "text": "×"
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["*", "·"]
             },
             {
               "id": "symbol_27",
@@ -1359,7 +1412,8 @@
                 "type": "insert",
                 "text": "."
               },
-              "width": 1.3
+              "width": 1.3,
+              "variants": ["…", "·", "•"]
             },
             {
               "id": "enter",

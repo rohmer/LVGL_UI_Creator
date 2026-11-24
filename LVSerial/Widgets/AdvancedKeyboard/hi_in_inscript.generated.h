@@ -5,57 +5,77 @@
 
 namespace espos::keyboard::detail {
 
+inline constexpr const char* hi_in_inscript_0_row_0_key_0_variants[] = {"\340\245\211", "\340\245\213"};
+inline constexpr const char* hi_in_inscript_0_row_0_key_1_variants[] = {"\340\245\206", "\340\245\207"};
+inline constexpr const char* hi_in_inscript_0_row_0_key_3_variants[] = {"\340\244\277"};
+inline constexpr const char* hi_in_inscript_0_row_0_key_4_variants[] = {"\340\245\201"};
+inline constexpr const char* hi_in_inscript_0_row_0_key_7_variants[] = {"\340\244\227\340\244\274"};
+inline constexpr const char* hi_in_inscript_0_row_0_key_9_variants[] = {"\340\244\234\340\244\274"};
+inline constexpr const char* hi_in_inscript_0_row_0_key_10_variants[] = {"\340\244\241\340\244\274"};
 inline constexpr Key hi_in_inscript_0_row_0[] = {
-    {"q", "\342\227\214\340\245\214", 1.0f, {ActionType::Insert, "\340\245\214", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"w", "\342\227\214\340\245\210", 1.0f, {ActionType::Insert, "\340\245\210", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"e", "\342\227\214\340\244\276", 1.0f, {ActionType::Insert, "\340\244\276", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"r", "\342\227\214\340\245\200", 1.0f, {ActionType::Insert, "\340\245\200", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"t", "\342\227\214\340\245\202", 1.0f, {ActionType::Insert, "\340\245\202", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"y", "\340\244\254", 1.0f, {ActionType::Insert, "\340\244\254", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"u", "\340\244\271", 1.0f, {ActionType::Insert, "\340\244\271", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"i", "\340\244\227", 1.0f, {ActionType::Insert, "\340\244\227", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"o", "\340\244\246", 1.0f, {ActionType::Insert, "\340\244\246", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"p", "\340\244\234", 1.0f, {ActionType::Insert, "\340\244\234", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"bracket-left", "\340\244\241", 1.0f, {ActionType::Insert, "\340\244\241", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"bracket-right", "\342\227\214\340\244\274", 1.0f, {ActionType::Insert, "\340\244\274", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"q", "\342\227\214\340\245\214", 1.0f, {ActionType::Insert, "\340\245\214", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_0_variants, 2},
+    {"w", "\342\227\214\340\245\210", 1.0f, {ActionType::Insert, "\340\245\210", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_1_variants, 2},
+    {"e", "\342\227\214\340\244\276", 1.0f, {ActionType::Insert, "\340\244\276", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"r", "\342\227\214\340\245\200", 1.0f, {ActionType::Insert, "\340\245\200", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_3_variants, 1},
+    {"t", "\342\227\214\340\245\202", 1.0f, {ActionType::Insert, "\340\245\202", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_4_variants, 1},
+    {"y", "\340\244\254", 1.0f, {ActionType::Insert, "\340\244\254", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"u", "\340\244\271", 1.0f, {ActionType::Insert, "\340\244\271", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"i", "\340\244\227", 1.0f, {ActionType::Insert, "\340\244\227", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_7_variants, 1},
+    {"o", "\340\244\246", 1.0f, {ActionType::Insert, "\340\244\246", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"p", "\340\244\234", 1.0f, {ActionType::Insert, "\340\244\234", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_9_variants, 1},
+    {"bracket-left", "\340\244\241", 1.0f, {ActionType::Insert, "\340\244\241", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_0_key_10_variants, 1},
+    {"bracket-right", "\342\227\214\340\244\274", 1.0f, {ActionType::Insert, "\340\244\274", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_0_row_1_key_0_variants[] = {"\340\245\211", "\340\245\214"};
+inline constexpr const char* hi_in_inscript_0_row_1_key_1_variants[] = {"\340\245\206", "\340\245\210"};
+inline constexpr const char* hi_in_inscript_0_row_1_key_3_variants[] = {"\340\245\200"};
+inline constexpr const char* hi_in_inscript_0_row_1_key_4_variants[] = {"\340\245\202"};
+inline constexpr const char* hi_in_inscript_0_row_1_key_6_variants[] = {"\340\244\260\340\244\274"};
+inline constexpr const char* hi_in_inscript_0_row_1_key_7_variants[] = {"\340\244\225\340\244\274"};
+inline constexpr const char* hi_in_inscript_0_row_1_key_11_variants[] = {"\340\245\213", "\340\245\214"};
 inline constexpr Key hi_in_inscript_0_row_1[] = {
-    {"a", "\342\227\214\340\245\213", 1.0f, {ActionType::Insert, "\340\245\213", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"s", "\342\227\214\340\245\207", 1.0f, {ActionType::Insert, "\340\245\207", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"d", "\342\227\214\340\245\215", 1.0f, {ActionType::Insert, "\340\245\215", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"f", "\342\227\214\340\244\277", 1.0f, {ActionType::Insert, "\340\244\277", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"g", "\342\227\214\340\245\201", 1.0f, {ActionType::Insert, "\340\245\201", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"h", "\340\244\252", 1.0f, {ActionType::Insert, "\340\244\252", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"j", "\340\244\260", 1.0f, {ActionType::Insert, "\340\244\260", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"k", "\340\244\225", 1.0f, {ActionType::Insert, "\340\244\225", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"l", "\340\244\244", 1.0f, {ActionType::Insert, "\340\244\244", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"semicolon", "\340\244\232", 1.0f, {ActionType::Insert, "\340\244\232", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"apostrophe", "\340\244\237", 1.0f, {ActionType::Insert, "\340\244\237", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"extra-home", "\342\227\214\340\245\211", 1.0f, {ActionType::Insert, "\340\245\211", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"a", "\342\227\214\340\245\213", 1.0f, {ActionType::Insert, "\340\245\213", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_0_variants, 2},
+    {"s", "\342\227\214\340\245\207", 1.0f, {ActionType::Insert, "\340\245\207", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_1_variants, 2},
+    {"d", "\342\227\214\340\245\215", 1.0f, {ActionType::Insert, "\340\245\215", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"f", "\342\227\214\340\244\277", 1.0f, {ActionType::Insert, "\340\244\277", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_3_variants, 1},
+    {"g", "\342\227\214\340\245\201", 1.0f, {ActionType::Insert, "\340\245\201", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_4_variants, 1},
+    {"h", "\340\244\252", 1.0f, {ActionType::Insert, "\340\244\252", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"j", "\340\244\260", 1.0f, {ActionType::Insert, "\340\244\260", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_6_variants, 1},
+    {"k", "\340\244\225", 1.0f, {ActionType::Insert, "\340\244\225", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_7_variants, 1},
+    {"l", "\340\244\244", 1.0f, {ActionType::Insert, "\340\244\244", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"semicolon", "\340\244\232", 1.0f, {ActionType::Insert, "\340\244\232", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"apostrophe", "\340\244\237", 1.0f, {ActionType::Insert, "\340\244\237", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"extra-home", "\342\227\214\340\245\211", 1.0f, {ActionType::Insert, "\340\245\211", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_1_key_11_variants, 2},
 };
 
+inline constexpr const char* hi_in_inscript_0_row_2_key_1_variants[] = {"\340\245\207", "\340\245\210"};
+inline constexpr const char* hi_in_inscript_0_row_2_key_2_variants[] = {"\340\244\201"};
+inline constexpr const char* hi_in_inscript_0_row_2_key_4_variants[] = {"\340\244\250\340\244\274"};
+inline constexpr const char* hi_in_inscript_0_row_2_key_9_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
+inline constexpr const char* hi_in_inscript_0_row_2_key_10_variants[] = {"\340\244\257\340\244\274"};
 inline constexpr Key hi_in_inscript_0_row_2[] = {
-    {"shift", "\342\207\247", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}},
-    {"z", "\342\227\214\340\245\206", 1.0f, {ActionType::Insert, "\340\245\206", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"x", "\342\227\214\340\244\202", 1.0f, {ActionType::Insert, "\340\244\202", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"c", "\340\244\256", 1.0f, {ActionType::Insert, "\340\244\256", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"v", "\340\244\250", 1.0f, {ActionType::Insert, "\340\244\250", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"b", "\340\244\265", 1.0f, {ActionType::Insert, "\340\244\265", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"n", "\340\244\262", 1.0f, {ActionType::Insert, "\340\244\262", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"m", "\340\244\270", 1.0f, {ActionType::Insert, "\340\244\270", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"slash", "\340\244\257", 1.0f, {ActionType::Insert, "\340\244\257", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"shift", "\342\207\247", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}, nullptr, 0},
+    {"z", "\342\227\214\340\245\206", 1.0f, {ActionType::Insert, "\340\245\206", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_2_key_1_variants, 2},
+    {"x", "\342\227\214\340\244\202", 1.0f, {ActionType::Insert, "\340\244\202", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_2_key_2_variants, 1},
+    {"c", "\340\244\256", 1.0f, {ActionType::Insert, "\340\244\256", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"v", "\340\244\250", 1.0f, {ActionType::Insert, "\340\244\250", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_2_key_4_variants, 1},
+    {"b", "\340\244\265", 1.0f, {ActionType::Insert, "\340\244\265", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"n", "\340\244\262", 1.0f, {ActionType::Insert, "\340\244\262", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"m", "\340\244\270", 1.0f, {ActionType::Insert, "\340\244\270", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_2_key_9_variants, 3},
+    {"slash", "\340\244\257", 1.0f, {ActionType::Insert, "\340\244\257", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_2_key_10_variants, 1},
+    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_0_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key hi_in_inscript_0_row_3[] = {
-    {"keyboard", "#@!", 2.5f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}},
-    {"punctuation", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 6.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"stop", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.5f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "#@!", 2.5f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"punctuation", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 6.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"stop", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_0_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.5f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row hi_in_inscript_0_rows[] = {
@@ -65,57 +85,75 @@ inline constexpr Row hi_in_inscript_0_rows[] = {
     {0.0f, hi_in_inscript_0_row_3, 5},
 };
 
+inline constexpr const char* hi_in_inscript_1_row_0_key_0_variants[] = {"\340\244\221", "\340\244\223"};
+inline constexpr const char* hi_in_inscript_1_row_0_key_1_variants[] = {"\340\244\216", "\340\244\217"};
+inline constexpr const char* hi_in_inscript_1_row_0_key_2_variants[] = {"\340\244\205"};
+inline constexpr const char* hi_in_inscript_1_row_0_key_3_variants[] = {"\340\244\207"};
+inline constexpr const char* hi_in_inscript_1_row_0_key_4_variants[] = {"\340\244\211"};
+inline constexpr const char* hi_in_inscript_1_row_0_key_10_variants[] = {"\340\244\242\340\244\274"};
 inline constexpr Key hi_in_inscript_1_row_0[] = {
-    {"q", "\340\244\224", 1.0f, {ActionType::Insert, "\340\244\224", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"w", "\340\244\220", 1.0f, {ActionType::Insert, "\340\244\220", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"e", "\340\244\206", 1.0f, {ActionType::Insert, "\340\244\206", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"r", "\340\244\210", 1.0f, {ActionType::Insert, "\340\244\210", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"t", "\340\244\212", 1.0f, {ActionType::Insert, "\340\244\212", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"y", "\340\244\255", 1.0f, {ActionType::Insert, "\340\244\255", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"u", "\340\244\231", 1.0f, {ActionType::Insert, "\340\244\231", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"i", "\340\244\230", 1.0f, {ActionType::Insert, "\340\244\230", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"o", "\340\244\247", 1.0f, {ActionType::Insert, "\340\244\247", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"p", "\340\244\235", 1.0f, {ActionType::Insert, "\340\244\235", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"bracket-left", "\340\244\242", 1.0f, {ActionType::Insert, "\340\244\242", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"bracket-right", "\340\244\236", 1.0f, {ActionType::Insert, "\340\244\236", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"q", "\340\244\224", 1.0f, {ActionType::Insert, "\340\244\224", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_0_key_0_variants, 2},
+    {"w", "\340\244\220", 1.0f, {ActionType::Insert, "\340\244\220", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_0_key_1_variants, 2},
+    {"e", "\340\244\206", 1.0f, {ActionType::Insert, "\340\244\206", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_0_key_2_variants, 1},
+    {"r", "\340\244\210", 1.0f, {ActionType::Insert, "\340\244\210", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_0_key_3_variants, 1},
+    {"t", "\340\244\212", 1.0f, {ActionType::Insert, "\340\244\212", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_0_key_4_variants, 1},
+    {"y", "\340\244\255", 1.0f, {ActionType::Insert, "\340\244\255", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"u", "\340\244\231", 1.0f, {ActionType::Insert, "\340\244\231", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"i", "\340\244\230", 1.0f, {ActionType::Insert, "\340\244\230", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"o", "\340\244\247", 1.0f, {ActionType::Insert, "\340\244\247", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"p", "\340\244\235", 1.0f, {ActionType::Insert, "\340\244\235", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"bracket-left", "\340\244\242", 1.0f, {ActionType::Insert, "\340\244\242", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_0_key_10_variants, 1},
+    {"bracket-right", "\340\244\236", 1.0f, {ActionType::Insert, "\340\244\236", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_1_row_1_key_0_variants[] = {"\340\244\221", "\340\244\224"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_1_variants[] = {"\340\244\216", "\340\244\220"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_2_variants[] = {"\340\244\206"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_3_variants[] = {"\340\244\210"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_4_variants[] = {"\340\244\212"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_5_variants[] = {"\340\244\253\340\244\274"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_7_variants[] = {"\340\244\226\340\244\274"};
+inline constexpr const char* hi_in_inscript_1_row_1_key_11_variants[] = {"\340\244\223", "\340\244\224"};
 inline constexpr Key hi_in_inscript_1_row_1[] = {
-    {"a", "\340\244\223", 1.0f, {ActionType::Insert, "\340\244\223", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"s", "\340\244\217", 1.0f, {ActionType::Insert, "\340\244\217", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"d", "\340\244\205", 1.0f, {ActionType::Insert, "\340\244\205", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"f", "\340\244\207", 1.0f, {ActionType::Insert, "\340\244\207", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"g", "\340\244\211", 1.0f, {ActionType::Insert, "\340\244\211", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"h", "\340\244\253", 1.0f, {ActionType::Insert, "\340\244\253", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"j", "\340\244\261", 1.0f, {ActionType::Insert, "\340\244\261", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"k", "\340\244\226", 1.0f, {ActionType::Insert, "\340\244\226", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"l", "\340\244\245", 1.0f, {ActionType::Insert, "\340\244\245", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"semicolon", "\340\244\233", 1.0f, {ActionType::Insert, "\340\244\233", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"apostrophe", "\340\244\240", 1.0f, {ActionType::Insert, "\340\244\240", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"extra-home", "\340\244\221", 1.0f, {ActionType::Insert, "\340\244\221", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"a", "\340\244\223", 1.0f, {ActionType::Insert, "\340\244\223", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_0_variants, 2},
+    {"s", "\340\244\217", 1.0f, {ActionType::Insert, "\340\244\217", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_1_variants, 2},
+    {"d", "\340\244\205", 1.0f, {ActionType::Insert, "\340\244\205", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_2_variants, 1},
+    {"f", "\340\244\207", 1.0f, {ActionType::Insert, "\340\244\207", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_3_variants, 1},
+    {"g", "\340\244\211", 1.0f, {ActionType::Insert, "\340\244\211", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_4_variants, 1},
+    {"h", "\340\244\253", 1.0f, {ActionType::Insert, "\340\244\253", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_5_variants, 1},
+    {"j", "\340\244\261", 1.0f, {ActionType::Insert, "\340\244\261", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"k", "\340\244\226", 1.0f, {ActionType::Insert, "\340\244\226", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_7_variants, 1},
+    {"l", "\340\244\245", 1.0f, {ActionType::Insert, "\340\244\245", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"semicolon", "\340\244\233", 1.0f, {ActionType::Insert, "\340\244\233", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"apostrophe", "\340\244\240", 1.0f, {ActionType::Insert, "\340\244\240", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"extra-home", "\340\244\221", 1.0f, {ActionType::Insert, "\340\244\221", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_1_key_11_variants, 2},
 };
 
+inline constexpr const char* hi_in_inscript_1_row_2_key_1_variants[] = {"\340\244\217", "\340\244\220"};
+inline constexpr const char* hi_in_inscript_1_row_2_key_2_variants[] = {"\340\244\202"};
+inline constexpr const char* hi_in_inscript_1_row_2_key_6_variants[] = {"\340\244\263\340\244\274"};
 inline constexpr Key hi_in_inscript_1_row_2[] = {
-    {"shift", "\342\207\247", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}},
-    {"z", "\340\244\216", 1.0f, {ActionType::Insert, "\340\244\216", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"x", "\342\227\214\340\244\201", 1.0f, {ActionType::Insert, "\340\244\201", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"c", "\340\244\243", 1.0f, {ActionType::Insert, "\340\244\243", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"v", "\340\244\251", 1.0f, {ActionType::Insert, "\340\244\251", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"b", "\340\244\264", 1.0f, {ActionType::Insert, "\340\244\264", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"n", "\340\244\263", 1.0f, {ActionType::Insert, "\340\244\263", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"m", "\340\244\266", 1.0f, {ActionType::Insert, "\340\244\266", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"comma", "\340\244\267", 1.0f, {ActionType::Insert, "\340\244\267", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", "\340\245\244", 1.0f, {ActionType::Insert, "\340\245\244", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"slash", "\340\245\237", 1.0f, {ActionType::Insert, "\340\245\237", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"shift", "\342\207\247", 1.5f, {ActionType::Shift, nullptr, no_layout}, {ActionType::ShiftLock, nullptr, no_layout}, nullptr, 0},
+    {"z", "\340\244\216", 1.0f, {ActionType::Insert, "\340\244\216", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_2_key_1_variants, 2},
+    {"x", "\342\227\214\340\244\201", 1.0f, {ActionType::Insert, "\340\244\201", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_2_key_2_variants, 1},
+    {"c", "\340\244\243", 1.0f, {ActionType::Insert, "\340\244\243", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"v", "\340\244\251", 1.0f, {ActionType::Insert, "\340\244\251", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"b", "\340\244\264", 1.0f, {ActionType::Insert, "\340\244\264", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"n", "\340\244\263", 1.0f, {ActionType::Insert, "\340\244\263", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_2_key_6_variants, 1},
+    {"m", "\340\244\266", 1.0f, {ActionType::Insert, "\340\244\266", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", "\340\244\267", 1.0f, {ActionType::Insert, "\340\244\267", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", "\340\245\244", 1.0f, {ActionType::Insert, "\340\245\244", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"slash", "\340\245\237", 1.0f, {ActionType::Insert, "\340\245\237", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"backspace", "\342\214\253", 1.5f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_1_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key hi_in_inscript_1_row_3[] = {
-    {"keyboard", "#@!", 2.5f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}},
-    {"punctuation", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 6.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"stop", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.5f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "#@!", 2.5f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"punctuation", ",", 1.0f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 6.0f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"stop", ".", 1.0f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_1_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.5f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row hi_in_inscript_1_rows[] = {
@@ -125,50 +163,73 @@ inline constexpr Row hi_in_inscript_1_rows[] = {
     {0.0f, hi_in_inscript_1_row_3, 5},
 };
 
+inline constexpr const char* hi_in_inscript_2_row_0_key_0_variants[] = {"\302\271", "\342\202\201", "\302\275", "\302\274", "\340\245\247"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_1_variants[] = {"\302\262", "\342\202\202", "\340\245\250"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_2_variants[] = {"\302\263", "\342\202\203", "\302\276", "\340\245\251"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_3_variants[] = {"\342\201\264", "\342\202\204", "\340\245\252"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_4_variants[] = {"\342\201\265", "\342\202\205", "\340\245\253"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_5_variants[] = {"\342\201\266", "\342\202\206", "\340\245\254"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_6_variants[] = {"\342\201\267", "\342\202\207", "\340\245\255"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_7_variants[] = {"\342\201\270", "\342\202\210", "\340\245\256"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_8_variants[] = {"\342\201\271", "\342\202\211", "\340\245\257"};
+inline constexpr const char* hi_in_inscript_2_row_0_key_9_variants[] = {"\342\201\260", "\342\202\200", "\340\245\246"};
 inline constexpr Key hi_in_inscript_2_row_0[] = {
-    {"symbol_1", "1", 1.2999999523162842f, {ActionType::Insert, "1", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_2", "2", 1.2999999523162842f, {ActionType::Insert, "2", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_3", "3", 1.2999999523162842f, {ActionType::Insert, "3", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_4", "4", 1.2999999523162842f, {ActionType::Insert, "4", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_5", "5", 1.2999999523162842f, {ActionType::Insert, "5", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_6", "6", 1.2999999523162842f, {ActionType::Insert, "6", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_7", "7", 1.2999999523162842f, {ActionType::Insert, "7", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_8", "8", 1.2999999523162842f, {ActionType::Insert, "8", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_9", "9", 1.2999999523162842f, {ActionType::Insert, "9", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_10", "0", 1.2999999523162842f, {ActionType::Insert, "0", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_1", "1", 1.2999999523162842f, {ActionType::Insert, "1", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_0_variants, 5},
+    {"symbol_2", "2", 1.2999999523162842f, {ActionType::Insert, "2", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_1_variants, 3},
+    {"symbol_3", "3", 1.2999999523162842f, {ActionType::Insert, "3", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_2_variants, 4},
+    {"symbol_4", "4", 1.2999999523162842f, {ActionType::Insert, "4", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_3_variants, 3},
+    {"symbol_5", "5", 1.2999999523162842f, {ActionType::Insert, "5", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_4_variants, 3},
+    {"symbol_6", "6", 1.2999999523162842f, {ActionType::Insert, "6", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_5_variants, 3},
+    {"symbol_7", "7", 1.2999999523162842f, {ActionType::Insert, "7", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_6_variants, 3},
+    {"symbol_8", "8", 1.2999999523162842f, {ActionType::Insert, "8", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_7_variants, 3},
+    {"symbol_9", "9", 1.2999999523162842f, {ActionType::Insert, "9", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_8_variants, 3},
+    {"symbol_10", "0", 1.2999999523162842f, {ActionType::Insert, "0", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_0_key_9_variants, 3},
 };
 
+inline constexpr const char* hi_in_inscript_2_row_1_key_2_variants[] = {"\302\242", "\342\202\254", "\302\243", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* hi_in_inscript_2_row_1_key_3_variants[] = {"\342\200\260"};
+inline constexpr const char* hi_in_inscript_2_row_1_key_5_variants[] = {"\342\200\223", "\342\200\224", "\342\210\222"};
+inline constexpr const char* hi_in_inscript_2_row_1_key_6_variants[] = {"\302\261"};
+inline constexpr const char* hi_in_inscript_2_row_1_key_7_variants[] = {"[", "{"};
+inline constexpr const char* hi_in_inscript_2_row_1_key_8_variants[] = {"]", "}"};
+inline constexpr const char* hi_in_inscript_2_row_1_key_9_variants[] = {"\\", "\303\267"};
 inline constexpr Key hi_in_inscript_2_row_1[] = {
-    {"symbol_11", "@", 1.2999999523162842f, {ActionType::Insert, "@", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_12", "#", 1.2999999523162842f, {ActionType::Insert, "#", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_13", "$", 1.2999999523162842f, {ActionType::Insert, "$", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_14", "%", 1.2999999523162842f, {ActionType::Insert, "%", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_15", "&", 1.2999999523162842f, {ActionType::Insert, "&", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_16", "-", 1.2999999523162842f, {ActionType::Insert, "-", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_17", "+", 1.2999999523162842f, {ActionType::Insert, "+", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_18", "(", 1.2999999523162842f, {ActionType::Insert, "(", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_19", ")", 1.2999999523162842f, {ActionType::Insert, ")", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_20", "/", 1.2999999523162842f, {ActionType::Insert, "/", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_11", "@", 1.2999999523162842f, {ActionType::Insert, "@", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_12", "#", 1.2999999523162842f, {ActionType::Insert, "#", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_13", "$", 1.2999999523162842f, {ActionType::Insert, "$", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_2_variants, 7},
+    {"symbol_14", "%", 1.2999999523162842f, {ActionType::Insert, "%", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_3_variants, 1},
+    {"symbol_15", "&", 1.2999999523162842f, {ActionType::Insert, "&", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_16", "-", 1.2999999523162842f, {ActionType::Insert, "-", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_5_variants, 3},
+    {"symbol_17", "+", 1.2999999523162842f, {ActionType::Insert, "+", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_6_variants, 1},
+    {"symbol_18", "(", 1.2999999523162842f, {ActionType::Insert, "(", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_7_variants, 2},
+    {"symbol_19", ")", 1.2999999523162842f, {ActionType::Insert, ")", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_8_variants, 2},
+    {"symbol_20", "/", 1.2999999523162842f, {ActionType::Insert, "/", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_1_key_9_variants, 2},
 };
 
+inline constexpr const char* hi_in_inscript_2_row_2_key_1_variants[] = {"\303\227", "\302\267"};
+inline constexpr const char* hi_in_inscript_2_row_2_key_2_variants[] = {"\342\200\234", "\342\200\235", "\342\200\236", "\302\253", "\302\273"};
+inline constexpr const char* hi_in_inscript_2_row_2_key_3_variants[] = {"\342\200\231", "\342\200\230"};
+inline constexpr const char* hi_in_inscript_2_row_2_key_6_variants[] = {"\302\241"};
+inline constexpr const char* hi_in_inscript_2_row_2_key_7_variants[] = {"\302\277"};
 inline constexpr Key hi_in_inscript_2_row_2[] = {
-    {"symbol_page", "=\\<", 1.9500000476837158f, {ActionType::SwitchLayout, nullptr, 3}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_21", "*", 1.2999999523162842f, {ActionType::Insert, "*", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_22", "\"", 1.2999999523162842f, {ActionType::Insert, "\"", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_23", "'", 1.2999999523162842f, {ActionType::Insert, "'", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_24", ":", 1.2999999523162842f, {ActionType::Insert, ":", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_25", ";", 1.2999999523162842f, {ActionType::Insert, ";", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_26", "!", 1.2999999523162842f, {ActionType::Insert, "!", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_27", "?", 1.2999999523162842f, {ActionType::Insert, "?", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.9500000476837158f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_page", "=\\<", 1.9500000476837158f, {ActionType::SwitchLayout, nullptr, 3}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_21", "*", 1.2999999523162842f, {ActionType::Insert, "*", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_2_key_1_variants, 2},
+    {"symbol_22", "\"", 1.2999999523162842f, {ActionType::Insert, "\"", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_2_key_2_variants, 5},
+    {"symbol_23", "'", 1.2999999523162842f, {ActionType::Insert, "'", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_2_key_3_variants, 2},
+    {"symbol_24", ":", 1.2999999523162842f, {ActionType::Insert, ":", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_25", ";", 1.2999999523162842f, {ActionType::Insert, ";", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_26", "!", 1.2999999523162842f, {ActionType::Insert, "!", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_2_key_6_variants, 1},
+    {"symbol_27", "?", 1.2999999523162842f, {ActionType::Insert, "?", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_2_key_7_variants, 1},
+    {"backspace", "\342\214\253", 1.9500000476837158f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_2_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key hi_in_inscript_2_row_3[] = {
-    {"keyboard", "ABC", 2.5999999046325684f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.2999999523162842f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 5.199999809265137f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.2999999523162842f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.5999999046325684f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "ABC", 2.5999999046325684f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.2999999523162842f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 5.199999809265137f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.2999999523162842f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_2_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.5999999046325684f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row hi_in_inscript_2_rows[] = {
@@ -178,50 +239,70 @@ inline constexpr Row hi_in_inscript_2_rows[] = {
     {0.0f, hi_in_inscript_2_row_3, 5},
 };
 
+inline constexpr const char* hi_in_inscript_3_row_0_key_1_variants[] = {"/", "\303\267"};
+inline constexpr const char* hi_in_inscript_3_row_0_key_2_variants[] = {"(", "{"};
+inline constexpr const char* hi_in_inscript_3_row_0_key_3_variants[] = {")", "}"};
+inline constexpr const char* hi_in_inscript_3_row_0_key_4_variants[] = {"(", "["};
+inline constexpr const char* hi_in_inscript_3_row_0_key_5_variants[] = {")", "]"};
+inline constexpr const char* hi_in_inscript_3_row_0_key_6_variants[] = {"\342\211\244", "\342\200\271", "\302\253"};
+inline constexpr const char* hi_in_inscript_3_row_0_key_7_variants[] = {"\342\211\245", "\342\200\272", "\302\273"};
+inline constexpr const char* hi_in_inscript_3_row_0_key_8_variants[] = {"\342\211\240", "\342\211\210"};
 inline constexpr Key hi_in_inscript_3_row_0[] = {
-    {"symbol_1", "_", 1.2999999523162842f, {ActionType::Insert, "_", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_2", "\\", 1.2999999523162842f, {ActionType::Insert, "\\", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_3", "[", 1.2999999523162842f, {ActionType::Insert, "[", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_4", "]", 1.2999999523162842f, {ActionType::Insert, "]", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_5", "{", 1.2999999523162842f, {ActionType::Insert, "{", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_6", "}", 1.2999999523162842f, {ActionType::Insert, "}", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_7", "<", 1.2999999523162842f, {ActionType::Insert, "<", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_8", ">", 1.2999999523162842f, {ActionType::Insert, ">", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_9", "=", 1.2999999523162842f, {ActionType::Insert, "=", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_10", "^", 1.2999999523162842f, {ActionType::Insert, "^", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_1", "_", 1.2999999523162842f, {ActionType::Insert, "_", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_2", "\\", 1.2999999523162842f, {ActionType::Insert, "\\", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_1_variants, 2},
+    {"symbol_3", "[", 1.2999999523162842f, {ActionType::Insert, "[", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_2_variants, 2},
+    {"symbol_4", "]", 1.2999999523162842f, {ActionType::Insert, "]", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_3_variants, 2},
+    {"symbol_5", "{", 1.2999999523162842f, {ActionType::Insert, "{", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_4_variants, 2},
+    {"symbol_6", "}", 1.2999999523162842f, {ActionType::Insert, "}", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_5_variants, 2},
+    {"symbol_7", "<", 1.2999999523162842f, {ActionType::Insert, "<", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_6_variants, 3},
+    {"symbol_8", ">", 1.2999999523162842f, {ActionType::Insert, ">", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_7_variants, 3},
+    {"symbol_9", "=", 1.2999999523162842f, {ActionType::Insert, "=", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_0_key_8_variants, 2},
+    {"symbol_10", "^", 1.2999999523162842f, {ActionType::Insert, "^", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_3_row_1_key_3_variants[] = {"$", "\302\242", "\302\243", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* hi_in_inscript_3_row_1_key_4_variants[] = {"$", "\302\242", "\342\202\254", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* hi_in_inscript_3_row_1_key_5_variants[] = {"$", "\302\242", "\342\202\254", "\302\243", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* hi_in_inscript_3_row_1_key_6_variants[] = {"$", "\342\202\254", "\302\243", "\302\245", "\342\202\271", "\342\202\275", "\342\202\251"};
+inline constexpr const char* hi_in_inscript_3_row_1_key_7_variants[] = {"\302\256", "\342\204\242"};
+inline constexpr const char* hi_in_inscript_3_row_1_key_8_variants[] = {"\302\251", "\342\204\242"};
+inline constexpr const char* hi_in_inscript_3_row_1_key_9_variants[] = {"\302\251", "\302\256"};
 inline constexpr Key hi_in_inscript_3_row_1[] = {
-    {"symbol_11", "`", 1.2999999523162842f, {ActionType::Insert, "`", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_12", "~", 1.2999999523162842f, {ActionType::Insert, "~", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_13", "|", 1.2999999523162842f, {ActionType::Insert, "|", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_14", "\342\202\254", 1.2999999523162842f, {ActionType::Insert, "\342\202\254", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_15", "\302\243", 1.2999999523162842f, {ActionType::Insert, "\302\243", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_16", "\302\245", 1.2999999523162842f, {ActionType::Insert, "\302\245", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_17", "\302\242", 1.2999999523162842f, {ActionType::Insert, "\302\242", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_18", "\302\251", 1.2999999523162842f, {ActionType::Insert, "\302\251", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_19", "\302\256", 1.2999999523162842f, {ActionType::Insert, "\302\256", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_20", "\342\204\242", 1.2999999523162842f, {ActionType::Insert, "\342\204\242", no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_11", "`", 1.2999999523162842f, {ActionType::Insert, "`", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_12", "~", 1.2999999523162842f, {ActionType::Insert, "~", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_13", "|", 1.2999999523162842f, {ActionType::Insert, "|", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_14", "\342\202\254", 1.2999999523162842f, {ActionType::Insert, "\342\202\254", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_3_variants, 7},
+    {"symbol_15", "\302\243", 1.2999999523162842f, {ActionType::Insert, "\302\243", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_4_variants, 7},
+    {"symbol_16", "\302\245", 1.2999999523162842f, {ActionType::Insert, "\302\245", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_5_variants, 7},
+    {"symbol_17", "\302\242", 1.2999999523162842f, {ActionType::Insert, "\302\242", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_6_variants, 7},
+    {"symbol_18", "\302\251", 1.2999999523162842f, {ActionType::Insert, "\302\251", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_7_variants, 2},
+    {"symbol_19", "\302\256", 1.2999999523162842f, {ActionType::Insert, "\302\256", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_8_variants, 2},
+    {"symbol_20", "\342\204\242", 1.2999999523162842f, {ActionType::Insert, "\342\204\242", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_1_key_9_variants, 2},
 };
 
+inline constexpr const char* hi_in_inscript_3_row_2_key_1_variants[] = {".", "\342\200\246", "\302\267"};
+inline constexpr const char* hi_in_inscript_3_row_2_key_2_variants[] = {".", "\302\267", "\342\200\242"};
+inline constexpr const char* hi_in_inscript_3_row_2_key_5_variants[] = {"/", "\\"};
+inline constexpr const char* hi_in_inscript_3_row_2_key_6_variants[] = {"*", "\302\267"};
 inline constexpr Key hi_in_inscript_3_row_2[] = {
-    {"symbol_page", "123", 1.9500000476837158f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_21", "\342\200\242", 1.2999999523162842f, {ActionType::Insert, "\342\200\242", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_22", "\342\200\246", 1.2999999523162842f, {ActionType::Insert, "\342\200\246", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_23", "\342\210\232", 1.2999999523162842f, {ActionType::Insert, "\342\210\232", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_24", "\317\200", 1.2999999523162842f, {ActionType::Insert, "\317\200", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_25", "\303\267", 1.2999999523162842f, {ActionType::Insert, "\303\267", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_26", "\303\227", 1.2999999523162842f, {ActionType::Insert, "\303\227", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"symbol_27", "\302\260", 1.2999999523162842f, {ActionType::Insert, "\302\260", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"backspace", "\342\214\253", 1.9500000476837158f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"symbol_page", "123", 1.9500000476837158f, {ActionType::SwitchLayout, nullptr, 2}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_21", "\342\200\242", 1.2999999523162842f, {ActionType::Insert, "\342\200\242", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_2_key_1_variants, 3},
+    {"symbol_22", "\342\200\246", 1.2999999523162842f, {ActionType::Insert, "\342\200\246", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_2_key_2_variants, 3},
+    {"symbol_23", "\342\210\232", 1.2999999523162842f, {ActionType::Insert, "\342\210\232", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_24", "\317\200", 1.2999999523162842f, {ActionType::Insert, "\317\200", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"symbol_25", "\303\267", 1.2999999523162842f, {ActionType::Insert, "\303\267", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_2_key_5_variants, 2},
+    {"symbol_26", "\303\227", 1.2999999523162842f, {ActionType::Insert, "\303\227", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_2_key_6_variants, 2},
+    {"symbol_27", "\302\260", 1.2999999523162842f, {ActionType::Insert, "\302\260", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"backspace", "\342\214\253", 1.9500000476837158f, {ActionType::Backspace, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
+inline constexpr const char* hi_in_inscript_3_row_3_key_3_variants[] = {"\342\200\246", "\302\267", "\342\200\242"};
 inline constexpr Key hi_in_inscript_3_row_3[] = {
-    {"keyboard", "ABC", 2.5999999046325684f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}},
-    {"comma", ",", 1.2999999523162842f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"space", "space", 5.199999809265137f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"period", ".", 1.2999999523162842f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}},
-    {"enter", "\342\206\265", 2.5999999046325684f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}},
+    {"keyboard", "ABC", 2.5999999046325684f, {ActionType::SwitchLayout, nullptr, 0}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"comma", ",", 1.2999999523162842f, {ActionType::Insert, ",", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"space", "space", 5.199999809265137f, {ActionType::Insert, " ", no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
+    {"period", ".", 1.2999999523162842f, {ActionType::Insert, ".", no_layout}, {ActionType::None, nullptr, no_layout}, hi_in_inscript_3_row_3_key_3_variants, 3},
+    {"enter", "\342\206\265", 2.5999999046325684f, {ActionType::Enter, nullptr, no_layout}, {ActionType::None, nullptr, no_layout}, nullptr, 0},
 };
 
 inline constexpr Row hi_in_inscript_3_rows[] = {

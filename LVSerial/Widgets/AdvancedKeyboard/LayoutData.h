@@ -21,6 +21,8 @@ struct Key {
     float width;
     Action tap;
     Action double_tap;
+    const char* const* variants = nullptr;
+    std::size_t variant_count = 0;
 };
 
 struct Row {

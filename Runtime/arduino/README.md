@@ -14,11 +14,13 @@ selects only the required widget/codec/layout/font sources. Advanced Keyboard,
 QR codes and barcodes are included when used; prediction and built-in model
 data have separate feature gates.
 
-Advanced Keyboard supports English, Spanish, French, German, Italian and
-Portuguese layouts. English includes a built-in dictionary; other languages
-use a matching imported trie for predictions and autocorrect. Focusing a
-bound field scrolls its viewport above the keyboard while preserving the
-saved layout.
+Advanced Keyboard supports 14 layouts: English, Spanish, French, German,
+Italian, Portuguese, Greek, Mandarin Chinese, Arabic, Hindi, Bengali,
+Indonesian, Urdu and Russian. Mandarin includes Pinyin composition; Arabic
+and Urdu default to right-to-left display with an optional override. English
+includes a built-in dictionary. A selected bundled or imported trie is embedded
+with the project for predictions and autocorrect. Focusing a bound field scrolls
+its viewport above the keyboard while preserving the saved layout.
 
 ```powershell
 python Runtime/arduino/make_library.py dashboard.pb settings.pb --output build/LVGLProtobuf --zip

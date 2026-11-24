@@ -1137,6 +1137,7 @@ void UI::CreateWorkspace()
                 ui->LayoutWorkspace();
             if(ui->canvasFitted)ui->FitCanvas();
             ui->SessionTick();
+            ui->simWindow->RefreshMemoryUsage();
             lv_label_set_text_fmt(ui->workspaceStats, "Screens: %u  Widgets: %u\nSelected: %u",
                                   (unsigned)ui->ScreenCount(),(unsigned)ui->propertyWindow->GetObjectTree()->GetObjects().size(), (unsigned)ui->SelectionCount());
             lv_obj_set_state(ui->undoButton, LV_STATE_DISABLED, ui->Running() || !ui->CanUndo());

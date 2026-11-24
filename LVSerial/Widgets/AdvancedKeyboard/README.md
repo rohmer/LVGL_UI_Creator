@@ -61,6 +61,23 @@ the suggestion buttons and keys.
 External text fields retain their own fonts; choose a field font with the
 selected language's glyphs when displaying accented text.
 
+Hold a character key for one second to open its Unicode variants in a row
+beside the key. Keep holding and slide onto a variant: the option under your
+finger is highlighted, and releasing inserts it through the normal text-input
+path. You can also release over the original key, then tap a variant. The held key itself is suppressed; a short tap still inserts
+the original character. Left-half keys open the options to their right;
+right-half keys open them to their left. Options wrap into multiple rows to
+fit the current display, with vertical scrolling on very small displays.
+Tapping outside, changing page or language, resizing,
+closing or deleting the keyboard dismisses it. One-shot Shift is consumed by
+the selected variant; Shift Lock stays active.
+
+Each insert key in `layout/*.json` may define `"variants": ["À", "Á", "Â"]`.
+Lists are ordered, contain unique nonempty Unicode strings, and can include
+combining sequences. Omit the property or use an empty list for no popup;
+system keys cannot define variants. Existing version 1 definitions still work.
+Regenerate the immutable C++ tables with `python layout/generate_languages.py`.
+
 `include/lv_advanced_keyboard.h` is the public widget C API. Calls run on the
 LVGL thread; the parent owns the returned root. External textareas are
 borrowed, retain their own text/placeholder/password/length configuration and

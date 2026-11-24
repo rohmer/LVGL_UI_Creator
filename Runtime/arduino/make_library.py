@@ -12,7 +12,7 @@ import tempfile
 
 ESP_TOOLS = Path(__file__).resolve().parents[1] / "esp32"
 sys.path.insert(0, str(ESP_TOOLS))
-from make_component import make_component, text_file
+from make_component import make_component, rename_generated_directory, text_file
 from feature_plan import decode_project, repository_root
 
 
@@ -84,7 +84,7 @@ def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
                   f"#define LVGL_PB_DEFAULT_WIDTH {width}\n#define LVGL_PB_DEFAULT_HEIGHT {height}\n" +
                   f"#define LVGL_PB_COLOR_DEPTH {color_depth}\n")
         text_file(library / "library.properties", '''name=LVGLProtobuf
-version=0.9.1
+version=0.9.2
 author=LVGL UI Creator contributors
 maintainer=LVGL UI Creator contributors
 sentence=Project-specific LVGL 9.6 Protobuf UI runtime for Arduino Nano ESP32.
@@ -106,7 +106,7 @@ dot_a_linkage=true
             if output.resolve() != output or output.parent != stage.parent:
                 raise ValueError("Output escaped the intended target directory")
             shutil.rmtree(output)
-        library.rename(output)
+        rename_generated_directory(library, output)
     if archive:
         archived = Path(shutil.make_archive(str(output), "zip", output.parent, output.name))
         text_file(archived.with_suffix(".zip.sha256"), hashlib.sha256(archived.read_bytes()).hexdigest()+"  "+archived.name+"\n")

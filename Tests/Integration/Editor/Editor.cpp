@@ -13,6 +13,7 @@
 #include "VisualRegression.h"
 #include "Performance.h"
 #include "TftSettings.h"
+#include "ScreenMemory.h"
 #include "EditorInputMatrix.h"
 #include "ObjectIcons.h"
 #include "HierarchyIcons.h"
@@ -219,6 +220,7 @@ int main(int argc, char* argv[])
         simulator.SetShortcutHandler([&](int key,bool control,bool shift,bool alt){return editor.HandleShortcut(key,control,shift,alt);});
         lv_obj_update_layout(lv_screen_active());
         if(argc==2&&std::string(argv[1])=="--tft-settings") {CheckTftSettings(editor,simulator);return 0;}
+        if(argc==2&&std::string(argv[1])=="--screen-memory") {CheckScreenMemory(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-matrix") {CheckEditorInputMatrix(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-assets") {CheckEditorInputAssets(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-tools") {CheckEditorInputTools(editor,simulator);return 0;}

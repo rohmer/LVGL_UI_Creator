@@ -32,7 +32,13 @@
               "action": {
                 "type": "insert",
                 "text": "e"
-              }
+              },
+              "variants": [
+                "è",
+                "é",
+                "ê",
+                "ë"
+              ]
             },
             {
               "id": "r",
@@ -56,7 +62,11 @@
               "action": {
                 "type": "insert",
                 "text": "y"
-              }
+              },
+              "variants": [
+                "ý",
+                "ÿ"
+              ]
             },
             {
               "id": "u",
@@ -64,7 +74,13 @@
               "action": {
                 "type": "insert",
                 "text": "u"
-              }
+              },
+              "variants": [
+                "ù",
+                "ú",
+                "û",
+                "ü"
+              ]
             },
             {
               "id": "i",
@@ -72,7 +88,13 @@
               "action": {
                 "type": "insert",
                 "text": "i"
-              }
+              },
+              "variants": [
+                "ì",
+                "í",
+                "î",
+                "ï"
+              ]
             },
             {
               "id": "o",
@@ -80,7 +102,16 @@
               "action": {
                 "type": "insert",
                 "text": "o"
-              }
+              },
+              "variants": [
+                "ò",
+                "ó",
+                "ô",
+                "õ",
+                "ö",
+                "ø",
+                "œ"
+              ]
             },
             {
               "id": "p",
@@ -100,7 +131,16 @@
               "action": {
                 "type": "insert",
                 "text": "a"
-              }
+              },
+              "variants": [
+                "à",
+                "á",
+                "â",
+                "ã",
+                "ä",
+                "å",
+                "æ"
+              ]
             },
             {
               "id": "s",
@@ -108,7 +148,10 @@
               "action": {
                 "type": "insert",
                 "text": "s"
-              }
+              },
+              "variants": [
+                "ß"
+              ]
             },
             {
               "id": "d",
@@ -204,7 +247,10 @@
               "action": {
                 "type": "insert",
                 "text": "c"
-              }
+              },
+              "variants": [
+                "ç"
+              ]
             },
             {
               "id": "v",
@@ -228,7 +274,10 @@
               "action": {
                 "type": "insert",
                 "text": "n"
-              }
+              },
+              "variants": [
+                "ñ"
+              ]
             },
             {
               "id": "m",
@@ -293,7 +342,12 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": [
+                "…",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "enter",
@@ -333,7 +387,13 @@
               "action": {
                 "type": "insert",
                 "text": "E"
-              }
+              },
+              "variants": [
+                "È",
+                "É",
+                "Ê",
+                "Ë"
+              ]
             },
             {
               "id": "r",
@@ -357,7 +417,11 @@
               "action": {
                 "type": "insert",
                 "text": "Y"
-              }
+              },
+              "variants": [
+                "Ý",
+                "Ÿ"
+              ]
             },
             {
               "id": "u",
@@ -365,7 +429,13 @@
               "action": {
                 "type": "insert",
                 "text": "U"
-              }
+              },
+              "variants": [
+                "Ù",
+                "Ú",
+                "Û",
+                "Ü"
+              ]
             },
             {
               "id": "i",
@@ -373,7 +443,13 @@
               "action": {
                 "type": "insert",
                 "text": "I"
-              }
+              },
+              "variants": [
+                "Ì",
+                "Í",
+                "Î",
+                "Ï"
+              ]
             },
             {
               "id": "o",
@@ -381,7 +457,16 @@
               "action": {
                 "type": "insert",
                 "text": "O"
-              }
+              },
+              "variants": [
+                "Ò",
+                "Ó",
+                "Ô",
+                "Õ",
+                "Ö",
+                "Ø",
+                "Œ"
+              ]
             },
             {
               "id": "p",
@@ -401,7 +486,16 @@
               "action": {
                 "type": "insert",
                 "text": "A"
-              }
+              },
+              "variants": [
+                "À",
+                "Á",
+                "Â",
+                "Ã",
+                "Ä",
+                "Å",
+                "Æ"
+              ]
             },
             {
               "id": "s",
@@ -409,7 +503,10 @@
               "action": {
                 "type": "insert",
                 "text": "S"
-              }
+              },
+              "variants": [
+                "ẞ"
+              ]
             },
             {
               "id": "d",
@@ -505,7 +602,10 @@
               "action": {
                 "type": "insert",
                 "text": "C"
-              }
+              },
+              "variants": [
+                "Ç"
+              ]
             },
             {
               "id": "v",
@@ -529,7 +629,10 @@
               "action": {
                 "type": "insert",
                 "text": "N"
-              }
+              },
+              "variants": [
+                "Ñ"
+              ]
             },
             {
               "id": "m",
@@ -594,7 +697,12 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": [
+                "…",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "enter",
@@ -620,7 +728,16 @@
               "action": {
                 "type": "insert",
                 "text": "à"
-              }
+              },
+              "variants": [
+                "a",
+                "á",
+                "â",
+                "ã",
+                "ä",
+                "å",
+                "æ"
+              ]
             },
             {
               "id": "accent_1",
@@ -628,7 +745,13 @@
               "action": {
                 "type": "insert",
                 "text": "è"
-              }
+              },
+              "variants": [
+                "e",
+                "é",
+                "ê",
+                "ë"
+              ]
             },
             {
               "id": "accent_2",
@@ -636,7 +759,13 @@
               "action": {
                 "type": "insert",
                 "text": "é"
-              }
+              },
+              "variants": [
+                "e",
+                "è",
+                "ê",
+                "ë"
+              ]
             },
             {
               "id": "accent_3",
@@ -644,7 +773,13 @@
               "action": {
                 "type": "insert",
                 "text": "ì"
-              }
+              },
+              "variants": [
+                "i",
+                "í",
+                "î",
+                "ï"
+              ]
             },
             {
               "id": "accent_4",
@@ -652,7 +787,16 @@
               "action": {
                 "type": "insert",
                 "text": "ò"
-              }
+              },
+              "variants": [
+                "o",
+                "ó",
+                "ô",
+                "õ",
+                "ö",
+                "ø",
+                "œ"
+              ]
             },
             {
               "id": "accent_5",
@@ -660,7 +804,13 @@
               "action": {
                 "type": "insert",
                 "text": "ù"
-              }
+              },
+              "variants": [
+                "u",
+                "ú",
+                "û",
+                "ü"
+              ]
             }
           ]
         },
@@ -673,7 +823,16 @@
               "action": {
                 "type": "insert",
                 "text": "á"
-              }
+              },
+              "variants": [
+                "a",
+                "à",
+                "â",
+                "ã",
+                "ä",
+                "å",
+                "æ"
+              ]
             },
             {
               "id": "accent_17",
@@ -681,7 +840,13 @@
               "action": {
                 "type": "insert",
                 "text": "í"
-              }
+              },
+              "variants": [
+                "i",
+                "ì",
+                "î",
+                "ï"
+              ]
             },
             {
               "id": "accent_18",
@@ -689,7 +854,16 @@
               "action": {
                 "type": "insert",
                 "text": "ó"
-              }
+              },
+              "variants": [
+                "o",
+                "ò",
+                "ô",
+                "õ",
+                "ö",
+                "ø",
+                "œ"
+              ]
             },
             {
               "id": "accent_19",
@@ -697,7 +871,13 @@
               "action": {
                 "type": "insert",
                 "text": "ú"
-              }
+              },
+              "variants": [
+                "u",
+                "ù",
+                "û",
+                "ü"
+              ]
             },
             {
               "id": "accent_20",
@@ -705,7 +885,13 @@
               "action": {
                 "type": "insert",
                 "text": "î"
-              }
+              },
+              "variants": [
+                "i",
+                "ì",
+                "í",
+                "ï"
+              ]
             }
           ]
         },
@@ -728,7 +914,11 @@
               "action": {
                 "type": "insert",
                 "text": "'"
-              }
+              },
+              "variants": [
+                "’",
+                "‘"
+              ]
             },
             {
               "id": "punct_2019",
@@ -736,7 +926,11 @@
               "action": {
                 "type": "insert",
                 "text": "’"
-              }
+              },
+              "variants": [
+                "'",
+                "‘"
+              ]
             },
             {
               "id": "punct_0021",
@@ -744,7 +938,10 @@
               "action": {
                 "type": "insert",
                 "text": "!"
-              }
+              },
+              "variants": [
+                "¡"
+              ]
             },
             {
               "id": "punct_003f",
@@ -752,7 +949,10 @@
               "action": {
                 "type": "insert",
                 "text": "?"
-              }
+              },
+              "variants": [
+                "¿"
+              ]
             },
             {
               "id": "punct_003a",
@@ -776,7 +976,12 @@
               "action": {
                 "type": "insert",
                 "text": "-"
-              }
+              },
+              "variants": [
+                "–",
+                "—",
+                "−"
+              ]
             },
             {
               "id": "backspace",
@@ -833,7 +1038,12 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": [
+                "…",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "enter",
@@ -858,7 +1068,16 @@
               "action": {
                 "type": "insert",
                 "text": "À"
-              }
+              },
+              "variants": [
+                "A",
+                "Á",
+                "Â",
+                "Ã",
+                "Ä",
+                "Å",
+                "Æ"
+              ]
             },
             {
               "id": "accent_1",
@@ -866,7 +1085,13 @@
               "action": {
                 "type": "insert",
                 "text": "È"
-              }
+              },
+              "variants": [
+                "E",
+                "É",
+                "Ê",
+                "Ë"
+              ]
             },
             {
               "id": "accent_2",
@@ -874,7 +1099,13 @@
               "action": {
                 "type": "insert",
                 "text": "É"
-              }
+              },
+              "variants": [
+                "E",
+                "È",
+                "Ê",
+                "Ë"
+              ]
             },
             {
               "id": "accent_3",
@@ -882,7 +1113,13 @@
               "action": {
                 "type": "insert",
                 "text": "Ì"
-              }
+              },
+              "variants": [
+                "I",
+                "Í",
+                "Î",
+                "Ï"
+              ]
             },
             {
               "id": "accent_4",
@@ -890,7 +1127,16 @@
               "action": {
                 "type": "insert",
                 "text": "Ò"
-              }
+              },
+              "variants": [
+                "O",
+                "Ó",
+                "Ô",
+                "Õ",
+                "Ö",
+                "Ø",
+                "Œ"
+              ]
             },
             {
               "id": "accent_5",
@@ -898,7 +1144,13 @@
               "action": {
                 "type": "insert",
                 "text": "Ù"
-              }
+              },
+              "variants": [
+                "U",
+                "Ú",
+                "Û",
+                "Ü"
+              ]
             }
           ]
         },
@@ -911,7 +1163,16 @@
               "action": {
                 "type": "insert",
                 "text": "Á"
-              }
+              },
+              "variants": [
+                "A",
+                "À",
+                "Â",
+                "Ã",
+                "Ä",
+                "Å",
+                "Æ"
+              ]
             },
             {
               "id": "accent_17",
@@ -919,7 +1180,13 @@
               "action": {
                 "type": "insert",
                 "text": "Í"
-              }
+              },
+              "variants": [
+                "I",
+                "Ì",
+                "Î",
+                "Ï"
+              ]
             },
             {
               "id": "accent_18",
@@ -927,7 +1194,16 @@
               "action": {
                 "type": "insert",
                 "text": "Ó"
-              }
+              },
+              "variants": [
+                "O",
+                "Ò",
+                "Ô",
+                "Õ",
+                "Ö",
+                "Ø",
+                "Œ"
+              ]
             },
             {
               "id": "accent_19",
@@ -935,7 +1211,13 @@
               "action": {
                 "type": "insert",
                 "text": "Ú"
-              }
+              },
+              "variants": [
+                "U",
+                "Ù",
+                "Û",
+                "Ü"
+              ]
             },
             {
               "id": "accent_20",
@@ -943,7 +1225,13 @@
               "action": {
                 "type": "insert",
                 "text": "Î"
-              }
+              },
+              "variants": [
+                "I",
+                "Ì",
+                "Í",
+                "Ï"
+              ]
             }
           ]
         },
@@ -966,7 +1254,11 @@
               "action": {
                 "type": "insert",
                 "text": "'"
-              }
+              },
+              "variants": [
+                "’",
+                "‘"
+              ]
             },
             {
               "id": "punct_2019",
@@ -974,7 +1266,11 @@
               "action": {
                 "type": "insert",
                 "text": "’"
-              }
+              },
+              "variants": [
+                "'",
+                "‘"
+              ]
             },
             {
               "id": "punct_0021",
@@ -982,7 +1278,10 @@
               "action": {
                 "type": "insert",
                 "text": "!"
-              }
+              },
+              "variants": [
+                "¡"
+              ]
             },
             {
               "id": "punct_003f",
@@ -990,7 +1289,10 @@
               "action": {
                 "type": "insert",
                 "text": "?"
-              }
+              },
+              "variants": [
+                "¿"
+              ]
             },
             {
               "id": "punct_003a",
@@ -1014,7 +1316,12 @@
               "action": {
                 "type": "insert",
                 "text": "-"
-              }
+              },
+              "variants": [
+                "–",
+                "—",
+                "−"
+              ]
             },
             {
               "id": "backspace",
@@ -1071,7 +1378,12 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": [
+                "…",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "enter",
@@ -1095,7 +1407,13 @@
               "action": {
                 "type": "insert",
                 "text": "1"
-              }
+              },
+              "variants": [
+                "¹",
+                "₁",
+                "½",
+                "¼"
+              ]
             },
             {
               "id": "symbol_2",
@@ -1103,7 +1421,11 @@
               "action": {
                 "type": "insert",
                 "text": "2"
-              }
+              },
+              "variants": [
+                "²",
+                "₂"
+              ]
             },
             {
               "id": "symbol_3",
@@ -1111,7 +1433,12 @@
               "action": {
                 "type": "insert",
                 "text": "3"
-              }
+              },
+              "variants": [
+                "³",
+                "₃",
+                "¾"
+              ]
             },
             {
               "id": "symbol_4",
@@ -1119,7 +1446,11 @@
               "action": {
                 "type": "insert",
                 "text": "4"
-              }
+              },
+              "variants": [
+                "⁴",
+                "₄"
+              ]
             },
             {
               "id": "symbol_5",
@@ -1127,7 +1458,11 @@
               "action": {
                 "type": "insert",
                 "text": "5"
-              }
+              },
+              "variants": [
+                "⁵",
+                "₅"
+              ]
             },
             {
               "id": "symbol_6",
@@ -1135,7 +1470,11 @@
               "action": {
                 "type": "insert",
                 "text": "6"
-              }
+              },
+              "variants": [
+                "⁶",
+                "₆"
+              ]
             },
             {
               "id": "symbol_7",
@@ -1143,7 +1482,11 @@
               "action": {
                 "type": "insert",
                 "text": "7"
-              }
+              },
+              "variants": [
+                "⁷",
+                "₇"
+              ]
             },
             {
               "id": "symbol_8",
@@ -1151,7 +1494,11 @@
               "action": {
                 "type": "insert",
                 "text": "8"
-              }
+              },
+              "variants": [
+                "⁸",
+                "₈"
+              ]
             },
             {
               "id": "symbol_9",
@@ -1159,7 +1506,11 @@
               "action": {
                 "type": "insert",
                 "text": "9"
-              }
+              },
+              "variants": [
+                "⁹",
+                "₉"
+              ]
             },
             {
               "id": "symbol_10",
@@ -1167,7 +1518,11 @@
               "action": {
                 "type": "insert",
                 "text": "0"
-              }
+              },
+              "variants": [
+                "⁰",
+                "₀"
+              ]
             }
           ]
         },
@@ -1195,7 +1550,16 @@
               "action": {
                 "type": "insert",
                 "text": "$"
-              }
+              },
+              "variants": [
+                "¢",
+                "€",
+                "£",
+                "¥",
+                "₹",
+                "₽",
+                "₩"
+              ]
             },
             {
               "id": "symbol_14",
@@ -1203,7 +1567,10 @@
               "action": {
                 "type": "insert",
                 "text": "%"
-              }
+              },
+              "variants": [
+                "‰"
+              ]
             },
             {
               "id": "symbol_15",
@@ -1219,7 +1586,12 @@
               "action": {
                 "type": "insert",
                 "text": "-"
-              }
+              },
+              "variants": [
+                "–",
+                "—",
+                "−"
+              ]
             },
             {
               "id": "symbol_17",
@@ -1227,7 +1599,10 @@
               "action": {
                 "type": "insert",
                 "text": "+"
-              }
+              },
+              "variants": [
+                "±"
+              ]
             },
             {
               "id": "symbol_18",
@@ -1235,7 +1610,11 @@
               "action": {
                 "type": "insert",
                 "text": "("
-              }
+              },
+              "variants": [
+                "[",
+                "{"
+              ]
             },
             {
               "id": "symbol_19",
@@ -1243,7 +1622,11 @@
               "action": {
                 "type": "insert",
                 "text": ")"
-              }
+              },
+              "variants": [
+                "]",
+                "}"
+              ]
             },
             {
               "id": "symbol_20",
@@ -1251,7 +1634,11 @@
               "action": {
                 "type": "insert",
                 "text": "/"
-              }
+              },
+              "variants": [
+                "\\",
+                "÷"
+              ]
             }
           ]
         },
@@ -1272,7 +1659,11 @@
               "action": {
                 "type": "insert",
                 "text": "*"
-              }
+              },
+              "variants": [
+                "×",
+                "·"
+              ]
             },
             {
               "id": "symbol_22",
@@ -1280,7 +1671,14 @@
               "action": {
                 "type": "insert",
                 "text": "\""
-              }
+              },
+              "variants": [
+                "“",
+                "”",
+                "„",
+                "«",
+                "»"
+              ]
             },
             {
               "id": "symbol_23",
@@ -1288,7 +1686,11 @@
               "action": {
                 "type": "insert",
                 "text": "'"
-              }
+              },
+              "variants": [
+                "’",
+                "‘"
+              ]
             },
             {
               "id": "symbol_24",
@@ -1312,7 +1714,10 @@
               "action": {
                 "type": "insert",
                 "text": "!"
-              }
+              },
+              "variants": [
+                "¡"
+              ]
             },
             {
               "id": "symbol_27",
@@ -1320,7 +1725,10 @@
               "action": {
                 "type": "insert",
                 "text": "?"
-              }
+              },
+              "variants": [
+                "¿"
+              ]
             },
             {
               "id": "backspace",
@@ -1377,7 +1785,12 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": [
+                "…",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "enter",
@@ -1409,7 +1822,11 @@
               "action": {
                 "type": "insert",
                 "text": "\\"
-              }
+              },
+              "variants": [
+                "/",
+                "÷"
+              ]
             },
             {
               "id": "symbol_3",
@@ -1417,7 +1834,11 @@
               "action": {
                 "type": "insert",
                 "text": "["
-              }
+              },
+              "variants": [
+                "(",
+                "{"
+              ]
             },
             {
               "id": "symbol_4",
@@ -1425,7 +1846,11 @@
               "action": {
                 "type": "insert",
                 "text": "]"
-              }
+              },
+              "variants": [
+                ")",
+                "}"
+              ]
             },
             {
               "id": "symbol_5",
@@ -1433,7 +1858,11 @@
               "action": {
                 "type": "insert",
                 "text": "{"
-              }
+              },
+              "variants": [
+                "(",
+                "["
+              ]
             },
             {
               "id": "symbol_6",
@@ -1441,7 +1870,11 @@
               "action": {
                 "type": "insert",
                 "text": "}"
-              }
+              },
+              "variants": [
+                ")",
+                "]"
+              ]
             },
             {
               "id": "symbol_7",
@@ -1449,7 +1882,12 @@
               "action": {
                 "type": "insert",
                 "text": "<"
-              }
+              },
+              "variants": [
+                "≤",
+                "‹",
+                "«"
+              ]
             },
             {
               "id": "symbol_8",
@@ -1457,7 +1895,12 @@
               "action": {
                 "type": "insert",
                 "text": ">"
-              }
+              },
+              "variants": [
+                "≥",
+                "›",
+                "»"
+              ]
             },
             {
               "id": "symbol_9",
@@ -1465,7 +1908,11 @@
               "action": {
                 "type": "insert",
                 "text": "="
-              }
+              },
+              "variants": [
+                "≠",
+                "≈"
+              ]
             },
             {
               "id": "symbol_10",
@@ -1509,7 +1956,16 @@
               "action": {
                 "type": "insert",
                 "text": "€"
-              }
+              },
+              "variants": [
+                "$",
+                "¢",
+                "£",
+                "¥",
+                "₹",
+                "₽",
+                "₩"
+              ]
             },
             {
               "id": "symbol_15",
@@ -1517,7 +1973,16 @@
               "action": {
                 "type": "insert",
                 "text": "£"
-              }
+              },
+              "variants": [
+                "$",
+                "¢",
+                "€",
+                "¥",
+                "₹",
+                "₽",
+                "₩"
+              ]
             },
             {
               "id": "symbol_16",
@@ -1525,7 +1990,16 @@
               "action": {
                 "type": "insert",
                 "text": "¥"
-              }
+              },
+              "variants": [
+                "$",
+                "¢",
+                "€",
+                "£",
+                "₹",
+                "₽",
+                "₩"
+              ]
             },
             {
               "id": "symbol_17",
@@ -1533,7 +2007,16 @@
               "action": {
                 "type": "insert",
                 "text": "¢"
-              }
+              },
+              "variants": [
+                "$",
+                "€",
+                "£",
+                "¥",
+                "₹",
+                "₽",
+                "₩"
+              ]
             },
             {
               "id": "question_open",
@@ -1541,7 +2024,10 @@
               "action": {
                 "type": "insert",
                 "text": "¿"
-              }
+              },
+              "variants": [
+                "?"
+              ]
             },
             {
               "id": "exclamation_open",
@@ -1549,7 +2035,10 @@
               "action": {
                 "type": "insert",
                 "text": "¡"
-              }
+              },
+              "variants": [
+                "!"
+              ]
             },
             {
               "id": "symbol_20",
@@ -1557,7 +2046,11 @@
               "action": {
                 "type": "insert",
                 "text": "™"
-              }
+              },
+              "variants": [
+                "©",
+                "®"
+              ]
             }
           ]
         },
@@ -1578,7 +2071,12 @@
               "action": {
                 "type": "insert",
                 "text": "•"
-              }
+              },
+              "variants": [
+                ".",
+                "…",
+                "·"
+              ]
             },
             {
               "id": "symbol_22",
@@ -1586,7 +2084,12 @@
               "action": {
                 "type": "insert",
                 "text": "…"
-              }
+              },
+              "variants": [
+                ".",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "symbol_23",
@@ -1610,7 +2113,11 @@
               "action": {
                 "type": "insert",
                 "text": "÷"
-              }
+              },
+              "variants": [
+                "/",
+                "\\"
+              ]
             },
             {
               "id": "symbol_26",
@@ -1618,7 +2125,11 @@
               "action": {
                 "type": "insert",
                 "text": "×"
-              }
+              },
+              "variants": [
+                "*",
+                "·"
+              ]
             },
             {
               "id": "symbol_27",
@@ -1683,7 +2194,12 @@
               "action": {
                 "type": "insert",
                 "text": "."
-              }
+              },
+              "variants": [
+                "…",
+                "·",
+                "•"
+              ]
             },
             {
               "id": "enter",

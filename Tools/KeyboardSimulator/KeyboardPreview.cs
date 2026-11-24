@@ -5,9 +5,10 @@ using NgramTrie.Reader;
 
 namespace KeyboardSimulator;
 
-internal sealed class KeyboardPreview : Control
+internal sealed class KeyboardPreview : Control, IMessageFilter
 {
     public const decimal DefaultAutocorrectThreshold = 0.3m;
+    private const int VariantHoldMilliseconds = 1000;
 
     private static readonly Color ScreenColor = Color.FromArgb(247, 249, 252);
     private static readonly Color KeyboardColor = Color.FromArgb(215, 224, 237);
@@ -26,8 +27,25 @@ internal sealed class KeyboardPreview : Control
     };
     private readonly Button[] suggestionSlots = new Button[3];
     private readonly System.Windows.Forms.Timer tapTimer = new() { Interval = 300 };
+    private readonly System.Windows.Forms.Timer holdTimer = new() { Interval = VariantHoldMilliseconds };
     private readonly System.Windows.Forms.Timer suggestionTimer = new() { Interval = 45 };
+    private readonly FlowLayoutPanel variantPopup = new()
+    {
+        Visible = false, AutoScroll = true, WrapContents = true,
+        FlowDirection = FlowDirection.LeftToRight, Padding = new(4),
+        BackColor = KeyboardColor, BorderStyle = BorderStyle.FixedSingle,
+        AccessibleName = "Character variants",
+    };
     private readonly List<Button> buttons = [];
+    private Button? heldButton;
+    private KeyboardKey? heldKey;
+    private string? heldLayout;
+    private Button? suppressClickButton;
+    private Button? variantDragSource;
+    private Button? highlightedVariant;
+    private readonly List<Control> variantAncestors = [];
+    private Form? popupForm;
+    private bool filteringPopupMessages;
     private KeyboardModel? model;
     private string? pendingKey;
     private Size displaySize = new(1024, 600);
@@ -108,12 +126,14 @@ internal sealed class KeyboardPreview : Control
         };
         Controls.Add(suggestionBar);
         Controls.AddRange([preedit, previousCandidates, nextCandidates]);
+        Controls.Add(variantPopup);
         previousCandidates.Click += (_, _) => MoveCandidatePage(-1);
         nextCandidates.Click += (_, _) => MoveCandidatePage(1);
         tapTimer.Tick += (_, _) => FlushPendingKey();
+        holdTimer.Tick += (_, _) => OpenVariants();
         suggestionTimer.Tick += RefreshSuggestions;
-        editor.TextChanged += (_, _) => { pinyin.Clear(); candidatePage = 0; QueueSuggestions(); };
-        editor.KeyDown += (_, e) => { if (e.KeyCode == Keys.Escape && pinyin.Spelling.Length > 0) { pinyin.Clear(); candidatePage = 0; QueueSuggestions(); e.SuppressKeyPress = true; } };
+        editor.TextChanged += (_, _) => { CancelVariantInteraction(); pinyin.Clear(); candidatePage = 0; QueueSuggestions(); };
+        editor.KeyDown += (_, e) => { CancelVariantInteraction(); if (e.KeyCode == Keys.Escape && pinyin.Spelling.Length > 0) { pinyin.Clear(); candidatePage = 0; QueueSuggestions(); e.SuppressKeyPress = true; } };
         editor.KeyPress += CompleteTypedWord;
         editor.KeyUp += (_, _) => QueueSuggestions();
         editor.MouseUp += (_, _) => QueueSuggestions();
@@ -127,6 +147,7 @@ internal sealed class KeyboardPreview : Control
         set
         {
             if (displaySize == value) return;
+            CancelVariantInteraction();
             displaySize = value;
             PerformLayout();
         }
@@ -134,6 +155,7 @@ internal sealed class KeyboardPreview : Control
 
     public void SetKeyboard(KeyboardDefinition definition)
     {
+        CancelVariantInteraction();
         SuspendLayout();
         try {
         tapTimer.Stop();
@@ -207,6 +229,7 @@ internal sealed class KeyboardPreview : Control
 
     private void ApplySuggestion(string word)
     {
+        CancelVariantInteraction();
         if (Chinese && pinyin.Spelling.Length > 0) { CommitPinyin(word); return; }
         if (word.Length == 0 || visibleSuggestions is not { } input) return;
         if (!MatchesEditor(input)) { QueueSuggestions(); return; }
@@ -228,6 +251,7 @@ internal sealed class KeyboardPreview : Control
 
     private void RefreshKeys()
     {
+        CancelVariantInteraction();
         SuspendLayout();
         try
         {
@@ -266,20 +290,305 @@ internal sealed class KeyboardPreview : Control
 
     private Button AddKeyButton()
     {
-        var button = new Button
+        var button = new VariantKeyButton
         {
             FlatStyle = FlatStyle.Flat, UseVisualStyleBackColor = false, UseMnemonic = false,
             Padding = new(0), Margin = new(0), Font = keyFont ?? Font, TextAlign = ContentAlignment.MiddleCenter,
         };
         button.FlatAppearance.BorderSize = 0;
-        button.Click += (_, _) => ActivateKey((KeyboardKey)button.Tag!);
+        button.MouseDown += (_, e) => BeginKeyHold(button, e);
+        button.MouseMove += (_, e) =>
+        {
+            if (variantDragSource == button) HighlightVariant(VariantAt(button.PointToScreen(e.Location)));
+        };
+        button.MouseUp += (_, e) =>
+        {
+            if (e.Button != MouseButtons.Left) return;
+            CompleteVariantDrag(button.PointToScreen(e.Location));
+            CancelKeyHold();
+        };
+        button.MouseLeave += (_, _) => { if (heldButton == button) CancelKeyHold(suppressClick: true); };
+        button.MouseCaptureChanged += (_, _) =>
+        {
+            if (variantDragSource == button && !button.Capture)
+            {
+                if ((MouseButtons & MouseButtons.Left) != 0) CancelVariantInteraction();
+                else if (IsHandleCreated && !IsDisposed)
+                {
+                    // Some Button implementations release capture before MouseUp.
+                    // Give that release message a chance to finish the selection.
+                    BeginInvoke((Action)(() =>
+                    {
+                        if (variantDragSource == button && !button.Capture) CancelVariantInteraction();
+                    }));
+                }
+            }
+            if (heldButton == button && !button.Capture && MouseButtons != MouseButtons.None)
+                CancelKeyHold(suppressClick: true);
+        };
+        button.Click += (_, _) =>
+        {
+            if (suppressClickButton == button) { suppressClickButton = null; return; }
+            ActivateKey((KeyboardKey)button.Tag!);
+        };
         buttons.Add(button);
         Controls.Add(button);
         return button;
     }
 
+    private sealed class VariantKeyButton : Button
+    {
+        protected override void WndProc(ref Message message)
+        {
+            // Touch holds belong to the keyboard, rather than Windows' right-click gesture.
+            if (message.Msg == 0x02CC)
+            {
+                message.Result = (IntPtr)1; // TABLET_DISABLE_PRESSANDHOLD
+                return;
+            }
+            base.WndProc(ref message);
+        }
+    }
+
+    private void BeginKeyHold(Button button, MouseEventArgs e)
+    {
+        if (e.Button != MouseButtons.Left) return;
+        CancelVariantInteraction();
+        suppressClickButton = null;
+        if (model is null || button.Tag is not KeyboardKey key || key.Action.Kind != KeyboardActionKind.Insert)
+            return;
+
+        // Resolve a pending Shift before choosing the active key's variant list.
+        FlushPendingKey(preserveKeyFocus: true);
+        var current = model.Rows.SelectMany(row => row.Keys).FirstOrDefault(candidate => candidate.Id == key.Id);
+        if (current is not { Variants.Count: > 0 }) return;
+        heldButton = button;
+        heldKey = current;
+        heldLayout = model.ActiveLayoutId;
+        holdTimer.Start();
+    }
+
+    private void CancelKeyHold(bool suppressClick = false)
+    {
+        holdTimer.Stop();
+        if (suppressClick && heldButton is not null) suppressClickButton = heldButton;
+        heldButton = null;
+        heldKey = null;
+        heldLayout = null;
+    }
+
+    private void OpenVariants()
+    {
+        if (heldButton is not { } source || heldKey is not { } key || heldLayout is not { } layout ||
+            model?.ActiveLayoutId != layout || !source.Visible || !Enabled)
+        {
+            CancelKeyHold();
+            return;
+        }
+        CancelKeyHold();
+        suppressClickButton = source;
+        var available = Rectangle.Intersect(screen, ClientRectangle);
+        if (available.Width <= 10 || available.Height <= 10) return;
+
+        variantPopup.SuspendLayout();
+        try
+        {
+            ClearVariantButtons();
+            variantPopup.AutoScrollMinSize = Size.Empty;
+            variantPopup.AutoScrollPosition = Point.Empty;
+            const int gap = 4;
+            const int choiceMargin = 3;
+            int paddingWidth = variantPopup.Padding.Horizontal + 2;
+            int paddingHeight = variantPopup.Padding.Vertical + 2;
+            bool openRight = source.Left + source.Width / 2 <= available.Left + available.Width / 2;
+            int sideWidth = openRight ? available.Right - source.Right - gap : source.Left - gap - available.Left;
+            int minimumWidth = Math.Min(Math.Max(source.Width, 36) + choiceMargin * 2 + paddingWidth, available.Width);
+            bool besideKey = sideWidth >= minimumWidth;
+            int maximumWidth = besideKey ? sideWidth : available.Width;
+            int buttonHeight = Math.Min(Math.Max(source.Height, 32), Math.Max(1, available.Height - 10));
+            int labelWidth = key.Variants.Max(text => TextRenderer.MeasureText(text, keyFont ?? Font,
+                Size.Empty, TextFormatFlags.NoPadding).Width);
+            int buttonWidth = Math.Clamp(Math.Max(Math.Max(source.Width, 36), labelWidth + 20),
+                1, Math.Max(1, maximumWidth - paddingWidth - choiceMargin * 2));
+            int columns = Math.Max(1, Math.Min(key.Variants.Count, (maximumWidth - paddingWidth) / (buttonWidth + choiceMargin * 2)));
+            int rows = (key.Variants.Count - 1) / columns + 1;
+            long fullHeight = (long)rows * (buttonHeight + choiceMargin * 2) + paddingHeight;
+            bool scroll = fullHeight > available.Height;
+            int scrollbarWidth = scroll ? SystemInformation.VerticalScrollBarWidth : 0;
+            if (scroll)
+            {
+                buttonWidth = Math.Min(buttonWidth, Math.Max(1, maximumWidth - paddingWidth - choiceMargin * 2 - scrollbarWidth));
+                columns = Math.Max(1, Math.Min(key.Variants.Count,
+                    (maximumWidth - paddingWidth - scrollbarWidth) / (buttonWidth + choiceMargin * 2)));
+                rows = (key.Variants.Count - 1) / columns + 1;
+                fullHeight = (long)rows * (buttonHeight + choiceMargin * 2) + paddingHeight;
+            }
+            int width = Math.Min(maximumWidth, columns * (buttonWidth + choiceMargin * 2) + paddingWidth + scrollbarWidth);
+            int height = (int)Math.Min(fullHeight, available.Height);
+            foreach (string text in key.Variants)
+            {
+                var choice = new Button
+                {
+                    Text = text, AccessibleName = $"Insert {text}", AutoEllipsis = true,
+                    UseMnemonic = false, FlatStyle = FlatStyle.Flat, UseVisualStyleBackColor = false,
+                    BackColor = Color.White, ForeColor = Ink, Font = keyFont ?? Font,
+                    RightToLeft = editor.RightToLeft, Margin = new(choiceMargin),
+                    Size = new(buttonWidth, buttonHeight), TabStop = true,
+                };
+                choice.FlatAppearance.BorderSize = 0;
+                choice.FlatAppearance.MouseOverBackColor = Color.FromArgb(231, 240, 255);
+                choice.FlatAppearance.MouseDownBackColor = Color.FromArgb(199, 218, 247);
+                choice.Click += (_, _) => InsertVariant(key, layout, text);
+                variantPopup.Controls.Add(choice);
+            }
+            int left = openRight ? source.Right + gap : source.Left - gap - width;
+            left = Math.Clamp(left, available.Left, available.Right - width);
+            int top = source.Top;
+            if (!besideKey)
+            {
+                top = source.Top - height - gap;
+                if (top < available.Top) top = source.Bottom + gap;
+            }
+            top = Math.Clamp(top, available.Top, available.Bottom - height);
+            variantPopup.Bounds = new(left, top, width, height);
+            variantPopup.AutoScrollMinSize = new(0, (int)Math.Min(fullHeight - 2, int.MaxValue));
+        }
+        finally { variantPopup.ResumeLayout(performLayout: true); }
+        variantPopup.Visible = true;
+        variantPopup.BringToFront();
+        variantDragSource = source;
+        Application.AddMessageFilter(this);
+        filteringPopupMessages = true;
+        popupForm = FindForm();
+        if (popupForm is not null) popupForm.Deactivate += DismissVariants;
+        for (Control? ancestor = Parent; ancestor is not null; ancestor = ancestor.Parent)
+        {
+            ancestor.VisibleChanged += DismissVariants;
+            ancestor.EnabledChanged += DismissVariants;
+            ancestor.ParentChanged += DismissVariants;
+            variantAncestors.Add(ancestor);
+        }
+    }
+
+    private Button? VariantAt(Point screenPoint)
+    {
+        if (!Visible || !Enabled || !variantPopup.Visible ||
+            !variantPopup.ClientRectangle.Contains(variantPopup.PointToClient(screenPoint)))
+            return null;
+        return variantPopup.Controls.OfType<Button>().FirstOrDefault(choice =>
+            choice.Visible && choice.ClientRectangle.Contains(choice.PointToClient(screenPoint)));
+    }
+
+    private void HighlightVariant(Button? choice)
+    {
+        if (highlightedVariant == choice) return;
+        if (highlightedVariant is { } previous)
+        {
+            previous.BackColor = Color.White;
+            previous.ForeColor = Ink;
+            previous.FlatAppearance.MouseOverBackColor = Color.FromArgb(231, 240, 255);
+            previous.FlatAppearance.MouseDownBackColor = Color.FromArgb(199, 218, 247);
+        }
+        highlightedVariant = choice;
+        if (choice is null) return;
+        choice.BackColor = Accent;
+        choice.ForeColor = Color.White;
+        choice.FlatAppearance.MouseOverBackColor = Accent;
+        choice.FlatAppearance.MouseDownBackColor = Accent;
+    }
+
+    private void CompleteVariantDrag(Point screenPoint)
+    {
+        if (variantDragSource is null) return;
+        var choice = VariantAt(screenPoint);
+        variantDragSource = null;
+        HighlightVariant(null);
+        choice?.PerformClick();
+    }
+
+    private void InsertVariant(KeyboardKey source, string layout, string text)
+    {
+        bool current = Visible && Enabled && variantPopup.Visible && model?.ActiveLayoutId == layout &&
+            model.Rows.SelectMany(row => row.Keys).Any(key => ReferenceEquals(key, source));
+        CancelVariantInteraction();
+        if (!current || model is null) return;
+
+        editor.Focus();
+        var shift = model.Shift;
+        model.CommitText();
+        InsertText(text);
+        if (model.Shift != shift) RefreshKeys();
+        editor.ScrollToCaret();
+    }
+
+    private void DismissVariants(object? sender, EventArgs args) => CancelVariantInteraction();
+
+    private void ClearVariantButtons()
+    {
+        while (variantPopup.Controls.Count > 0)
+        {
+            var choice = variantPopup.Controls[0];
+            variantPopup.Controls.RemoveAt(0);
+            choice.Dispose();
+        }
+    }
+
+    private void CancelVariantInteraction()
+    {
+        var source = variantDragSource;
+        variantDragSource = null;
+        HighlightVariant(null);
+        CancelKeyHold(suppressClick: true);
+        variantPopup.Visible = false;
+        ClearVariantButtons();
+        if (filteringPopupMessages)
+        {
+            Application.RemoveMessageFilter(this);
+            filteringPopupMessages = false;
+        }
+        if (popupForm is not null)
+        {
+            popupForm.Deactivate -= DismissVariants;
+            popupForm = null;
+        }
+        foreach (var ancestor in variantAncestors)
+        {
+            ancestor.VisibleChanged -= DismissVariants;
+            ancestor.EnabledChanged -= DismissVariants;
+            ancestor.ParentChanged -= DismissVariants;
+        }
+        variantAncestors.Clear();
+        if (source?.Capture == true) source.Capture = false;
+    }
+
+    bool IMessageFilter.PreFilterMessage(ref Message message)
+    {
+        if (variantDragSource is not null && message.Msg is 0x0200 or 0x0202)
+        {
+            var target = FromHandle(message.HWnd);
+            long position = message.LParam.ToInt64();
+            var point = new Point((short)(position & 0xffff), (short)((position >> 16) & 0xffff));
+            point = target is null ? MousePosition : target.PointToScreen(point);
+            if (message.Msg == 0x0200) HighlightVariant(VariantAt(point));
+            else CompleteVariantDrag(point);
+        }
+        if (message.Msg == 0x0100 && (Keys)message.WParam.ToInt32() == Keys.Escape)
+        {
+            CancelVariantInteraction();
+            return true;
+        }
+        if (message.Msg is 0x0201 or 0x0204 or 0x0207 or 0x0246)
+        {
+            var target = FromHandle(message.HWnd);
+            if (target is null || target != variantPopup && !variantPopup.Contains(target))
+                CancelVariantInteraction();
+        }
+        return false;
+    }
+
     private void ActivateKey(KeyboardKey key)
     {
+        CancelVariantInteraction();
         if (pendingKey == key.Id)
         {
             tapTimer.Stop();
@@ -302,20 +611,21 @@ internal sealed class KeyboardPreview : Control
         tapTimer.Start();
     }
 
-    private void FlushPendingKey()
+    private void FlushPendingKey(bool preserveKeyFocus = false)
     {
         if (pendingKey is not { } key) return;
         tapTimer.Stop();
         pendingKey = null;
-        Dispatch(key);
+        Dispatch(key, focusEditor: !preserveKeyFocus);
     }
 
-    private void Dispatch(string key, bool doubleTap = false)
+    private void Dispatch(string key, bool doubleTap = false, bool focusEditor = true)
     {
+        CancelVariantInteraction();
         if (model is null) return;
         int selectionStart = editor.SelectionStart;
         int selectionLength = editor.SelectionLength;
-        editor.Focus();
+        if (focusEditor) editor.Focus();
         editor.Select(selectionStart, selectionLength);
 
         string layout = model.ActiveLayoutId;
@@ -428,6 +738,30 @@ internal sealed class KeyboardPreview : Control
         editor.SelectedText = "";
     }
 
+    protected override void OnSizeChanged(EventArgs e)
+    {
+        CancelVariantInteraction();
+        base.OnSizeChanged(e);
+    }
+
+    protected override void OnVisibleChanged(EventArgs e)
+    {
+        if (!Visible) CancelVariantInteraction();
+        base.OnVisibleChanged(e);
+    }
+
+    protected override void OnEnabledChanged(EventArgs e)
+    {
+        if (!Enabled) CancelVariantInteraction();
+        base.OnEnabledChanged(e);
+    }
+
+    protected override void OnParentChanged(EventArgs e)
+    {
+        CancelVariantInteraction();
+        base.OnParentChanged(e);
+    }
+
     protected override void OnLayout(LayoutEventArgs e)
     {
         if (IsDisposed || Disposing) return;
@@ -520,7 +854,9 @@ internal sealed class KeyboardPreview : Control
     protected override void Dispose(bool disposing)
     {
         if (!disposing) { base.Dispose(false); return; }
+        CancelVariantInteraction();
         tapTimer.Dispose();
+        holdTimer.Dispose();
         suggestionTimer.Dispose();
         search?.Cancel();
         search = null;

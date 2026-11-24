@@ -39,7 +39,7 @@ def package(output: Path, examples=(), replace=False):
         shutil.copytree(OWN, stage / "Runtime/pico", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         shutil.copy2(OWN / "README.md", stage / "README.md")
         text_file(stage / MARKER, json.dumps({
-            "formatVersion": 1, "toolkitVersion": "0.9.1", "lvglVersion": "9.6.0",
+            "formatVersion": 1, "toolkitVersion": "0.9.2", "lvglVersion": "9.6.0",
             "boards": ["pico", "pico2"], "platform": "Raspberry Pi Pico SDK",
             "files": {path.relative_to(stage).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                       for path in sorted(stage.rglob("*")) if path.is_file()},

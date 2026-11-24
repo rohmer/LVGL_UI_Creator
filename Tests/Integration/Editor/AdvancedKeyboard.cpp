@@ -56,6 +56,31 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     lv_obj_send_event(lv_obj_get_parent(key),LV_EVENT_CLICKED,nullptr);
     Require(properties()->GetSelectedObject()==entry && lv_group_get_focused(properties()->GetKBGroup())==entry,
         "A virtual key stole selection or physical keyboard focus from the text field");
+    // Exercise the shared hold gesture through the Creator's real SDL input,
+    // not synthetic LVGL clicks which bypass press tracking and editor handlers.
+    lv_textarea_set_text(entry, "");
+    auto* heldLabel=Label(lv_advanced_keyboard_get_keyboard(keyboard),"a");
+    Require(heldLabel,"Hold gesture key missing");
+    lv_obj_update_layout(lv_screen_active());
+    lv_area_t heldBounds;lv_obj_get_coords(lv_obj_get_parent(heldLabel),&heldBounds);
+    lv_obj_get_transformed_area(lv_obj_get_parent(heldLabel),&heldBounds,LV_OBJ_POINT_TRANSFORM_FLAG_RECURSIVE);
+    const float holdX=(heldBounds.x1+heldBounds.x2)/2.0f,holdY=(heldBounds.y1+heldBounds.y2)/2.0f;
+    const auto window=SDL_GetWindowID(lv_sdl_window_get_window(lv_display_get_default()));
+    auto mouse=[&](Uint32 type) {
+        SDL_Event event{};event.type=type;
+        if(type==SDL_EVENT_MOUSE_MOTION){event.motion.windowID=window;event.motion.x=holdX;event.motion.y=holdY;}
+        else {event.button.windowID=window;event.button.button=SDL_BUTTON_LEFT;event.button.down=type==SDL_EVENT_MOUSE_BUTTON_DOWN;event.button.x=holdX;event.button.y=holdY;}
+        Require(SDL_PushEvent(&event),"Cannot send keyboard hold input");EditorInputTest::Drain(simulator);
+    };
+    mouse(SDL_EVENT_MOUSE_MOTION);mouse(SDL_EVENT_MOUSE_BUTTON_DOWN);
+    const auto holdDeadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(1100);
+    while(std::chrono::steady_clock::now()<holdDeadline)Require(simulator.ProcessEvents(),"SDL stopped during key hold");
+    auto* variant=Label(lv_layer_top(),u8"à");Require(variant,"Holding a Creator simulator key did not open Unicode variants");
+    mouse(SDL_EVENT_MOUSE_BUTTON_UP);
+    Require(std::string(lv_textarea_get_text(entry)).empty(),"Held source key inserted alongside its variant");
+    EditorInputTest::Click(lv_obj_get_parent(variant),simulator);
+    Require(std::string(lv_textarea_get_text(entry))==u8"à" && !Label(lv_layer_top(),u8"à"),"Variant was not inserted or its popup remained open");
+    Require(properties()->GetSelectedObject()==entry,"Variant selection stole the target field selection");
     properties()->SetSelectedObject(keyboard);Edit(Field(properties(),"Key Background"),"#223344");
     Require(editor.Undo(),"Keyboard style edit was not undoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);
     Require(editor.Redo(),"Keyboard style edit was not redoable");keyboard=lv_obj_get_child(surface,1);entry=lv_obj_get_child(surface,0);

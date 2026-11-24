@@ -15,3 +15,11 @@ included [Figma export plugin](Integrations/Figma/README.md). Both workflows emb
 artwork while preserving editable text, containers, and simple shapes. Local
 plugin imports require no token.
 
+The **Advanced Widgets → Advanced Keyboard** uses the shared native keyboard in
+the Creator simulator. Select its **Target text box**, then hold a character key
+for one second to show accented and alternate characters. Slide onto an option
+and release, or release the original key and click an option. A short click still
+types the original character. Changing the language, hiding the keyboard, or
+clicking outside dismisses the options. Available variants follow the selected
+language and Shift state.
+

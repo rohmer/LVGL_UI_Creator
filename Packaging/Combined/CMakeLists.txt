@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(LVGLCombinedInstaller VERSION 0.9.1 LANGUAGES NONE)
+project(LVGLCombinedInstaller VERSION 0.9.2 LANGUAGES NONE)
 
 if(NOT WIN32)
     message(FATAL_ERROR "The combined Windows installer requires Windows and NSIS.")

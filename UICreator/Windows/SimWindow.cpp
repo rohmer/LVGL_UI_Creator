@@ -3,10 +3,28 @@
 #include "../Utils/EditorDrag.h"
 #include "../Utils/EditorWindow.h"
 #include "../Utils/EditorEvents.h"
+#include <algorithm>
 #include <charconv>
 #include <cstring>
+#if LVGL_VERSION_MAJOR >= 9
+#include <src/core/lv_obj_class_private.h>
+#endif
 
 namespace {
+#if LVGL_VERSION_MAJOR >= 9
+size_t WidgetInstanceBytes(const lv_obj_t* object)
+{
+    // LVGL allocates the first nonzero instance_size in the class chain.
+    // That size includes the base object; inherited classes are not additive.
+    const auto* widgetClass = lv_obj_get_class(object);
+    while (widgetClass && !widgetClass->instance_size) widgetClass = widgetClass->base_class;
+    size_t bytes = widgetClass ? widgetClass->instance_size : 0;
+    const auto count = lv_obj_get_child_count(object);
+    for (uint32_t index = 0; index < count; ++index)
+        bytes += WidgetInstanceBytes(lv_obj_get_child(object, index));
+    return bytes;
+}
+#endif
 bool ReadDimension(lv_obj_t* field, int& value)
 {
     const char* text = lv_ta_get_text(field);
@@ -23,6 +41,36 @@ SimWindow::SimWindow(int iWidth, int iHeight) :
     createObjects();
 }
 
+int SimWindow::updateFrame()
+{
+    std::stringstream title;
+    title << (width < 200 ? "Simulator\n[Size:" : "Simulator [Size:") << width << "x" << height << "]";
+    EditorWindow::SetTitle(window, title.str().c_str());
+#if LVGL_VERSION_MAJOR >= 9
+    // Keep the byte count on its own line so it remains readable at TFT sizes.
+    auto* header = EditorWindow::Header(window);
+    const int lineHeight = lv_font_get_line_height(lv_obj_get_style_text_font(header, LV_PART_MAIN));
+    const int titleHeight = std::max(28, lineHeight * (width < 200 ? 2 : 1));
+    const int headerSize = 12 + titleHeight + 4 + lineHeight;
+    lv_obj_set_height(header, headerSize);
+    lv_obj_set_flex_align(header, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    return headerSize;
+#else
+    return EditorWindow::GetHeaderHeight(window);
+#endif
+}
+
+void SimWindow::RefreshMemoryUsage()
+{
+#if LVGL_VERSION_MAJOR >= 9
+    if (!memoryLabel) return;
+    const auto bytes = WidgetInstanceBytes(drawSurface);
+    if (bytes == memoryBytes) return;
+    memoryBytes = bytes;
+    lv_label_set_text_fmt(memoryLabel, "Screen Memory: %zu bytes", bytes);
+#endif
+}
+
 void SimWindow::resize(int newWidth, int newHeight, bool repos, bool resize)
 {
     EditorEdit::Scope edit;
@@ -31,17 +79,7 @@ void SimWindow::resize(int newWidth, int newHeight, bool repos, bool resize)
 
     width = newWidth;
     height = newHeight;
-    std::stringstream ss;
-    if (width < 200)
-    {
-        ss << "Simulator\n[Size:" << width << "x" << height << "]";
-    }
-    else
-    {
-        ss << "Simulator [Size:" << width << "x" << height << "]";
-    }
-    EditorWindow::SetTitle(window, ss.str().c_str());
-    int headerSize = EditorWindow::GetHeaderHeight(window);
+    const int headerSize = updateFrame();
     lv_obj_set_size(window, width + 12, height + headerSize + 12);
     lv_obj_set_size(drawSurface, width, height);
     if (repos || resize)
@@ -73,10 +111,7 @@ void SimWindow::createObjects()
 #if LVGL_VERSION_MAJOR >= 9
     EditorDrag::Attach(EditorWindow::Header(window), window);
 #endif
-    std::stringstream ss;
-    ss << "Simulator [Size:" << width << "x" << height << "]";
-    EditorWindow::SetTitle(window, ss.str().c_str());
-    int headerSize = EditorWindow::GetHeaderHeight(window);
+    const int headerSize = updateFrame();
 
     lv_obj_set_size(window, width + 12, height + headerSize + 12);
     lv_area_t screenBounds;
@@ -94,6 +129,14 @@ void SimWindow::createObjects()
     lv_obj_t* winBtn = EditorWindow::AddButton(window, LV_SYMBOL_SETTINGS, "settings");
     lv_obj_set_user_data(winBtn, this);
     SetEditorEventCallback<settings>(winBtn);
+#if LVGL_VERSION_MAJOR >= 9
+    memoryLabel = lv_label_create(EditorWindow::Header(window));
+    lv_obj_add_flag(memoryLabel, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_width(memoryLabel, LV_PCT(100));
+    lv_label_set_long_mode(memoryLabel, LV_LABEL_LONG_MODE_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_color(memoryLabel, lv_color_hex(EditorStyle::Muted), LV_PART_MAIN);
+    lv_obj_align(memoryLabel, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+#endif
     drawSurface = lv_cont_create(EditorWindow::Content(window), nullptr);
     lv_obj_set_style(drawSurface, &lv_style_transp);
     lv_cont_set_layout(drawSurface, LV_LAYOUT_OFF);
@@ -107,6 +150,7 @@ void SimWindow::createObjects()
     lv_obj_set_x(drawSurface, lv_obj_get_x(drawSurface) - 3);
     lv_obj_set_y(drawSurface, lv_obj_get_y(drawSurface) - 6);
 #endif
+    RefreshMemoryUsage();
 }
 
 void SimWindow::settings(lv_obj_t* obj, EditorEventCode event)

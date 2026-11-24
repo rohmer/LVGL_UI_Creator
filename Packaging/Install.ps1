@@ -1,4 +1,4 @@
-param([string]$InstallDirectory = (Join-Path $env:LOCALAPPDATA 'Programs\LVGL UI Creator\0.9.1'))
+param([string]$InstallDirectory = (Join-Path $env:LOCALAPPDATA 'Programs\LVGL UI Creator\0.9.2'))
 $ErrorActionPreference = 'Stop'
 $packageDirectory = $PSScriptRoot
 if (-not (Test-Path -LiteralPath (Join-Path $packageDirectory 'UICreator.exe'))) {
@@ -18,5 +18,5 @@ $shortcut.TargetPath = Join-Path $targetDirectory 'UICreator.exe'
 $shortcut.WorkingDirectory = $targetDirectory
 $shortcut.IconLocation = Join-Path $targetDirectory 'UICreator.ico'
 $shortcut.Save()
-Write-Output "Installed LVGL UI Creator 0.9.1 in $targetDirectory"
+Write-Output "Installed LVGL UI Creator 0.9.2 in $targetDirectory"
 Write-Output 'Open LVGL UI Creator from the Start menu. Project and recovery data stay in your user profile.'

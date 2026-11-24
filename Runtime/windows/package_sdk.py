@@ -132,7 +132,7 @@ lvgl_pb_copy_runtime(LVGLProtobufExample)
             if notice.is_file() and (notice.name == "PROVENANCE.md" or any(marker in notice.name.upper() for marker in ("LICENSE", "LICENCE", "COPYING", "NOTICE"))):
                 copy(notice, stage / "licenses/LVSerial_widgets" / notice.relative_to(widgets))
         write(stage / "licenses/Microsoft_RUNTIME_NOTICE.txt", "Microsoft Visual C++ runtime binaries retain their vendor redistribution terms.\n")
-        manifest = {"sdkVersion": "0.9.1", "api": "lvgl_pb_display.h", "lvglVersion": "9.6.0",
+        manifest = {"sdkVersion": "0.9.2", "api": "lvgl_pb_display.h", "lvglVersion": "9.6.0",
                     "architecture": architecture, "displayDll": dll.name, "importLibrary": library.name,
                     "sdlDll": sdl.name, "viewer": viewer.name if viewer else None,
                     "files": {path.relative_to(stage).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()

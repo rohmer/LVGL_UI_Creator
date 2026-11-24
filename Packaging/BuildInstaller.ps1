@@ -1,6 +1,6 @@
 param(
     [string]$StageRoot='', [string]$BuildDirectory='', [string]$OutputDirectory='',
-    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+$')][string]$Version='0.9.1',
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+$')][string]$Version='0.9.2',
     [ValidateSet('both','x64','x86','combined')][string]$Architecture='both',
     [switch]$TestInstaller, [switch]$SmokeApplications, [string]$CMakeExecutable='', [string]$NsisExecutable='', [string]$PythonExecutable=''
 )

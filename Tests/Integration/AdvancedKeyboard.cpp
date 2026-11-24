@@ -566,6 +566,328 @@ void TestScriptPredictions(const std::filesystem::path& directory)
 }
 }
 
+namespace {
+void TestLongPressVariants()
+{
+    auto* previous = lv_screen_active();
+    auto* screen = RevealScreen();
+    auto* display = lv_obj_get_display(screen);
+    auto* top = lv_display_get_layer_top(display);
+    const auto topChildren = lv_obj_get_child_count(top);
+    auto* field = lv_textarea_create(screen);
+    lv_obj_set_pos(field, 12, 12); lv_obj_set_size(field, 600, 70);
+    lv_textarea_set_text(field, "");
+    auto* object = lv_advanced_keyboard_create(screen);
+    Check(object, "Cannot create long-press fixture keyboard");
+    lv_obj_set_pos(object, 0, 240); lv_obj_set_size(object, 640, 240);
+    Check(lv_advanced_keyboard_set_textarea(object, field), "Cannot attach long-press fixture field");
+    lv_advanced_keyboard_set_autocorrect(object, false);
+    auto* keyboard = lv_advanced_keyboard_get_keyboard(object);
+    lv_obj_update_layout(screen);
+    const auto popup = [&]() -> lv_obj_t* {
+        if (lv_obj_get_child_count(top) <= topChildren) return nullptr;
+        auto* overlay = lv_obj_get_child(top, -1);
+        Check(lv_obj_get_child_count(overlay) == 1, "Variant overlay must contain one row");
+        auto* row = lv_obj_get_child(overlay, 0);
+        lv_obj_update_layout(row);
+        lv_area_t bounds{}; lv_obj_get_coords(row, &bounds);
+        Check(bounds.x1 >= 0 && bounds.y1 >= 0 &&
+              bounds.x2 < lv_display_get_horizontal_resolution(display) &&
+              bounds.y2 < lv_display_get_vertical_resolution(display), "Variant row escaped display bounds");
+        return row;
+    };
+    const auto press = [&](lv_obj_t* key) {
+        Check(key, "Missing long-press source key");
+        lv_obj_update_layout(key);
+        lv_area_t bounds{}; lv_obj_get_coords(key, &bounds);
+        pointerPoint = {static_cast<int32_t>((bounds.x1 + bounds.x2) / 2),
+                        static_cast<int32_t>((bounds.y1 + bounds.y2) / 2)};
+        pointerState = LV_INDEV_STATE_RELEASED; lv_indev_read(pointer);
+        pointerState = LV_INDEV_STATE_PRESSED; lv_indev_read(pointer);
+    };
+    const auto release = [&]() {
+        pointerState = LV_INDEV_STATE_RELEASED;
+        lv_indev_read(pointer);
+    };
+    const auto hold = [&](const char* caption) {
+        press(Button(keyboard, caption));
+        Advance(1000);
+        Check(popup(), std::string("No long-press row for ") + caption);
+        release();
+        Check(popup(), "Releasing held source dismissed the choices");
+    };
+    const auto holdContinuously = [&](const char* caption) {
+        press(Button(keyboard, caption));
+        Advance(1000);
+        Check(popup(), std::string("No continuous-hold row for ") + caption);
+    };
+    const auto moveTo = [&](lv_obj_t* target) {
+        Check(target, "Missing drag selection target");
+        lv_obj_update_layout(target);
+        lv_area_t bounds{}; lv_obj_get_coords(target, &bounds);
+        pointerPoint = {static_cast<int32_t>((bounds.x1 + bounds.x2) / 2),
+                        static_cast<int32_t>((bounds.y1 + bounds.y2) / 2)};
+        Check(pointerState == LV_INDEV_STATE_PRESSED, "Drag test accidentally released its original press");
+        lv_indev_read(pointer); Advance(20);
+    };
+    const auto moveOutside = [&]() {
+        Check(pointerState == LV_INDEV_STATE_PRESSED, "Outside drag lost its original press");
+        pointerPoint = {lv_display_get_horizontal_resolution(display) - 10, 15};
+        lv_indev_read(pointer); Advance(20);
+    };
+    const auto dragChoice = [&](const char* caption) {
+        auto* choice = Button(popup(), caption);
+        Check(choice, std::string("Missing drag variant ") + caption);
+        moveTo(choice);
+        Check(lv_obj_has_state(choice, LV_STATE_PRESSED), "Variant under the held pointer was not highlighted");
+        return choice;
+    };
+    const auto finishDrag = [&](const char* expected) {
+        release(); Advance(60);
+        Check(!popup(), "Release over a dragged variant did not dismiss its popup");
+        Text(object, expected);
+        lv_indev_read(pointer); Advance(60);
+        Text(object, expected);
+    };
+    const auto choose = [&](const char* caption) {
+        auto* row = popup();
+        Check(row, "Missing variant row before selection");
+        auto* choice = Button(row, caption);
+        Check(choice, std::string("Missing long-press choice ") + caption);
+        Click(choice);
+        Check(!popup(), "Variant row remained after acceptance");
+    };
+    const auto blank = [&]() { lv_textarea_set_text(field, ""); };
+
+    // These use the actual LVGL pointer device, including its pressed-target
+    // capture and release handling when a modal row appears above the source.
+    press(Button(keyboard, "a"));
+    Advance(999);
+    Check(!popup(), "Variant row appeared before a full second");
+    Check(std::strcmp(lv_textarea_get_text(field), "") == 0, "Holding inserted a source character before release");
+    Advance(1);
+    Check(popup(), "Variant row did not appear at one second");
+    release();
+    Text(object, "");
+    Check(popup(), "Source release removed long-press row");
+    choose(u8"à");
+    Text(object, u8"à");
+    Tap(keyboard, "b");
+    Text(object, u8"àb");
+
+    // Keep the original press down while moving onto and between choices.
+    auto* scrollExtent = lv_obj_create(screen);
+    lv_obj_remove_style_all(scrollExtent); lv_obj_set_pos(scrollExtent, 0, 900); lv_obj_set_size(scrollExtent, 1, 1);
+    lv_obj_set_clickable(scrollExtent, false); lv_obj_update_layout(screen);
+    const auto ancestorScrollBefore = lv_obj_get_scroll_y(screen);
+    blank(); holdContinuously("a"); Text(object, "");
+    auto* firstHovered = dragChoice(u8"à");
+    auto* secondHovered = dragChoice(u8"á");
+    Check(!lv_obj_has_state(firstHovered, LV_STATE_PRESSED), "Moving between variants left the old choice highlighted");
+    moveOutside();
+    Check(!lv_obj_has_state(secondHovered, LV_STATE_PRESSED), "Leaving the row retained a highlighted choice");
+    dragChoice(u8"ä");
+    finishDrag(u8"ä");
+    Check(lv_obj_get_scroll_y(screen) == ancestorScrollBefore, "Dragging a variant scrolled the keyboard's ancestor");
+    lv_obj_delete(scrollExtent);
+    Tap(keyboard, "b"); Text(object, u8"äb");
+    blank(); holdContinuously("a");
+    auto* abandoned = dragChoice(u8"á");
+    moveOutside();
+    Check(!lv_obj_has_state(abandoned, LV_STATE_PRESSED), "Dragging outside retained a candidate");
+    release(); Advance(60);
+    Text(object, "");
+    if (auto* unselectedRow = popup()) {
+        for (uint32_t index = 0; index < lv_obj_get_child_count(unselectedRow); ++index)
+            Check(!lv_obj_has_state(lv_obj_get_child(unselectedRow, index), LV_STATE_PRESSED), "Releasing outside retained a drag highlight");
+        pointerState = LV_INDEV_STATE_PRESSED; lv_indev_read(pointer); release();
+    }
+    Check(!popup(), "Outside tap did not dismiss the unselected row");
+    Tap(keyboard, "b"); Text(object, "b");
+
+    blank();
+    press(Button(keyboard, "a")); Advance(999); release();
+    Check(!popup(), "Short press created a variant row");
+    Text(object, "a");
+    blank();
+    press(Button(keyboard, "a")); Advance(400);
+    pointerPoint = {630, 30}; lv_indev_read(pointer);
+    Advance(800); release();
+    Check(!popup(), "Dragging away from a key still opened its variants");
+    Text(object, "");
+    press(Button(keyboard, "b")); Advance(1200); release();
+    Check(!popup(), "Key with no variants opened an empty row");
+    Text(object, "b");
+
+    blank();
+    Tap(keyboard, u8"⇧"); Advance(320);
+    hold("A");
+    for (const char* caption : {u8"À", u8"Á", u8"Â", u8"Ã", u8"Ä", u8"Å"})
+        Check(Button(popup(), caption), std::string("Uppercase A is missing ") + caption);
+    choose(u8"À");
+    Text(object, u8"À");
+    Check(Button(keyboard, "a") && !Button(keyboard, "A"), "Variant acceptance did not consume one-shot Shift");
+    Tap(keyboard, u8"⇧"); Tap(keyboard, u8"⇧");
+    Check(Button(keyboard, u8"⇪"), "Double-tap did not preserve Shift Lock");
+    hold("A"); choose(u8"Á");
+    Text(object, u8"ÀÁ");
+    Check(Button(keyboard, "A") && Button(keyboard, u8"⇪"), "Variant acceptance consumed Shift Lock");
+    Tap(keyboard, u8"⇪"); Advance(320);
+
+    blank(); Tap(keyboard, u8"⇧"); Advance(320);
+    holdContinuously("A"); dragChoice(u8"Ä"); finishDrag(u8"Ä");
+    Check(Button(keyboard, "a") && !Button(keyboard, "A"), "Drag acceptance did not consume one-shot Shift");
+    Tap(keyboard, u8"⇧"); Tap(keyboard, u8"⇧");
+    holdContinuously("A"); dragChoice(u8"Å"); finishDrag(u8"ÄÅ");
+    Check(Button(keyboard, "A") && Button(keyboard, u8"⇪"), "Drag acceptance consumed Shift Lock");
+    Tap(keyboard, u8"⇪"); Advance(320);
+
+    // Popups open inward from either edge rather than continuing outward.
+    blank();
+    auto* leftSource = Button(keyboard, "a");
+    lv_area_t leftBounds{}; lv_obj_get_coords(leftSource, &leftBounds);
+    hold("a");
+    lv_area_t leftPopup{}; lv_obj_get_coords(popup(), &leftPopup);
+    Check(leftPopup.x1 > leftBounds.x2, "A left-half key did not open choices to its right");
+    choose(u8"à");
+    blank();
+    auto* rightSource = Button(keyboard, "o");
+    lv_area_t rightBounds{}; lv_obj_get_coords(rightSource, &rightBounds);
+    hold("o");
+    lv_area_t rightPopup{}; lv_obj_get_coords(popup(), &rightPopup);
+    Check(rightPopup.x2 < rightBounds.x1, "A right-half key did not open choices to its left");
+    choose(u8"ò");
+    blank(); holdContinuously("o"); dragChoice(u8"ö"); finishDrag(u8"ö");
+
+    struct LanguageCase { const char* id; const char* key; const char* variant; };
+    constexpr LanguageCase languages[] = {
+        {"en-US", "a", u8"à"}, {"es-ES", "a", u8"á"}, {"fr-FR", "a", u8"à"},
+        {"de-DE", "a", u8"ä"}, {"it-IT", "a", u8"à"}, {"pt-PT", "a", u8"ã"},
+        {"zh-CN", "a", u8"ā"}, {"ar-SA", u8"ا", u8"آ"},
+        {"hi-IN", u8"क", u8"क़"}, {"bn-BD", u8"ড", u8"ড়"},
+        {"id-ID", "a", u8"á"}, {"ur-PK", u8"ا", u8"آ"},
+        {"ru-RU", u8"е", u8"ё"}, {"el-GR", u8"α", u8"ά"},
+    };
+    for (const auto& language : languages) {
+        Check(lv_advanced_keyboard_set_language(object, language.id), std::string("Cannot select ") + language.id);
+        blank(); hold(language.key); choose(language.variant);
+        Text(object, language.variant);
+        blank(); holdContinuously(language.key); dragChoice(language.variant); finishDrag(language.variant);
+    }
+
+    Check(lv_advanced_keyboard_set_language(object, "en-US"), "Cannot restore English");
+    blank(); hold("a");
+    pointerPoint = {630, 15};
+    pointerState = LV_INDEV_STATE_PRESSED; lv_indev_read(pointer);
+    release();
+    Check(!popup(), "Outside tap did not dismiss the variant row");
+    Text(object, "");
+    hold("a");
+    Check(lv_advanced_keyboard_set_language(object, "fr-FR"), "Cannot change language during variants");
+    Check(!popup(), "Language switch left stale variant choices");
+    blank(); holdContinuously("a"); dragChoice(u8"à");
+    Check(lv_advanced_keyboard_set_language(object, "en-US"), "Cannot change language during drag");
+    release(); Advance(60);
+    Check(!popup(), "Language switch left a drag selection active"); Text(object, "");
+    blank(); hold("a");
+    lv_obj_set_width(object, 600); lv_obj_update_layout(object);
+    Check(!popup(), "Resizing left a stale variant row");
+    lv_obj_set_width(object, 640); lv_obj_update_layout(object);
+    hold("a");
+    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); Advance(60);
+    Check(!popup(), "Hiding the keyboard left an active variant row");
+    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    // Visibility can change between two input samples, before the periodic
+    // cleanup timer observes it. A release must recheck the active owner.
+    blank(); holdContinuously("a"); dragChoice(u8"à");
+    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); release();
+    Check(!popup(), "Immediate release after hiding the keyboard retained its popup");
+    Text(object, "");
+    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    blank(); holdContinuously("a"); dragChoice(u8"à");
+    lv_obj_add_flag(screen, LV_OBJ_FLAG_HIDDEN); release();
+    Check(!popup(), "Immediate release after hiding an ancestor retained its popup");
+    Text(object, "");
+    lv_obj_remove_flag(screen, LV_OBJ_FLAG_HIDDEN);
+    blank(); hold("a");
+    auto* hiddenOwnerChoice = Button(popup(), u8"à");
+    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); Click(hiddenOwnerChoice);
+    Check(!popup(), "A stale overlay remained after clicking while its owner was hidden");
+    Text(object, "");
+    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    blank(); hold("a");
+    auto* hiddenAncestorChoice = Button(popup(), u8"à");
+    lv_obj_add_flag(screen, LV_OBJ_FLAG_HIDDEN); Click(hiddenAncestorChoice);
+    Check(!popup(), "A stale overlay remained after clicking while an ancestor was hidden");
+    Text(object, "");
+    lv_obj_remove_flag(screen, LV_OBJ_FLAG_HIDDEN);
+    blank(); holdContinuously("a"); dragChoice(u8"à");
+    lv_obj_add_flag(object, LV_OBJ_FLAG_HIDDEN); Advance(60); release();
+    Check(!popup(), "Hiding the keyboard left a drag selection active"); Text(object, "");
+    lv_obj_remove_flag(object, LV_OBJ_FLAG_HIDDEN);
+    hold("a");
+    lv_obj_add_flag(screen, LV_OBJ_FLAG_HIDDEN); Advance(60);
+    Check(!popup(), "Hiding an ancestor left an active variant row");
+    lv_obj_remove_flag(screen, LV_OBJ_FLAG_HIDDEN);
+
+    // A second widget's language and lifetime must not touch the first popup.
+    hold("a");
+    auto* independent = lv_advanced_keyboard_create(screen);
+    Check(independent, "Cannot create independent keyboard");
+    Check(lv_advanced_keyboard_set_language(independent, "de-DE"), "Cannot set independent keyboard language");
+    Check(popup(), "Changing another widget dismissed this widget's variants");
+    lv_obj_delete(independent);
+    Check(popup(), "Deleting another widget dismissed this widget's variants");
+    choose(u8"à"); Text(object, u8"à");
+    blank(); holdContinuously("a");
+    auto* independentHover = dragChoice(u8"á");
+    independent = lv_advanced_keyboard_create(screen);
+    Check(independent, "Cannot create independent keyboard during drag");
+    Check(lv_advanced_keyboard_set_language(independent, "de-DE"), "Cannot change independent language during drag");
+    lv_obj_delete(independent);
+    Check(lv_obj_has_state(independentHover, LV_STATE_PRESSED), "Another keyboard's lifetime cleared the drag highlight");
+    finishDrag(u8"á");
+
+    // A narrow display wraps long Pinyin choices into multiple rows.
+    Check(lv_advanced_keyboard_set_language(object, "zh-CN"), "Cannot select Pinyin for scroll fixture");
+    lv_display_set_resolution(display, 320, 480);
+    lv_obj_set_width(object, 320); lv_obj_set_width(field, 300); lv_obj_update_layout(screen);
+    blank(); hold("u");
+    auto* row = popup();
+    auto* last = Button(row, u8"ǜ");
+    Check(last, "Long variant row lost its last tone mark");
+    auto* first = lv_obj_get_child(row, 0);
+    lv_area_t firstBounds{}, lastBounds{};
+    lv_obj_get_coords(first, &firstBounds); lv_obj_get_coords(last, &lastBounds);
+    Check(lastBounds.y1 > firstBounds.y1, "Long variant choices did not wrap into multiple rows");
+    Check(lv_obj_get_scroll_x(row) == 0, "Wrapped variants still require horizontal scrolling");
+    choose(u8"ǜ"); Text(object, u8"ǜ");
+    blank(); holdContinuously("u");
+    auto* earlierRowChoice = dragChoice(u8"ù");
+    dragChoice(u8"ǜ");
+    Check(!lv_obj_has_state(earlierRowChoice, LV_STATE_PRESSED), "Moving between wrapped rows retained the earlier selection");
+    finishDrag(u8"ǜ");
+    lv_display_set_resolution(display, 640, 480);
+    lv_obj_set_width(object, 640); lv_obj_set_width(field, 600); lv_obj_update_layout(screen);
+
+    Check(lv_advanced_keyboard_set_language(object, "en-US"), "Cannot restore English for deletion fixture");
+    holdContinuously("a"); dragChoice(u8"à");
+    lv_obj_delete(object);
+    release();
+    Check(!popup(), "Deleting a keyboard left its variant overlay behind");
+    Advance(1200);
+    object = lv_advanced_keyboard_create(screen);
+    lv_obj_set_pos(object, 0, 240); lv_obj_set_size(object, 640, 240);
+    Check(lv_advanced_keyboard_set_textarea(object, field), "Cannot attach pending-hold deletion fixture");
+    keyboard = lv_advanced_keyboard_get_keyboard(object);
+    press(Button(keyboard, "a")); Advance(400);
+    lv_obj_delete(object); release(); Advance(1200);
+    Check(!popup(), "Deleting a pending hold created a late popup");
+    lv_screen_load(previous); lv_obj_delete(screen);
+}
+
+}
+
 int main(int argc, char** argv)
 {
     try {
@@ -899,6 +1221,7 @@ int main(int argc, char** argv)
         TestRevealCallbackDeletion(LV_EVENT_GET_SELF_SIZE);
         TestRevealCallbackDeletion(LV_EVENT_SCROLL_BEGIN);
         TestKeyboardLanguages();
+        TestLongPressVariants();
         TestScriptKeyboards(directory);
         TestScriptPredictions(directory);
         lv_obj_delete(object); lv_obj_delete(editor); lv_indev_delete(pointer); pointer = nullptr;

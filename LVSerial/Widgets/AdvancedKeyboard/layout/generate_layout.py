@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import struct
 import tempfile
+import unicodedata
 
 
 ACTION_TYPES = {
@@ -106,6 +107,26 @@ def action_source(value, field, base_layouts, layout_index):
     return f"{{ActionType::{ACTION_TYPES[kind]}, {text}, {target}}}"
 
 
+def key_variants(key, field):
+    if "variants" not in key:
+        return []
+    if key["action"]["type"] != "insert":
+        raise ValueError(f"{field}.variants is only supported on insert keys")
+    variants = key["variants"]
+    if not isinstance(variants, list):
+        raise ValueError(f"{field}.variants must be an array")
+    seen = set()
+    for index, value in enumerate(variants):
+        item = f"{field}.variants[{index}]"
+        string_at(value, item)
+        if any(unicodedata.category(char) in ("Cc", "Cs", "Zl", "Zp") for char in value):
+            raise ValueError(f"{item} must not contain controls, surrogates or line separators")
+        if value in seen:
+            raise ValueError(f"{item} duplicates {value!r}")
+        seen.add(value)
+    return variants
+
+
 def generate(profile):
     profile = object_at(profile, "profile")
     if type(profile.get("version")) is not int or profile["version"] != 1:
@@ -152,7 +173,7 @@ def generate(profile):
             keys = array_at(row.get("keys"), f"{row_field}.keys")
             table = f"{prefix}_row_{row_index}"
             widths = [offset]
-            lines.append(f"inline constexpr Key {table}[] = {{")
+            key_lines = []
             for column, key in enumerate(keys):
                 key_field = f"{row_field}.keys[{column}]"
                 key = object_at(key, key_field)
@@ -168,10 +189,16 @@ def generate(profile):
                 if "doubleTapAction" in key:
                     double_tap = action_source(key["doubleTapAction"], f"{key_field}.doubleTapAction",
                                                base_layouts, layout_index)
-                lines.append(f"    {{{cpp_string(key_id)}, {label}, {cpp_float(key_width)}, {tap}, {double_tap}}},")
+                variants = key_variants(key, key_field)
+                variant_table = "nullptr"
+                if variants:
+                    variant_table = f"{table}_key_{column}_variants"
+                    values = ", ".join(cpp_string(value) for value in variants)
+                    lines.append(f"inline constexpr const char* {variant_table}[] = {{{values}}};")
+                key_lines.append(f"    {{{cpp_string(key_id)}, {label}, {cpp_float(key_width)}, {tap}, {double_tap}, {variant_table}, {len(variants)}}},")
             if math.fsum(widths) > width * (1 + 1e-6):
                 raise ValueError(f"{row_field} is wider than profile.width")
-            lines += ["};", ""]
+            lines += [f"inline constexpr Key {table}[] = {{", *key_lines, "};", ""]
             row_lines.append(f"    {{{cpp_float(offset)}, {table}, {len(keys)}}},")
         lines += [f"inline constexpr Row {prefix}_rows[] = {{", *row_lines, "};", ""]
         shifted = layout_index[shift_targets[name]] if name in shift_targets else "no_layout"

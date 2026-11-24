@@ -6,10 +6,10 @@ and the four separate release installers:
 
 | Target | Build argument | Installer |
 | --- | --- | --- |
-| Windows 64-bit | `x64` | `LVGL-UI-Creator-0.9.1-windows-x64-setup.exe` |
-| Windows 32-bit | `x86` (`x32` is a build alias) | `LVGL-UI-Creator-0.9.1-windows-x86-setup.exe` |
-| Linux x86_64 | `x86_64` | `LVGL-UI-Creator-0.9.1-Linux-x86_64.deb` |
-| Linux ARM64 / Raspberry Pi | `aarch64` | `LVGL-UI-Creator-0.9.1-Linux-arm64.deb` |
+| Windows 64-bit | `x64` | `LVGL-UI-Creator-0.9.2-windows-x64-setup.exe` |
+| Windows 32-bit | `x86` (`x32` is a build alias) | `LVGL-UI-Creator-0.9.2-windows-x86-setup.exe` |
+| Linux x86_64 | `x86_64` | `LVGL-UI-Creator-0.9.2-Linux-x86_64.deb` |
+| Linux ARM64 / Raspberry Pi | `aarch64` | `LVGL-UI-Creator-0.9.2-Linux-arm64.deb` |
 
 The Linux release also produces a `.tar.gz` for each architecture. ARM64 means
 64-bit Raspberry Pi OS/Linux, not ARMv7 or a 32-bit Raspberry Pi installation.
@@ -286,7 +286,7 @@ contains them and can supply a Linux-only build machine without a Windows build:
 
 ```sh
 mkdir -p build/sdk-inputs build/sdk-extracted
-dpkg-deb -x /path/to/LVGL-UI-Creator-0.9.1-Linux-x86_64.deb build/sdk-extracted
+dpkg-deb -x /path/to/LVGL-UI-Creator-0.9.2-Linux-x86_64.deb build/sdk-extracted
 find build/sdk-extracted/usr/lib/lvgl-ui-creator/sdk -type f \
   \( -name '*.zip' -o -name '*.tar.gz' -o -name '*.sha256' \) \
   -exec cp -t build/sdk-inputs -- {} +
@@ -386,7 +386,7 @@ Linux distributions or 32-bit Raspberry Pi installations are compatible.
 Install on the matching Linux architecture:
 
 ```sh
-sudo apt install ./LVGL-UI-Creator-0.9.1-Linux-x86_64.deb
+sudo apt install ./LVGL-UI-Creator-0.9.2-Linux-x86_64.deb
 # On 64-bit Raspberry Pi OS, use the Linux-arm64.deb instead.
 lvgl-ui-creator
 ```
@@ -440,7 +440,7 @@ For complete generation/build commands and hardware settings, use:
 Once both Windows installers and both Linux package pairs pass verification:
 
 ```sh
-python3 Packaging/collect_release.py --windows-packages build/windows-installer/packages --linux-packages build/linux-desktop/packages --output build/releases/0.9.1
+python3 Packaging/collect_release.py --windows-packages build/windows-installer/packages --linux-packages build/linux-desktop/packages --output build/releases/0.9.2
 ```
 
 In Windows PowerShell, use `python` instead of `python3` if that is the installed

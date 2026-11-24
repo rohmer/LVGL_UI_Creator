@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text;
 
 namespace KeyboardSimulator;
 
@@ -19,11 +20,19 @@ internal sealed record KeyboardAction
 
 internal sealed record KeyboardKey
 {
+    private IReadOnlyList<string> variants = [];
+
     public required string Id { get; init; }
     public required string Label { get; init; }
     public float Width { get; init; } = 1;
     public required KeyboardAction Action { get; init; }
     public KeyboardAction? DoubleTapAction { get; init; }
+    public IReadOnlyList<string> Variants
+    {
+        get => variants;
+        init { variants = value; HasVariants = true; }
+    }
+    internal bool HasVariants { get; private set; }
 }
 
 internal sealed record KeyboardRow
@@ -116,6 +125,10 @@ internal sealed record KeyboardDefinition
                     ValidateAction(key.Action, key.Id, name);
                     if (key.DoubleTapAction is { } doubleTap)
                         ValidateAction(doubleTap, key.Id, name);
+                    if (key.Variants is null || key.Variants.Any(variant => !IsVariantText(variant)) ||
+                        key.Variants.Distinct(StringComparer.Ordinal).Count() != key.Variants.Count ||
+                        key.HasVariants && key.Action.Kind != KeyboardActionKind.Insert)
+                        throw new InvalidDataException($"Key {key.Id} in layout {name} has invalid variants.");
                 }
                 if (right > Width * (1.0 + 1e-6))
                     throw new InvalidDataException($"A row in layout {name} exceeds the keyboard width.");
@@ -135,6 +148,18 @@ internal sealed record KeyboardDefinition
             };
             if (!valid) throw new InvalidDataException($"Key {key} in layout {layout} has an invalid action.");
         }
+    }
+
+    private static bool IsVariantText(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return false;
+        for (int offset = 0; offset < text.Length;)
+        {
+            if (!Rune.TryGetRuneAt(text, offset, out var rune) || Rune.IsControl(rune) || rune.Value is 0x2028 or 0x2029)
+                return false;
+            offset += rune.Utf16SequenceLength;
+        }
+        return true;
     }
 
     private static bool IsId(string? id, bool allowUppercase = false) =>

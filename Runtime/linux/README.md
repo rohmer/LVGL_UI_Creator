@@ -99,15 +99,13 @@ Profile binary packages retain their exact feature report and project inputs.
 Use matching architecture and runtime libraries, or rebuild the source SDK on
 the target distribution. The binary packager runs on Linux.
 
-The validation builds made with Ubuntu 26.04 GCC 15 require these measured
-symbol versions: x86-64 SDL/callback SDK: GLIBC 2.43, GLIBCXX 3.4.32 and CXXABI
-1.3.15; ARM64 callback profile: GLIBC 2.38, GLIBCXX 3.4.29 and CXXABI 1.3.15.
-Every binary package prints its own measured requirements in README and
-`sdk.json`; a different compiler or selected feature set may change them.
-Debian Bookworm's [glibc 2.36](https://packages.debian.org/bookworm/libc6)
-does not meet the supplied ARM64 binary's floor, so rebuild on that target.
-Debian Trixie's [glibc 2.41](https://packages.debian.org/trixie/libc6) and
-[GCC 14 C++ runtime](https://packages.debian.org/trixie/libstdc%2B%2B6)
-meet those ARM64 symbol floors according to the
-[GCC ABI table](https://gcc.gnu.org/onlinedocs/libstdc%2B%2B/manual/abi.html).
-That is an ABI compatibility inference, not a physical Raspberry Pi test.
+The 0.9.2 release SDKs use GCC 11 and an Ubuntu 22.04 target sysroot. The full
+x86-64 SDK includes SDL3 and the callback backend; its measured minimum symbol
+versions are GLIBC 2.34, GLIBCXX 3.4.29 and CXXABI 1.3.9. The ARM64 keyboard
+profile SDK uses the callback backend without SDL3; its measured minimums are
+GLIBC 2.32, GLIBCXX 3.4.29 and CXXABI 1.3.9.
+Every binary package prints its complete measured requirements in README and
+`sdk.json`; a different compiler, backend or selected feature set may change
+them. Compare those requirements with the libraries installed on the target,
+or rebuild the source SDK using its toolchain. These ABI checks do not replace
+testing the application's display and input drivers on the target hardware.
