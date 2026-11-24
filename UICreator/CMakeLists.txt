@@ -189,6 +189,11 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     set_tests_properties(UICreatorEditorInputMatrix PROPERTIES
         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software"
         TIMEOUT 120 RUN_SERIAL TRUE LABELS "functional;editor;keyboard")
+    if(APPLE)
+        # Hosted Mac software rendering is slower; retain every field check
+        # in the complete input pass with a bounded platform-specific budget.
+        set_tests_properties(UICreatorEditorInputMatrix PROPERTIES TIMEOUT 300)
+    endif()
     set_tests_properties(UICreatorTftSettings PROPERTIES
         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software"
         TIMEOUT 45 LABELS "functional;editor;keyboard;tft")
@@ -235,9 +240,14 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         add_test(NAME UICreatorDebugScreen COMMAND UICreatorEditorTests --debug-screen)
         set_tests_properties(UICreatorDebugScreen PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 30 LABELS "functional;editor;desktop;protobuf")
     endif()
+    if(APPLE)
+        set(editor_workflow_timeout 180)
+    else()
+        set(editor_workflow_timeout "$<IF:$<CONFIG:Debug>,180,60>")
+    endif()
     set_tests_properties(UICreatorEditorWorkflow PROPERTIES
         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software"
-        TIMEOUT 60 RUN_SERIAL TRUE)
+        TIMEOUT "${editor_workflow_timeout}" RUN_SERIAL TRUE)
 endif()
 
 if(BUILD_TESTING AND WIN32)

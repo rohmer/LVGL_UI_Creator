@@ -23,6 +23,10 @@
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
+#ifdef __APPLE__
+#include <libproc.h>
+#include <sys/proc.h>
+#endif
 #endif
 
 namespace DeviceTools {
@@ -129,6 +133,61 @@ Result One(const Command& c,std::atomic_bool& cancel,const Output& output) {
     DWORD code=0;GetExitCodeProcess(child.value,&code);result.exitCode=int(code);return result;
 }
 #else
+std::vector<pid_t> ChildProcesses(pid_t parent) {
+    std::vector<pid_t> children;
+#ifdef __APPLE__
+    auto capacity = (std::max)(16, proc_listchildpids(parent, nullptr, 0) + 16);
+    for (;;) {
+        children.resize(static_cast<size_t>(capacity));
+        const auto count = proc_listchildpids(parent, children.data(), capacity * int(sizeof(pid_t)));
+        if (count < 0) { children.clear(); break; }
+        if (count < capacity) { children.resize(static_cast<size_t>(count)); break; }
+        capacity *= 2;
+    }
+#else
+    // A tool can spawn from any of its threads, not just its thread-group leader.
+    std::error_code error;
+    const auto tasks = std::filesystem::path("/proc") / std::to_string(parent) / "task";
+    for (std::filesystem::directory_iterator thread(tasks, error), end;
+         !error && thread != end; thread.increment(error)) {
+        std::ifstream list(thread->path() / "children");
+        pid_t child = 0; while (list >> child) if (child > 1) children.push_back(child);
+    }
+#endif
+    std::sort(children.begin(), children.end());
+    children.erase(std::unique(children.begin(), children.end()), children.end());
+    return children;
+}
+bool ProcessStopped(pid_t process) {
+#ifdef __APPLE__
+    proc_bsdinfo info{};
+    return proc_pidinfo(process, PROC_PIDTBSDINFO, 0, &info, sizeof info) != sizeof info ||
+        info.pbi_status == SSTOP || info.pbi_status == SZOMB;
+#else
+    std::ifstream input(std::filesystem::path("/proc") / std::to_string(process) / "stat");
+    std::string status; if (!std::getline(input, status)) return true;
+    const auto end = status.rfind(')');
+    return end == std::string::npos || end + 2 >= status.size() ||
+        status[end + 2] == 'T' || status[end + 2] == 't' || status[end + 2] == 'Z';
+#endif
+}
+void TerminateProcessTree(pid_t root) {
+    // Descendants may create their own process groups. Freeze each ancestor
+    // before listing its children, so the owned tree cannot grow during cleanup.
+    std::vector<pid_t> tree{root};
+    for (size_t index = 0; index < tree.size(); ++index) {
+        const auto process = tree[index];
+        if (process <= 1 || kill(process, SIGSTOP) != 0) continue;
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(100);
+        while (!ProcessStopped(process) && std::chrono::steady_clock::now() < deadline)
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        for (const auto child : ChildProcesses(process))
+            if (child > 1 && std::find(tree.begin(), tree.end(), child) == tree.end()) tree.push_back(child);
+    }
+    for (auto process = tree.rbegin(); process != tree.rend(); ++process)
+        if (*process > 1) kill(*process, SIGKILL);
+    kill(-root, SIGKILL);
+}
 Result One(const Command& c,std::atomic_bool& cancel,const Output& output) {
     int pipes[2];if(pipe(pipes))throw std::runtime_error("Cannot create tool output pipe");
     auto child=fork();if(child<0){close(pipes[0]);close(pipes[1]);throw std::runtime_error("Cannot fork tool");}
@@ -136,9 +195,19 @@ Result One(const Command& c,std::atomic_bool& cancel,const Output& output) {
         if(!c.directory.empty()&&chdir(c.directory.c_str()))_exit(126);for(const auto& e:c.environment)setenv(e.first.c_str(),e.second.c_str(),1);
         std::vector<std::string> args{Text(c.executable)};args.insert(args.end(),c.arguments.begin(),c.arguments.end());std::vector<char*> argv;for(auto& a:args)argv.push_back(a.data());argv.push_back(nullptr);execvp(argv[0],argv.data());_exit(127);}
     setpgid(child,child);close(pipes[1]);fcntl(pipes[0],F_SETFL,O_NONBLOCK);Result result;bool stopped=false;int status=0;char buffer[4096];bool exited=false;
+    struct Cleanup {
+        pid_t child; int pipe; bool& reaped;
+        ~Cleanup() {
+            close(pipe);
+            if (!reaped) {
+                try { TerminateProcessTree(child); } catch (...) { kill(-child, SIGKILL); kill(child, SIGKILL); }
+                while (waitpid(child, nullptr, 0) < 0 && errno == EINTR) {}
+            }
+        }
+    } cleanup{child, pipes[0], exited};
     auto finished=std::chrono::steady_clock::time_point{};
-    for(;;){if(cancel.load(std::memory_order_relaxed)&&!stopped){kill(-child,SIGKILL);result.cancelled=stopped=true;}const auto got=read(pipes[0],buffer,sizeof buffer);if(got>0&&output)output(std::string(buffer,size_t(got)));if(!exited&&waitpid(child,&status,WNOHANG)==child){exited=true;finished=std::chrono::steady_clock::now();}if(exited&&(got<=0||std::chrono::steady_clock::now()-finished>std::chrono::seconds(2)))break;if(got<=0){pollfd event{pipes[0],POLLIN,0};poll(&event,1,20);}}
-    close(pipes[0]);kill(-child,SIGKILL);if(!exited)waitpid(child,&status,0);result.exitCode=WIFEXITED(status)?WEXITSTATUS(status):128+WTERMSIG(status);return result;
+    for(;;){if(cancel.load(std::memory_order_relaxed)&&!stopped){if(!exited)TerminateProcessTree(child);else kill(-child,SIGKILL);result.cancelled=stopped=true;}const auto got=read(pipes[0],buffer,sizeof buffer);if(got>0&&output)output(std::string(buffer,size_t(got)));if(!exited&&waitpid(child,&status,WNOHANG)==child){exited=true;finished=std::chrono::steady_clock::now();}if(exited&&(got<=0||std::chrono::steady_clock::now()-finished>std::chrono::seconds(2)))break;if(got<=0){pollfd event{pipes[0],POLLIN,0};poll(&event,1,20);}}
+    kill(-child,SIGKILL);result.exitCode=WIFEXITED(status)?WEXITSTATUS(status):128+WTERMSIG(status);return result;
 }
 #endif
 }

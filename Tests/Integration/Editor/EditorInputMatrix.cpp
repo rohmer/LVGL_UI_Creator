@@ -164,8 +164,14 @@ void Close(lv_obj_t* window,SdlSimulator& simulator){
     auto* group=lv_indev_get_group(simulator.GetKeyboard());auto* focused=group?lv_group_get_focused(group):nullptr;
     Input::Require(std::find(fields.begin(),fields.end(),focused)==fields.end(),"Closed editor retained keyboard focus");std::cout<<"Tool closed"<<std::endl;
 }
-void Field(lv_obj_t* root,const char* caption,const char* value,SdlSimulator& simulator){auto* field=Input::FindField(root,caption);Input::Require(field,std::string("Missing editor field: ")+caption);Input::Replace(field,value,simulator);}
-void Placeholder(lv_obj_t* root,const char* placeholder,const char* value,SdlSimulator& simulator){auto* field=Input::FindPlaceholder(root,placeholder);Input::Require(field,std::string("Missing editor placeholder: ")+placeholder);Input::Replace(field,value,simulator);}
+void Field(lv_obj_t* root,const char* caption,const char* value,SdlSimulator& simulator){
+    std::cout<<"Typing tool field: "<<caption<<" ("<<SDL_GetTicks()<<" ms)"<<std::endl;
+    auto* field=Input::FindField(root,caption);Input::Require(field,std::string("Missing editor field: ")+caption);Input::Replace(field,value,simulator);
+}
+void Placeholder(lv_obj_t* root,const char* placeholder,const char* value,SdlSimulator& simulator){
+    std::cout<<"Typing tool placeholder: "<<placeholder<<" ("<<SDL_GetTicks()<<" ms)"<<std::endl;
+    auto* field=Input::FindPlaceholder(root,placeholder);Input::Require(field,std::string("Missing editor placeholder: ")+placeholder);Input::Replace(field,value,simulator);
+}
 void FocusScope(SdlSimulator& simulator){
     auto* group=lv_indev_get_group(simulator.GetKeyboard());auto* window=EditorWindow::Create(lv_layer_top());EditorWindow::SetTitle(window,"Editor input scope fixture");lv_obj_set_size(window,500,700);lv_obj_center(window);
     auto* mainDisplay=lv_display_get_default();auto* privateDisplay=lv_display_create(32,32);auto* privateGroup=lv_group_create();auto* privateKeyboard=lv_indev_create();
@@ -256,10 +262,16 @@ void ToolEditors(UI& editor,SdlSimulator& simulator){
 void CheckEditorInputMatrix(UI& editor,SdlSimulator& simulator){
     InstallFaultTrace();
     ClipboardRestore clipboard;
-    SessionDirectory session;SDL_SetModState(SDL_KMOD_NONE);std::cout<<"Checking dynamic focus, inactive tabs, clipboard and AltGr"<<std::endl;FocusScope(simulator);
-    editor.ApplyDocument(Fixture());editor.SelectObjectIds({0});std::cout<<"Checking property and legacy editors"<<std::endl;CheckPropertyEditorInput(editor,simulator);
-    editor.ApplyDocument(Fixture());editor.SelectObjectIds({0});std::cout<<"Checking asset converters, managers and project creator"<<std::endl;CheckAssetEditorInput(editor,simulator);
-    editor.ApplyDocument(Fixture());editor.SelectObjectIds({0});ToolEditors(editor,simulator);
+    SessionDirectory session;SDL_SetModState(SDL_KMOD_NONE);
+    const auto started=SDL_GetTicks();
+    const auto phase=[&](const char* caption,auto&& action){
+        const auto before=SDL_GetTicks();std::cout<<"Checking "<<caption<<" (total "<<before-started<<" ms)"<<std::endl;
+        action();std::cout<<"Completed "<<caption<<" in "<<SDL_GetTicks()-before<<" ms (total "<<SDL_GetTicks()-started<<" ms)"<<std::endl;
+    };
+    phase("dynamic focus, inactive tabs, clipboard and AltGr",[&]{FocusScope(simulator);});
+    editor.ApplyDocument(Fixture());editor.SelectObjectIds({0});phase("property and legacy editors",[&]{CheckPropertyEditorInput(editor,simulator);});
+    editor.ApplyDocument(Fixture());editor.SelectObjectIds({0});phase("asset converters, managers and project creator",[&]{CheckAssetEditorInput(editor,simulator);});
+    editor.ApplyDocument(Fixture());editor.SelectObjectIds({0});phase("tool editors",[&]{ToolEditors(editor,simulator);});
     editor.MenuAction("commands");Input::Drain(simulator);auto* palette=CommandPalette::ActiveWindow();Input::Require(palette,"Command palette did not open");
     Input::Replace(Input::FindPlaceholder(palette,"Type to search..."),"fit",simulator);Input::Require(CommandPalette::ResultCount()>0,"Command palette ignored typed query");Input::Key(SDLK_ESCAPE,SDL_SCANCODE_ESCAPE,simulator);Input::Require(!CommandPalette::ActiveWindow(),"Command palette did not release its input state");
     std::cout<<"Real SDL input passed across property/legacy editors, asset converters/managers, firmware creator, language models, devices, themes, components, layout/previews, events, screens, budgets, translations and dynamic focus scopes\n";

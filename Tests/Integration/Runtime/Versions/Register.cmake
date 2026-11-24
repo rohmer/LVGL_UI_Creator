@@ -1,3 +1,9 @@
+set(runtime_matrix_catch UICreatorCatch)
+if(MSVC)
+    # The generator/backend matrix deliberately builds Release firmware. A
+    # Debug editor's checked STL/debug CRT cannot cross this library boundary.
+    set(runtime_matrix_catch UICreatorCatchMatrix)
+endif()
 foreach(pair "9.6|vendored" "9.5|v9_5_0" "9.3|v9_3_0" "9.2|v9_2_2" "9.1|v9_1_0" "8.3|v8_3_11")
     string(REPLACE "|" ";" fields "${pair}")
     list(GET fields 0 version)
@@ -10,7 +16,7 @@ foreach(pair "9.6|vendored" "9.5|v9_5_0" "9.3|v9_3_0" "9.2|v9_2_2" "9.1|v9_1_0" 
         string(REPLACE "." "" suffix "${version}")
         add_test(NAME "LVGLRuntimeBackend${suffix}" COMMAND "${CMAKE_COMMAND}"
             "-DCOMPILER=$<TARGET_FILE:LVGLCompiler>" "-DTARGET_VERSION=${version}"
-            "-DLVGL_SOURCE_DIR=${version_source}" "-DCATCH_ARCHIVE=$<TARGET_FILE:UICreatorCatch>"
+            "-DLVGL_SOURCE_DIR=${version_source}" "-DCATCH_ARCHIVE=$<TARGET_FILE:${runtime_matrix_catch}>"
             "-DBINARY_DIR=${PROJECT_BINARY_DIR}/runtime-matrix/${version}"
             "-DLVGL_BUILD_DIR=${PROJECT_BINARY_DIR}/version-matrix/${version}"
             "-DMEDIA_CASES=${PROJECT_BINARY_DIR}/Runtime/media-output"

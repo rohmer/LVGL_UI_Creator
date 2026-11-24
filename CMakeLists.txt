@@ -51,6 +51,16 @@ if(BUILD_TESTING)
     target_compile_definitions(UICreatorCatch PRIVATE CATCH_AMALGAMATED_CUSTOM_MAIN)
     target_include_directories(UICreatorCatch PUBLIC
         "${PROJECT_SOURCE_DIR}/3rdParty/Catch2/single_include/catch2")
+    if(MSVC AND UICREATOR_TEST_LVGL_VERSIONS)
+        # Backend fixtures import Release LVGL archives. Give their independent
+        # Release projects a matching Catch ABI even when the editor is Debug.
+        add_library(UICreatorCatchMatrix STATIC 3rdParty/Catch2/extras/catch_amalgamated.cpp)
+        set_target_properties(UICreatorCatchMatrix PROPERTIES MSVC_RUNTIME_LIBRARY MultiThreadedDLL)
+        target_compile_definitions(UICreatorCatchMatrix PRIVATE
+            CATCH_AMALGAMATED_CUSTOM_MAIN NDEBUG _ITERATOR_DEBUG_LEVEL=0)
+        target_include_directories(UICreatorCatchMatrix PUBLIC
+            "${PROJECT_SOURCE_DIR}/3rdParty/Catch2/single_include/catch2")
+    endif()
     add_subdirectory(Tests/UnitTests/ImgLib)
     add_subdirectory(Tests/UnitTests/Serialization)
     add_subdirectory(Tests/Integration/LVGL9)
