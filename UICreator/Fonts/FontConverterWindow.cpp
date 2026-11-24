@@ -171,7 +171,8 @@ void Open(PropertyWindow* properties) {
     Section(body,"RASTERIZATION AND SIZE");
     Choice(w,body,"Subpixel smoothing","None (grayscale)\nHorizontal RGB (LCD)\nVertical RGB (LCD)",0,"smoothing");
     Check(w,body,"Use color glyph information for grayscale icons",false,"colorInfo");
-    Check(w,body,"Compress glyph bitmaps (RLE)",true,"compress");Check(w,body,"XOR prefilter for compression",true,"prefilter");
+    Check(w,body,"Compress 2/3/4 bpp glyph bitmaps (RLE)",true,"compress");Check(w,body,"XOR prefilter for compression",true,"prefilter");
+    Label(body,"1 and 8 bpp glyphs are stored uncompressed for LVGL compatibility.",LV_PCT(100));
     Check(w,body,"Include kerning",true,"kerning");Check(w,body,"Force fast kerning classes (may be larger)",false,"fastKerning");
     Choice(w,body,"Row stride alignment","0 (packed)\n1 byte\n4 bytes\n8 bytes\n16 bytes\n32 bytes\n64 bytes",0,"stride");
     Choice(w,body,"Glyph address alignment","1 byte\n4 bytes\n8 bytes\n16 bytes\n32 bytes\n64 bytes\n128 bytes\n256 bytes\n512 bytes\n1024 bytes",0,"align");

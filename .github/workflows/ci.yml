@@ -60,23 +60,17 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: 24.11.1
-          cache: npm
-          cache-dependency-path: 3rdParty/lv_font_conv/package-lock.json
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
           key: cargo-${{ runner.os }}-${{ runner.arch }}-${{ matrix.architecture }}-${{ hashFiles('3rdParty/libimagequant/Cargo.lock') }}
-      - name: Install CMake, Ninja, npm and Rust target
+      - name: Install CMake, Ninja and Rust target
         shell: bash
         run: |
           python .github/scripts/setup_cmake.py
           python -m pip install ninja==1.11.1.4
-          npm install --global npm@11.6.2
           rustup toolchain install 1.85.1 --profile minimal
           if [ '${{ matrix.architecture }}' = 'x86' ]; then
             rustup target add --toolchain 1.85.1 i686-pc-windows-msvc

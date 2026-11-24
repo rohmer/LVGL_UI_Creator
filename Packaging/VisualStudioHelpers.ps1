@@ -26,34 +26,18 @@ function Get-UICreatorVisualStudioX86Tools {
     $driver=$null
     if(Test-Path -LiteralPath $manifest){
         $previous=Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-        if($previous.imagePython -and (Test-Path -LiteralPath $previous.imagePython -PathType Leaf)){$driver=$previous.imagePython}
+        if($previous.projectPython -and (Test-Path -LiteralPath $previous.projectPython -PathType Leaf)){$driver=$previous.projectPython}
     }
     if(!$driver){$driver=(Get-Command python.exe -ErrorAction Stop).Source}
     & $driver -I (Join-Path $Context.RepositoryRoot 'Packaging\BuildWindowsHelpers.py') --architecture x86 --output $directory | Out-Host
-    if($LASTEXITCODE){throw 'Native x86 converter preparation failed'}
+    if($LASTEXITCODE){throw 'Native x86 project helper preparation failed'}
     $tools=Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
     if($tools.architecture -ne 'x86'){throw 'The helper manifest does not describe x86 tools'}
-    foreach($file in @($tools.fontNode,$tools.imagePython,(Join-Path $tools.imageToolDirectory 'UICreatorImageTool.exe'),(Join-Path $tools.projectToolDirectory 'UICreatorProjectTool.exe'))){
+    foreach($file in @($tools.projectPython,(Join-Path $tools.projectToolDirectory 'UICreatorProjectTool.exe'))){
         $information=Get-UICreatorPeInfo $file -Required
         if($information.machine -ne 0x14c -or $information.bits -ne 32){throw "Private helper is not a 32-bit executable: $file"}
     }
     return $tools
-}
-
-function Reset-UICreatorVisualStudioFontDirectory {
-    param([Parameter(Mandatory=$true)]$Context)
-    $output=[IO.Path]::GetFullPath($Context.OutputDirectory).TrimEnd([IO.Path]::DirectorySeparatorChar)
-    $destination=[IO.Path]::GetFullPath((Join-Path $output 'font-converter'))
-    if(!$destination.StartsWith($output+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFileName($destination) -ne 'font-converter'){throw "Unsafe font helper destination: $destination"}
-    foreach($candidate in @($output,$destination)){
-        if((Test-Path -LiteralPath $candidate) -and ((Get-Item -LiteralPath $candidate -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw "Font helper output cannot use a reparse point: $candidate"}
-    }
-    if(Test-Path -LiteralPath $destination){
-        foreach($entry in Get-ChildItem -LiteralPath $destination -Force -Recurse){if($entry.Attributes -band [IO.FileAttributes]::ReparsePoint){throw "Font helper output contains a reparse point: $($entry.FullName)"}}
-        Remove-Item -LiteralPath $destination -Recurse -Force
-    }
-    New-Item -ItemType Directory -Force -Path $destination | Out-Null
-    return $destination
 }
 
 function Sync-UICreatorVisualStudioHelper {

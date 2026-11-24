@@ -123,7 +123,7 @@ function SmokeInstalledApplications([string]$Destination,[string]$Architecture){
     $fontArguments=@('--font',$fontInput,'--range','0x20-0x7E','--size','16','--bpp','4','--format','lvgl','--output',(Join-Path $fontJob 'font.c'),'--lv-font-name','installed_font','--lv-include','lvgl.h')
     $previewArguments=@('--font',$fontInput,'--range','0x20-0x7E','--size','16','--bpp','4','--format','bin','--output','preview.bin','--no-compress')
     [IO.File]::WriteAllText($fontRequest,(@{args=$fontArguments;previewArgs=$previewArguments}|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
-    SmokeProcess (Join-Path $Destination 'font-converter/node.exe') @((Join-Path $Destination 'font-converter/bridge.js'),$fontRequest) $work 'font-converter' 60
+    SmokeProcess (Join-Path $Destination 'UICreatorConverter.exe') @('font','--request',$fontRequest) $work 'font-converter' 60
     $fontResult=Get-Content -LiteralPath (Join-Path $fontJob 'result.json') -Raw | ConvertFrom-Json
     if(!@($fontResult.files).Count -or (Get-Item -LiteralPath (Join-Path $fontJob 'preview.bin')).Length -le 0){throw 'Installed font converter produced no LVGL output or preview.'}
     foreach($output in $fontResult.files){if((Get-Item -LiteralPath (Join-Path $fontJob $output.staged)).Length -le 0){throw 'Installed font converter output is empty.'}}
@@ -133,7 +133,7 @@ function SmokeInstalledApplications([string]$Destination,[string]$Architecture){
     [IO.File]::WriteAllText($svg,'<svg xmlns="http://www.w3.org/2000/svg" width="8" height="6"><rect width="8" height="6" fill="#20a0c0"/><circle cx="4" cy="3" r="2" fill="#f06040"/></svg>',[Text.UTF8Encoding]::new($false))
     $imageRequest=Join-Path $imageJob 'request.json'
     [IO.File]::WriteAllText($imageRequest,(@{sources=@($svg);options=@{colorFormat='ARGB8888';format='BIN';compression='LZ4';align=1}}|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
-    SmokeProcess (Join-Path $Destination 'image-converter/UICreatorImageTool.exe') @('--request',$imageRequest) $work 'image-converter' 60
+    SmokeProcess (Join-Path $Destination 'UICreatorConverter.exe') @('image','--request',$imageRequest) $work 'image-converter' 60
     $imageResult=Get-Content -LiteralPath (Join-Path $imageJob 'result.json') -Raw | ConvertFrom-Json
     if(!@($imageResult.assets).Count -or !@($imageResult.files).Count -or $imageResult.assets[0].deviceFrames[0].w -ne 8 -or $imageResult.assets[0].deviceFrames[0].h -ne 6){throw 'Installed SVG/image/LZ4 converter produced no expected LVGL frame.'}
     foreach($output in $imageResult.files){if((Get-Item -LiteralPath (Join-Path $imageJob $output.staged)).Length -le 12){throw 'Installed image converter output is incomplete.'}}

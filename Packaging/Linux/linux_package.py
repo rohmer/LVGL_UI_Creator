@@ -15,8 +15,8 @@ import tempfile
 import zlib
 
 MACHINES = {"x86_64": 62, "aarch64": 183}
-TOOLS = ("UICreator", "LVGLCompiler", "UICreatorCodeGen", "UICreatorViewer")
-HELPERS = ("font-converter", "image-converter", "project-creator", "language-models", "python-runtime", "integrations")
+TOOLS = ("UICreator", "UICreatorConverter", "LVGLCompiler", "UICreatorCodeGen", "UICreatorViewer")
+HELPERS = ("project-creator", "language-models", "python-runtime", "integrations")
 # SDL's X11/Wayland backends load these by name. They do not appear in ELF
 # DT_NEEDED, so declare the desktop runtime contract explicitly in the DEB.
 DESKTOP_DEPENDENCIES = ("libx11-6", "libxext6", "libxcursor1", "libxi6", "libxfixes3", "libxrandr2",
@@ -244,11 +244,10 @@ def manifest(args):
     for helper in HELPERS:
         if not (app / helper).is_dir():
             raise ValueError(f"Missing Linux helper: {helper}")
-    for name in ("font-converter/node", "python-runtime/bin/python3", "image-converter/UICreatorImageTool", "project-creator/UICreatorProjectTool"):
+    for name in ("python-runtime/bin/python3", "project-creator/UICreatorProjectTool"):
         if not (app / name).is_file() or not os.access(app / name, os.X_OK):
             raise ValueError(f"Missing executable Linux helper: {name}")
-    for name in ("font-converter/bridge.js", "image-converter/image-converter-bridge.py", "image-converter/upstream/LVGLImage.py",
-                 "project-creator/project_creator.py", "project-creator/raspberry_pi_linux.py",
+    for name in ("project-creator/project_creator.py", "project-creator/raspberry_pi_linux.py",
                  "project-creator/raspberry_pi_pico.py", "project-creator/pico-toolkit.zip", "project-creator/catalog.json",
                  "integrations/figma/manifest.json", "integrations/figma/code.js", "integrations/figma/ui.html"):
         if not (app / name).is_file():
@@ -312,13 +311,21 @@ def smoke(app, args, work):
             return [args.emulator, "-L", args.sysroot, "-E", "LD_LIBRARY_PATH=" + library_path, app / executable, *arguments]
         environment["LD_LIBRARY_PATH"] = library_path
         return [app / executable, *arguments]
-    # Exercise the actual packaged interpreters, imports and image conversion.
-    # ARM runs native ELF interpreters through QEMU rather than host Python/Node.
+    # Exercise native converters and the separate project-creation helper.
+    # ARM executes the target ELF binaries through QEMU.
     python = "python-runtime/bin/python3"
-    run(command(python, "-I", "-c", "from PIL import Image; import lz4.frame,resvg_py; print('Bundled image dependencies loaded')"), env=environment, cwd=work)
     run(command(python, "-I", app / "project-creator/project_creator.py", "--help"), env=environment, cwd=work)
-    run(command("font-converter/node", "-e", "require(process.argv[1]);require(process.argv[2]);",
-                app / "font-converter/lib/parse_args.js", app / "font-converter/lib/convert.js"), env=environment, cwd=work)
+    run(command("UICreatorConverter", "--help"), env=environment, cwd=work)
+    font_source = Path(__file__).resolve().parents[2] / "3rdParty/LVGL/lvgl/src/libs/freetype/LiberationSans-Regular.ttf"
+    font_job = work / "font-conversion"; font_job.mkdir()
+    font_request = font_job / "request.json"
+    font_request.write_text(json.dumps({"args": ["--font", str(font_source), "--range", "0x20-0x7E",
+        "--size", "16", "--bpp", "4", "--format", "lvgl", "--output", str(font_job / "font.c"),
+        "--lv-font-name", "installed_font", "--lv-include", "lvgl.h"]}))
+    run(command("UICreatorConverter", "font", "--request", font_request), env=environment, cwd=work)
+    font_result = json.loads((font_job / "result.json").read_text())
+    if not font_result.get("files") or not (font_job / "preview.bin").stat().st_size:
+        raise ValueError("Packaged native font converter produced no output or preview")
     def chunk(kind, data):
         return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
     image = work / "image.png"
@@ -327,9 +334,7 @@ def smoke(app, args, work):
     image_job = work / "image-conversion";image_job.mkdir()
     request = image_job / "request.json"
     request.write_text(json.dumps({"sources":[str(image)],"options":{"colorFormat":"ARGB8888","format":"BIN","compression":"NONE","align":1}}))
-    image_script = app / "image-converter/image-converter-bridge.py"
-    launch = "import runpy,sys;from pathlib import Path;script=sys.argv.pop(1);sys.path.insert(0,str(Path(script).parent/'upstream'));runpy.run_path(script,run_name='__main__')"
-    image_command = command(python,"-I","-c",launch,image_script,"--request",request) if args.emulator else [app / "image-converter/UICreatorImageTool", "--request", request]
+    image_command = command("UICreatorConverter", "image", "--request", request)
     run(image_command,env=environment,cwd=work)
     image_result = json.loads((image_job / "result.json").read_text())
     if not image_result.get("assets") or not image_result.get("files"):

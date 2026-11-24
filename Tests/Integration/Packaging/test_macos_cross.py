@@ -22,7 +22,7 @@ def tools():
     return {"cmake": "/cache/cmake/bin/cmake", "deploymentTarget": "13.5",
         "osxcross": {"prefix": "/cache/toolchain", "target": "darwin24.4"},
         "sdk": {"version": "15.4", "path": "/cache/toolchain/SDK/MacOSX15.4.sdk"},
-        "llvm": {"bin": "/usr/lib/llvm-21/bin"}, "hostNode": "/cache/host-node/bin/node",
+        "llvm": {"bin": "/usr/lib/llvm-21/bin"},
         "rust": {"version": "1.85.1", "cargo": "/cache/rust/cargo/bin/cargo",
                  "rustupHome": "/cache/rust/rustup", "cargoHome": "/cache/rust/cargo"},
         "architectures": architectures}
@@ -59,7 +59,9 @@ class MacOSCrossFrontendTests(unittest.TestCase):
             for name in ("PYTHONHOME", "CPATH", "LIBRARY_PATH", "RUSTFLAGS", "CARGO_BUILD_TARGET", "PKG_CONFIG_PATH"):
                 self.assertNotIn(name, value)
             self.assertNotIn("/target-mac-node", value["PATH"])
-            self.assertIn("/cache/host-node/bin", value["PATH"])
+            self.assertNotIn("/cache/host-node/bin", value["PATH"])
+            for host_tool in ("/cache/cmake/bin", "/cache/rust/cargo/bin", "/usr/lib/llvm-21/bin"):
+                self.assertIn(host_tool, value["PATH"])
             self.assertEqual(value["CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER"], value["CC"])
             self.assertEqual(value["RUSTUP_TOOLCHAIN"], "1.85.1")
             self.assertEqual(value["SDKROOT"], tools()["sdk"]["path"])

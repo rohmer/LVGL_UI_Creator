@@ -1,6 +1,6 @@
 #include "ProjectCreator.h"
 #include "../Utils/ApplicationPaths.h"
-#include "../Fonts/FontConverter.h"
+#include "../Utils/ExternalTool.h"
 #include "../../CodeGeneration/CCodeGenerator.h"
 #include "../../CodeGeneration/ProjectAssets.h"
 #include "../../CodeGeneration/Targets/Target.h"
@@ -120,7 +120,7 @@ Result Run(json request,const std::atomic<bool>* cancel){
             "UICreatorProjectTool";
 #endif
         if(!std::filesystem::exists(executable))throw std::runtime_error("Bundled project creator is missing; rebuild the application assets");
-        auto code=FontConversion::RunTool(executable,"--request",workspace/"request.json",workspace/"log.txt",cancel);
+        auto code=ExternalTool::Run(executable,"--request",workspace/"request.json",workspace/"log.txt",cancel);
         if(code!=0)throw std::runtime_error(cancel && cancel->load()?"Project creation cancelled":Read(workspace/"log.txt"));
         result.data=json::parse(Read(workspace/"result.json"));result.success=true;result.message=operation=="create"?"Project created":operation=="preview"?"Template image loaded":"Catalog updated";
     }catch(const std::exception& e){result.message=e.what();}

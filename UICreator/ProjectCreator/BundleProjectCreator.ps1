@@ -5,11 +5,20 @@ $helperContext=Get-UICreatorVisualStudioHelperContext -OutputDirectory $OutputDi
 $repositoryRoot=$helperContext.RepositoryRoot
 $destination=Join-Path ([IO.Path]::GetFullPath($OutputDirectory)) 'project-creator'
 if($helperContext.Architecture -eq 'x86'){
-    $nativeTools=Get-UICreatorVisualStudioX86Tools $helperContext;$python=$nativeTools.imagePython
+    $nativeTools=Get-UICreatorVisualStudioX86Tools $helperContext;$python=$nativeTools.projectPython
     Sync-UICreatorVisualStudioHelper -Context $helperContext -Python $python -Source $nativeTools.projectToolDirectory -Destination $destination -Keep @('catalog.json','lvgl-9.6.0.zip','linux-toolkit.zip','pico-toolkit.zip')
 }else{
-    $python=Join-Path $repositoryRoot 'build\image-tools-env\Scripts\python.exe'
-    if(!(Test-Path -LiteralPath $python)){throw 'Run BundleImageConverter.ps1 first to prepare the packaging environment'}
+    $environmentDirectory=Join-Path $repositoryRoot 'build\project-tools-env'
+    $python=Join-Path $environmentDirectory 'Scripts\python.exe'
+    if(!(Test-Path -LiteralPath $python)){
+        & python.exe -m venv $environmentDirectory
+        if($LASTEXITCODE){throw 'Could not prepare the project helper packaging environment'}
+    }
+    & $python -c 'import PyInstaller' 2>$null
+    if($LASTEXITCODE){
+        & $python -m pip install pyinstaller==6.19.0
+        if($LASTEXITCODE){throw 'Could not install the project helper packager'}
+    }
     $dist=Join-Path $repositoryRoot 'build\project-tool-dist'
     & $python -m PyInstaller --noconfirm --onedir --name UICreatorProjectTool --distpath $dist --workpath (Join-Path $repositoryRoot 'build\project-tool-work') --specpath (Join-Path $repositoryRoot 'build') (Join-Path $PSScriptRoot 'project_creator.py')
     if($LASTEXITCODE){throw 'Project creator packaging failed'}

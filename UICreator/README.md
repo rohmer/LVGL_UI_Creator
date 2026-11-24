@@ -88,7 +88,7 @@ Export produces **LVGL C (.c + .h)**, a **binary font**, or a **glyph PNG/JSON d
 
 Conversion runs in the background; closing the window cancels its current job. The preview uses packed, uncompressed glyphs independently of export compression/alignment. **Apply to selected widget** stores a stable bitmap font in its main text style. The font survives closing the converter and is included in JSON, Protobuf and generated project C. Missing glyphs should be added to the source ranges or symbols before converting.
 
-CMake and Visual Studio builds bundle the converter and Node in `bin/font-converter`; keep that folder beside UICreator.exe when distributing the application. Node/npm are needed on the build machine to prepare the locked dependencies, but application users need no separate Node installation or network connection. See [converter provenance and licenses](../3rdParty/lv_font_conv/UICREATOR.md).
+CMake and Visual Studio compile the C++ converter directly into the editor. FreeType/Brotli rasterize the source; native code writes LVGL C, binary fonts and PNG glyph dumps. Conversion needs no Node runtime or network connection. See [converter provenance and licenses](../3rdParty/lv_font_conv/UICREATOR.md).
 
 ## Project fonts
 
@@ -104,7 +104,7 @@ All formats exposed by LVGLImage.py are available: ARGB8888, XRGB8888, RGB888, R
 
 Conversion is asynchronous; closing the converter cancels the job. **Apply first image** previews the converted colors in the selected Image widget. Saved projects embed the original, all conversion options, quantized preview frames, delays, and exact device frame bytes. Reconvert an image after reopening even if its disk source is gone. GIF animations retain all frames. Generated project C honors the selected pixel format, compression, stride and flags and emits required LVGL configuration checks. Compressed device images require `LV_BIN_DECODER_RAM_LOAD` as well as their RLE/LZ4 codec. Device firmware needs the chosen decoders/codecs and NEMA hardware support when selecting an accelerator-specific palette layout.
 
-Both [LVGL's web converter](https://lvgl.io/tools/imageconverter) and [the Python converter](../3rdParty/lvgl_image_converter/UICREATOR.md) informed this workflow. Python and dependencies are bundled into `bin/image-converter`; application users need no separate Python installation. Keep the entire folder alongside UICreator.exe.
+Both [LVGL's web converter](https://lvgl.io/tools/imageconverter) and [the reference converter](../3rdParty/lvgl_image_converter/UICREATOR.md) informed this workflow. Image conversion now runs directly in C++ with linked native codecs; SVG uses the native resvg library. No Python conversion process or helper folder is required.
 
 ### Project images
 
@@ -159,7 +159,7 @@ msbuild UICreator.sln /m /p:Configuration=Release /p:Platform=x86
 msbuild UICreator.sln /m /p:Configuration=Release /p:Platform=x64
 ```
 
-The editor is written to `Release/UICreator.exe` (x86) or `x64/Release/UICreator.exe`. The build copies SDL3 and FreeType DLLs and packages the font converter, image converter, firmware-project creator and language-model wordlists beside it. Packaging requires Python, Node and the converter dependencies, as with the CMake build.
+The editor is written to `Release/UICreator.exe` (x86) or `x64/Release/UICreator.exe`. The build copies SDL3 and FreeType DLLs and packages the font converter, image converter, firmware-project creator and language-model wordlists beside it. Packaging uses the same native codec builds as CMake and a separate Python helper for firmware project creation.
 
 The workspace docks Screens and the widget palette on the left, Hierarchy beside them, Properties on the right, and Assets/Variables below the canvas. Hierarchy search filters object names and retains matching ancestors. The canvas toolbar offers undo, redo and centering; the Export menu exposes C, Protobuf and firmware-project output. Docks adapt when the native window is resized.
 

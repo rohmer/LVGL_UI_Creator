@@ -28,7 +28,7 @@
     <NMakeOutput>$(SolutionDir)$(Platform)\$(Configuration)\libimagequant.lib</NMakeOutput>
     <LocalRustEnvironment Condition="Exists('$(SolutionDir)build\rustup\settings.toml')">set &quot;RUSTUP_HOME=$(SolutionDir)build\rustup&quot;
 set &quot;CARGO_HOME=$(SolutionDir)build\cargo&quot;</LocalRustEnvironment>
-    <NMakeBuildCommandLine>powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)..\BuildImageQuant.ps1&quot; -RepositoryRoot &quot;$(SolutionDir).&quot; -CargoExecutable &quot;$(CargoExecutable)&quot; -VcVars &quot;$(VCInstallDir)Auxiliary\Build\vcvarsall.bat&quot; -Architecture $(VCBuildArchitecture) -RustTarget $(RustTarget) -OutputFile &quot;$(NMakeOutput)&quot;</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>&quot;$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)..\BuildImageQuant.ps1&quot; -RepositoryRoot &quot;$(SolutionDir).&quot; -CargoExecutable &quot;$(CargoExecutable)&quot; -VcVars &quot;$(VCInstallDir)Auxiliary\Build\vcvarsall.bat&quot; -Architecture $(VCBuildArchitecture) -RustTarget $(RustTarget) -OutputFile &quot;$(NMakeOutput)&quot;</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>$(NMakeBuildCommandLine)</NMakeReBuildCommandLine>
 
     <NMakeCleanCommandLine>echo Cargo output is shared across configurations.</NMakeCleanCommandLine>

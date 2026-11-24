@@ -1,3 +1,28 @@
 add_library(ImgLib STATIC LVImageConvert.cpp)
 target_include_directories(ImgLib PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(ImgLib PUBLIC imagequant)
+
+# Reuse the pinned LodePNG encoder while keeping conversion allocations away
+# from LVGL's bounded UI heap. Prefix its symbols so the runtime decoder can
+# continue using LVGL's configured allocator independently.
+set(native_png_dir "${CMAKE_CURRENT_BINARY_DIR}/native-png")
+file(MAKE_DIRECTORY "${native_png_dir}")
+set(native_png_upstream "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/src/libs/lodepng")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${native_png_upstream}/lodepng.c" "${native_png_upstream}/lodepng.h")
+foreach(native_png_file lodepng.c lodepng.h)
+    file(READ "${native_png_upstream}/${native_png_file}" native_png_text)
+    string(REPLACE "#include \"../../../lvgl.h\"" "#include <stddef.h>" native_png_text "${native_png_text}")
+    string(REPLACE "#include LV_STDDEF_INCLUDE" "#include <stddef.h>" native_png_text "${native_png_text}")
+    string(REPLACE "#include \"../../core/lv_global.h\"" "#include <string.h>" native_png_text "${native_png_text}")
+    string(REPLACE "LV_ATTRIBUTE_EXTERN_DATA " "" native_png_text "${native_png_text}")
+    string(REPLACE "LODEPNG_VERSION_STRING" "UICREATOR_PNG_VERSION_STRING" native_png_text "${native_png_text}")
+    string(REPLACE "lodepng_" "uicreator_png_" native_png_text "${native_png_text}")
+    foreach(native_png_alloc malloc realloc free memcpy memset)
+        string(REPLACE "lv_${native_png_alloc}(" "${native_png_alloc}(" native_png_text "${native_png_text}")
+    endforeach()
+    file(CONFIGURE OUTPUT "${native_png_dir}/${native_png_file}" CONTENT "${native_png_text}" @ONLY)
+endforeach()
+add_library(UICreatorNativePng STATIC NativePng.cpp "${native_png_dir}/lodepng.c")
+target_include_directories(UICreatorNativePng PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_features(UICreatorNativePng PUBLIC cxx_std_17)
+target_compile_definitions(UICreatorNativePng PRIVATE LV_USE_LODEPNG=1 LODEPNG_NO_COMPILE_DISK LODEPNG_NO_COMPILE_DECODER)

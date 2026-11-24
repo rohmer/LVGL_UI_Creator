@@ -218,7 +218,7 @@ class Smoke:
         source = self.source / "3rdParty/LVGL/lvgl/src/libs/freetype/LiberationSans-Regular.ttf"
         request = self.request(font, {"args": ["--font", str(source), "--range", "0x20-0x7E", "--size", "16", "--bpp", "4", "--format", "lvgl", "--output", str(font / "font.c"), "--lv-font-name", "installed_font", "--lv-include", "lvgl.h"],
                     "previewArgs": ["--font", str(source), "--range", "0x20-0x7E", "--size", "16", "--bpp", "4", "--format", "bin", "--output", "preview.bin", "--no-compress"]})
-        self.run("font-converter", [resources / "font-converter/node", resources / "font-converter/bridge.js", request])
+        self.run("font-converter", [resources.parent / "MacOS/UICreatorConverter", "font", "--request", request])
         result = json.loads((font / "result.json").read_text())
         if not result["files"]:
             raise ValueError("Font converter produced no files")
@@ -230,7 +230,7 @@ class Smoke:
         svg = image / "image.svg"
         svg.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="8" height="6"><rect width="8" height="6" fill="#20a0c0"/></svg>')
         request = self.request(image, {"sources": [str(svg)], "options": {"colorFormat": "ARGB8888", "format": "BIN", "compression": "LZ4", "align": 1}})
-        self.run("image-converter", [resources / "image-converter/UICreatorImageTool", "--request", request])
+        self.run("image-converter", [resources.parent / "MacOS/UICreatorConverter", "image", "--request", request])
         result = json.loads((image / "result.json").read_text())
         if not result["files"] or result["assets"][0]["deviceFrames"][0]["w"] != 8 or result["assets"][0]["deviceFrames"][0]["h"] != 6:
             raise ValueError("SVG/LZ4 converter produced incorrect frames")

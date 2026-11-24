@@ -14,8 +14,9 @@ LVGL UI Creator is MIT licensed. Bundled libraries and tools retain their own li
 | Mini-XML | Apache 2.0 with LLVM exception, licenses/MXML |
 | nlohmann JSON | MIT, license text in licenses/JSON/json.hpp |
 | stb image utilities | Public domain / MIT dual license, license text in licenses/stb headers |
-| Node and lv_font_conv | font-converter/NODE_LICENSE and font-converter/LICENSE; dependency notices remain alongside their packages |
-| Image converter and bundled Python packages | image-converter/_internal package metadata and included licenses |
+| Native font/image converter ports | MIT upstream notices in licenses/lv_font_conv and licenses/lvgl_image_converter |
+| Brotli decoder | MIT, licenses/brotli |
+| resvg and native SVG dependencies | licenses/resvg; source/version metadata in the resvg build integration |
 | Firmware project tools and bundled Python packages | project-creator/_internal package metadata and included licenses |
 | Language model vocabulary data | Original source and public-domain / CC BY-SA 4.0 notices in language-models/wordlists/LICENSE.md; provenance in language-models/PROVENANCE.md |
 

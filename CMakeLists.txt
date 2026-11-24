@@ -28,7 +28,16 @@ if(NOT UICREATOR_USE_LVGL9)
 endif()
 
 add_subdirectory(3rdParty/LVGL EXCLUDE_FROM_ALL)
+add_subdirectory(3rdParty/brotli EXCLUDE_FROM_ALL)
+set(FT_DISABLE_BROTLI OFF CACHE BOOL "Disable FreeType WOFF2 support" FORCE)
+set(FT_REQUIRE_BROTLI ON CACHE BOOL "Require native WOFF2 decoder" FORCE)
+# The desktop deployment baseline predates Apple's optional HVF dylib.
+set(FT_DISABLE_HVF ON CACHE BOOL "Disable optional macOS HVF to preserve deployment compatibility" FORCE)
+set(_uicreator_ft_skip_install_libraries "${SKIP_INSTALL_LIBRARIES}")
+set(SKIP_INSTALL_LIBRARIES ON)
 add_subdirectory(3rdParty/freetype-2.10.1 EXCLUDE_FROM_ALL)
+set(SKIP_INSTALL_LIBRARIES "${_uicreator_ft_skip_install_libraries}")
+unset(_uicreator_ft_skip_install_libraries)
 add_subdirectory(3rdParty/libimagequant EXCLUDE_FROM_ALL)
 add_subdirectory(3rdParty/spdlog-1.x EXCLUDE_FROM_ALL)
 

@@ -142,8 +142,6 @@ def environment(tools: dict, architecture: str, base: Path, parent: dict | None 
         OBJCXX=info.get("objcxx", info["cxx"]))
     paths = [Path(tools["cmake"]).parent.as_posix(), (Path(tools["osxcross"]["prefix"]) / "bin").as_posix(),
              str(tools["llvm"]["bin"]), Path(tools["rust"]["cargo"]).parent.as_posix()]
-    if tools.get("hostNode"):
-        paths.append(Path(tools["hostNode"]).parent.as_posix())
     result["PATH"] = ":".join(dict.fromkeys(paths + ["/usr/local/sbin", "/usr/local/bin", "/usr/sbin", "/usr/bin", "/sbin", "/bin"]))
     empty = base / "empty-pkgconfig"
     empty.mkdir(parents=True, exist_ok=True)
@@ -180,15 +178,13 @@ def build(base: Path, source: Path, architecture: str, tools: dict, sdk: Path | 
         "-DCMAKE_TOOLCHAIN_FILE=" + str(toolchain), "-DCMAKE_BUILD_TYPE=Release", "-DBUILD_TESTING=OFF",
         "-DUICREATOR_USE_LVGL9=ON", "-DPython3_EXECUTABLE=" + sys.executable,
         "-DIMAGEQUANT_CARGO=" + tools["rust"]["cargo"],
-        "-DUICREATOR_FONT_NODE=" + assets["fontNode"], "-DUICREATOR_FONT_NPM=" + assets["hostNpm"],
-        "-DUICREATOR_PREBUILT_IMAGE_TOOL_DIR=" + assets["imageToolDirectory"],
         "-DUICREATOR_PREBUILT_PROJECT_TOOL_DIR=" + assets["projectToolDirectory"],
         "-DUICREATOR_RUNTIME_PYTHON_DIR=" + assets["pythonRuntime"],
         "-DUICREATOR_MACOS_BUILD_BASE=" + str(base),
         "-DUICREATOR_MACOS_REQUIRE_SDKS=" + ("ON" if sdk else "OFF"),
         "-DSDL_X11=OFF", "-DSDL_WAYLAND=OFF", "-DSDL_KMSDRM=OFF", "-DSDL_COCOA=ON",
         "-DSDL_FRAMEWORK=OFF",
-        "-DSDL_TESTS=OFF", "-DSDL_EXAMPLES=OFF", "-DFT_DISABLE_HARFBUZZ=ON", "-DFT_DISABLE_BROTLI=ON"]
+        "-DSDL_TESTS=OFF", "-DSDL_EXAMPLES=OFF", "-DFT_DISABLE_HARFBUZZ=ON"]
     if sdk:
         command.append("-DUICREATOR_MACOS_SDK_DIRECTORY=" + str(sdk))
     signature = hashlib.sha256(content.encode()).hexdigest()
@@ -242,6 +238,11 @@ def main():
         tools_module = module(Path(__file__).with_name("BuildMacOSTools.py"), "macos_build_tools")
         tools_module.prepare(base, jobs=max(1, args.jobs), install_dependencies=args.install_dependencies)
         assets_module.prepare_assets(base, source, architectures=architectures)
+    else:
+        legacy_assets = [arch for arch in architectures
+            if not json.loads((base / "assets" / arch / "assets.json").read_text()).get("nativeConverters")]
+        if legacy_assets:
+            assets_module.prepare_assets(base, source, architectures=legacy_assets)
     tools = json.loads((base / "tools.json").read_text())
     if tools.get("schemaVersion") != 1:
         raise ValueError("Unsupported macOS tool cache; run --prepare")

@@ -110,11 +110,21 @@ int main(int argc, char **argv)
                     {root / "3rdParty/LVGL/lvgl/src/libs/freetype/LiberationSans-Regular.ttf", "0x20-0x5A"});
                 options.bpp = bpp;
                 options.compress = compress;
-                if (bpp == 3 && !compress)
-                    options.format = "bin";
                 options.name = "runtime_font";
                 options.output =
                     output / ("font_" + std::to_string(bpp) + "_" + std::to_string(compress) + ".c");
+                if (bpp == 3 && !compress)
+                {
+                    // LVGL has no raw 3-bpp decoder. Keep ten meaningful
+                    // fixtures by using plain RLE for this variant; the other
+                    // 3-bpp case exercises RLE with XOR prefiltering.
+                    auto invalid = options;
+                    invalid.format = "bin";
+                    invalid.output = output / "unsupported_raw_3.bin";
+                    CHECK(!FontConversion::Convert(invalid).success);
+                    options.compress = true;
+                    options.prefilter = false;
+                }
                 auto converted = FontConversion::Convert(options);
                 if (!converted.success)
                     throw std::runtime_error(converted.message);

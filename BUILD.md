@@ -51,7 +51,7 @@ with **CMake 4.5.1**. Keep CMake, CTest and CPack from the same installation.
 Older vendored projects use the existing `CMAKE_POLICY_VERSION_MINIMUM=3.5`
 compatibility floor; this does not lower the editor's CMake requirement.
 
-Initial preparation needs internet access for pinned npm, Python, Cargo and
+Initial preparation needs internet access for pinned Python, Cargo and
 Linux tool/sysroot downloads. Keep separate build trees for each architecture
 and compiler. Do not move a configured CMake build tree to a different machine.
 
@@ -63,8 +63,6 @@ Use a 64-bit Windows 10/11 development machine with:
   C++**, MSVC x86/x64 compilers and a Windows SDK.
 - CMake 4.5.1 and Ninja on PATH, or an explicit CMake executable path.
 - Python 3.10+ with pip and venv; Python 3.12+ is a convenient host choice.
-- For x64 builds, Node.js **24.11.1** and npm **11.6.2**, matching the font
-  converter's pins. x86 automatically prepares its private Node **22.23.5**.
 - Rust/Cargo through rustup, including both Windows target standard libraries.
 - NSIS **3.12** for the tested CPack setup builds.
 
@@ -74,23 +72,24 @@ cmake --version
 ctest --version
 cpack --version
 ninja --version
-node --version
-npm --version
 python --version
 cargo --version
 ```
 
-CMake prepares a private Python environment for image/project helper packaging
-and installs the pinned requirements. Font converter npm dependencies are
-installed when missing. NSIS is a CPack backend; Inno Setup is not used.
+Font and image conversion run in-process in C++17. FreeType/Brotli handle fonts;
+native PNG, LZ4, imagequant and resvg libraries handle image codecs and SVG.
+Node.js, npm, Pillow and Python conversion processes are not needed to build or
+run the converters. Rust/Cargo builds the linked imagequant and resvg libraries.
 
-Windows application packages support Windows 10 or newer. The x86 build includes
-genuine 32-bit editor/viewer/compiler/display binaries and conversion helpers.
-CMake automatically prepares pinned Node 22.23.5 win-x86 and CPython 3.14.10 x86
-with the required native image modules under `build/windows-helper-tools/x86`.
-Download hashes and exact helper paths are recorded in `cmake-helpers.json`.
-Build-host Python/Node remain separate; users need no system interpreter to run
-the packaged converters. x64 and Linux helper preparation is unchanged.
+CMake prepares a separate Python environment with pinned PyInstaller solely for
+the firmware project-creation helper. x86 builds prepare a verified CPython
+3.14.10 x86 helper under `build/windows-helper-tools/x86`; metadata and hashes
+remain in `cmake-helpers.json`. Application users need no interpreter installation.
+NSIS is a CPack backend; Inno Setup is not used.
+
+Windows packages support Windows 10 or newer. The converter code is compiled
+with the editor's selected x86/x64 toolchain and also exposed through
+`UICreatorConverter.exe`; it has the same architecture as the editor.
 
 ### Linux build host
 
@@ -109,7 +108,7 @@ sudo apt install build-essential ninja-build pkg-config python3 ca-certificates 
   dpkg-dev fakeroot zenity libwayland-bin
 ```
 
-The prepare step downloads checksum-verified CMake 4.5.1, Node 24.11.1,
+The prepare step downloads checksum-verified CMake 4.5.1,
 standalone CPython 3.11.18, Rust 1.85.1, and authenticated Ubuntu 22.04 target
 sysroot/compiler packages, including GCC 11.4. It keeps these in its private
 cache instead of replacing system tools. Download-only APT preparation works as
@@ -138,7 +137,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File Packaging/BuildWindows.ps1 -
 
 The script finds Visual Studio, loads the matching compiler environment, builds
 the editor/tools/Windows display SDK, stages the application and checks native
-PE architectures recursively, including native Python/Node modules, CRTs and
+PE architectures recursively, including native Python modules, CRTs and
 SDK ZIP entries. Each architecture stage is recreated to remove stale helper
 files. It writes `architecture-manifest.json` with file hashes, a native PE inventory and
 the selected CMake toolset. x64 is the default for a single-architecture build.
@@ -234,12 +233,12 @@ Editor executables are written to `Debug/UICreator.exe`,
 directories; dependencies and post-build steps use these paths.
 
 These builds include the solution's native libraries and test executables.
-The editor's post-build steps also bundle the font, image, and project conversion
-helpers. They detect the built editor's architecture and prepare private 32-bit
-helpers for x86. Python, Node/npm, Rust/Cargo, and initial download access from
-the prerequisites above are still required. Put `cmake` and `python` on PATH
-for the native generation hooks. Direct MSBuild builds do not need Ninja or
-NSIS. Use the CMake/CPack workflow for the complete SDK payloads and installers.
+Font and image sources compile into the editor. A small CMake adapter builds
+their native codec libraries for the matching architecture and configuration;
+the project helper's post-build step prepares its own Python environment.
+Python, Rust/Cargo and initial download access remain required. Put `cmake` and
+`python` on PATH for these hooks. Use CMake/CPack for complete SDK payloads and
+installers.
 
 ## Create the two Windows installers
 
@@ -455,13 +454,13 @@ release.
 
 The macOS frontend runs on **Linux x86_64**, including Ubuntu under WSL2 on
 Windows. It produces separate Intel `x86_64` and Apple Silicon `arm64` builds.
-The application and bundled Node 24 converter require **macOS 13.5 or newer**.
+The application deployment target remains **macOS 13.5 or newer**.
 Mac binaries cannot be executed by this Linux build host.
 
 No existing Mac SDK or Xcode installation is required. The prepare command
 downloads the pinned Apple SDK 15.4 from Apple's public software-update service,
-OSXCross, CMake 4.5.1, host Node 24.11.1, isolated Rust 1.85.1 with both Apple
-targets, and native Mac Node/Python converter runtimes. Download versions,
+OSXCross, CMake 4.5.1, isolated Rust 1.85.1 with both Apple
+targets, and the separate native Mac Python project-helper runtime. Download versions,
 source URLs and hashes are recorded in the private cache. The bootstrap can
 install the versioned LLVM 21.1.8 build prerequisites on a supported Ubuntu
 host after checking the package plan; it refuses plans that upgrade or remove
@@ -493,8 +492,8 @@ release manifest automatically. To use already verified release inputs, pass
 Each architecture has a `build-<architecture>` directory under the cache, with
 its generated CMake toolchain, configure/build logs and `build-metadata.json`.
 The frontend configures the actual Darwin C, C++, Objective-C and Objective-C++
-compilers and selects the matching Apple Rust target. Host npm/Python run build
-steps; target-native Mac helpers are copied into the application.
+compilers and selects the matching Apple Rust target. Host Python runs build
+steps; converter libraries are cross-compiled and linked into the application.
 
 The packages contain a conventional `LVGL UI Creator.app`, its display library
 and CLI tools, bundled converters and project resources. Packaging relocates
@@ -505,9 +504,7 @@ inputs stay in the build cache and are not included in application packages.
 
 See [Packaging/MACOS.md](Packaging/MACOS.md) for bundle layout, verification,
 signing details and troubleshooting. The frontend follows the upstream
-[OSXCross workflow](https://github.com/tpoechtrager/osxcross); the bundled Node
-runtime's platform baseline is documented in
-[Node 24.11.1 BUILDING.md](https://github.com/nodejs/node/blob/v24.11.1/BUILDING.md).
+[OSXCross workflow](https://github.com/tpoechtrager/osxcross).
 
 ## Automatic builds and tests
 
@@ -524,8 +521,9 @@ and local reproduction commands.
 - **CMake/CPack selection:** pass `-CMakeExecutable` on Windows or `--cmake` on
   Linux. Keep sibling CTest/CPack at the same version.
 - **NSIS not found:** install it or pass `-NsisExecutable` explicitly.
-- **Missing converters:** check Node/npm, the private Python packaging log,
-  prepared target helper paths and required Linux `python-runtime` assets.
+- **Converter build failures:** check the FreeType/Brotli and native codec
+  build logs, Cargo toolchain/target, and `UICreatorConverter --help`. Project
+  helper Python is separate from the converter libraries.
 - **ARM exec-format errors:** check QEMU/binfmt and the configured target
   sysroot. Do not copy x86 helper executables into an ARM package.
 - **Missing/incompatible Linux libraries:** use the launchers and a distribution

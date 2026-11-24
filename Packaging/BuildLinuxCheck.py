@@ -27,9 +27,8 @@ def main():
         records.append({'test':name,'seconds':round(time.monotonic()-started,3)})
         print(name,'PASS',flush=True)
     python=assets/'python-runtime/bin/python3'
-    run('native-python-image-modules',[*prefix,python,'-I','-c',
-        'import PIL,png,lz4.frame,resvg_py;assert lz4.frame.decompress(lz4.frame.compress(b"native wheels"))==b"native wheels";print(PIL.__version__)'])
-    run('native-node',[*prefix,tools['node'][arch],'--version'])
+    run('native-project-python',[*prefix,python,'-I','-c','import json,zipfile,urllib.request;print("Project helper stdlib ready")'])
+    run('native-converters',[*prefix,build/'bin/UICreatorConverter','--help'])
     if not args.helpers_only:
         metadata=json.loads((build/'build-metadata.json').read_text());environment.update(metadata['environment'])
         environment['TMPDIR']=str(temporary);environment['SDL_VIDEO_DRIVER']='dummy';environment['SDL_RENDER_DRIVER']='software'

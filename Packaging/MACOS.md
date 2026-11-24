@@ -2,9 +2,9 @@
 
 The macOS build runs on Linux x86-64, including Ubuntu in WSL2 on Windows.
 It downloads an Apple macOS SDK, pinned OSXCross, LLVM, CMake, Rust target
-libraries and native macOS converter runtimes. It builds separate Intel
+libraries and the separate macOS project-helper runtime. It builds separate Intel
 `x86_64` and Apple Silicon `arm64` applications. Both require macOS 13.5 or
-newer because the bundled Node 24 runtime requires that version.
+newer as the configured deployment baseline.
 
 The download/bootstrap workflow is tested on Ubuntu 26.04 LTS with Python
 3.12 or newer. It uses the distribution's Clang/LLVM/LLD 21.1.8 packages;
@@ -26,7 +26,7 @@ wsl.exe -d Ubuntu -- bash /mnt/e/source/LVGL_UI_Creator/Packaging/BuildMacOS.sh 
 `--install-dependencies` permits installation of missing Linux build packages;
 subsequent builds can omit it. `--prepare` downloads and verifies build inputs
 and prepares both architectures. Later incremental builds can omit `--prepare`.
-Every build refreshes source-owned converter/project scripts and wrappers from
+Every build refreshes source-owned project scripts and wrappers from
 the mirrored source snapshot, without redownloading or changing prepared native
 runtimes. `--skip-sync` keeps that existing source snapshot for the refresh.
 Use `--architecture x86_64` or `--architecture arm64` to build one target.
@@ -72,12 +72,12 @@ non-system dylibs. `Contents/Resources` contains the application icon,
 Advanced Keyboard language models, ESPOS integration sources, conversion and
 project helpers, device SDK archives, documentation and third-party notices.
 
-Font conversion uses target-native Node 24.11.1. Image/project conversion uses
-an isolated, relocatable CPython 3.11 runtime, with Pillow, PyPNG, LZ4 and resvg
-wheels selected for the target architecture. No Python or Node installation
-on the user's Mac is required. Host Node is used only while assembling the
-JavaScript font helper; macOS executables are never run by the Linux builder.
-Python helpers disable bytecode writes so running converters cannot add
+Font and image conversion use C++ libraries and linked native codecs, including
+FreeType/Brotli and resvg. The separate project helper uses an isolated,
+relocatable CPython 3.11 runtime. No interpreter installation on the user's Mac
+is required. Host Python assembles build and project resources;
+macOS executables are never run by the Linux builder.
+Python project helpers disable bytecode writes so project creation cannot add
 unsigned cache files to the signed application bundle.
 
 The build strips Python development headers and static/object files from its
@@ -91,7 +91,7 @@ wrong architectures and deployment targets newer than 13.5 fail packaging.
 
 The packager creates **ad-hoc signatures** using the downloaded `rcodesign`
 tool. It does not use a Developer ID, request an account or notarize the app.
-Existing Node JIT entitlements, hardened-runtime flags and runtime version are preserved when
+Existing entitlements, hardened-runtime flags and runtime versions are preserved when
 load-command changes require resigning.
 
 Linux-side verification checks every CodeDirectory code-page hash, embedded

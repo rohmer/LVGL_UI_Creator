@@ -20,6 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fonts\FTFont.cpp" /><ClCompile Include="Fonts\FontConverter.cpp" /><ClCompile Include="Fonts\FontConverterWindow.cpp" /><ClCompile Include="Fonts\FontManagerWindow.cpp" /><ClCompile Include="Images\ImageConverter.cpp" /><ClCompile Include="Images\ImageConverterWindow.cpp" /><ClCompile Include="Images\ImageManagerWindow.cpp" />
+    <ClCompile Include="Fonts\NativeFont.cpp" />
+    <ClCompile Include="Fonts\NativeFontBinary.cpp" />
+    <ClCompile Include="Images\NativeApng.cpp" />
+    <ClCompile Include="Utils\ExternalTool.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils\CrashReporter.cpp" />
     <ClCompile Include="Utils\DebugPreview.cpp" />
@@ -76,6 +80,12 @@
     <ClInclude Include="custom_widget.h" />
     <ClInclude Include="dataset.h" />
     <ClInclude Include="Fonts\FTFont.h" /><ClInclude Include="Fonts\FontConverter.h" /><ClInclude Include="Fonts\FontConverterWindow.h" /><ClInclude Include="Fonts\FontLibrary.h" /><ClInclude Include="Fonts\FontManagerWindow.h" /><ClInclude Include="Images\ImageConverter.h" /><ClInclude Include="Images\ImageConverterWindow.h" /><ClInclude Include="Images\ImageManagerWindow.h" /><ClInclude Include="Images\ImageLibrary.h" />
+    <ClInclude Include="Fonts\NativeFont.h" />
+    <ClInclude Include="Fonts\NativeFontData.h" />
+    <ClInclude Include="Fonts\NativeFontKerning.h" />
+    <ClInclude Include="Images\NativeApng.h" />
+    <ClInclude Include="Utils\ExternalTool.h" />
+    <ClInclude Include="Utils\CIdentifier.h" />
     <ClInclude Include="gencode.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="ObjectCreation\Arc.h" />
@@ -143,6 +153,7 @@
     </ProjectReference>
     <ProjectReference Include="..\3rdParty\freetype-2.10.1\builds\windows\vc2010\freetype.vcxproj">
       <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">
       <Project>{af5e3abf-b119-42c2-ab75-3b0e380cd6ba}</Project>
@@ -334,8 +345,33 @@
     <ClCompile Include="..\Runtime\common\Validation.cpp" />
   </ItemGroup>
   <Import Project="..\3rdParty\LVGL\LVGL9.props" />
-  <ItemDefinitionGroup><ClCompile><AdditionalIncludeDirectories>$(ProjectDir)..\Runtime\include;$(ProjectDir)..\Runtime\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><PreprocessorDefinitions>LVGL_RUNTIME_MAJOR=9;LVGL_RUNTIME_MINOR=6;LVGL_RUNTIME_VERSION=&quot;9.6&quot;;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions></ClCompile><Link><AdditionalDependencies>comdlg32.lib;ole32.lib;shell32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies></Link></ItemDefinitionGroup><Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" /><Target Name="BundleFontConverter" AfterTargets="Build"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)Fonts\BundleFontConverter.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target>
-  <Target Name="BundleImageConverter" AfterTargets="Build"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)Images\BundleImageConverter.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target><Target Name="BundleProjectCreator" AfterTargets="BundleImageConverter"><Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)ProjectCreator\BundleProjectCreator.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" /></Target><Target Name="CopyNativeRuntimeLibraries" AfterTargets="Build"><ItemGroup><NativeRuntime Include="$(SolutionDir)$(Platform)\$(Configuration)\SDL3.dll" /><NativeRuntime Include="$(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll" Condition="Exists('$(ProjectDir)..\3rdParty\freetype-2.10.1\objs\$(Platform)\$(Configuration)\freetype.dll')" /></ItemGroup><Copy SourceFiles="@(NativeRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" /></Target><ImportGroup Label="ExtensionTargets">
+  <PropertyGroup>
+    <UICreatorNativeConverterArchitecture Condition="'$(Platform)'=='Win32'">x86</UICreatorNativeConverterArchitecture>
+    <UICreatorNativeConverterArchitecture Condition="'$(Platform)'=='x64'">x64</UICreatorNativeConverterArchitecture>
+    <UICreatorNativeConverterRoot>$(ProjectDir)..\build\visual-studio-native-converters\$(UICreatorNativeConverterArchitecture)</UICreatorNativeConverterRoot>
+    <UICreatorNativeCMakeExecutable Condition="'$(UICreatorNativeCMakeExecutable)'==''">cmake.exe</UICreatorNativeCMakeExecutable>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(UICreatorNativeConverterRoot)\freetype\include;$(ProjectDir)..\ImgLib;$(ProjectDir)..\3rdParty\libimagequant\imagequant-sys;$(ProjectDir)..\3rdParty\resvg\crates\c-api;$(ProjectDir)..\Runtime\include;$(ProjectDir)..\Runtime\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LVGL_RUNTIME_MAJOR=9;LVGL_RUNTIME_MINOR=6;LVGL_RUNTIME_VERSION=&quot;9.6&quot;;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorNativeFreeType.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorBrotliDecoder.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorBrotliCommon.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorNativePng.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorImageQuant.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorResvg.lib;advapi32.lib;bcrypt.lib;userenv.lib;ws2_32.lib;ntdll.lib;synchronization.lib;comdlg32.lib;ole32.lib;shell32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="BuildNativeConverterLibraries" BeforeTargets="ClCompile">
+    <Exec Command="&quot;$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)..\Packaging\BuildVisualStudioConverters.ps1&quot; -Architecture $(UICreatorNativeConverterArchitecture) -Configuration $(Configuration) -VisualStudioRoot &quot;$(VSInstallDir).&quot; -ToolsVersion &quot;$(VCToolsVersion)&quot; -CMakeExecutable &quot;$(UICreatorNativeCMakeExecutable)&quot;" />
+  </Target>
+  <Target Name="BundleProjectCreator" AfterTargets="Build">
+    <Exec Command="&quot;$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(ProjectDir)ProjectCreator\BundleProjectCreator.ps1&quot; -OutputDirectory &quot;$(TargetDir).&quot;" />
+  </Target>
+  <Target Name="CopyNativeRuntimeLibraries" AfterTargets="Build">
+    <ItemGroup><NativeRuntime Include="$(SolutionDir)$(Platform)\$(Configuration)\SDL3.dll" /></ItemGroup>
+    <Copy SourceFiles="@(NativeRuntime)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
+  </Target>
+  <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <Target Name="BundleLanguageModels" AfterTargets="Build">
     <ItemGroup>

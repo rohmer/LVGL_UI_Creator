@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Prepare verified, architecture-specific Linux tools without system installs."""
 from pathlib import Path
-import argparse, concurrent.futures, hashlib, json, os, shutil, subprocess, tarfile, urllib.request
+import argparse, concurrent.futures, hashlib, json, os, shutil, subprocess, tarfile, tempfile, urllib.request
 
 DEFAULT_BASE=Path('/var/tmp/lvgl-ui-desktop')
-NODE_VERSION='24.11.1'
 CMAKE_VERSION='4.5.1'
 RUST_VERSION='1.85.1'
 PYTHON_RELEASE='20261110'
 PYTHON_VERSION='3.11.18'
-IMAGE_REQUIREMENTS=['pillow==12.1.1','pypng==0.20220715.0','lz4==4.4.5','resvg-py==0.2.6']
+IMAGE_REQUIREMENTS=[]
 
 def fetch(url):
     request=urllib.request.Request(url,headers={'User-Agent':'LVGL-UI-Creator-Linux-Builder'})
@@ -42,24 +41,17 @@ def tools(base):
     archive=download('https://github.com/Kitware/CMake/releases/download/v'+CMAKE_VERSION+'/'+name,downloads/name,digest)
     cmake=output/('cmake-'+CMAKE_VERSION+'-linux-x86_64')
     if not (cmake/'bin/cmake').is_file():extract(archive,output)
-    node_sums=fetch('https://nodejs.org/dist/v'+NODE_VERSION+'/SHASUMS256.txt').decode()
-    result={'cmake':str(cmake/'bin/cmake'),'node':{},'python':{},'artifacts':{name:digest}}
+    result={'cmake':str(cmake/'bin/cmake'),'python':{},'artifacts':{name:digest}}
     def target(arch):
-        node_arch='x64' if arch=='x86_64' else 'arm64'
-        node_name='node-v'+NODE_VERSION+'-linux-'+node_arch+'.tar.xz'
-        node_hash=next(line.split()[0] for line in node_sums.splitlines() if line.split()[-1]==node_name)
-        node_archive=download('https://nodejs.org/dist/v'+NODE_VERSION+'/'+node_name,downloads/node_name,node_hash)
-        node=output/node_name[:-len('.tar.xz')]
-        if not (node/'bin/node').is_file():extract(node_archive,output)
         python_name='cpython-'+PYTHON_VERSION+'+'+PYTHON_RELEASE+'-'+arch+'-unknown-linux-gnu-install_only_stripped.tar.gz'
         python_url,python_hash=release_asset('astral-sh/python-build-standalone',PYTHON_RELEASE,python_name)
         python_archive=download(python_url,downloads/python_name,python_hash)
         python=output/('python-'+arch)
         if not (python/'python/bin/python3').is_file():extract(python_archive,python)
-        return arch,str(node/'bin/node'),str(python/'python'),{node_name:node_hash,python_name:python_hash}
+        return arch,str(python/'python'),{python_name:python_hash}
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-        for arch,node,python,artifacts in pool.map(target,['x86_64','aarch64']):
-            result['node'][arch]=node;result['python'][arch]=python;result['artifacts'].update(artifacts)
+        for arch,python,artifacts in pool.map(target,['x86_64','aarch64']):
+            result['python'][arch]=python;result['artifacts'].update(artifacts)
     (output/'tools.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2),flush=True)
     return result
@@ -114,21 +106,27 @@ def sysroot(base,arch):
 def assets(base,source):
     data=json.loads((base/'tools/tools.json').read_text())
     host=Path(data['python']['x86_64'])/'bin/python3'
-    subprocess.run([host,'-m','ensurepip','--upgrade'],check=True)
     root=base/'assets'
     for arch in ['x86_64','aarch64']:
         output=root/arch;output.mkdir(parents=True,exist_ok=True)
         runtime=output/'python-runtime'
-        if not (runtime/'bin/python3').is_file():shutil.copytree(data['python'][arch],runtime,dirs_exist_ok=True,symlinks=True)
-        site=runtime/'lib/python3.11/site-packages'
         marker=output/'python-dependencies.json'
-        if not marker.is_file():
-            platforms=['manylinux_2_28_'+arch,'manylinux_2_27_'+arch,'manylinux_2_17_'+arch,'manylinux2014_'+arch]
-            command=[str(host),'-m','pip','install','--disable-pip-version-check','--only-binary=:all:','--upgrade',
-                     '--target',str(site),'--python-version','3.11','--implementation','cp','--abi','cp311']
-            for platform in platforms:command+=['--platform',platform]
-            subprocess.run([*command,*IMAGE_REQUIREMENTS],check=True)
-            marker.write_text(json.dumps({'python':PYTHON_VERSION,'requirements':IMAGE_REQUIREMENTS},indent=2)+'\n')
+        key={'python':PYTHON_VERSION,'requirements':[]}
+        previous=json.loads(marker.read_text()) if marker.is_file() else None
+        if not (runtime/'bin/python3').is_file() or previous!=key:
+            if runtime.is_symlink() or runtime.resolve().parent!=output.resolve():
+                raise ValueError('Project runtime staging escaped its architecture cache')
+            source_runtime=Path(data['python'][arch]).resolve(strict=True)
+            if source_runtime==runtime.resolve() or source_runtime.is_relative_to(runtime.resolve()):
+                raise ValueError('Project runtime source overlaps its generated destination')
+            # Replace the owned runtime with its pristine stdlib-only source.
+            # Old Pillow/resvg/LZ4 modules must not survive an incremental build.
+            with tempfile.TemporaryDirectory(prefix='.project-runtime-',dir=output) as temporary:
+                staged=Path(temporary)/'python-runtime'
+                shutil.copytree(source_runtime,staged,symlinks=True)
+                if runtime.exists():shutil.rmtree(runtime)
+                staged.rename(runtime)
+        site=runtime/'lib/python3.11/site-packages'
         # The application runs installed modules; package managers and their
         # embedded Windows launcher binaries are build tools, not app assets.
         for pattern in ['pip','pip-*.dist-info','setuptools','setuptools-*.dist-info','pkg_resources','_distutils_hack']:
@@ -142,19 +140,14 @@ def assets(base,source):
             if path.is_file():path.unlink()
         ensurepip=runtime/'lib/python3.11/ensurepip'
         if ensurepip.is_dir() and ensurepip.resolve().is_relative_to(runtime.resolve()):shutil.rmtree(ensurepip)
-        image=output/'image-converter';image.mkdir(exist_ok=True)
-        shutil.copy2(source/'UICreator/Images/image-converter-bridge.py',image/'image-converter-bridge.py')
-        upstream=source/'3rdParty/lvgl_image_converter'
-        shutil.copytree(upstream,image/'upstream',dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+        marker.write_text(json.dumps(key,indent=2)+'\n')
         project=output/'project-creator';project.mkdir(exist_ok=True)
-        for name in ['project_creator.py','raspberry_pi_linux.py','raspberry_pi_pico.py']:shutil.copy2(source/'UICreator/ProjectCreator'/name,project/name)
-        for folder,tool,script in [(image,'UICreatorImageTool','image-converter-bridge.py'),(project,'UICreatorProjectTool','project_creator.py')]:
-            preamble='#!/bin/sh\nset -eu\nTOOL_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\n'
-            if folder==image:
-                launcher=preamble+'exec "$TOOL_DIR/../python-runtime/bin/python3" -I -c \'import runpy,sys;from pathlib import Path;script=sys.argv.pop(1);sys.path.insert(0,str(Path(script).parent/"upstream"));runpy.run_path(script,run_name="__main__")\' "$TOOL_DIR/'+script+'" "$@"\n'
-            else:
-                launcher=preamble+'exec "$TOOL_DIR/../python-runtime/bin/python3" -I -c \'import runpy,sys;from pathlib import Path;script=sys.argv.pop(1);sys.path.insert(0,str(Path(script).parent));runpy.run_path(script,run_name="__main__")\' "$TOOL_DIR/'+script+'" "$@"\n'
-            (folder/tool).write_text(launcher);(folder/tool).chmod(0o755)
+        for name in ['project_creator.py','raspberry_pi_linux.py','raspberry_pi_pico.py']:
+            shutil.copy2(source/'UICreator/ProjectCreator'/name,project/name)
+        launcher = '#!/bin/sh\nset -eu\nTOOL_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)\n'
+        launcher += 'exec "$TOOL_DIR/../python-runtime/bin/python3" -I -c \'import runpy,sys;from pathlib import Path;script=sys.argv.pop(1);sys.path.insert(0,str(Path(script).parent));runpy.run_path(script,run_name="__main__")\' "$TOOL_DIR/project_creator.py" "$@"\n'
+        (project/'UICreatorProjectTool').write_text(launcher)
+        (project/'UICreatorProjectTool').chmod(0o755)
         print('Prepared native helper assets:',arch,flush=True)
 
 def rust(base):

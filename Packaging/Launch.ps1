@@ -11,11 +11,11 @@ if($manifest.cmakeExecutable -and (Test-Path -LiteralPath $manifest.cmakeExecuta
 }
 $live=Join-Path $repo ('build\editor-live-'+[guid]::NewGuid().ToString('N').Substring(0,8))
 New-Item -ItemType Directory -Path $live | Out-Null
-foreach($name in @('UICreator.exe','UICreatorViewer.exe','UICreatorCodeGen.exe','LVGLCompiler.exe')){
+foreach($name in @('UICreator.exe','UICreatorConverter.exe','UICreatorViewer.exe','UICreatorCodeGen.exe','LVGLCompiler.exe')){
     Copy-Item -LiteralPath (Join-Path $ApplicationDirectory $name) -Destination $live
 }
 Get-ChildItem -LiteralPath $ApplicationDirectory -Filter '*.dll' -File | Copy-Item -Destination $live
-foreach($name in @('font-converter','image-converter','project-creator','language-models','docs','licenses','sdk')){
+foreach($name in @('project-creator','language-models','docs','licenses','sdk')){
     $source=Join-Path $ApplicationDirectory $name
     if(Test-Path -LiteralPath $source){Copy-Item -LiteralPath $source -Destination $live -Recurse}
 }

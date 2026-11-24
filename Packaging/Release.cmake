@@ -47,7 +47,7 @@ if(WIN32)
         endif()
     endif()
 endif()
-install(TARGETS UICreator LVGLCompiler UICreatorCodeGen UICreatorModelGen RUNTIME DESTINATION .)
+install(TARGETS UICreator UICreatorConverter LVGLCompiler UICreatorCodeGen UICreatorModelGen RUNTIME DESTINATION .)
 if(TARGET LVGLProtobufDisplay)
     install(TARGETS LVGLProtobufDisplay UICreatorViewer RUNTIME DESTINATION . ARCHIVE DESTINATION sdk/windows/lib)
     install(FILES "${PROJECT_SOURCE_DIR}/Runtime/windows/include/lvgl_pb_display.h" DESTINATION sdk/windows/include)
@@ -63,12 +63,12 @@ install(FILES "${PROJECT_BINARY_DIR}/packages/LVGLProtobuf-Linux-Toolkit.zip"
 if(WIN32)
     install(FILES $<TARGET_RUNTIME_DLLS:UICreator> DESTINATION .)
 endif()
-install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/font-converter"
-                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/image-converter"
-                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator"
+install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator"
                   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models"
                   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations" DESTINATION .)
 install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" "${PROJECT_SOURCE_DIR}/Packaging/THIRD_PARTY_NOTICES.md" DESTINATION licenses)
+install(FILES "${PROJECT_SOURCE_DIR}/UICreator/Fonts/NativeFont.LICENSE" DESTINATION licenses/native-converters)
+install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/src/libs/lodepng/lodepng.h" DESTINATION licenses/lodepng)
 install(FILES "${PROJECT_SOURCE_DIR}/UICreator/README.md" "${PROJECT_SOURCE_DIR}/UICreator/SESSION.md"
               "${PROJECT_SOURCE_DIR}/UICreator/Bootstrap.md" "${PROJECT_SOURCE_DIR}/UICreator/Codes.md"
               "${PROJECT_SOURCE_DIR}/UICreator/AdvancedKeyboard.md" DESTINATION docs/UICreator)
@@ -101,8 +101,8 @@ endforeach()
 install(FILES "${PROJECT_SOURCE_DIR}/Packaging/UICreator.ico" DESTINATION .)
 install(PROGRAMS "${PROJECT_SOURCE_DIR}/Packaging/Install.ps1" DESTINATION .)
 # Preserve dependency license files without shipping their complete source trees.
-foreach(dependency SDL3 freetype-2.10.1 spdlog-1.x Breakpad Catch2 libimagequant nanopb MXML)
-    foreach(notice LICENSE LICENSE.txt LICENSE.TXT COPYING COPYING.txt COPYRIGHT README.md docs/FTL.TXT docs/GPLv2.TXT)
+foreach(dependency SDL3 freetype-2.10.1 spdlog-1.x Breakpad Catch2 libimagequant nanopb MXML brotli resvg lv_font_conv lvgl_image_converter)
+    foreach(notice LICENSE LICENSE.txt LICENSE.TXT COPYING COPYING.txt COPYRIGHT LICENSE-MIT LICENSE-APACHE NativeFont.LICENSE UPSTREAM.md README.md docs/FTL.TXT docs/GPLv2.TXT)
         if(EXISTS "${PROJECT_SOURCE_DIR}/3rdParty/${dependency}/${notice}")
             install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/${dependency}/${notice}" DESTINATION "licenses/${dependency}")
         endif()

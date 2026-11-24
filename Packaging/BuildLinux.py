@@ -39,7 +39,7 @@ def mirror(source,base):
             dirs[:]=[name for name in dirs if name in {'3rdParty','CodeGeneration','ImgLib','Integrations','LVSerial','Runtime','UICreator','Tests','Packaging','Docs','Docker','Examples'}]
         dirs[:]=[name for name in dirs if name not in {'.git','.agents','.codex','.vs','.idea','.venv','.cache','__pycache__','.pytest_cache'}
                  and (name!='build' or relative.as_posix()=='3rdParty/lv_font_conv/lib/freetype')
-                 and (name!='node_modules' or relative.as_posix()=='3rdParty/lv_font_conv')]
+                 and name!='node_modules']
         for name in names:
             path=Path(folder)/name;part=relative/name
             if path.suffix in {'.pyc','.pyo'}:continue
@@ -72,7 +72,7 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
     env.update(RUSTUP_HOME=data['rust']['rustupHome'],CARGO_HOME=data['rust']['cargoHome'])
     # WSL inherits Windows PATH entries. Searching those for optional SDL tools
     # is slow and can select foreign binaries instead of target-native tools.
-    env['PATH']=str(Path(data['node']['x86_64']).parent)+':'+str(Path(data['rust']['cargo']).parent)+':/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+    env['PATH']=str(Path(data['rust']['cargo']).parent)+':/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
     env['PKG_CONFIG_SYSROOT_DIR']=str(sysroot)
     env['PKG_CONFIG_LIBDIR']=':'.join(str(sysroot/path) for path in ['usr/lib/'+triplet+'/pkgconfig','usr/share/pkgconfig'])
     env['QEMU_LD_PREFIX']=str(sysroot)
@@ -112,12 +112,10 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
         '-DCMAKE_C_FLAGS='+cflags,'-DCMAKE_CXX_FLAGS='+cpp,'-DCMAKE_ASM_FLAGS='+compiler_prefix,
         '-DCMAKE_EXE_LINKER_FLAGS='+link,'-DCMAKE_SHARED_LINKER_FLAGS='+link,
         '-DPython3_EXECUTABLE=/usr/bin/python3','-DIMAGEQUANT_CARGO='+data['rust']['cargo'],
-        '-DUICREATOR_FONT_NODE='+data['node'][arch],'-DUICREATOR_FONT_NPM='+str(Path(data['node']['x86_64']).parent/'npm'),
-        '-DUICREATOR_PREBUILT_IMAGE_TOOL_DIR='+str(assets/'image-converter'),
         '-DUICREATOR_PREBUILT_PROJECT_TOOL_DIR='+str(assets/'project-creator'),
         '-DUICREATOR_LINUX_PYTHON_DIR='+str(assets/'python-runtime'),
         '-DSDL_X11=ON','-DSDL_WAYLAND=ON','-DSDL_X11_SHARED=OFF','-DSDL_WAYLAND_SHARED=OFF',
-        '-DSDL_TESTS=OFF','-DSDL_EXAMPLES=OFF','-DFT_DISABLE_HARFBUZZ=ON','-DFT_DISABLE_BROTLI=ON',
+        '-DSDL_TESTS=OFF','-DSDL_EXAMPLES=OFF','-DFT_DISABLE_HARFBUZZ=ON',
         '-DUICREATOR_LINUX_SDK_DIRECTORY='+str(sdk),
         '-DUICREATOR_LINUX_REQUIRE_SDKS='+('ON' if require_sdks else 'OFF'),
         '-DUICREATOR_LINUX_DEPENDENCY_DIRECTORIES='+str(sysroot/('usr/lib/'+triplet))+';'+str(sysroot/('lib/'+triplet))+';'+str(sysroot/('usr/lib/gcc/'+triplet+'/11')),

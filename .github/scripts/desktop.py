@@ -41,7 +41,8 @@ def check_inventory(directory, configuration, micropython):
     required |= {'UICreatorSmoke', 'UICreatorScreenMemory', 'UICreatorAdvancedKeyboard',
                  'UICreatorMicroPythonExport', 'UICreatorESP32Profile', 'UICreatorArduinoProfile',
                  'UICreatorPicoProfile', 'UICreatorKeyboardSyncSource', 'UICreatorMacOSPackaging',
-                 'LVSerialProtobufConformance'}
+                 'LVSerialProtobufConformance', 'UICreatorNativeConverters',
+                 'UICreatorNativeImageConverter', 'UICreatorFontConverter'}
     if micropython:
         required.add('UICreatorMicroPythonNative')
     if missing := required - names:
@@ -73,7 +74,7 @@ def main():
                    '-DUICREATOR_TEST_LVGL_VERSIONS=ON', '-DUICREATOR_LVGL_TEST_SOURCES=' + str(sources),
                    '-DPython3_EXECUTABLE=' + sys.executable,
                    '-DUICREATOR_PROTOC=' + str(protoc),
-                   '-DFT_DISABLE_HARFBUZZ=ON', '-DFT_DISABLE_BROTLI=ON',
+                   '-DFT_DISABLE_HARFBUZZ=ON',
                    '-DSDL_TESTS=OFF', '-DSDL_EXAMPLES=OFF']
         if platform.system() == 'Windows':
             command.append('-DUICREATOR_WINDOWS_ARCH=' + args.architecture)

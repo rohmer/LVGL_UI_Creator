@@ -1,6 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="Fonts\NativeFont.cpp"><Filter>Source Files\Fonts</Filter></ClCompile>
+    <ClCompile Include="Fonts\NativeFontBinary.cpp"><Filter>Source Files\Fonts</Filter></ClCompile>
+    <ClCompile Include="Fonts\FontConverter.cpp"><Filter>Source Files\Fonts</Filter></ClCompile>
+    <ClInclude Include="Fonts\NativeFont.h"><Filter>Header Files\Fonts</Filter></ClInclude>
+    <ClInclude Include="Fonts\NativeFontData.h"><Filter>Header Files\Fonts</Filter></ClInclude>
+    <ClInclude Include="Fonts\NativeFontKerning.h"><Filter>Header Files\Fonts</Filter></ClInclude>
+    <ClCompile Include="Images\ImageConverter.cpp"><Filter>Source Files\Images</Filter></ClCompile>
+    <ClCompile Include="Images\NativeApng.cpp"><Filter>Source Files\Images</Filter></ClCompile>
+    <ClInclude Include="Images\NativeApng.h"><Filter>Header Files\Images</Filter></ClInclude>
+    <ClCompile Include="Utils\ExternalTool.cpp"><Filter>Source Files\Util</Filter></ClCompile>
+    <ClInclude Include="Utils\ExternalTool.h"><Filter>Header Files\Util</Filter></ClInclude>
+    <ClInclude Include="Utils\CIdentifier.h"><Filter>Header Files\Util</Filter></ClInclude>
+    <Filter Include="Source Files\Images"><UniqueIdentifier>{68F5562C-F923-58DF-986F-34C0B156D6CB}</UniqueIdentifier></Filter>
+    <Filter Include="Header Files\Images"><UniqueIdentifier>{72AC2EBA-C87D-5321-91DA-0F07E34CF7A9}</UniqueIdentifier></Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>

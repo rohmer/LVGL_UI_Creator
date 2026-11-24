@@ -17,16 +17,16 @@ cmake --build build/linux-x86_64 --target UICreatorLinuxPackages --parallel 6
 The outputs are named `LVGL-UI-Creator-0.9.2-Linux-x86_64.deb` and `.tar.gz`,
 or `LVGL-UI-Creator-0.9.2-Linux-arm64.deb` and `.tar.gz`. A DEB installs the
 application below `/usr/lib/lvgl-ui-creator`, launchers in `/usr/bin`, and a
-desktop entry and scalable icon in the standard shared directories. Converter
-resources remain beside the executable so the editor can locate them. The
+desktop entry and scalable icon in the standard shared directories. Native
+converter code is linked into the editor and `UICreatorConverter` CLI. The
 portable archive retains the same relative `usr/` layout; after extraction run
 `usr/bin/lvgl-ui-creator` without root privileges.
 
 The DEB also declares the X11/Wayland libraries SDL loads dynamically and Zenity
 for native file dialogs. Portable archive users need these desktop dependencies
 on their system; the package manifest lists them alongside the measured ABI
-requirements. The bundled Node and Python runtimes match the package's target
-architecture, including the Python image conversion modules.
+requirements. Native converter binaries and the separate project-helper Python
+runtime match the package's target architecture.
 
 CPack inspects target ELF files with `readelf` and resolves their shared-library
 closure only within the declared build, sysroot and private library directories.

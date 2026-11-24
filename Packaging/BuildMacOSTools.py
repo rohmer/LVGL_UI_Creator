@@ -23,8 +23,6 @@ import zlib
 DEFAULT_BASE = Path('/var/tmp/lvgl-ui-macos')
 CMAKE_VERSION = '4.5.1'
 CMAKE_SHA256 = '83b71181fb62b4fe8f26067a9321448572e7a43bd04ff6c7f54a24c33698f16d'
-NODE_VERSION = '24.11.1'
-NODE_SHA256 = '60e3b0a8500819514aca603487c254298cd776de0698d3cd08f11dba5b8289a8'
 RUST_VERSION = '1.85.1'
 RUSTUP_VERSION = '1.28.2'
 RUSTUP_SHA256 = '20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c'
@@ -145,18 +143,9 @@ def prepare_host_tools(base):
     cmake = root / cmake_name.removesuffix('.tar.gz') / 'bin/cmake'
     if not cmake.is_file():
         extract_tar(archive, root)
-    node_name = 'node-v' + NODE_VERSION + '-linux-x64.tar.xz'
-    archive = download('https://nodejs.org/dist/v' + NODE_VERSION + '/' + node_name,
-                       downloads / node_name, NODE_SHA256, [previous / node_name])
-    node = root / node_name.removesuffix('.tar.xz') / 'bin/node'
-    if not node.is_file():
-        extract_tar(archive, root)
     if not subprocess.check_output([str(cmake), '--version'], text=True).startswith('cmake version ' + CMAKE_VERSION + '\n'):
         raise ValueError('Cached host CMake version differs')
-    if subprocess.check_output([str(node), '--version'], text=True).strip() != 'v' + NODE_VERSION:
-        raise ValueError('Cached host Node version differs')
-    return {'cmake': str(cmake), 'hostNode': str(node), 'hostNpm': str(node.with_name('npm')),
-            'artifacts': {cmake_name: CMAKE_SHA256, node_name: NODE_SHA256}}
+    return {'cmake': str(cmake), 'artifacts': {cmake_name: CMAKE_SHA256}}
 
 
 def xar_payload(package, destination):

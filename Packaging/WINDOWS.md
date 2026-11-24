@@ -36,18 +36,18 @@ Updating an architecture removes its previous exact package files and preserves
 user-created projects.
 
 The supported Windows baseline is Windows 10 or newer. The x86 editor, viewer,
-compiler, code generator, display SDK and bundled conversion helpers are all
-32-bit. x86 builds automatically prepare checksum-verified Node 22.23.5 win-x86
-and CPython 3.14.10 x86, with pinned native image/conversion modules. Python and
-Node need not be installed on the user's computer. Their build paths, versions,
-source fingerprints and download hashes are recorded in
-`build/windows-helper-tools/x86/cmake-helpers.json`. x64 retains its separate
-native helper toolchain. Build preparation still runs on the 64-bit development
+compiler, code generator, display SDK and native converter CLI are all
+32-bit. Font/image conversion is compiled directly into the editor and
+`UICreatorConverter.exe`, with matching native codec libraries. The separate
+project helper uses checksum-verified CPython 3.14.10 x86. Its build paths,
+versions, fingerprints and hashes are recorded in
+`build/windows-helper-tools/x86/cmake-helpers.json`. Users need no interpreter
+installation. Build preparation still runs on the 64-bit development
 host described in [BUILD.md](../BUILD.md).
 
 Staging starts with a clean architecture output directory. Before writing a
 manifest or invoking CPack, the scripts recursively validate every native PE
-file, including Python `.pyd`, Node `.node`, CRT DLLs, extensionless PE images
+file, including Python `.pyd`, CRT DLLs, extensionless PE images
 and native entries inside SDK ZIPs. A foreign machine type, wrong PE32/PE32+
 format, malformed native file or stale helper runtime stops packaging.
 

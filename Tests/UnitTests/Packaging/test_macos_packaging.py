@@ -1,6 +1,5 @@
 """Cross-platform Mach-O integrity, safe asset paths and package preservation."""
 import hashlib
-import importlib.util
 import json
 from pathlib import Path
 import plistlib
@@ -15,9 +14,6 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'Packaging'))
 import PackageMacOS as package
 from MacOS import assets, macho
-stager_spec = importlib.util.spec_from_file_location('image_asset_stager', ROOT / 'UICreator/Images/copy-converter-assets.py')
-image_stager = importlib.util.module_from_spec(stager_spec)
-stager_spec.loader.exec_module(image_stager)
 
 
 def signed_fixture(info=b'info', resources=b'resources', embedded=False):
@@ -153,7 +149,6 @@ class MacOSPackageTests(unittest.TestCase):
     def helper_source(self):
         source = self.base / 'source'
         files = {
-            'UICreator/Images/image-converter-bridge.py': b'print("image v1")\n',
             '3rdParty/lvgl_image_converter/LVGLImage.py': b'print("upstream v1")\n',
             '3rdParty/lvgl_image_converter/deleted.py': b'deleted later\n',
             'UICreator/ProjectCreator/project_creator.py': b'print("project v1")\n',
@@ -171,12 +166,13 @@ class MacOSPackageTests(unittest.TestCase):
         cache = self.base / 'cache'
         prepared = {}
         for architecture in assets.ARCHITECTURES:
-            root = cache / 'assets' / architecture
+            directory = cache / 'assets' / architecture
             for name, value in {'python-runtime/bin/python3': b'signed target Python',
-                                'node/bin/node': b'signed target Node',
-                                'python-dependencies.json': b'prepared wheels metadata',
+                                'node/bin/node': b'preserved legacy build cache',
+                                'image-converter/legacy-cache': b'preserved legacy image cache',
+                                'python-dependencies.json': b'prepared project runtime metadata',
                                 'assets.json': b'prepared asset paths'}.items():
-                target = root / name
+                target = directory / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(value)
                 prepared[target] = (value, target.stat().st_mtime_ns)
@@ -184,25 +180,19 @@ class MacOSPackageTests(unittest.TestCase):
              mock.patch.object(assets, 'download', side_effect=AssertionError('Unexpected download')), \
              mock.patch.object(assets.subprocess, 'run', side_effect=AssertionError('Unexpected runtime preparation')):
             first = assets.refresh_helpers(cache, source)
-            (source / 'UICreator/Images/image-converter-bridge.py').write_bytes(b'print("image v2")\n')
             (source / 'UICreator/ProjectCreator/project_creator.py').write_bytes(b'print("project v2")\n')
-            (source / '3rdParty/lvgl_image_converter/LVGLImage.py').write_bytes(b'print("upstream v2")\n')
-            (source / '3rdParty/lvgl_image_converter/deleted.py').unlink()
             for paths in first.values():
-                (Path(paths['imageToolDirectory']) / 'UICreatorImageTool').write_text('stale wrapper')
+                (Path(paths['projectToolDirectory']) / 'UICreatorProjectTool').write_text('stale wrapper')
             refreshed = assets.refresh_helpers(cache, source)
         self.assertEqual(first, refreshed)
-        for architecture, paths in refreshed.items():
-            image, project = Path(paths['imageToolDirectory']), Path(paths['projectToolDirectory'])
-            self.assertEqual((image / 'image-converter-bridge.py').read_bytes(), b'print("image v2")\n')
+        for paths in refreshed.values():
+            self.assertEqual(set(paths), {'projectToolDirectory'})
+            project = Path(paths['projectToolDirectory'])
             self.assertEqual((project / 'project_creator.py').read_bytes(), b'print("project v2")\n')
-            self.assertEqual((image / 'upstream/LVGLImage.py').read_bytes(), b'print("upstream v2")\n')
-            self.assertFalse((image / 'upstream/deleted.py').exists())
-            self.assertIn('../python-runtime/bin/python3', (image / 'UICreatorImageTool').read_text())
-            self.assertIn(' -I -B -c ', (image / 'UICreatorImageTool').read_text())
+            self.assertIn('../python-runtime/bin/python3', (project / 'UICreatorProjectTool').read_text())
             self.assertIn(' -I -B -c ', (project / 'UICreatorProjectTool').read_text())
             if sys.platform != 'win32':
-                self.assertTrue((image / 'UICreatorImageTool').stat().st_mode & 0o111)
+                self.assertTrue((project / 'UICreatorProjectTool').stat().st_mode & 0o111)
         for target, (value, modified) in prepared.items():
             self.assertEqual(target.read_bytes(), value)
             self.assertEqual(target.stat().st_mtime_ns, modified)
@@ -211,45 +201,13 @@ class MacOSPackageTests(unittest.TestCase):
         source = self.helper_source()
         cache = self.base / 'cache'
         helpers = assets.refresh_helpers(cache, source, ('arm64',))['arm64']
-        image = Path(helpers['imageToolDirectory']) / 'image-converter-bridge.py'
-        previous = image.read_bytes()
-        (source / 'UICreator/Images/image-converter-bridge.py').write_bytes(b'new source')
+        script = Path(helpers['projectToolDirectory']) / 'project_creator.py'
+        previous = script.read_bytes()
+        (source / 'UICreator/ProjectCreator/project_creator.py').write_bytes(b'new source')
         (source / 'UICreator/ProjectCreator/raspberry_pi_pico.py').unlink()
         with self.assertRaises(FileNotFoundError):
             assets.refresh_helpers(cache, source, ('arm64',))
-        self.assertEqual(image.read_bytes(), previous)
-
-    def test_runtime_staging_removes_deleted_upstream_but_preserves_other_assets_and_native_runtime(self):
-        runtime, source, output = self.base / 'prepared-image', self.base / 'upstream-source', self.base / 'bin/image-converter'
-        (runtime / '_internal').mkdir(parents=True)
-        (runtime / '_internal/native-runtime').write_bytes(b'signed native runtime')
-        (runtime / 'UICreatorImageTool').write_bytes(b'image wrapper')
-        (runtime / 'upstream').mkdir()
-        (runtime / 'upstream/deleted.py').write_bytes(b'stale cached source')
-        (source / 'removed-directory').mkdir(parents=True)
-        (source / 'module.py').write_bytes(b'original source')
-        (source / 'deleted.py').write_bytes(b'delete later')
-        (source / 'removed-directory/module.py').write_bytes(b'delete directory later')
-        image_stager.stage_assets(runtime, source, output)
-        native = output / '_internal/native-runtime'
-        preserved = {native: (native.read_bytes(), native.stat().st_mtime_ns)}
-        for target, value in {output / 'unrelated-asset': b'keep unrelated root asset',
-                              output.parent / 'python-runtime/bin/python3': b'keep sibling Python',
-                              output.parent / 'project-creator/pico-toolkit.zip': b'keep project SDK'}.items():
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(value)
-            preserved[target] = (value, target.stat().st_mtime_ns)
-        (source / 'module.py').write_bytes(b'updated source')
-        (source / 'deleted.py').unlink()
-        (source / 'removed-directory/module.py').unlink()
-        (source / 'removed-directory').rmdir()
-        image_stager.stage_assets(runtime, source, output)
-        self.assertEqual((output / 'upstream/module.py').read_bytes(), b'updated source')
-        self.assertFalse((output / 'upstream/deleted.py').exists())
-        self.assertFalse((output / 'upstream/removed-directory').exists())
-        for target, (value, modified) in preserved.items():
-            self.assertEqual(target.read_bytes(), value)
-            self.assertEqual(target.stat().st_mtime_ns, modified)
+        self.assertEqual(script.read_bytes(), previous)
 
     def test_bundle_resource_hash_seals_detect_modifications(self):
         bundle = self.base / package.APP_NAME

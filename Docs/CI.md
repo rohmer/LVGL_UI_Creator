@@ -28,11 +28,11 @@ desktop platforms. Native macOS jobs test their freshly built native outputs;
 they do not claim to execute the separately produced OSXCross release archives.
 
 Compiler/SDK dependencies are installed automatically. Desktop CI pins CMake
-4.5.1, Node 24.11.1, npm 11.6.2 and Rust 1.85.1; x86 conversion helpers use the
-repository's separate verified 32-bit toolchain. Firmware CI pins the official
+4.5.1 and Rust 1.85.1. Font/image conversion is native C++; x86 project creation
+uses the repository's verified 32-bit Python helper. Firmware CI pins the official
 ESP-IDF 6.0 container digest, Arduino CLI 1.3.1 with Nano ESP32 core
 2.0.18-arduino.5, and Pico SDK 2.3.1. GitHub Actions are pinned to verified commit
-IDs. Cargo/npm download caches reduce repeated setup; compiled outputs are
+IDs. Cargo download caches reduce repeated setup; compiled outputs are
 rebuilt from each checked-in source tree.
 
 Windows uses the official protoc 36.2 ZIP with a pinned SHA-256. Every desktop
