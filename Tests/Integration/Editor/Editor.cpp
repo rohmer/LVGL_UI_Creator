@@ -34,6 +34,7 @@
 #include <Serialization/ProjectScreens.h>
 #include <Serialization/Xml.h>
 #include "../../../UICreator/Windows/PropertyWindows/ImageProperties.h"
+#include <algorithm>
 #include <map>
 #include <set>
 #include <cmath>
@@ -754,6 +755,44 @@ int main(int argc, char* argv[])
             Require(label != nullptr, "Keyboard mode editor is missing");
             auto* dropdown = lv_obj_get_child(lv_obj_get_parent(label), 1);
             Require(lv_obj_get_class(dropdown) == &lv_dropdown_class, "Mode control is not a dropdown");
+            struct ModeEventTiming {
+                lv_obj_t* object;
+                uint64_t started = 0, elapsed = 0;
+                unsigned depth = 0, completed = 0;
+                static bool IsOwnEvent(lv_event_t* event) {
+                    return lv_event_get_target_obj(event) == lv_event_get_current_target_obj(event);
+                }
+                static void Begin(lv_event_t* event) {
+                    if(!IsOwnEvent(event)) return;
+                    auto* timing = static_cast<ModeEventTiming*>(lv_event_get_user_data(event));
+                    if(timing->depth++ == 0) timing->started = SDL_GetTicksNS();
+                }
+                static void End(lv_event_t* event) {
+                    if(!IsOwnEvent(event)) return;
+                    auto* timing = static_cast<ModeEventTiming*>(lv_event_get_user_data(event));
+                    Require(timing->depth != 0, "Mode event ended without its preprocess observer");
+                    if(--timing->depth == 0) {
+                        timing->elapsed += SDL_GetTicksNS() - timing->started;
+                        ++timing->completed;
+                    }
+                }
+                explicit ModeEventTiming(lv_obj_t* dropdown) : object(dropdown) {
+                    // Preprocessing precedes the class/default handlers; the
+                    // normal observer is appended after the editor's handlers.
+                    lv_obj_add_event_cb(object, Begin, static_cast<lv_event_code_t>(LV_EVENT_VALUE_CHANGED | LV_EVENT_PREPROCESS), this);
+                    lv_obj_add_event_cb(object, End, LV_EVENT_VALUE_CHANGED, this);
+                }
+                ~ModeEventTiming() {
+                    if(lv_obj_is_valid(object)) {
+                        lv_obj_remove_event_cb_with_user_data(object, Begin, this);
+                        lv_obj_remove_event_cb_with_user_data(object, End, this);
+                    }
+                }
+                void Reset() {
+                    Require(depth == 0, "Mode event did not finish synchronously");
+                    elapsed = 0; completed = 0;
+                }
+            } modeTiming(dropdown);
             const auto clickPoint = [&](int x, int y) {
                 const auto id = SDL_GetWindowID(lv_sdl_window_get_window(lv_display_get_default()));
                 SDL_Event event{};
@@ -769,6 +808,8 @@ int main(int argc, char* argv[])
             };
             for (uint32_t mode : {1u, 2u, 3u, 4u, 5u, 6u, 7u, 0u, 1u, 1u})
             {
+                const auto previousMode = lv_keyboard_get_mode(keyboard);
+                modeTiming.Reset();
                 lv_obj_scroll_to_view(dropdown, LV_ANIM_OFF);
                 lv_obj_update_layout(lv_screen_active());
                 lv_area_t bounds; lv_obj_get_coords(dropdown, &bounds);
@@ -783,7 +824,10 @@ int main(int argc, char* argv[])
                 clickPoint((bounds.x1 + bounds.x2) / 2, textBounds.y1 + static_cast<int>(mode) * lineHeight + lineHeight / 2);
                 Require(lv_keyboard_get_mode(keyboard) == mode, "Mouse selection did not update the simulator keyboard mode");
                 Require(!lv_dropdown_is_open(dropdown), "Mode dropdown did not close after selection");
-                Require(SDL_GetTicks() - started < 1000, "Mode change blocked the editor for a second or longer");
+                Require(modeTiming.depth == 0 && (previousMode == mode || modeTiming.completed != 0), "Mouse selection did not complete its mode event");
+                Require(modeTiming.elapsed < 1000000000ULL, "Mode-change event blocked the editor for a second or longer");
+                std::cout << "Mode " << mode << ": event " << modeTiming.elapsed / 1000000.0
+                          << " ms, pointer/render roundtrip " << SDL_GetTicks() - started << " ms" << std::endl;
             }
             std::cout << "Repeated keyboard mode selections reopen immediately\n";
             return 0;

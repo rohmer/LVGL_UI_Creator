@@ -199,6 +199,11 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         TIMEOUT 45 LABELS "functional;editor;keyboard;tft")
     set_tests_properties(UICreatorKeyboardModeRepeat PROPERTIES
         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 15 RUN_SERIAL TRUE)
+    if(APPLE)
+        # Keep the one-second event-handler check separate from the software
+        # renderer's ten complete pointer/refresh round trips.
+        set_tests_properties(UICreatorKeyboardModeRepeat PROPERTIES TIMEOUT 45)
+    endif()
     add_test(NAME UICreatorArcBarStress COMMAND UICreatorEditorTests --stress-arcs-bars)
     set_tests_properties(UICreatorArcBarStress PROPERTIES
         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60)
