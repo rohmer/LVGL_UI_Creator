@@ -108,7 +108,7 @@ std::vector<UI::MenuItem> UI::MenuItems(const std::string& name) const
     } else if (name == "Assets") {
         add("Theme gallery...", "theme-gallery"); add("Reusable components...", "component-library"); separator();
         add("Project fonts...", "font-manager"); add("Project images...", "image-manager");
-        separator(); add("Convert font...", "font-converter"); add("Convert images...", "image-converter");
+        separator(); add("Add font...", "font-converter"); add("Convert images...", "image-converter");
     } else if (name == "Language Models") {
         add("Model playground...", "model-playground"); separator();
         add("Generate language model...", "language-model-generator"); add("Load model into project...", "language-model-load");

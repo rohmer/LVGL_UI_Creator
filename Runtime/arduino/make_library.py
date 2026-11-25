@@ -69,7 +69,7 @@ def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
         text_file(src / "vendor/3rdParty/LVGL/lv_conf.h", config)
         include_roots = [src / "vendor" / name for name in (
             "Runtime/include", "Runtime/compat", "LVSerial", "LVSerial/Device", "LVSerial/Proto", "3rdParty/nanopb",
-            "LVSerial/Widgets/AdvancedKeyboard/include", "LVSerial/Widgets/AdvancedKeyboard",
+            "3rdParty/AdvancedKeyboard/include", "3rdParty/AdvancedKeyboard/src",
             "3rdParty/LVGL/lvgl", "3rdParty/LVGL/lvgl/include")]
         for directory in include_roots: forwarding_headers(directory, src)
         text_file(src / "lvgl/lvgl.h", '#pragma once\n#include "../vendor/3rdParty/LVGL/lvgl/lvgl.h"\n')

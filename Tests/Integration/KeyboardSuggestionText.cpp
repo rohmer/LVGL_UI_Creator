@@ -1,7 +1,7 @@
 // Focused native tests; no editor window or interactive input is required.
-#include "../../LVSerial/Widgets/AdvancedKeyboard/SuggestionText.h"
-#include "../../LVSerial/Widgets/AdvancedKeyboard/Utf8Fold.h"
-#include "../../UICreator/LanguageModels/Generator.h"
+#include <SuggestionText.h>
+#include <Utf8Fold.h>
+#include <Generator.h>
 #include <lv_advanced_keyboard_prediction.h>
 #include <array>
 #include <chrono>

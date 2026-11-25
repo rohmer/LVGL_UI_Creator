@@ -1,0 +1,4 @@
+[submodule "3rdParty/AdvancedKeyboard"]
+	path = 3rdParty/AdvancedKeyboard
+	url = https://github.com/rohmer/AdvancedKeyboard.git
+	branch = Master

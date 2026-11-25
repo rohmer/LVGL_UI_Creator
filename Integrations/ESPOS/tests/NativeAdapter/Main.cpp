@@ -31,6 +31,116 @@ void Key(lv_obj_t* core, keyboard::KeyInputKind kind, const char* text = nullptr
 void EventCount(lv_event_t* event) { ++*static_cast<unsigned*>(lv_event_get_user_data(event)); }
 std::size_t CustomLookup(void*, std::string_view, std::string_view, std::string_view,
     ngram_trie::Suggestion*) noexcept { return 0; }
+size_t CaseLookup(void* context, const char*, size_t, const char*, size_t, const char*, size_t,
+    lv_advanced_keyboard_suggestion_t* output, size_t capacity)
+{
+    ++*static_cast<unsigned*>(context);
+    if(!capacity) return 0;
+    const char* word = u8"café";
+    std::memcpy(output[0].text, word, std::strlen(word));
+    output[0].length = static_cast<uint16_t>(std::strlen(word));
+    return 1;
+}
+bool InputModes()
+{
+    char converted[80];
+    CHECK(lv_advanced_keyboard_normalize_input(LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE,
+        u8"café déjà ß яσ 中文", converted, sizeof converted) == std::strlen(u8"CAFÉ DÉJÀ SS ЯΣ 中文"));
+    CHECK(!std::strcmp(converted, u8"CAFÉ DÉJÀ SS ЯΣ 中文"));
+    lv_advanced_keyboard_normalize_input(LV_ADVANCED_KEYBOARD_INPUT_LOWERCASE, u8"ÉCOLE ЯΣ 中文", converted, sizeof converted);
+    CHECK(!std::strcmp(converted, u8"école яσ 中文"));
+    char short_buffer[3] = {'?', '?', '?'};
+    CHECK(lv_advanced_keyboard_normalize_input(LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE, u8"éé", short_buffer, sizeof short_buffer) == 4);
+    CHECK(!std::strcmp(short_buffer, u8"É"));
+    auto* upper = lv_textarea_create(lv_screen_active());
+    auto* lower = lv_textarea_create(lv_screen_active());
+    auto* number = lv_textarea_create(lv_screen_active());
+    CHECK(lv_advanced_keyboard_get_textarea_input_mode(upper) == LV_ADVANCED_KEYBOARD_INPUT_ALPHANUMERIC);
+    lv_textarea_set_text(upper, u8"Café я!");
+    CHECK(lv_advanced_keyboard_set_textarea_input_mode(upper, LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE));
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), u8"CAFÉ Я!"));
+    lv_textarea_add_text(upper, u8" élève");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), u8"CAFÉ Я! ÉLÈVE"));
+    lv_textarea_set_text(upper, u8"ßé");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), u8"SSÉ"));
+    CHECK(lv_advanced_keyboard_set_textarea_input_mode(lower, LV_ADVANCED_KEYBOARD_INPUT_LOWERCASE));
+    lv_textarea_add_text(lower, u8"ÉCOLE ЯΣ!");
+    CHECK(!std::strcmp(lv_textarea_get_text(lower), u8"école яσ!"));
+    uint32_t physical_key = 'Z';
+    lv_obj_send_event(lower, LV_EVENT_KEY, &physical_key);
+    CHECK(!std::strcmp(lv_textarea_get_text(lower), u8"école яσ!z"));
+    CHECK(lv_advanced_keyboard_set_textarea_input_mode(number, LV_ADVANCED_KEYBOARD_INPUT_NUMERIC));
+    lv_textarea_add_text(number, "-12a.3.4e5");
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "12.345"));
+    lv_textarea_set_cursor_pos(number, 0); lv_textarea_add_text(number, ".");
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "12.345"));
+    lv_textarea_set_cursor_pos(number, 3); lv_textarea_delete_char(number);
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "12345"));
+    lv_textarea_add_text(number, ".");
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "12.345"));
+    lv_textarea_set_text(number, "not -9.2.1");
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "9.21"));
+    lv_textarea_set_accepted_chars(upper, "AB12");
+    lv_textarea_set_max_length(upper, 4); lv_textarea_set_text(upper, "ab12c");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), "AB12"));
+    lv_textarea_set_accepted_chars(upper, "ABS.");
+    lv_textarea_set_text(upper, u8"aßb.é");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), "ASSB"));
+    lv_textarea_set_text(upper, u8"bßa");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), "BSSA"));
+    lv_textarea_set_text(upper, "");
+    lv_textarea_add_text(upper, u8"aßb.é");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), "ASSB"));
+    lv_textarea_set_accepted_chars(upper, nullptr); lv_textarea_set_max_length(upper, 0);
+    lv_textarea_set_password_mode(upper, true); lv_textarea_set_text(upper, u8"élève ß");
+    CHECK(!std::strcmp(lv_textarea_get_text(upper), u8"ÉLÈVE SS"));
+    lv_textarea_set_password_mode(upper, false);
+    auto* core = lv_advanced_keyboard_create(lv_screen_active());
+    CHECK(core && lv_advanced_keyboard_set_textarea(core, upper));
+    auto* keys = lv_advanced_keyboard_get_keyboard(core);
+    CHECK(keyboard::keyboard_input_mode(keys) == LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE && Button(keys, "Q"));
+    CHECK(lv_advanced_keyboard_set_textarea(core, lower));
+    CHECK(keyboard::keyboard_input_mode(keys) == LV_ADVANCED_KEYBOARD_INPUT_LOWERCASE && Button(keys, "q"));
+    CHECK(lv_advanced_keyboard_set_textarea_input_mode(lower, LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE));
+    CHECK(keyboard::keyboard_input_mode(keys) == LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE && Button(keys, "Q"));
+    unsigned lookups = 0;
+    lv_advanced_keyboard_set_suggestion_lookup(core, CaseLookup, &lookups);
+    lv_textarea_set_text(lower, "ca");
+    lv_tick_inc(60); lv_timer_handler();
+    auto* suggestion = Button(core, u8"CAFÉ"); CHECK(suggestion && lookups);
+    lv_obj_send_event(suggestion, LV_EVENT_CLICKED, nullptr);
+    CHECK(!std::strcmp(lv_textarea_get_text(lower), u8"CAFÉ "));
+    CHECK(lv_advanced_keyboard_set_language(core, "zh-CN"));
+    CHECK(lv_advanced_keyboard_set_textarea(core, number));
+    CHECK(keyboard::keyboard_input_mode(keys) == LV_ADVANCED_KEYBOARD_INPUT_NUMERIC);
+    unsigned visible = 0;
+    for(uint32_t i = 0; i < lv_obj_get_child_count(keys); ++i) {
+        auto* button = lv_obj_get_child(keys, i);
+        if(lv_obj_is_hidden(button)) continue;
+        ++visible;
+        const auto* caption = lv_label_get_text(lv_obj_get_child(button, 0));
+        CHECK((std::strlen(caption) == 1 && std::strchr("0123456789.", caption[0])) || !std::strcmp(caption, LV_SYMBOL_BACKSPACE));
+    }
+    CHECK(visible == 12);
+    const auto previous = lookups;
+    lv_textarea_set_text(number, ""); Key(core, keyboard::KeyInputKind::Insert, "7.5a");
+    lv_tick_inc(60); lv_timer_handler();
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "7.5") && lookups == previous);
+    auto* digit = Button(keys, "2"); CHECK(digit);
+    lv_obj_send_event(digit, LV_EVENT_CLICKED, nullptr);
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "7.52"));
+    auto* erase = Button(keys, LV_SYMBOL_BACKSPACE); CHECK(erase);
+    lv_obj_send_event(erase, LV_EVENT_CLICKED, nullptr);
+    CHECK(!std::strcmp(lv_textarea_get_text(number), "7.5"));
+    auto* enter = Button(core, "Enter"); CHECK(enter);
+    lv_obj_send_event(enter, LV_EVENT_CLICKED, nullptr);
+    CHECK(lv_advanced_keyboard_is_dismissed(core));
+    CHECK(lv_advanced_keyboard_set_textarea_input_mode(number, LV_ADVANCED_KEYBOARD_INPUT_ALPHANUMERIC));
+    lv_textarea_add_text(number, u8" xyz!中文");
+    CHECK(!std::strcmp(lv_textarea_get_text(number), u8"7.5 xyz!中文"));
+    lv_obj_delete(core); lv_obj_delete(upper); lv_obj_delete(lower); lv_obj_delete(number);
+    return true;
+}
 bool Exercise()
 {
     // Include both headers and link both namespaces in the same translation unit.
@@ -121,8 +231,8 @@ int main()
     auto* pixels = std::malloc(1024 * 20 * 4); if (!display || !pixels) return 1;
     lv_display_set_buffers(display, pixels, nullptr, 1024 * 20 * 4, LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_flush_cb(display, Flush);
-    const bool result = Exercise();
+    const bool result = InputModes() && Exercise();
     lv_display_delete(display); lv_deinit(); std::free(pixels);
-    if (result) std::puts("Legacy adapter: dual namespaces, orientation, 14 languages, RTL, trie size, external targets, Enter/X, deletion passed");
+    if (result) std::puts("Legacy adapter: input modes, Unicode casing, numeric keypad, physical input/paste, suggestions, target switching, 14 languages, RTL, trie size, Enter/X, deletion passed");
     return result ? 0 : 1;
 }

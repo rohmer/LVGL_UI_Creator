@@ -6,6 +6,16 @@ LVSerial owns persistence for widgets, logical screens/canvases, typed variables
 
 The authoritative schema is [Proto/lvserial.proto](Proto/lvserial.proto). Checked-in generated C files use nanopb 0.4.9.2. Normal builds require neither protoc nor Python. To regenerate, compile a descriptor with protoc using the schema and `3rdParty/nanopb/generator/proto` include paths, then run `nanopb_generator.py` on that descriptor. The generator needs a matching Python protobuf runtime.
 
+Raster fonts have an explicit `FONT_DATA` property kind and `FontData`
+submessage, with typed metrics, glyphs, Unicode maps and kerning. Bitmap and
+class/kerning bytes are stored directly, without base64 or a property path for
+each glyph metric. The streaming C visitor receives the bounded font submessage
+and can decode it with `lvserial_FontData_fields` without a heap or LVGL. The
+C++ reader reconstructs the existing portable font model, which the runtime
+loads once and shares among widgets by project font ID. Legacy generic font
+records remain readable; passing `omitDefaults=false` keeps the legacy wire
+representation. Neither path links desktop font converters into firmware.
+
 The current Protobuf record format version is 2; version 1 files remain readable. Entity kind tags distinguish widgets, screens, variables, projects, styles, fonts, and assets. Property paths use JSON Pointer escaping, with container tokens emitted before their children. Limits are 511 bytes per property path, 63 bytes per type identifier, and 64 nested containers. Strings and image data are length-delimited rather than placed in fixed-size arrays.
 
 Protobuf exports omit known default property names and values. Each affected object carries a small dictionary ID and presence mask instead, covering common widget, base, flag, scroll, style, font and variable defaults. This preserves the distinction between an absent property and an explicit default override. Empty arrays/objects, array positions, unknown properties, and nondefault false/zero/empty values retain their meaning. JSON saves are unchanged. `Protobuf::Encode(..., false)` writes the full version 1 representation when required for an older consumer or size comparison.
@@ -32,8 +42,10 @@ Project `images` is an array of `{id,name,image}` entries containing embedded Im
 
 Project `tries` is an array of `{id,name,format:"ngtr",data,indexData}` entries.
 Authoring JSON uses base64; Protobuf writes model/index data as native binary
-properties. Models use compact NGTR v3 and deterministic NGIX v1. Import validates
-the complete structure, generates a missing index and deduplicates identical
+properties. Models may use fixed NGTR v2 with an empty index, compact NGTR v3
+with NGIX v1, or compressed radix NGTR v4 with NGIX v2. V4 supports exact 64-bit
+counts and optional trained conditional probabilities. Import validates
+the complete structure and scored pruning bounds, generates a missing index and deduplicates identical
 models. Names are display filenames; no external model file is required after
 import. Advanced Keyboard stores a `trieId` reference. The reserved
 `builtin-en-us` ID selects the bundled small English model without a catalog blob;

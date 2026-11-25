@@ -94,15 +94,28 @@ if(LVGL_PB_PROFILE_COMPONENT_DIR)
     install(DIRECTORY "${LVGL_PB_PROFILE_COMPONENT_DIR}/projects/" DESTINATION "${CMAKE_INSTALL_DATADIR}/lvgl-protobuf/projects")
     install(DIRECTORY "${LVGL_PB_PROFILE_COMPONENT_DIR}/licenses/" DESTINATION "${CMAKE_INSTALL_DATADIR}/lvgl-protobuf/licenses")
 else()
-    foreach(pair "LICENSE;LVGL_UI_Creator_LICENSE" "3rdParty/LVGL/lvgl/LICENCE.txt;LVGL_LICENSE"
-            "LVSerial/Widgets/AdvancedKeyboard/KeyboardFont.LICENSE.txt;KeyboardFont_LICENSE"
-            "LVSerial/Widgets/AdvancedKeyboard/models/EnglishWordList.LICENSE.md;EnglishWordList_LICENSE.md"
-            "LVSerial/Widgets/AdvancedKeyboard/PROVENANCE.md;Keyboard_PROVENANCE.md")
+    foreach(pair "LICENSE;LVGL_UI_Creator_LICENSE" "3rdParty/LVGL/lvgl/LICENCE.txt;LVGL_LICENSE")
         list(GET pair 0 source)
         list(GET pair 1 destination)
         if(EXISTS "${pb_root}/${source}")
             install(FILES "${pb_root}/${source}" DESTINATION "${CMAKE_INSTALL_DATADIR}/lvgl-protobuf/licenses" RENAME "${destination}")
         endif()
+    endforeach()
+    foreach(pair "KeyboardFont.LICENSE.txt;KeyboardFont_LICENSE"
+            "KeyboardHindiFont.LICENSE.txt;KeyboardHindiFont_LICENSE.txt"
+            "KeyboardBengaliFont.LICENSE.txt;KeyboardBengaliFont_LICENSE.txt"
+            "KeyboardCyrillicFont.LICENSE.txt;KeyboardCyrillicFont_LICENSE.txt"
+            "KeyboardGreekFont.LICENSE.txt;KeyboardGreekFont_LICENSE.txt"
+            "KeyboardUrduFont.LICENSE.txt;KeyboardUrduFont_LICENSE.txt"
+            "models/EnglishWordList.LICENSE.md;EnglishWordList_LICENSE.md"
+            "PROVENANCE.md;Keyboard_PROVENANCE.md")
+        list(GET pair 0 source)
+        list(GET pair 1 destination)
+        install(FILES "${ADVKBD_SOURCE_ROOT}/src/${source}" DESTINATION "${CMAKE_INSTALL_DATADIR}/lvgl-protobuf/licenses" RENAME "${destination}")
+    endforeach()
+    foreach(notice LICENSE NOTICE.md)
+        install(FILES "${ADVKBD_SOURCE_ROOT}/${notice}" DESTINATION "${CMAKE_INSTALL_DATADIR}/lvgl-protobuf/licenses"
+            RENAME "AdvancedKeyboard_${notice}")
     endforeach()
 endif()
 if(EXISTS "${pb_root}/3rdParty/SDL3/LICENSE.txt")
@@ -110,7 +123,7 @@ if(EXISTS "${pb_root}/3rdParty/SDL3/LICENSE.txt")
 endif()
 
 if(BUILD_TESTING)
-    if(NOT LVGL_PB_TEST_KEYBOARD_PROJECT AND EXISTS "${pb_root}/LVSerial/Widgets/AdvancedKeyboard/models/enUS16.ngtr")
+    if(NOT LVGL_PB_TEST_KEYBOARD_PROJECT AND EXISTS "${ADVKBD_SOURCE_ROOT}/src/models/enUS16.ngtr")
         find_package(Python3 COMPONENTS Interpreter QUIET)
         if(Python3_Interpreter_FOUND)
             set(LVGL_PB_TEST_KEYBOARD_PROJECT "${CMAKE_CURRENT_BINARY_DIR}/keyboard-trie.pb")

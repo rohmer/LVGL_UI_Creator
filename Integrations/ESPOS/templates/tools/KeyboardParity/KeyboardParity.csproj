@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AdvancedKeyboardRoot Condition="'$(AdvancedKeyboardRoot)' == '' and '$(ADVANCED_KEYBOARD_ROOT)' != ''">$(ADVANCED_KEYBOARD_ROOT)</AdvancedKeyboardRoot>
+    <AdvancedKeyboardRoot Condition="'$(AdvancedKeyboardRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../third_party/AdvancedKeyboard'))</AdvancedKeyboardRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(AdvancedKeyboardRoot)/tools/KeyboardParity/Program.cs" Link="Program.cs" />
+    <ProjectReference Include="$(AdvancedKeyboardRoot)/tools/GBUTest/GBUTest.csproj" />
+  </ItemGroup>
+  <Target Name="ValidatePinnedKeyboardParity" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(AdvancedKeyboardRoot)/tools/KeyboardParity/Program.cs')"
+           Text="Initialize the pinned AdvancedKeyboard dependency with python tools/setup_advanced_keyboard.py --project-root . --kind espos --init. For an explicit development checkout set AdvancedKeyboardRoot." />
+  </Target>
+</Project>

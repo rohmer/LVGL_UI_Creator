@@ -5,11 +5,12 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif()
 
 get_filename_component(prediction_root "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
-set(prediction_sources "${prediction_root}/LVSerial/Widgets/AdvancedKeyboard")
+include("${prediction_root}/cmake/AdvancedKeyboardDependency.cmake")
+set(prediction_sources "${ADVKBD_SOURCE_ROOT}/src")
 foreach(platform ESP32 ArduinoESP32)
     set(test_target "UICreator${platform}PredictionTests")
     add_executable(${test_target}
-        Main.cpp
+        "${ADVKBD_SOURCE_ROOT}/tests/native/esp32/Main.cpp"
         "${prediction_sources}/Prediction.cpp"
         "${prediction_sources}/PredictionStorage.cpp"
         "${prediction_sources}/PredictionModel.cpp"
@@ -25,8 +26,8 @@ foreach(platform ESP32 ArduinoESP32)
         target_compile_definitions(${test_target} PRIVATE ARDUINO_ARCH_ESP32=1)
     endif()
     target_include_directories(${test_target} PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/stubs"
-        "${prediction_sources}/include")
+        "${ADVKBD_SOURCE_ROOT}/tests/native/stubs"
+        "${ADVKBD_SOURCE_ROOT}/include" "${prediction_sources}")
     if(MSVC)
         target_compile_options(${test_target} PRIVATE /utf-8)
     endif()

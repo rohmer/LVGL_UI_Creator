@@ -11,6 +11,8 @@
 #include "PropertyWindows/AdvancedProperties.h"
 #include "PropertyWindows/CustomProperties.h"
 #include "PropertyWindows/ImageProperties.h"
+#include "../Fonts/BuiltinFonts.h"
+#include "../Fonts/FontConverterWindow.h"
 
 lv_theme_t* PropertyWindow::activeTheme;
 std::vector<lv_theme_t*> PropertyWindow::themes;
@@ -183,11 +185,25 @@ void PropertyWindow::AddFontSelector()
     std::string options="Inherit / theme";uint32_t selected=0,index=1;
     const auto id=FontLibrary::Selection(GetSelectedObject());
     for(const auto& font:fonts.ToJSON()){options+='\n';options+=font.at("name").get<std::string>();if(font.at("id")==id)selected=index;++index;}
-    if(id.empty()&&lv_obj_get_style_text_font(GetSelectedObject(),LV_PART_MAIN)!=(LV_FONT_DEFAULT)){options+="\nCustom / inherited font";selected=index;}
+    if(id.empty()&&lv_obj_get_style_text_font(GetSelectedObject(),LV_PART_MAIN)!=(LV_FONT_DEFAULT)){options+="\nCustom / inherited font";selected=index++;}
+    const auto builtinStart=index;
+    for(const auto& builtin:BuiltinFonts::Catalog()){options+="\nBuilt-in: ";options+=builtin.name;options+="...";}
     lv_dropdown_set_options(dropdown,options.c_str());lv_dropdown_set_selected(dropdown,selected);
     lv_obj_move_to_index(row,0);
     lv_obj_add_event_cb(dropdown,[](lv_event_t* e){auto* pw=static_cast<PropertyWindow*>(lv_event_get_user_data(e));FocusEditorControl(pw->GetKBGroup(),lv_event_get_target_obj(e));},LV_EVENT_CLICKED,this);
-    lv_obj_add_event_cb(dropdown,[](lv_event_t* e){auto* pw=static_cast<PropertyWindow*>(lv_event_get_user_data(e));auto index=lv_dropdown_get_selected(lv_event_get_target_obj(e));if(index>pw->Fonts().ToJSON().size())return;pw->Fonts().Apply(pw->GetSelectedObject(),index?pw->Fonts().ToJSON()[index-1].at("id").get<std::string>():std::string{});},LV_EVENT_VALUE_CHANGED,this);
+    struct FontChoices {PropertyWindow* properties;uint32_t builtinStart,selected;};
+    lv_obj_add_event_cb(dropdown,[](lv_event_t* e){
+        auto* choices=static_cast<FontChoices*>(lv_event_get_user_data(e));
+        if(lv_event_get_code(e)==LV_EVENT_DELETE){delete choices;return;}
+        if(lv_event_get_code(e)!=LV_EVENT_VALUE_CHANGED)return;
+        auto* pw=choices->properties;auto* dropdown=lv_event_get_target_obj(e);const auto index=lv_dropdown_get_selected(dropdown);
+        if(index>=choices->builtinStart){
+            lv_dropdown_set_selected(dropdown,choices->selected);const auto& catalog=BuiltinFonts::Catalog();const auto builtin=index-choices->builtinStart;
+            if(builtin<catalog.size())FontConverterWindow::OpenBuiltin(pw,catalog[builtin].id);
+        }else if(index<=pw->Fonts().ToJSON().size()){
+            choices->selected=index;pw->Fonts().Apply(pw->GetSelectedObject(),index?pw->Fonts().ToJSON()[index-1].at("id").get<std::string>():std::string{});
+        }
+    },LV_EVENT_ALL,new FontChoices{this,builtinStart,selected});
 }
 
 void PropertyWindow::createObjProps()

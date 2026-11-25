@@ -8,21 +8,124 @@
 #include <cstring>
 #if LVGL_VERSION_MAJOR >= 9
 #include <src/core/lv_obj_class_private.h>
+#include <src/core/lv_obj_private.h>
+#include <src/core/lv_obj_style_private.h>
+#include <Serialization/NativeStyles.h>
+#include "../Fonts/FontMemory.h"
 #endif
 
 namespace {
 #if LVGL_VERSION_MAJOR >= 9
-size_t WidgetInstanceBytes(const lv_obj_t* object)
+bool TextWidget(lv_obj_t* object)
+{
+    return lv_obj_has_class(object,&lv_label_class)||lv_obj_has_class(object,&lv_roller_class)||
+        lv_obj_has_class(object,&lv_dropdown_class)||lv_obj_has_class(object,&lv_buttonmatrix_class)||
+        lv_obj_has_class(object,&lv_table_class)||lv_obj_has_class(object,&lv_scale_class);
+}
+bool FontStyle(const lv_obj_style_t& style)
+{
+    return !style.is_disabled&&!style.is_trans&&!Serialization::NativeStyles::IsTransientStyle(style.style);
+}
+const lv_font_t* StyleFont(lv_obj_t* object,uint32_t part,uint32_t state)
+{
+    const lv_font_t* found=nullptr;int weight=-1;
+    // Use LVGL's style ordering and state specificity, without temporarily
+    // changing an object's state or disturbing its style cache/animations.
+    for(unsigned i=0;i<object->style_cnt;++i) {
+        const auto& style=object->styles[i];
+        const auto selectedPart=style.selector&0xff0000u,selectedState=style.selector&0xffffu;
+        if(!FontStyle(style)||selectedPart!=part||(selectedState&~state)||int(selectedState)<=weight)continue;
+        lv_style_value_t value{};
+        if(lv_style_get_prop(style.style,LV_STYLE_TEXT_FONT,&value)!=LV_STYLE_RES_FOUND||!value.ptr)continue;
+        found=static_cast<const lv_font_t*>(value.ptr);weight=selectedState;
+        if(selectedState==state)return found;
+    }
+    return found;
+}
+void AuthoredFonts(lv_obj_t* object,ScreenFontMemory& fonts)
+{
+    for(unsigned i=0;i<object->style_cnt;++i) {
+        const auto& style=object->styles[i];
+        if(!FontStyle(style)||style.is_theme)continue;
+        lv_style_value_t font{};
+        if(lv_style_get_prop(style.style,LV_STYLE_TEXT_FONT,&font)==LV_STYLE_RES_FOUND&&
+            font.ptr==StyleFont(object,style.selector&0xff0000u,style.selector&0xffffu))
+            fonts.Include(static_cast<const lv_font_t*>(font.ptr));
+    }
+}
+void TextFonts(lv_obj_t* object,lv_obj_t* root,ScreenFontMemory& fonts,uint32_t part)
+{
+    std::set<uint32_t> states{0u,static_cast<uint32_t>(lv_obj_get_state(object))};
+    for(unsigned i=0;i<object->style_cnt;++i) {
+        const auto& style=object->styles[i];lv_style_value_t value{};
+        if(FontStyle(style)&&(style.selector&0xff0000u)==part&&lv_style_get_prop(style.style,LV_STYLE_TEXT_FONT,&value)==LV_STYLE_RES_FOUND)
+            states.insert(style.selector&0xffffu);
+    }
+    bool inherit=false;
+    for(const auto state:states) {if(const auto* font=StyleFont(object,part,state))fonts.Include(font);else inherit=true;}
+    if(inherit) {
+        if(part!=LV_PART_MAIN)TextFonts(object,root,fonts,LV_PART_MAIN);
+        else if(object!=root&&lv_obj_get_parent(object))TextFonts(lv_obj_get_parent(object),root,fonts,LV_PART_MAIN);
+        else fonts.Include(LV_FONT_DEFAULT);
+    }
+}
+size_t WidgetInstanceBytes(lv_obj_t* object,lv_obj_t* root,ScreenFontMemory& fonts)
 {
     // LVGL allocates the first nonzero instance_size in the class chain.
     // That size includes the base object; inherited classes are not additive.
     const auto* widgetClass = lv_obj_get_class(object);
     while (widgetClass && !widgetClass->instance_size) widgetClass = widgetClass->base_class;
     size_t bytes = widgetClass ? widgetClass->instance_size : 0;
+    // Authored fonts remain resources even when assigned to a currently hidden
+    // object or a part/state that is not active in the preview.
+    AuthoredFonts(object,fonts);
+    if(TextWidget(object)) {
+        if(lv_obj_has_class(object,&lv_label_class)||lv_obj_has_class(object,&lv_roller_class)||lv_obj_has_class(object,&lv_dropdown_class))
+            TextFonts(object,root,fonts,LV_PART_MAIN);
+        if(lv_obj_has_class(object,&lv_roller_class))TextFonts(object,root,fonts,LV_PART_SELECTED);
+        if(lv_obj_has_class(object,&lv_table_class)||lv_obj_has_class(object,&lv_buttonmatrix_class)||lv_obj_has_class(object,&lv_scale_class))
+            TextFonts(object,root,fonts,LV_PART_ITEMS);
+        if(lv_obj_has_class(object,&lv_scale_class))TextFonts(object,root,fonts,LV_PART_INDICATOR);
+    }
     const auto count = lv_obj_get_child_count(object);
     for (uint32_t index = 0; index < count; ++index)
-        bytes += WidgetInstanceBytes(lv_obj_get_child(object, index));
+        bytes += WidgetInstanceBytes(lv_obj_get_child(object, index),root,fonts);
     return bytes;
+}
+struct MemoryHint {lv_obj_t *label=nullptr,*popup=nullptr;};
+void HideMemoryHint(MemoryHint* hint)
+{
+    if(!hint->popup)return;
+    auto* popup=hint->popup;hint->popup=nullptr;lv_obj_delete(popup);
+}
+void MemoryHintEvent(lv_event_t* event)
+{
+    auto* hint=static_cast<MemoryHint*>(lv_event_get_user_data(event));
+    switch(lv_event_get_code(event)) {
+    case LV_EVENT_DELETE:HideMemoryHint(hint);delete hint;break;
+    case LV_EVENT_HOVER_LEAVE:
+    case LV_EVENT_PRESSED:HideMemoryHint(hint);break;
+    case LV_EVENT_HOVER_OVER: {
+        if(hint->popup)break;
+        auto* display=lv_obj_get_display(hint->label);
+        hint->popup=lv_obj_create(lv_display_get_layer_sys(display));
+        // The system layer can be cleared independently of the editor window.
+        lv_obj_add_event_cb(hint->popup,[](lv_event_t* e){static_cast<MemoryHint*>(lv_event_get_user_data(e))->popup=nullptr;},LV_EVENT_DELETE,hint);
+        lv_obj_set_width(hint->popup,(std::min)(440,lv_display_get_horizontal_resolution(display)-12));
+        lv_obj_set_height(hint->popup,LV_SIZE_CONTENT);lv_obj_set_style_pad_all(hint->popup,8,0);
+        lv_obj_set_style_bg_color(hint->popup,lv_color_hex(EditorStyle::Input),0);
+        lv_obj_set_style_text_color(hint->popup,lv_color_hex(EditorStyle::Text),0);
+        lv_obj_set_clickable(hint->popup,false);lv_obj_set_scrollable(hint->popup,false);
+        auto* text=lv_label_create(hint->popup);lv_obj_set_width(text,LV_PCT(100));lv_label_set_long_mode(text,LV_LABEL_LONG_MODE_WRAP);
+        lv_label_set_text(text,"LVGL widget instances plus unique used bitmap-font structures, glyphs, bitmap, Unicode and kerning tables. Shared fonts count once per screen. Includes fallback fonts; excludes source TTFs, allocator overhead, text/style/image buffers, opaque external font data and temporary rendering memory. Sizes use the current native LVGL build.");
+        lv_obj_update_layout(hint->popup);lv_area_t anchor{};lv_obj_get_coords(hint->label,&anchor);
+        const int width=lv_obj_get_width(hint->popup),height=lv_obj_get_height(hint->popup);
+        const int x=std::clamp(anchor.x1,4,(std::max)(4,lv_display_get_horizontal_resolution(display)-width-4));
+        int y=anchor.y2+6;if(y+height>lv_display_get_vertical_resolution(display)-4)y=anchor.y1-height-6;
+        lv_obj_set_pos(hint->popup,x,(std::max)(4,y));break;
+    }
+    default:break;
+    }
 }
 #endif
 bool ReadDimension(lv_obj_t* field, int& value)
@@ -38,8 +141,12 @@ SimWindow::SimWindow(int iWidth, int iHeight) :
     width(iWidth),
     height(iHeight)
 {
+#if LVGL_VERSION_MAJOR >= 9
+    fontMemory=std::make_unique<ScreenFontMemory>();
+#endif
     createObjects();
 }
+SimWindow::~SimWindow() = default;
 
 int SimWindow::updateFrame()
 {
@@ -64,7 +171,9 @@ void SimWindow::RefreshMemoryUsage()
 {
 #if LVGL_VERSION_MAJOR >= 9
     if (!memoryLabel) return;
-    const auto bytes = WidgetInstanceBytes(drawSurface);
+    fontMemory->Begin();
+    const auto widgets=WidgetInstanceBytes(drawSurface,drawSurface,*fontMemory);
+    const auto bytes=widgets+fontMemory->End();
     if (bytes == memoryBytes) return;
     memoryBytes = bytes;
     lv_label_set_text_fmt(memoryLabel, "Screen Memory: %zu bytes", bytes);
@@ -136,6 +245,9 @@ void SimWindow::createObjects()
     lv_label_set_long_mode(memoryLabel, LV_LABEL_LONG_MODE_SCROLL_CIRCULAR);
     lv_obj_set_style_text_color(memoryLabel, lv_color_hex(EditorStyle::Muted), LV_PART_MAIN);
     lv_obj_align(memoryLabel, LV_ALIGN_BOTTOM_LEFT, 0, 0);
+    lv_obj_set_clickable(memoryLabel,true);lv_obj_set_click_focusable(memoryLabel,false);
+    auto* hint=new MemoryHint{memoryLabel};
+    lv_obj_add_event_cb(memoryLabel,MemoryHintEvent,LV_EVENT_ALL,hint);
 #endif
     drawSurface = lv_cont_create(EditorWindow::Content(window), nullptr);
     lv_obj_set_style(drawSurface, &lv_style_transp);

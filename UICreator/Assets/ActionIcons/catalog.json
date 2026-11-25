@@ -458,7 +458,7 @@
     {
       "id": 44,
       "key": "action.font_converter",
-      "name": "Convert font",
+      "name": "Add font",
       "aliases": [
         "font-converter"
       ],

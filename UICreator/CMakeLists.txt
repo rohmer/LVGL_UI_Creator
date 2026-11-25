@@ -1,12 +1,11 @@
 file(GLOB_RECURSE creator_sources CONFIGURE_DEPENDS "*.cpp")
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/AdvancedKeyboardDependency.cmake")
+set(advanced_keyboard_trainer "${ADVKBD_SOURCE_ROOT}/tools/NativeTrieGenerator/source")
 list(FILTER creator_sources EXCLUDE REGEX "/Converters/|/Fonts/Native[^/]*\\.cpp$|/Images/Native[^/]*\\.cpp$|/Utils/ExternalTool\\.cpp$")
 list(REMOVE_ITEM creator_sources "${CMAKE_CURRENT_SOURCE_DIR}/Fonts/FontConverter.cpp")
 list(REMOVE_ITEM creator_sources "${CMAKE_CURRENT_SOURCE_DIR}/Images/ImageConverter.cpp")
 list(REMOVE_ITEM creator_sources "${CMAKE_CURRENT_SOURCE_DIR}/ProjectCreator/ProjectCreator.cpp")
-file(GLOB_RECURSE model_generator_sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/*.cpp")
-list(REMOVE_ITEM model_generator_sources "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/LanguageModelWindow.cpp")
-list(REMOVE_ITEM model_generator_sources "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/ModelPlayground.cpp")
-list(REMOVE_ITEM creator_sources ${model_generator_sources})
+list(FILTER creator_sources EXCLUDE REGEX "/LanguageModels/(Generator|TrainingModel|ModelGen)\\.cpp$")
 include("${PROJECT_SOURCE_DIR}/Packaging/WindowsHelpers.cmake")
 add_subdirectory(Fonts)
 add_subdirectory(Images)
@@ -31,19 +30,23 @@ if(BUILD_TESTING)
 endif()
 add_subdirectory(LanguageModels)
 add_custom_target(UICreatorLanguageModelAssets
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/wordlists"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${advanced_keyboard_trainer}/wordlists"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/wordlists"
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/examples"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${advanced_keyboard_trainer}/examples"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/examples"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/README.md"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${advanced_keyboard_trainer}/README.md"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/README.md"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/PROVENANCE.md"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${advanced_keyboard_trainer}/PROVENANCE.md"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/PROVENANCE.md"
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/models"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${advanced_keyboard_trainer}/TrainingModel.md"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/TrainingModel.md"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ADVKBD_SOURCE_ROOT}/src/RadixFormat.md"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/RadixFormat.md"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${ADVKBD_SOURCE_ROOT}/models/bundled/models"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/bundled"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/catalog.json"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ADVKBD_SOURCE_ROOT}/models/bundled/catalog.json"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/bundled/catalog.json"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/README.md"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${ADVKBD_SOURCE_ROOT}/models/bundled/README.md"
         "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models/bundled/README.md"
     VERBATIM)
 if(TARGET UICreatorProjectCreationTests)
@@ -95,12 +98,32 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         -s "${PROJECT_SOURCE_DIR}/Tests/UnitTests/KeyboardSync" -v)
     add_test(NAME UICreatorKeyboardSyncSource COMMAND "${Python3_EXECUTABLE}"
         "${PROJECT_SOURCE_DIR}/Integrations/ESPOS/sync_keyboard.py" --check-source)
+    add_test(NAME UICreatorAdvancedKeyboardDependency COMMAND "${Python3_EXECUTABLE}"
+        "${PROJECT_SOURCE_DIR}/Integrations/AdvancedKeyboard/dependency.py" --project-root "${PROJECT_SOURCE_DIR}" --check)
+    add_test(NAME UICreatorAdvancedKeyboardDependencyUnit COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${PROJECT_SOURCE_DIR}/Integrations/AdvancedKeyboard/tests" -p test_dependency.py -v)
+    add_test(NAME UICreatorESPOSDependencyUnit COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${PROJECT_SOURCE_DIR}/Integrations/ESPOS/tests" -p test_dependency_helper.py -v)
     add_test(NAME UICreatorESPOSBundledGenerator COMMAND "${Python3_EXECUTABLE}" -m unittest discover
-        -s "${PROJECT_SOURCE_DIR}/Integrations/ESPOS/tests" -p test_bundled_models.py -v)
+        -s "${ADVKBD_SOURCE_ROOT}/tests/python" -p test_bundled_models.py -v)
+    add_test(NAME UICreatorBundledModelRebuild COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${ADVKBD_SOURCE_ROOT}/tools/RadixModel" -p test_rebuild_bundled_models.py -v)
+    add_test(NAME UICreatorLanguageBenchmarkTools COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${ADVKBD_SOURCE_ROOT}/tools/benchmarks" -v)
+    add_test(NAME UICreatorKeyboardPortableTools COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+        -s "${ADVKBD_SOURCE_ROOT}/tests/python" -p test_legacy_tools.py -v)
+    set_tests_properties(UICreatorAdvancedKeyboardDependency PROPERTIES TIMEOUT 90 LABELS "unit;advanced-keyboard;dependency")
+    set_tests_properties(UICreatorAdvancedKeyboardDependencyUnit UICreatorESPOSDependencyUnit PROPERTIES TIMEOUT 90 LABELS "unit;advanced-keyboard;dependency")
     set_tests_properties(UICreatorKeyboardSyncUnit UICreatorKeyboardSyncSource PROPERTIES
         TIMEOUT 90 LABELS "unit;advanced-keyboard;sync")
     set_tests_properties(UICreatorESPOSBundledGenerator PROPERTIES
         TIMEOUT 90 LABELS "unit;advanced-keyboard;sync;language-models")
+    set_tests_properties(UICreatorBundledModelRebuild PROPERTIES
+        TIMEOUT 90 LABELS "unit;advanced-keyboard;language-models")
+    set_tests_properties(UICreatorLanguageBenchmarkTools PROPERTIES
+        TIMEOUT 90 LABELS "unit;language-models;benchmark")
+    set_tests_properties(UICreatorKeyboardPortableTools PROPERTIES
+        TIMEOUT 90 LABELS "unit;advanced-keyboard;tools;legacy;partition")
     add_executable(UICreatorBundledTrieTests
         "${PROJECT_SOURCE_DIR}/Tests/Integration/BundledTries.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/KeyboardModels/BundledTries.cpp")
@@ -112,16 +135,40 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     add_test(NAME UICreatorBundledTries COMMAND UICreatorBundledTrieTests
         "${PROJECT_BINARY_DIR}/bundled-trie-tests")
     set_tests_properties(UICreatorBundledTries PROPERTIES TIMEOUT 120 LABELS "functional;language-models;prediction;advanced-keyboard")
-    add_executable(UICreatorLanguageModelTests "${PROJECT_SOURCE_DIR}/Tests/Integration/LanguageModels/Generator.cpp")
+    add_executable(UICreatorLanguageModelTests "${ADVKBD_SOURCE_ROOT}/tests/native/language-models/Generator.cpp")
+    target_include_directories(UICreatorLanguageModelTests PRIVATE "${ADVKBD_SOURCE_ROOT}/tests/third_party")
     target_link_libraries(UICreatorLanguageModelTests PRIVATE UICreatorLanguageModels LVSerial)
     if(MSVC)
         target_compile_options(UICreatorLanguageModelTests PRIVATE /utf-8)
     endif()
     add_test(NAME UICreatorLanguageModels COMMAND UICreatorLanguageModelTests
-        "${PROJECT_SOURCE_DIR}/Tests/Integration/LanguageModels/fixtures"
+        "${ADVKBD_SOURCE_ROOT}/tests/fixtures/language-models"
         "${PROJECT_BINARY_DIR}/language-model-tests"
-        "${CMAKE_CURRENT_SOURCE_DIR}/LanguageModels/wordlists")
+        "${advanced_keyboard_trainer}/wordlists")
     set_tests_properties(UICreatorLanguageModels PROPERTIES TIMEOUT 90 LABELS "functional;language-models;prediction")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Tests/Integration/LanguageModels/Training" "${PROJECT_BINARY_DIR}/language-model-training-tests")
+    add_subdirectory("${PROJECT_SOURCE_DIR}/Tests/Integration/RadixPrediction" "${PROJECT_BINARY_DIR}/radix-prediction-tests")
+    add_executable(UICreatorOptimizedLanguageModelTests "${ADVKBD_SOURCE_ROOT}/tests/native/language-models/Optimized.cpp")
+    target_include_directories(UICreatorOptimizedLanguageModelTests PRIVATE "${ADVKBD_SOURCE_ROOT}/tests/third_party")
+    target_link_libraries(UICreatorOptimizedLanguageModelTests PRIVATE UICreatorLanguageModels LVSerial)
+    target_include_directories(UICreatorOptimizedLanguageModelTests PRIVATE "${ADVKBD_SOURCE_ROOT}/src")
+    add_test(NAME UICreatorOptimizedLanguageModels COMMAND UICreatorOptimizedLanguageModelTests "${PROJECT_BINARY_DIR}/optimized-language-model-tests")
+    set_tests_properties(UICreatorOptimizedLanguageModels PROPERTIES TIMEOUT 120 LABELS "functional;language-models;prediction;radix")
+    add_executable(UICreatorRadixAssetTests "${PROJECT_SOURCE_DIR}/Tests/Integration/RadixAssets.cpp")
+    target_include_directories(UICreatorRadixAssetTests PRIVATE "${ADVKBD_SOURCE_ROOT}/tests/native/radix")
+    target_link_libraries(UICreatorRadixAssetTests PRIVATE UICreatorCodeGeneration LVSerial LVGLRuntime::Runtime)
+    add_test(NAME UICreatorRadixAssets COMMAND UICreatorRadixAssetTests "${PROJECT_BINARY_DIR}/radix-asset-tests")
+    set_tests_properties(UICreatorRadixAssets PROPERTIES TIMEOUT 90 LABELS "functional;language-models;prediction;protobuf;xml;radix" FIXTURES_SETUP RadixAssets)
+    add_test(NAME UICreatorRadixGenerated COMMAND "${CMAKE_COMMAND}"
+        "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/radix-generated-tests"
+        "-DEXPORTED_DIR=${PROJECT_BINARY_DIR}/radix-asset-tests"
+        "-DLVGL_BUILD_DIR=${PROJECT_BINARY_DIR}/version-matrix/9.6" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
+        -P "${PROJECT_SOURCE_DIR}/Tests/Integration/RadixPrediction/VerifyGenerated.cmake")
+    set_tests_properties(UICreatorRadixGenerated PROPERTIES TIMEOUT 240 LABELS "functional;language-models;prediction;export;radix" FIXTURES_REQUIRED RadixAssets)
+    if(MSVC)
+        target_compile_options(UICreatorOptimizedLanguageModelTests PRIVATE /utf-8)
+        target_compile_options(UICreatorRadixAssetTests PRIVATE /utf-8)
+    endif()
     add_executable(UICreatorKeyboardSuggestionTextTests "${PROJECT_SOURCE_DIR}/Tests/Integration/KeyboardSuggestionText.cpp")
     target_link_libraries(UICreatorKeyboardSuggestionTextTests PRIVATE UICreatorLanguageModels LVSerial)
     if(MSVC)
@@ -144,6 +191,7 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/Performance.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/TftSettings.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/ScreenMemory.cpp"
+        "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/TextInputModes.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/EditorInputMatrix.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/EditorInputAssets.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/EditorInputProperties.cpp"
@@ -182,6 +230,8 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     add_test(NAME UICreatorTftSettings COMMAND UICreatorEditorTests --tft-settings)
     add_test(NAME UICreatorScreenMemory COMMAND UICreatorEditorTests --screen-memory)
     set_tests_properties(UICreatorScreenMemory PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 30 LABELS "functional;editor;memory")
+    add_test(NAME UICreatorTextInputModes COMMAND UICreatorEditorTests --text-input-modes)
+    set_tests_properties(UICreatorTextInputModes PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 45 LABELS "functional;editor;advanced-keyboard;input-modes")
     add_test(NAME UICreatorEditorInputMatrix COMMAND UICreatorEditorTests --editor-input-matrix)
     add_test(NAME UICreatorObjectIcons COMMAND UICreatorEditorTests --object-icons "${PROJECT_BINARY_DIR}/object-icon-tests")
     add_test(NAME UICreatorHierarchyIcons COMMAND UICreatorEditorTests --hierarchy-icons "${PROJECT_BINARY_DIR}/hierarchy-icon-tests")
@@ -229,6 +279,10 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     add_test(NAME UICreatorUndoRedo COMMAND UICreatorEditorTests --undo-redo)
     set_tests_properties(UICreatorUndoRedo PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60)
     add_test(NAME UICreatorEditorWorkflow COMMAND UICreatorEditorTests)
+    add_test(NAME UICreatorFontAssetsEditor COMMAND UICreatorEditorTests --font-assets)
+    set_tests_properties(UICreatorFontAssetsEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60 LABELS "functional;editor;fonts;assets")
+    add_test(NAME UICreatorBuiltinFontsEditor COMMAND UICreatorEditorTests --builtin-fonts)
+    set_tests_properties(UICreatorBuiltinFontsEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60 LABELS "functional;editor;fonts;assets")
     add_test(NAME UICreatorMicroPythonEditor COMMAND UICreatorEditorTests --micropython-export "${PROJECT_BINARY_DIR}/micropython-editor-export")
     set_tests_properties(UICreatorMicroPythonEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60 LABELS "functional;editor;micropython;export")
     if(LVSERIAL_USE_XML)
@@ -329,7 +383,7 @@ if(BUILD_TESTING AND TARGET LVGLRuntime::Runtime)
     set(advanced_keyboard_fixture "${CMAKE_CURRENT_BINARY_DIR}/advanced-keyboard")
     add_test(NAME UICreatorAdvancedKeyboard COMMAND UICreatorAdvancedKeyboardTests "${advanced_keyboard_fixture}")
     set_tests_properties(UICreatorAdvancedKeyboard PROPERTIES TIMEOUT 60 LABELS "functional;advanced-keyboard")
-    add_executable(UICreatorKeyboardPredictionTests "${PROJECT_SOURCE_DIR}/Tests/Integration/KeyboardPrediction.cpp")
+    add_executable(UICreatorKeyboardPredictionTests "${ADVKBD_SOURCE_ROOT}/tests/native/prediction/KeyboardPrediction.cpp")
     target_link_libraries(UICreatorKeyboardPredictionTests PRIVATE LVSerial)
     add_executable(UICreatorTrieAssetTests "${PROJECT_SOURCE_DIR}/Tests/Integration/TrieAssets.cpp")
     target_link_libraries(UICreatorTrieAssetTests PRIVATE LVSerial LVGLRuntime::Runtime)
@@ -443,3 +497,9 @@ if(APPLE)
         endif()
     endforeach()
 endif()
+
+foreach(font_consumer UICreator UICreatorEditorTests UICreatorInspectorTests UICreatorSessionTests)
+    if(TARGET ${font_consumer})
+        add_dependencies(${font_consumer} UICreatorBuiltinFontAssets)
+    endif()
+endforeach()

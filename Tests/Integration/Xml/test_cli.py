@@ -27,6 +27,17 @@ def run(*arguments, success=True):
 
 def value(element):
     text = element.text or ""
+    if element.tag == "font":
+        assert element.attrib == {"format_version": "1"}, "Unsupported raster font version"
+        assert len(element) == 1 and element[0].tag == "object", "Font needs exactly one typed object"
+        font = value(element[0])
+        assert isinstance(font, dict) and isinstance(font.get("dsc"), dict)
+        bitmap = font["dsc"]["bitmap"]
+        assert isinstance(bitmap, bytes), "Typed font bitmap must use a binary value"
+        # The XML wire schema carries raw bitmap bytes; editor font JSON keeps
+        # its established canonical base64 string representation.
+        font["dsc"]["bitmap"] = base64.b64encode(bitmap).decode("ascii")
+        return font
     if element.tag == "object":
         pairs = [(child.attrib["name"], value(child[0])) for child in element]
         assert len(dict(pairs)) == len(pairs), "Duplicate object properties"
@@ -68,6 +79,21 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     fixture = args.fixture / "project.json"
     source = json.loads(fixture.read_text(encoding="utf-8"))
+    # Source/conversion settings are editable project metadata. Device exports
+    # retain the complete raster resource without leaking host output paths.
+    conversion = {"sources": [{"path": "C:/private-fonts/source.ttf"}],
+                  "output": "C:/private-fonts/generated/font.c", "name": "legacy_font_symbol"}
+    source["fonts"][0]["conversion"] = conversion
+    used_fonts = copy.deepcopy(source["fonts"])
+    unused = copy.deepcopy(source["fonts"][0])
+    unused.update(id="unused-font", name="Unused \u03a9 font")
+    unused["font"]["lineHeight"] += 1
+    unused["font"]["dsc"]["bitmap"] = base64.b64encode(
+        base64.b64decode(unused["font"]["dsc"]["bitmap"]) + b"UNUSED_FONT_FLASH_SENTINEL").decode("ascii")
+    source["fonts"].append(unused)
+    source.setdefault("components", []).append({"records": [{"base": {"fontId": "unused-font"}}]})
+    fixture = args.output / "editable-fonts.json"
+    fixture.write_text(json.dumps(source, ensure_ascii=False), encoding="utf-8")
 
     # The new export is one self-contained file, not an XML project directory.
     first = args.output / "from-compiler.xml"
@@ -81,6 +107,12 @@ def main():
     assert decoded["screens"][0]["obj"][0]["oid"] == 1
     assert decoded["screens"][0]["obj"][6]["advancedKeyboard"]["trieId"] == decoded["tries"][0]["id"]
     assert decoded["fonts"] and decoded["images"] and decoded["tries"]
+    assert len(ET.parse(first).findall(".//font")) == len(used_fonts), "Unused font data was included in XML"
+    assert "unused-font" not in first.read_text(encoding="utf-8")
+    for expected, restored in zip(used_fonts, decoded["fonts"]):
+        assert restored["id"] == expected["id"] and restored["name"] == expected["name"]
+        assert restored["font"] == expected["font"], "Font metrics, bitmap, cmap or kerning changed in XML"
+        assert "conversion" not in restored, "Host font conversion settings leaked into a device export"
     assert decoded["variables"][1]["var"]["default"] == source["variables"][1]["var"]["default"]
 
     again = args.output / "regenerated.xml"
@@ -96,10 +128,17 @@ def main():
     from_pb = args.output / "from-protobuf.xml"
     run(args.codegen, "--format=xml", args.fixture / "project.pb", from_pb)
     assert document(from_pb)["variables"][0]["var"]["name"] == "level"
+    typed_pb = args.output / "from-typed-protobuf.xml"
+    run(args.codegen, "--format=xml", protobuf, typed_pb)
+    assert document(typed_pb)["fonts"] == decoded["fonts"], "Protobuf changed embedded font data"
     c_json, c_xml = args.output / "c-from-json", args.output / "c-from-xml"
     run(args.codegen, fixture, c_json)
     run(args.codegen, first, c_xml)
     assert tree(c_json) == tree(c_xml), "XML input changed generated C output"
+    assert json.loads(fixture.read_text(encoding="utf-8"))["fonts"][0]["conversion"] == conversion
+    assert len(json.loads(fixture.read_text(encoding="utf-8"))["fonts"]) == len(source["fonts"])
+    for path in c_json.rglob("*"):
+        if path.is_file(): assert b"C:/private-fonts" not in path.read_bytes(), "Host font paths leaked into generated C"
 
     # Attribute/text normalization must not lose authored whitespace or Unicode.
     unicode_dir = args.output / "Unicode \u00e9 \u4e2d\u6587 source"

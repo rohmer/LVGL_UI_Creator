@@ -527,7 +527,7 @@
   {
     "id": 44,
     "key": "action.font_converter",
-    "name": "Convert font",
+    "name": "Add font",
     "aliases": ["font-converter"],
     "commands": [
       ["polyline",[[5,25],[12,6],[19,25]],"primary",2],

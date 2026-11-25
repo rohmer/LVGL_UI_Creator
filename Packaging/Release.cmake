@@ -65,6 +65,7 @@ if(WIN32)
 endif()
 install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator"
                   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models"
+                  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/fonts"
                   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations" DESTINATION .)
 install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" "${PROJECT_SOURCE_DIR}/Packaging/THIRD_PARTY_NOTICES.md" DESTINATION licenses)
 install(FILES "${PROJECT_SOURCE_DIR}/UICreator/Fonts/NativeFont.LICENSE" DESTINATION licenses/native-converters)
@@ -109,7 +110,9 @@ foreach(dependency SDL3 freetype-2.10.1 spdlog-1.x Breakpad Catch2 libimagequant
     endforeach()
 endforeach()
 install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/LICENCE.txt" DESTINATION licenses/LVGL OPTIONAL)
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard/" DESTINATION licenses/AdvancedKeyboard
+include("${PROJECT_SOURCE_DIR}/cmake/AdvancedKeyboardDependency.cmake")
+install(FILES "${ADVKBD_SOURCE_ROOT}/LICENSE" "${ADVKBD_SOURCE_ROOT}/NOTICE.md" DESTINATION licenses/AdvancedKeyboard)
+install(DIRECTORY "${ADVKBD_SOURCE_ROOT}/src/" DESTINATION licenses/AdvancedKeyboard
     FILES_MATCHING PATTERN "*LICENSE*" PATTERN "README.md" PATTERN "PROVENANCE.md")
 install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/JSON/json.hpp" DESTINATION licenses/JSON)
 install(FILES "${PROJECT_SOURCE_DIR}/ImgLib/stb_image.h" "${PROJECT_SOURCE_DIR}/ImgLib/stb.h" DESTINATION licenses/stb)

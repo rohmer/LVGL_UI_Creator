@@ -8,6 +8,11 @@
 namespace bundle = espos::keyboard::bundled;
 #define CHECK(value) do { if (!(value)) { std::fprintf(stderr, "Bundled models line %d: %s\n", __LINE__, #value); return false; } } while (false)
 namespace {
+std::uint32_t Read32(const void* range, std::size_t offset = 0) {
+    const auto* bytes = static_cast<const unsigned char*>(range) + offset;
+    return std::uint32_t(bytes[0]) | std::uint32_t(bytes[1]) << 8 |
+        std::uint32_t(bytes[2]) << 16 | std::uint32_t(bytes[3]) << 24;
+}
 void Flush(lv_display_t* display, const lv_area_t*, std::uint8_t*) { lv_display_flush_ready(display); }
 void Deleting(lv_event_t* event) {
     auto* result = static_cast<bool*>(lv_event_get_user_data(event));
@@ -15,6 +20,22 @@ void Deleting(lv_event_t* event) {
 }
 bool Exercise() {
     CHECK(bundle::Count() == 5);
+    for (std::size_t number = 0; number < bundle::Count(); ++number) {
+        const auto* model = bundle::At(number);
+        CHECK(model && model->modelBytes >= 16 && model->indexBytes >= 16);
+        CHECK(!std::memcmp(model->trie, "NGTR", 4) && Read32(model->trie, 4) == 4);
+        CHECK(!std::memcmp(model->index, "NGIX", 4) && Read32(model->index, 4) == 2);
+        CHECK(Read32(model->index, 8) == model->modelBytes);
+        CHECK(Read32(model->index, 12) == Read32(model->trie, 8));
+        CHECK(lv_advanced_keyboard_validate_trie(model->trie, model->modelBytes, model->index, model->indexBytes));
+        auto* loaded = lv_advanced_keyboard_predictor_create_borrowed(
+            model->trie, model->modelBytes, model->index, model->indexBytes);
+        CHECK(loaded && lv_advanced_keyboard_predictor_node_count(loaded) == Read32(model->trie, 12));
+        lv_advanced_keyboard_suggestion_t suggestions[3]{};
+        const auto count = lv_advanced_keyboard_predictor_suggest_folded(loaded, nullptr, 0, nullptr, 0, nullptr, 0, suggestions, 3);
+        lv_advanced_keyboard_predictor_destroy(loaded);
+        CHECK(count > 0);
+    }
     CHECK(!bundle::At(5));
     CHECK(!bundle::Find(nullptr, 16));
     CHECK(!bundle::Find("fr-FR", 16));
@@ -33,7 +54,7 @@ bool Exercise() {
     CHECK(lv_advanced_keyboard_set_textarea(root, first));
     CHECK(bundle::Apply(root, "en-US", 16));
     const auto* english = bundle::Find("en-US", 16);
-    CHECK(bundle::Selected(root) == english && english->modelBytes == 16384);
+    CHECK(bundle::Selected(root) == english && english->sizeKiB == 16 && english->modelBytes >= 20);
     auto* predictor = lv_advanced_keyboard_get_predictor(root);
     CHECK(predictor && bundle::Apply(root, "en-US", 16));
     CHECK(lv_advanced_keyboard_get_predictor(root) == predictor);

@@ -38,6 +38,10 @@ bool HasText(lv_obj_t* parent, const char* needle) {
     for (uint32_t i = 0; i < lv_obj_get_child_count(parent); ++i) if (HasText(lv_obj_get_child(parent, i), needle)) return true;
     return false;
 }
+void AppendLabels(lv_obj_t* parent, std::string& text) {
+    if (lv_obj_get_class(parent) == &lv_label_class) { text += lv_label_get_text(parent); text += '\n'; }
+    for (uint32_t i = 0; i < lv_obj_get_child_count(parent); ++i) AppendLabels(lv_obj_get_child(parent, i), text);
+}
 void Write(const fs::path& path, const std::string& value) {
     std::ofstream output(path, std::ios::binary); output.write(value.data(), static_cast<std::streamsize>(value.size()));
     Require(bool(output), "Cannot write model editor test corpus");
@@ -74,15 +78,48 @@ void CheckLanguageModelsEditor(UI& editor, SdlSimulator& simulator) {
     editor.MenuAction("language-model-generator");
     auto* window = LanguageModelWindow::ActiveWindow(); Require(window, "Generator menu action did not open the LVGL window");
     Require(lv_dropdown_get_option_count(Field(window, "Corpus language")) == 12, "Corpus language choices differ from the C# generator");
+    Require(lv_dropdown_get_option_count(Field(window, "Model format")) == 3 &&
+        lv_dropdown_get_selected(Field(window, "Model format")) == 0 &&
+        lv_dropdown_get_selected(Field(window, "Prediction scoring")) == 1,
+        "New generator did not default to compressed radix with counts scoring");
+    auto* format = Field(window, "Model format");
+    lv_dropdown_set_selected(format, 1); lv_obj_send_event(format, LV_EVENT_VALUE_CHANGED, nullptr);
+    Require(lv_dropdown_get_selected(Field(window, "Prediction scoring")) == 1 &&
+        lv_obj_is_disabled(Field(window, "Prediction scoring")) && lv_obj_is_disabled(Field(window, "Additional sizes (bytes)")),
+        "Compatibility format allowed unsupported smoothing or batch profiles");
+    lv_dropdown_set_selected(format, 0); lv_obj_send_event(format, LV_EVENT_VALUE_CHANGED, nullptr);
+    Require(lv_dropdown_get_selected(Field(window, "Prediction scoring")) == 1 &&
+        !lv_obj_is_disabled(Field(window, "Prediction scoring")), "Radix format did not restore recommended scoring");
+    lv_dropdown_set_selected(Field(window, "Prediction scoring"), 0); // Exercise the explicit MKN option below.
     Text(window, "Corpus folders (one per line)", (work / "corpus").u8string());
     Text(window, "Trie output file", (work / "generated.ngtr").u8string());
-    Text(window, "Maximum trie bytes", "16384"); Text(window, "Worker threads", "0");
+    Text(window, "Model size budget (bytes)", "16384"); Text(window, "Worker threads", "0");
     Click(window, "Generate trie");
     Require(!LanguageModelWindow::Running() && !fs::exists(work / "generated.ngtr"), "Invalid generator settings started a job");
-    Text(window, "Worker threads", "2"); Click(window, "Generate trie");
+    Text(window, "Worker threads", "2"); Text(window, "RAM budget (MiB)", "0"); Click(window, "Generate trie");
+    Require(!LanguageModelWindow::Running(), "Invalid RAM budget started a generation job");
+    Text(window, "RAM budget (MiB)", "512"); Text(window, "Model size budget (bytes)", "63"); Click(window, "Generate trie");
+    Require(!LanguageModelWindow::Running(), "A radix model smaller than its model/index minimum started generation");
+    Text(window, "Model size budget (bytes)", "16384"); Text(window, "Additional sizes (bytes)", "63"); Click(window, "Generate trie");
+    Require(!LanguageModelWindow::Running(), "A radix batch profile below 64 bytes started generation");
+    Text(window, "Additional sizes (bytes)", "4096,"); Click(window, "Generate trie");
+    Require(!LanguageModelWindow::Running(), "Invalid batch profile sizes started a generation job");
+    Text(window, "Additional sizes (bytes)", "4096,8192"); Click(window, "Generate trie");
     Require(LanguageModelWindow::Running(), "Generate button did not start native background work");
     Wait(simulator);
-    Require(fs::is_regular_file(work / "generated.ngtr") && HasText(window, "Saved "), "Generator did not save a model or show completion");
+    if (!fs::is_regular_file(work / "generated.ngtr") || !HasText(window, "Saved ")) {
+        std::string labels; AppendLabels(window, labels);
+        throw std::runtime_error("Generator did not save a model or show completion:\n" + labels.substr(labels.size() > 2000 ? labels.size() - 2000 : 0));
+    }
+    {
+        std::ifstream input(work / "generated.ngtr", std::ios::binary); unsigned char header[8]{};
+        input.read(reinterpret_cast<char*>(header), sizeof header);
+        Require(input && header[0] == 'N' && header[1] == 'G' && header[2] == 'T' && header[3] == 'R' &&
+            header[4] == 4 && header[5] == 0 && header[6] == 0 && header[7] == 0,
+            "Generator's selected radix format did not reach the native model builder");
+        Require(fs::is_regular_file(work / "generated-4096.ngtr") && fs::is_regular_file(work / "generated-8192.ngtr"),
+            "Batch profile sizes were not generated with the primary model");
+    }
     Require(editor.ProjectDocument() == before, "Generating a file changed the authored project before import");
     Click(window, "Load into project");
     const auto imported = editor.ProjectDocument();
@@ -105,6 +142,11 @@ void CheckLanguageModelsEditor(UI& editor, SdlSimulator& simulator) {
     keyboard = lv_obj_get_child(surface, 1); properties->SetSelectedObject(keyboard);
     editor.MenuAction("language-model-generator"); window = LanguageModelWindow::ActiveWindow();
     Require(std::string(lv_textarea_get_text(Field(window, "Worker threads"))) == "2", "Generator settings did not reload");
+    Require(std::string(lv_textarea_get_text(Field(window, "RAM budget (MiB)"))) == "512" &&
+        std::string(lv_textarea_get_text(Field(window, "Additional sizes (bytes)"))) == "4096,8192" &&
+        lv_dropdown_get_selected(Field(window, "Model format")) == 0 &&
+        lv_dropdown_get_selected(Field(window, "Prediction scoring")) == 0,
+        "Format, scoring, RAM and batch settings did not reload");
     Click(window, "Generate trie");
     Require(!LanguageModelWindow::Running() && Label(lv_layer_top(), "Replace language model?"), "Existing model did not require replacement confirmation");
     auto* confirmTitle = Label(lv_layer_top(), "Replace language model?");
@@ -119,5 +161,13 @@ void CheckLanguageModelsEditor(UI& editor, SdlSimulator& simulator) {
     Require(!LanguageModelWindow::ActiveWindow() && !LanguageModelWindow::Running() && !fs::exists(work / "closed.ngtr"), "Closing a running generator left a job or partial output");
     editor.MenuAction("language-model-generator"); window = LanguageModelWindow::ActiveWindow();
     Text(window, "Trie output file", (work / "generated.ngtr").u8string());
-    std::cout << "Top-level model menu, native LVGL generation, progress/cancel/close, model import, undo/redo, replacement protection and isolated settings passed\n";
+    LanguageModelWindow::Close();
+    Write(session / "language-model-settings.json", json{{"version", 1}, {"language", "fr"}, {"workers", "3"},
+        {"maximumBytes", "16384"}, {"output", (work / "legacy-settings.ngtr").u8string()}}.dump());
+    editor.MenuAction("language-model-generator"); window = LanguageModelWindow::ActiveWindow();
+    Require(lv_dropdown_get_selected(Field(window, "Model format")) == 1 &&
+        lv_dropdown_get_selected(Field(window, "Prediction scoring")) == 1 &&
+        std::string(lv_textarea_get_text(Field(window, "Worker threads"))) == "3",
+        "Version-one settings migration changed the original compact/count output choice");
+    std::cout << "Model menu, radix/MKN and compatibility choices, RAM/batch validation, generation/import, atomic undo, progress/cancel/close, replacement protection and settings migration passed\n";
 }

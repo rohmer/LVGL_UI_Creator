@@ -546,11 +546,17 @@ class UI:
             for key, method in (("accepted", "set_accepted_chars"), ("maxLength", "set_max_length"),
                 ("oneLine", "set_one_line"), ("password", "set_password_mode"),
                 ("passwordBullet", "set_password_bullet"), ("passwordShowTime", "set_password_show_time"),
-                ("text", "set_text"), ("placeholder", "set_placeholder_text"), ("cursor", "set_cursor_pos"),
+                ("placeholder", "set_placeholder_text"),
                 ("cursorClick", "set_cursor_click_pos"), ("selection", "set_text_selection")):
                 if key in data:
                     _call(obj, method, data[key])
-            self._textareas.append((screen, record.get("oid", -1), obj))
+            mode = data.get("inputMode", "alphanumeric")
+            self._textarea_input_mode(obj, mode)
+            if "text" in data:
+                obj.set_text(data["text"])
+            if "cursor" in data:
+                obj.set_cursor_pos(data["cursor"])
+            self._textareas.append((screen, record.get("oid", -1), obj, mode))
         elif kind == "led":
             obj.set_color(lv.color_hex(data.get("color", 0x3399ff)))
             obj.set_brightness(data.get("brightness", 255))
@@ -713,6 +719,77 @@ class UI:
             obj.set_one_checked(data["oneToggle"])
         if "selected" in data:
             obj.set_selected_button(data["selected"])
+
+    def _textarea_input_mode(self, obj, mode):
+        if mode not in ("alphanumeric", "uppercase", "lowercase", "numeric"):
+            raise ValueError("Text input mode must be alphanumeric, uppercase, lowercase or numeric")
+        if mode == "alphanumeric":
+            return
+        # Import only for constrained fields. The generated tables share the
+        # portable native helper's Unicode mappings; MicroPython str.upper and
+        # str.lower alone do not provide Unicode conversion on every firmware.
+        from uicreator_input_modes import normalize
+        pointer = lv.C_Pointer()
+        state = [False, ""]
+        def constrain(event):
+            if state[0]:
+                return
+            code = event.get_code()
+            if code == lv.EVENT.INSERT:
+                pointer.ptr_val = event.get_param()
+                original = pointer.str_val
+                if original == "\x7f":  # LVGL's delete marker is a control.
+                    return
+                replacement = normalize(mode, original, mode == "numeric" and "." in obj.get_text())
+                if replacement != original:
+                    state[1] = replacement  # LVGL borrows this through insert.
+                    obj.set_insert_replace(replacement)
+            elif code == lv.EVENT.VALUE_CHANGED:
+                original = obj.get_text()
+                replacement = normalize(mode, original)
+                if replacement != original:
+                    cursor = obj.get_cursor_pos()
+                    state[0] = True
+                    try:
+                        obj.set_text(replacement)
+                        obj.set_cursor_pos(len(normalize(mode, original[:cursor])))
+                    finally:
+                        state[0] = False
+        self._on(obj, constrain, lv.EVENT.ALL)
+
+    def _keyboard_input_mode(self, keyboard, mode, settings, original_map, cache):
+        if mode == "alphanumeric":
+            native_mode = settings.get("mode", 0)
+            if original_map is not None:
+                keyboard.set_map(native_mode, original_map[1], original_map[4])
+            keyboard.set_mode(native_mode)
+            return
+        roots = cache.get(mode)
+        if roots is not None:
+            _KEYBOARD_MAP_ROOTS[7] = roots
+            keyboard.set_map(7, roots[1], roots[4])
+            keyboard.set_mode(7)
+            return
+        backspace, close, enter = lv.SYMBOL.BACKSPACE, lv.SYMBOL.CLOSE, lv.SYMBOL.OK
+        if mode == "numeric":
+            labels = ["1", "2", "3", "\n", "4", "5", "6", "\n", "7", "8", "9", "\n",
+                      "0", ".", backspace, "\n", close, enter, ""]
+        else:
+            letters = "QWERTYUIOPASDFGHJKLZXCVBNM" if mode == "uppercase" else "qwertyuiopasdfghjklzxcvbnm"
+            labels = list("1234567890") + ["\n"] + list(letters[:10]) + [backspace, "\n"] + \
+                list(letters[10:19]) + [enter, "\n"] + list(letters[19:]) + ["\n", close, " ", ".", ",", ""]
+        # Keep both native pointer arrays alive. USER_4 is reinstalled on each
+        # target switch, so another UI replacing that global map is harmless.
+        strings = self._string_pointers(labels)
+        backing = array("i", [1] * sum(1 for label in labels if label not in ("", "\n")))
+        view = memoryview(backing)
+        controls = lv.C_Pointer.__cast__(view)
+        roots = (labels, strings, backing, view, controls)
+        self._resources.append(roots)
+        cache[mode] = roots
+        _KEYBOARD_MAP_ROOTS[7] = roots
+        keyboard.set_map(7, strings, controls)
+        keyboard.set_mode(7)
 
     def _string_pointers(self, names):
         pointers = lv.C_Pointer(len(names))
@@ -1060,14 +1137,18 @@ class UI:
     def _link_keyboards(self):
         for screen, keyboard, settings in self._keyboards:
             target = settings.get("targetOid", -1)
-            candidates = [(oid, textarea) for owner, oid, textarea in self._textareas
+            original_map = _KEYBOARD_MAP_ROOTS.get(settings.get("mode", 0))
+            layouts = {}
+            candidates = [(oid, textarea, mode) for owner, oid, textarea, mode in self._textareas
                           if owner == screen and (target < 0 or target == oid)]
             if target >= 0 and not candidates:
                 raise ValueError("Keyboard target must be an existing text area")
             if target >= 0:
                 keyboard.set_textarea(candidates[0][1])
-            for oid, textarea in candidates:
-                def focus(event, kb=keyboard, entry=textarea):
+                self._keyboard_input_mode(keyboard, candidates[0][2], settings, original_map, layouts)
+            for oid, textarea, mode in candidates:
+                def focus(event, kb=keyboard, entry=textarea, input_mode=mode, config=settings, layout=original_map, cache=layouts):
+                    self._keyboard_input_mode(kb, input_mode, config, layout, cache)
                     kb.set_textarea(entry)
                     _flag(kb, "hidden", False)
                     kb.move_to_index(-1)

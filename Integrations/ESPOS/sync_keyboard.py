@@ -243,7 +243,11 @@ class Sync:
             actual = {str(PurePosixPath(template_root) / name) for name in inventory(self.workspace, template_root, ["**"], [])}
             if actual != expected:
                 raise SyncError("Adapter template list differs from manifest: " + ", ".join(sorted(actual ^ expected)))
-        pairs.update(self.base)
+        # Historical owners remain guarded unless an explicit known-hash
+        # retirement takes over their destination. A tombstone must not revive
+        # that old baseline mapping as active source ownership.
+        retired = {relative(item["target"]) for item in self.manifest.get("tombstones", [])}
+        pairs.update(pair for pair in self.base if pair[1] not in retired)
         targets, physical = {}, {}
         for source, target in sorted(pairs):
             key = target.casefold()
@@ -284,15 +288,34 @@ class Sync:
         return {"version": VERSION, "status": "drift" if drift else "in-sync", "operation": "check-source",
                 "files": len(current), "differences": sorted(set(drift))}
 
-    def plan(self, direction="check", bootstrap=False):
+    def plan(self, direction="check", bootstrap=False, only=None):
         if self.peer is None:
             raise SyncError("Provide --espos explicitly; the tool never discovers an ancestor repository")
         if direction not in {"check", "push", "pull"} or (bootstrap and direction != "push"):
             raise SyncError("Bootstrap is available only for an explicitly reviewed push")
+        pairs = self.mappings()
+        selected = None
+        if only is not None:
+            requested = [only] if isinstance(only, str) else list(only)
+            if not requested:
+                raise SyncError("Select at least one declared ESPOS target")
+            known = {target.casefold(): target for _, target in pairs}
+            known.update({relative(item["target"]).casefold(): relative(item["target"])
+                          for item in self.manifest.get("tombstones", [])})
+            requested = {relative(target).casefold() for target in requested}
+            unknown = requested - known.keys()
+            if unknown:
+                raise SyncError("Unknown declared ESPOS target: " + ", ".join(sorted(unknown)))
+            selected = {known[target] for target in requested}
+        # Input snapshots and payloads belong to one reviewed scope.
+        self.snapshots, self.payloads = {}, {}
         groups = {}
-        for source, target in self.mappings():
-            groups.setdefault(source, []).append(target)
-        actions, differences, conflicts, baseline = [], [], [], []
+        for source, target in pairs:
+            if selected is None or target in selected:
+                groups.setdefault(source, []).append(target)
+        actions, differences, conflicts = [], [], []
+        baseline = [] if selected is None else [dict(item) for item in self.baseline["files"]
+                                                if relative(item["target"]) not in selected]
         for source, targets in sorted(groups.items()):
             original = self.take("creator", source)
             peers = [(target, self.take("espos", target)) for target in targets]
@@ -345,6 +368,8 @@ class Sync:
                                 "fromSide": winner[0], "fromPath": winner[1]})
         for tombstone in self.manifest.get("tombstones", []):
             target = relative(tombstone["target"])
+            if selected is not None and target not in selected:
+                continue
             if any(target in values for values in groups.values()):
                 raise SyncError("Tombstone overlaps an active mapping: " + target)
             value = self.take("espos", target)
@@ -358,11 +383,15 @@ class Sync:
                 self.payloads["espos:" + target] = None
                 actions.append({"side": "espos", "path": target, "beforeRawSha256": value["raw"],
                                 "afterSha256": None, "operation": "delete", "fromSide": None, "fromPath": None})
-        baseline_value = {"version": VERSION, "manifestSha256": self.manifest_sha,
-                          "files": sorted(baseline, key=lambda item: (item["source"], item["target"]))}
+        # A scoped operation cannot acknowledge unrelated manifest changes.
+        # Preserve an absent manifest hash too when there is no full baseline.
+        baseline_value = ({"version": VERSION, "manifestSha256": self.manifest_sha}
+                          if selected is None else dict(self.baseline))
+        baseline_value["files"] = sorted(baseline, key=lambda item: (item["source"], item["target"]))
         plan = {"version": VERSION, "workspace": str(self.workspace), "espos": str(self.peer),
                 "baseline": str(self.baseline_path), "staging": self.staging,
-                "operation": direction, "bootstrap": bootstrap, "manifestSha256": self.manifest_sha,
+                "operation": direction, "bootstrap": bootstrap, "only": sorted(selected) if selected is not None else None,
+                "manifestSha256": self.manifest_sha,
                 "baselineRawSha256": sha(self.baseline_path.read_bytes()) if self.baseline_path.exists() else None,
                 "actions": sorted(actions, key=lambda item: (item["side"], item["path"])),
                 "differences": differences, "conflicts": conflicts, "nextBaseline": baseline_value,
@@ -383,6 +412,10 @@ class Sync:
                 raise SyncError("File changed after planning; nothing was overwritten: " + key)
 
     def apply(self, plan, backup_dir=None):
+        reviewed = dict(plan)
+        expected = reviewed.pop("planSha256", None)
+        if expected != sha(canonical_json(reviewed)):
+            raise SyncError("The reviewed plan was modified; create and review a new plan")
         if plan["operation"] == "check" or plan["conflicts"]:
             raise SyncError("Cannot apply a check or a conflicting plan")
         self.assert_snapshots(plan)
@@ -483,11 +516,13 @@ def main(argv=None):
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--plan-out", type=Path, help="write a reviewable plan; no mutations with --dry-run")
     parser.add_argument("--backup-dir", type=Path)
+    parser.add_argument("--only", action="append", metavar="TARGET",
+                        help="limit to an exact declared ESPOS target (repeatable); preserve the remaining baseline")
     args = parser.parse_args(argv)
     try:
         sync = Sync(args.creator, args.espos, args.manifest, args.baseline, args.staging)
         if args.check_source:
-            if args.bootstrap or args.apply_plan:
+            if args.bootstrap or args.apply_plan or args.only is not None:
                 raise SyncError("Invalid check-source options")
             result = sync.check_source()
             print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -499,9 +534,13 @@ def main(argv=None):
             if not isinstance(reviewed, dict) or reviewed.get("version") != VERSION:
                 raise SyncError("Invalid reviewed sync plan")
             direction, bootstrap = reviewed.get("operation"), reviewed.get("bootstrap", False)
+            if args.only is not None:
+                raise SyncError("The reviewed plan already fixes its targets; omit --only when applying")
+            selected = reviewed.get("only")
         else:
             bootstrap = args.bootstrap
-        plan = sync.plan(direction, bootstrap)
+            selected = args.only
+        plan = sync.plan(direction, bootstrap, only=selected)
         if reviewed is not None and canonical_json(reviewed) != canonical_json(plan):
             raise SyncError("The reviewed plan is stale or modified; create and review a new plan")
         if args.plan_out:

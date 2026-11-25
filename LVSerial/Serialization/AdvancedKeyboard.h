@@ -12,7 +12,7 @@
 #include <string>
 
 #if LVSERIAL_USE_ADVANCED_KEYBOARD
-#include "../Widgets/AdvancedKeyboard/include/lv_advanced_keyboard.h"
+#include <lv_advanced_keyboard.h>
 #endif
 
 namespace Serialization

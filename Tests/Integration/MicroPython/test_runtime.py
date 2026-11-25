@@ -15,16 +15,19 @@ import unittest
 import weakref
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "CodeGeneration/MicroPython"))
 
 
 class Event:
-    def __init__(self, target, code, current=None):
+    def __init__(self, target, code, current=None, parameter=None):
         self.target, self.code, self.current = target, code, current or target
+        self.parameter = parameter
     def get_code(self): return self.code
     def get_target(self): return self.target
     def get_current_target(self): return self.current
     def get_target_obj(self): return self.target
     def get_current_target_obj(self): return self.current
+    def get_param(self): return self.parameter
 
 
 class Obj:
@@ -103,6 +106,25 @@ class Label(Obj):
 
 
 class Textarea(Label):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.text, self.cursor, self.accepted, self.max_length = "", 0, None, 0
+        self._replacement = None
+    def set_text(self, value):
+        self.text, self.cursor = "", 0
+        self.add_text(value)
+    def add_text(self, value):
+        self._replacement = None
+        for callback, code in list(self.callbacks):
+            if code in (0, 6): callback(Event(self, 6, parameter=value))
+        if self._replacement is not None: value = self._replacement
+        if self.accepted is not None: value = "".join(c for c in value if c in self.accepted)
+        if self.max_length: value = value[:max(0, self.max_length - len(self.text))]
+        self.text = self.text[:self.cursor] + value + self.text[self.cursor:]
+        self.cursor += len(value)
+        self.emit(2)
+    def set_insert_replace(self, value): self._replacement = value
+    def get_cursor_pos(self): return self.cursor
     def set_placeholder_text(self, value): self.placeholder = value
     def set_accepted_chars(self, value): self.accepted = value
     def set_max_length(self, value): self.max_length = value
@@ -110,7 +132,7 @@ class Textarea(Label):
     def set_password_mode(self, value): self.password = value
     def set_password_bullet(self, value): self.bullet = value
     def set_password_show_time(self, value): self.password_show_time = value
-    def set_cursor_pos(self, value): self.cursor = value
+    def set_cursor_pos(self, value): self.cursor = len(self.text) if value < 0 else min(len(self.text), value)
     def set_cursor_click_pos(self, value): self.cursor_click = value
     def set_text_selection(self, value): self.selection = value
 
@@ -233,8 +255,10 @@ def binding():
     module.keyboard = type("BoundKeyboard", (Keyboard,), {"maps": {}, "native_calls": [],
         "MODE": types.SimpleNamespace(**vars(Keyboard.MODE))})
     class CPointer:
-        def __init__(self, count): self.entries = [types.SimpleNamespace(str_val=None) for _ in range(count)]
+        def __init__(self, count=1): self.entries = [types.SimpleNamespace(str_val=None) for _ in range(count)]
         def __getitem__(self, index): return self.entries[index]
+        @property
+        def str_val(self): return self.ptr_val
         @classmethod
         def __cast__(cls, buffer):
             pointer = cls(0)
@@ -243,7 +267,8 @@ def binding():
     module.C_Pointer = CPointer
     module.image, module.qrcode = Image, QRCode
     module.STATE = types.SimpleNamespace(CHECKED=1, DISABLED=2, PRESSED=4, USER_1=8, USER_2=16, USER_3=32, USER_4=64)
-    module.EVENT = types.SimpleNamespace(ALL=0, CLICKED=1, VALUE_CHANGED=2, READY=3, CANCEL=4, FOCUSED=5)
+    module.EVENT = types.SimpleNamespace(ALL=0, CLICKED=1, VALUE_CHANGED=2, READY=3, CANCEL=4, FOCUSED=5, INSERT=6)
+    module.SYMBOL = types.SimpleNamespace(BACKSPACE="\uf55a", CLOSE="\uf00d", OK="\uf00c")
     module.PART = types.SimpleNamespace(MAIN=0, ITEMS=0x50000, INDICATOR=0x20000, CURSOR=0x10000)
     module.DIR = types.SimpleNamespace(TOP=1, ALL=15, VER=12)
     module.SCROLLBAR_MODE = types.SimpleNamespace(AUTO=1)
@@ -399,6 +424,56 @@ class RuntimeTests(unittest.TestCase):
         first.emit(self.lv.EVENT.FOCUSED)
         keyboard.emit(self.lv.EVENT.CANCEL)
         self.assertTrue(keyboard.has_flag(self.lv.obj.FLAG.HIDDEN))
+
+    def test_input_modes_unicode_paste_constraints_and_keyboard_switching(self):
+        ui = self.UI({"obj": [
+            {"oid": 1, "par": -1, "base": {}, "textarea": {"inputMode": "uppercase", "text": "café привет αβγ ß"}},
+            {"oid": 2, "par": -1, "base": {}, "textarea": {"inputMode": "lowercase", "text": "CAFÉ ПРИВЕТ ΑΒΓ"}},
+            {"oid": 3, "par": -1, "base": {}, "textarea": {"inputMode": "numeric", "text": "-12a.3.4e5"}},
+            {"oid": 4, "par": -1, "base": {}, "textarea": {"text": "Anything ! مرحبا 中文"}},
+            {"oid": 5, "par": -1, "base": {}, "textarea": {"inputMode": "uppercase", "accepted": "AB12", "maxLength": 3, "text": "a1b2c3"}},
+            {"oid": 6, "par": -1, "base": {}, "keyboard": {}}
+        ]}).load()
+        upper, lower, number, unrestricted, limited, keyboard = [ui.get_object(0, index) for index in range(1, 7)]
+        self.assertEqual(upper.text, "CAFÉ ПРИВЕТ ΑΒΓ SS")
+        self.assertEqual(lower.text, "café привет αβγ")
+        self.assertEqual(number.text, "12.345")
+        self.assertEqual(unrestricted.text, "Anything ! مرحبا 中文")
+        self.assertEqual(limited.text, "A1B")
+        upper.set_text("éжω")
+        upper.add_text("ß!")
+        self.assertEqual(upper.text, "ÉЖΩSS!")
+        number.set_text("-1.2e3.4 hello")
+        number.add_text(".5")
+        self.assertEqual(number.text, "1.2345")
+        number.set_cursor_pos(0)
+        number.add_text("-6x.")
+        self.assertEqual(number.text, "61.2345")
+        for entry, letter in ((upper, "Q"), (lower, "q")):
+            entry.emit(self.lv.EVENT.FOCUSED)
+            labels = keyboard._borrowed_layout()[0]
+            self.assertIn(letter, [labels[i].str_val for i in range(len(labels.entries))])
+            self.assertNotIn(letter.swapcase(), [labels[i].str_val for i in range(len(labels.entries))])
+        number.emit(self.lv.EVENT.CLICKED)
+        labels = keyboard._borrowed_layout()[0]
+        keys = [labels[i].str_val for i in range(len(labels.entries))]
+        self.assertEqual(set(keys) - {"", "\n", self.lv.SYMBOL.BACKSPACE, self.lv.SYMBOL.CLOSE, self.lv.SYMBOL.OK}, set("0123456789."))
+        resource_count = len(ui._resources)
+        for _ in range(20):
+            upper.emit(self.lv.EVENT.FOCUSED)
+            lower.emit(self.lv.EVENT.FOCUSED)
+            number.emit(self.lv.EVENT.FOCUSED)
+        self.assertEqual(len(ui._resources), resource_count)
+        unrestricted.emit(self.lv.EVENT.FOCUSED)
+        self.assertEqual(keyboard.mode, 0)
+        ui.deinit()
+
+    def test_unicode_input_tables_match_portable_helper(self):
+        spec = importlib.util.spec_from_file_location("case_generator", ROOT / "CodeGeneration/GenerateMicroPythonInputModes.py")
+        generator = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(generator)
+        expected = generator.generate(ROOT / "3rdParty/AdvancedKeyboard/src/UnicodeCase.inc")
+        self.assertEqual((ROOT / "CodeGeneration/MicroPython/uicreator_input_modes.py").read_text(encoding="utf-8"), expected)
 
     def test_assets_deduplicated_animated_and_released(self):
         with tempfile.TemporaryDirectory() as directory:

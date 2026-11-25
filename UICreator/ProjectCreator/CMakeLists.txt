@@ -59,16 +59,22 @@ file(GLOB_RECURSE creator_linux_source_inputs CONFIGURE_DEPENDS
     "${PROJECT_SOURCE_DIR}/ImgLib/*.h" "${PROJECT_SOURCE_DIR}/3rdParty/JSON/*.hpp"
     "${PROJECT_SOURCE_DIR}/3rdParty/nanopb/*" "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/*"
     "${PROJECT_SOURCE_DIR}/3rdParty/SDL3/cmake/*"
-    "${PROJECT_SOURCE_DIR}/3rdParty/SDL3/include/*" "${PROJECT_SOURCE_DIR}/3rdParty/SDL3/src/*")
+    "${PROJECT_SOURCE_DIR}/3rdParty/SDL3/include/*" "${PROJECT_SOURCE_DIR}/3rdParty/SDL3/src/*"
+    "${ADVKBD_SOURCE_ROOT}/src/*" "${ADVKBD_SOURCE_ROOT}/include/*" "${ADVKBD_SOURCE_ROOT}/cmake/*")
+list(APPEND creator_linux_inputs "${PROJECT_SOURCE_DIR}/advanced-keyboard.lock.json"
+    "${PROJECT_SOURCE_DIR}/Integrations/AdvancedKeyboard/dependency.py"
+    "${PROJECT_SOURCE_DIR}/cmake/AdvancedKeyboardDependency.cmake" "${ADVKBD_SOURCE_ROOT}/CMakeLists.txt")
 list(APPEND creator_linux_inputs ${creator_linux_source_inputs})
 list(FILTER creator_linux_inputs EXCLUDE REGEX "/(__pycache__|build|node_modules|\\.git)/|\\.pyc$")
 add_custom_command(OUTPUT "${creator_linux_archive}"
-    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Runtime/linux/package_toolkit.py"
+    COMMAND "${CMAKE_COMMAND}" -E env "ADVANCED_KEYBOARD_ROOT=${ADVKBD_SOURCE_ROOT}"
+        "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Runtime/linux/package_toolkit.py"
         --output "${CMAKE_CURRENT_BINARY_DIR}/linux-toolkit" --replace
     DEPENDS ${creator_linux_inputs} VERBATIM)
 set(creator_pico_archive "${CMAKE_CURRENT_BINARY_DIR}/pico-toolkit.zip")
 add_custom_command(OUTPUT "${creator_pico_archive}"
-    COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Runtime/pico/package_toolkit.py"
+    COMMAND "${CMAKE_COMMAND}" -E env "ADVANCED_KEYBOARD_ROOT=${ADVKBD_SOURCE_ROOT}"
+        "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Runtime/pico/package_toolkit.py"
         --output "${CMAKE_CURRENT_BINARY_DIR}/pico-toolkit" --replace
     DEPENDS ${creator_linux_inputs} "${PROJECT_SOURCE_DIR}/Runtime/pico/package_toolkit.py" VERBATIM)
 if(UICREATOR_WINDOWS_HELPERS_X86)
@@ -109,6 +115,12 @@ if(WIN32)
     target_link_libraries(UICreatorProjectCreation PUBLIC shell32)
 endif()
 if(BUILD_TESTING)
+    find_package(Threads REQUIRED)
+    add_executable(UICreatorExternalToolTests "${PROJECT_SOURCE_DIR}/Tests/Integration/ProjectCreator/ExternalTool.cpp")
+    target_link_libraries(UICreatorExternalToolTests PRIVATE UICreatorExternalTool Threads::Threads)
+    target_compile_features(UICreatorExternalToolTests PRIVATE cxx_std_17)
+    add_test(NAME UICreatorProjectToolDeadline COMMAND UICreatorExternalToolTests "${PROJECT_BINARY_DIR}/project-tool-deadline-tests")
+    set_tests_properties(UICreatorProjectToolDeadline PROPERTIES TIMEOUT 30 LABELS "functional;project-creator")
     add_test(NAME UICreatorProjectCreatorUnit COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Tests/UnitTests/ProjectCreator/test_creator.py")
     set_tests_properties(UICreatorProjectCreatorUnit PROPERTIES LABELS "unit;project-creator" TIMEOUT 90 RUN_SERIAL TRUE)
 endif()
@@ -116,10 +128,20 @@ if(BUILD_TESTING)
     add_executable(UICreatorProjectCreationTests "${PROJECT_SOURCE_DIR}/Tests/Integration/ProjectCreator/Creator.cpp")
     target_link_libraries(UICreatorProjectCreationTests PRIVATE UICreatorProjectCreation LVGLRuntime::Runtime)
     add_dependencies(UICreatorProjectCreationTests UICreatorProjectCreatorAssets)
+    set(project_creator_parent_emulator_settings "")
+    if(CMAKE_CROSSCOMPILING_EMULATOR)
+        set(project_creator_parent_emulator_settings "${PROJECT_BINARY_DIR}/project-creator-tests/parent-emulator.cmake")
+        string(REPLACE "\\" "\\\\" project_creator_parent_emulator "${CMAKE_CROSSCOMPILING_EMULATOR}")
+        string(REPLACE "\"" "\\\"" project_creator_parent_emulator "${project_creator_parent_emulator}")
+        string(REPLACE "$" "\\$" project_creator_parent_emulator "${project_creator_parent_emulator}")
+        file(WRITE "${project_creator_parent_emulator_settings}"
+            "set(CMAKE_CROSSCOMPILING_EMULATOR \"${project_creator_parent_emulator}\" CACHE STRING \"Parent project fixture emulator\" FORCE)\n")
+    endif()
     add_test(NAME UICreatorProjectCreatorFunctional COMMAND "${CMAKE_COMMAND}"
         "-DPYTHON=${Python3_EXECUTABLE}" "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}"
         "-DBINARY_DIR=${PROJECT_BINARY_DIR}/project-creator-tests" "-DCREATOR_TEST=$<TARGET_FILE:UICreatorProjectCreationTests>"
         "-DLVGL_BUILD_DIR=${PROJECT_BINARY_DIR}/version-matrix/9.6" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
+        "-DPARENT_TOOLCHAIN=${CMAKE_TOOLCHAIN_FILE}" "-DPARENT_EMULATOR_SETTINGS=${project_creator_parent_emulator_settings}"
         -P "${PROJECT_SOURCE_DIR}/Tests/Integration/ProjectCreator/Verify.cmake")
-    set_tests_properties(UICreatorProjectCreatorFunctional PROPERTIES DEPENDS LVGLGenerator96 TIMEOUT 360 LABELS "functional;project-creator" RUN_SERIAL TRUE)
+    set_tests_properties(UICreatorProjectCreatorFunctional PROPERTIES DEPENDS LVGLGenerator96 TIMEOUT 1800 LABELS "functional;project-creator" RUN_SERIAL TRUE)
 endif()

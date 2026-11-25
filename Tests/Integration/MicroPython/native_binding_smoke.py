@@ -352,5 +352,38 @@ assert keyboard.get_mode() == 4 and keyboard.get_button_text(0) == "x"
 collect_and_render()
 cleanup(app)
 results.append("keyboard modes reject unsafe values and install custom USER maps before selecting them")
+app = UI({"canvas": {"width": 320, "height": 240}, "obj": [
+    {"oid": 1, "par": -1, "base": {}, "textarea": {"inputMode": "uppercase", "text": "café привет αβγ ß"}},
+    {"oid": 2, "par": -1, "base": {}, "textarea": {"inputMode": "lowercase", "text": "CAFÉ ПРИВЕТ ΑΒΓ"}},
+    {"oid": 3, "par": -1, "base": {}, "textarea": {"inputMode": "numeric", "text": "-12a.3.4e5"}},
+    {"oid": 4, "par": -1, "base": {}, "textarea": {"inputMode": "uppercase", "accepted": "AB12", "maxLength": 3, "text": "a1b2c3"}},
+    {"oid": 5, "par": -1, "base": {}, "keyboard": {}},
+]}).load()
+upper, lower, numeric, limited, keyboard = [app.get_object(0, oid) for oid in range(1, 6)]
+assert upper.get_text() == "CAFÉ ПРИВЕТ ΑΒΓ SS"
+assert lower.get_text() == "café привет αβγ"
+assert numeric.get_text() == "12.345"
+assert limited.get_text() == "A1B"
+upper.set_text("éжω")
+upper.add_text("ß!")
+assert upper.get_text() == "ÉЖΩSS!"
+numeric.set_text("-1.2e3.4 hello")
+numeric.add_text(".5")
+assert numeric.get_text() == "1.2345"
+numeric.set_cursor_pos(0)
+numeric.add_text("-6x.")
+assert numeric.get_text() == "61.2345"
+for cycle in range(5):
+    upper.send_event(lv.EVENT.FOCUSED, None)
+    assert keyboard.get_button_text(10) == "Q"
+    lower.send_event(lv.EVENT.FOCUSED, None)
+    assert keyboard.get_button_text(10) == "q"
+    numeric.send_event(lv.EVENT.FOCUSED, None)
+    assert keyboard.get_mode() == 7 and keyboard.get_button_text(0) == "1"
+    stress_render()
+keyboard.send_event(lv.EVENT.CANCEL, None)
+assert keyboard.has_flag(lv.obj.FLAG.HIDDEN)
+cleanup(app)
+results.append("Unicode input modes, decimal-only pastes, accepted/max-length filters and target-specific keyboard maps")
 assert flushes[0] > 0
 print(json.dumps({"status": "passed", "cases": results, "displayFlushes": flushes[0], "hardware": False}))

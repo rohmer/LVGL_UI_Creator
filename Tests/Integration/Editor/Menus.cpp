@@ -149,7 +149,7 @@ void CheckMenusEditor(UI& editor, SdlSimulator& simulator) {
     Require(Command("Project fonts") && !Label(lv_layer_top(), "Open project..."),
         "Clicking another top-level menu did not switch the open popup");
     for (const auto& item : {std::make_pair("Project fonts", "Project fonts"), std::make_pair("Project images", "Project images"),
-                           std::make_pair("Convert font", "Font converter"), std::make_pair("Convert images", "Image converter")}) {
+                           std::make_pair("Add font", "Add project font"), std::make_pair("Convert images", "Image converter")}) {
         editor.MenuAction("dismiss"); Menu(editor, simulator, "Assets");
         Click(item.first); CloseWindow(item.second);
         Require(editor.ProjectDocument() == original, "Asset tool menus changed the authored screen");

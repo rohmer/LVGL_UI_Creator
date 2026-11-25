@@ -68,6 +68,30 @@ int main(int argc,char** argv) {
         for(auto& r:records)if(r.contains("imagebutton")) {
             r["imagebutton"]["states"][0][1]={{"kind","text"},{"source",(std::filesystem::path(argv[2])/"Tests/Fixtures/Images/sample.png").u8string()}};
         }
+        for(const auto& spec:json::array({
+            {"input_upper","uppercase","café привет αβγ ß"},
+            {"input_lower","lowercase","CAFÉ ПРИВЕТ ΑΒΓ"},
+            {"input_numeric","numeric","-12a.3.4e5"},
+            {"input_alpha","alphanumeric","Anything ! مرحبا 中文"},
+            {"input_limited","uppercase","a1b2c3"},
+            {"input_expanded","uppercase","ßß"}})) {
+            auto data=json{{"inputMode",spec[1]},{"text",spec[2]}};
+            if(spec[0]=="input_limited") {data["accepted"]="AB12";data["maxLength"]=3;}
+            if(spec[0]=="input_expanded") {data["accepted"]="S";data["maxLength"]=3;}
+            ids[spec[0].get<std::string>()]=id;
+            records.push_back({{"oid",id++},{"par",-1},{"base",json::object()},{"textarea",data}});
+        }
+        ids["input_custom"]=id;
+        records.push_back({{"oid",id++},{"par",-1},{"base",json::object()},
+            {"textBox",{{"inputMode","uppercase"},{"numeric",false},{"text","café"},{"showButtons",false}}}});
+        for(const auto& spec:json::array({
+            {"input_custom_decimal","7.3",7,-10,100},
+            {"input_custom_negative","-3",-3,-10,100},
+            {"input_custom_negative_range","7.3",-3,-10,-2}})) {
+            ids[spec[0].get<std::string>()]=id;
+            records.push_back({{"oid",id++},{"par",-1},{"base",json::object()},
+                {"textBox",{{"inputMode","numeric"},{"text",spec[1]},{"value",spec[2]},{"min",spec[3]},{"max",spec[4]}}}});
+        }
         json vars=json::array();
         auto add=[&](std::string name,VariableType type,json value,int oid,std::string property,int history){VariableData v;v.name=name;v.type=type;v.defaultValue=value;v.objectId=oid;v.property=property;v.history=history;vars.push_back(LVVariable::ToJSON(v));};
         add("level",VariableType::Integer,51,ids["bar"],"/bar/value",2);
@@ -81,6 +105,9 @@ int main(int argc,char** argv) {
         json project={{"screens",{{{"name","Main"},{"canvas",{{"width",800},{"height",600}}},{"obj",records}},{{"name","Other"},{"canvas",{{"width",800},{"height",600}}},{"obj",{{{"base",json::object()},{"cb",{{"text","Screen two"},{"checked",true}}},{"oid",1},{"par",-1}}}}}}},{"variables",vars}};
         project["screens"][0]["canvas"]["base"]["coords"]={{"x",5},{"y",9},{"width",800},{"height",600}};
         CCodeGenerator generator;if(!generator.LoadProject(project)||!generator.ExportProject(argv[1]))throw std::runtime_error(generator.GetLastError());
+        if(!std::filesystem::exists(std::filesystem::path(argv[1])/"advanced_keyboard/TextareaInputMode.c") ||
+           std::filesystem::exists(std::filesystem::path(argv[1])/"advanced_keyboard/Keyboard.cpp"))
+            throw std::runtime_error("Plain input modes must include only the lightweight C helper");
         std::ofstream(std::filesystem::path(argv[1])/"fixture.json")<<project.dump(2);
         auto proto=Protobuf::Encode(EntityKind::Project,"project",project);
         const auto full=Protobuf::Encode(EntityKind::Project,"project",project,false);
@@ -95,6 +122,7 @@ int main(int argc,char** argv) {
         bad=project;bad["variables"][0]["var"]["property"]="unsupported";reject(bad);
         bad=project;bad["screens"][0]["obj"][0]["par"]=100;reject(bad);
         bad=project;bad["activeScreen"]=100;reject(bad);
+        bad=project;bad["screens"][0]["obj"].push_back({{"oid",9999},{"par",-1},{"base",json::object()},{"textarea",{{"inputMode","invalid"}}}});reject(bad);
         lv_display_delete(display);lv_deinit();return 0;
     }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}
 }

@@ -42,6 +42,26 @@ static bool visit_sparse(void* context,const lvserial_record_info* record,const 
     if(!strcmp(property->path,"/hidden"))return property->kind==lvserial_ValueKind_BOOLEAN && property->has_boolean_value && !property->boolean_value;
     return !strcmp(property->path,"/value") && property->signed_value==-42;
 }
+/* A typed FontData message with an empty bitmap, encoded independently of the
+ * desktop C++ adapter. The streaming C codec needs no heap or font engine. */
+static const pb_byte_t font_data[] = {8,1,24,16,82,0,88,0,96,4};
+static bool read_font(void* context,size_t index,lvserial_property* result)
+{
+    (void)context;(void)index;
+    result->metadata.kind=lvserial_ValueKind_FONT_DATA;
+    result->bytes=font_data;result->size=sizeof font_data;
+    return true;
+}
+static bool visit_font(void* context,const lvserial_record_info* record,const lvserial_Property* property,pb_istream_t* payload)
+{
+    lvserial_FontData font=lvserial_FontData_init_zero;
+    size_t* count=(size_t*)context;
+    if(record->kind!=lvserial_EntityKind_FONT || strcmp(record->type,"font") ||
+        property->kind!=lvserial_ValueKind_FONT_DATA || !payload)return false;
+    if(!pb_decode(payload,lvserial_FontData_fields,&font))return false;
+    ++*count;
+    return font.format_version==1 && font.line_height==16 && font.bpp==4 && font.bitmap_format==0;
+}
 int main(int argc, char** argv)
 {
     pb_byte_t buffer[1024]; lvserial_record_info info = {LVSERIAL_BINARY_VERSION, lvserial_EntityKind_VARIABLE, "variable"};
@@ -66,5 +86,16 @@ int main(int argc, char** argv)
         CHECK(!lvserial_pb_decode(buffer,output.bytes_written,&decoded,NULL,NULL,&error));CHECK(error!=NULL);
     }
     output = pb_ostream_from_buffer(buffer, 1); CHECK(!lvserial_pb_encode(&output, &info, 3, read_property, NULL));
+    info.kind=lvserial_EntityKind_FONT;strcpy(info.type,"font");count=0;
+    output=pb_ostream_from_buffer(buffer,sizeof buffer);
+    CHECK(lvserial_pb_encode(&output,&info,1,read_font,NULL));
+    CHECK(lvserial_pb_decode(buffer,output.bytes_written,&decoded,visit_font,&count,&error));CHECK(count==1);
+    CHECK(!lvserial_pb_decode(buffer,output.bytes_written-1,&decoded,visit_font,&count,&error));
+    if(argc==2) {
+        char path[1024];FILE* fixture;
+        CHECK(snprintf(path,sizeof path,"%s.font.pb",argv[1])>0);
+        fixture=fopen(path,"wb");CHECK(fixture!=NULL);
+        CHECK(fwrite(buffer,1,output.bytes_written,fixture)==output.bytes_written);CHECK(fclose(fixture)==0);
+    }
     puts("Plain-C nanopb encoding, streaming decoding, and failure checks passed"); return 0;
 }

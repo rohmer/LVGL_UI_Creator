@@ -332,6 +332,29 @@ class KeyboardSyncTests(unittest.TestCase):
         self.assertFalse((self.creator / "core/bundled").exists())
         self.assertFalse((self.creator / "core/CMakeLists.txt").exists())
 
+    def test_explicit_retirement_replaces_historical_ownership_without_reviving_source(self):
+        self.seed()
+        target = "Keyboard/AdvancedKeyboard/a.cpp"
+        original = (self.peer / target).read_bytes()
+        checksum = sync.sha(original)
+        self.config["trees"][0]["exclude"] = ["a.cpp"]
+        self.config["tombstones"] = [{"target": target, "expectedSha256": checksum}]
+        self.save_manifest()
+        self.put("creator", "core/a.cpp", b"unowned source must not be recopied\n")
+        self.put("espos", target, b"user peer edit\n")
+        conflict = self.engine().plan("push")
+        self.assertTrue(conflict["conflicts"])
+        self.assertEqual((self.peer / target).read_bytes(), b"user peer edit\n")
+        self.put("espos", target, original)
+        engine = self.engine()
+        reviewed = engine.plan("push")
+        self.assertEqual(reviewed["conflicts"], [])
+        engine.apply(reviewed)
+        self.assertFalse((self.peer / target).exists())
+        self.assertEqual((self.creator / "core/a.cpp").read_bytes(), b"unowned source must not be recopied\n")
+        self.assertEqual(self.engine().plan()["differences"], [])
+        self.assertEqual(self.engine().check_source()["differences"], [])
+
     def test_unlisted_template_is_reported_and_build_caches_are_ignored(self):
         self.config["templateRoot"] = "adapters"
         self.put("creator", "adapters/a.h")
@@ -344,6 +367,71 @@ class KeyboardSyncTests(unittest.TestCase):
         self.assertFalse((self.peer / "Keyboard/AdvancedKeyboard/AGENTS.md").exists())
         self.put("creator", "adapters/new.h")
         with self.assertRaises(sync.SyncError): self.engine().plan()
+
+    def test_scoped_reviewed_pull_preserves_unselected_edits_baseline_and_manifest_drift(self):
+        self.seed()
+        before = json.loads(self.baseline.read_text())
+        target = "Keyboard/AdvancedKeyboard/a.cpp"
+        self.put("espos", target, b"legitimate peer update\n")
+        self.put("creator", "core/b.h", b"creator competing b\n")
+        self.put("espos", "Keyboard/AdvancedKeyboard/b.h", b"peer competing b\n")
+        self.config["tombstones"] = [{"target": "Keyboard/retired.cpp", "expectedSha256": sync.sha(b"old\n")}]
+        self.put("espos", "Keyboard/retired.cpp", b"unrelated user retirement edit\n")
+        self.save_manifest()
+        engine = self.engine()
+        reviewed = engine.plan("pull", only=[target])
+        self.assertEqual(reviewed["only"], [target])
+        self.assertEqual(reviewed["conflicts"], [])
+        self.assertEqual(set(reviewed["snapshots"]), {"creator:core/a.cpp", "espos:" + target})
+        self.assertEqual(reviewed["nextBaseline"]["manifestSha256"], before["manifestSha256"])
+        common = ["--creator", str(self.creator), "--espos", str(self.peer), "--manifest", str(self.manifest),
+                  "--baseline", str(self.baseline)]
+        plan_file = self.creator / "reviewed-partial.json"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(sync.main(common + ["--pull", "--only", target, "--dry-run", "--plan-out", str(plan_file)]), 0)
+        self.assertEqual(json.loads(plan_file.read_text()), reviewed)
+        altered = dict(reviewed); altered["only"] = ["Keyboard/AdvancedKeyboard/b.h"]
+        with self.assertRaisesRegex(sync.SyncError, "reviewed plan was modified"):
+            engine.apply(altered)
+        plan_file.write_text(json.dumps(altered))
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(sync.main(common + ["--apply-plan", str(plan_file)]), 2)
+        plan_file.write_text(json.dumps(reviewed))
+        # Unselected files may keep changing while the selected plan is reviewed.
+        creator_b = self.put("creator", "core/b.h", b"later creator b\n")
+        peer_b = self.put("espos", "Keyboard/AdvancedKeyboard/b.h", b"later peer b\n")
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(sync.main(common + ["--apply-plan", str(plan_file)]), 0)
+        self.assertEqual((self.creator / "core/a.cpp").read_bytes(), b"legitimate peer update\n")
+        self.assertEqual(creator_b.read_bytes(), b"later creator b\n")
+        self.assertEqual(peer_b.read_bytes(), b"later peer b\n")
+        self.assertEqual((self.peer / "Keyboard/retired.cpp").read_bytes(), b"unrelated user retirement edit\n")
+        after = json.loads(self.baseline.read_text())
+        self.assertEqual(after["manifestSha256"], before["manifestSha256"])
+        self.assertEqual([item for item in after["files"] if item["target"] != target],
+                         [item for item in before["files"] if item["target"] != target])
+        self.assertEqual(next(item["sha256"] for item in after["files"] if item["target"] == target),
+                         sync.sha(b"legitimate peer update\n"))
+        drift = self.engine().check_source()
+        self.assertEqual(drift["status"], "drift")
+        self.assertIn("core/b.h", drift["differences"])
+        self.assertIn("sync manifest has not been acknowledged by a completed sync", drift["differences"])
+        self.assertTrue(self.engine().plan("pull")["conflicts"])
+
+    def test_unknown_scoped_target_is_rejected_without_mutating_either_side(self):
+        self.seed()
+        self.put("espos", "Keyboard/AdvancedKeyboard/a.cpp", b"peer change\n")
+        baseline = self.baseline.read_bytes()
+        with self.assertRaisesRegex(sync.SyncError, "Unknown declared ESPOS target"):
+            self.engine().plan("pull", only=["Keyboard/AdvancedKeyboard/a.cpp", "Keyboard/unknown.cpp"])
+        common = ["--creator", str(self.creator), "--espos", str(self.peer), "--manifest", str(self.manifest),
+                  "--baseline", str(self.baseline)]
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(sync.main(common + ["--pull", "--only", "Keyboard/AdvancedKeyboard/a.cpp",
+                                                "--only", "Keyboard/unknown.cpp"]), 2)
+        self.assertEqual(self.baseline.read_bytes(), baseline)
+        self.assertEqual((self.creator / "core/a.cpp").read_bytes(), b"int value = 1;\n")
+        self.assertEqual((self.peer / "Keyboard/AdvancedKeyboard/a.cpp").read_bytes(), b"peer change\n")
 
 
 if __name__ == "__main__":

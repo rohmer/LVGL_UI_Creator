@@ -3,6 +3,7 @@
 #include <Serialization/ObjectSerializer.h>
 #include <Serialization/Project.h>
 #include <Serialization/Protobuf.h>
+#include <Serialization/LVVariable.h>
 #include <fstream>
 #include <iostream>
 #include <src/image/lv_image_decoder_private.h>
@@ -51,21 +52,31 @@ int main(int argc, char **argv)
         value.integer_value = 72;
         CHECK(lvgl_runtime_set_variable(runtime, "level", &value));
         int bar = -1, textarea = -1, check = -1;
+        size_t textarea_screen = 0;
         for (const auto &widget : document["screens"][0]["obj"])
         {
             if (widget.contains("bar"))
                 bar = widget["oid"];
-            if (widget.contains("textarea"))
-                textarea = widget["oid"];
             if (widget.contains("switch"))
                 check = widget["oid"];
         }
+        for (const auto& record : document["variables"])
+        {
+            const auto definition = LVVariable::FromJSON(record);
+            if (definition.name != "caption") continue;
+            const auto bindings = LVVariable::Bindings(definition);
+            CHECK(bindings.size() == 1);
+            CHECK(bindings[0].property == "/textarea/text");
+            textarea = bindings[0].objectId;
+            textarea_screen = bindings[0].screen;
+        }
+        CHECK(textarea >= 0);
         CHECK(lv_bar_get_value(lvgl_runtime_object(runtime, 0, bar)) == 72);
         CHECK(lvgl_runtime_history_count(runtime, "level") == 2);
         value.type = LVGL_RUNTIME_STRING;
         value.string_value = "Runtime caption";
         CHECK(lvgl_runtime_set_variable(runtime, "caption", &value));
-        auto *entry = lvgl_runtime_object(runtime, 0, textarea);
+        auto *entry = lvgl_runtime_object(runtime, textarea_screen, textarea);
         CHECK(std::string(lv_textarea_get_text(entry)) == "Runtime caption");
         lv_textarea_set_text(entry, "Typed caption");
         lv_obj_send_event(entry, LV_EVENT_VALUE_CHANGED, nullptr);

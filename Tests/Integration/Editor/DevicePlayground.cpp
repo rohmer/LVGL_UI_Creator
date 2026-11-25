@@ -1,7 +1,7 @@
 #include "DevicePlayground.h"
 #include "../../../UICreator/Devices/DeviceWindow.h"
 #include "../../../UICreator/LanguageModels/ModelPlayground.h"
-#include "../../../UICreator/LanguageModels/Generator.h"
+#include <Generator.h>
 #include "../../../UICreator/Utils/EditorSession.h"
 #include "../../../UICreator/Utils/EditorWindow.h"
 #include "../../../UICreator/Utils/SdlSimulator.h"

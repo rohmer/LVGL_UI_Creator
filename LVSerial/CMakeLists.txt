@@ -1,4 +1,5 @@
 add_subdirectory(Device)
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/AdvancedKeyboardDependency.cmake")
 file(GLOB_RECURSE serialization_sources CONFIGURE_DEPENDS "*.cpp")
 option(LVSERIAL_MINIMAL_RUNTIME "Build the embedded loader with project-selected LVGL widgets" OFF)
 set(xml_default ON)
@@ -28,24 +29,28 @@ if(LVSERIAL_USE_ADVANCED_KEYBOARD)
     if(DEFINED LVGL_RUNTIME_TARGET AND NOT LVGL_RUNTIME_TARGET STREQUAL "9.6")
         message(FATAL_ERROR "Advanced Keyboard requires the LVGL 9.6 backend")
     endif()
-    list(APPEND serialization_sources
-        Widgets/AdvancedKeyboard/Key.cpp
-        Widgets/AdvancedKeyboard/Keyboard.cpp
-        Widgets/AdvancedKeyboard/TypingView.cpp
-        Widgets/AdvancedKeyboard/SuggestionText.cpp
-        Widgets/AdvancedKeyboard/Utf8Fold.cpp
-        Widgets/AdvancedKeyboard/AdvancedKeyboard.cpp
-        Widgets/AdvancedKeyboard/KeyboardFont.c
-        Widgets/AdvancedKeyboard/KeyboardHindiFont.c
-        Widgets/AdvancedKeyboard/KeyboardBengaliFont.c
-        Widgets/AdvancedKeyboard/KeyboardCyrillicFont.c
-        Widgets/AdvancedKeyboard/KeyboardGreekFont.c
-        Widgets/AdvancedKeyboard/KeyboardUrduFont.c)
-    if(LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION)
-        list(APPEND serialization_sources Widgets/AdvancedKeyboard/PredictionModel.cpp
-            Widgets/AdvancedKeyboard/PredictionPrefix.cpp Widgets/AdvancedKeyboard/Prediction.cpp
-            Widgets/AdvancedKeyboard/PredictionStorage.cpp)
+    if(NOT TARGET AdvancedKeyboard::AdvancedKeyboard)
+        # Use the pinned component's maintained build integration.
+        set(ADVKBD_BUILD_WIDGET ON)
+        set(ADVKBD_BUILD_PREDICTION ${LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION})
+        set(ADVKBD_BUILTIN_MODEL ${LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE})
+        set(ADVKBD_SCRIPT_FONTS ON)
+        set(ADVKBD_ENABLE_PINYIN ON)
+        set(ADVKBD_EMBED_IN_LVGL OFF)
+        set(ADVKBD_BUNDLED_MODELS none)
+        set(ADVKBD_BUILD_TOOLS OFF)
+        set(ADVKBD_BUILD_TESTS OFF)
+        set(ADVKBD_BUILD_EXAMPLE OFF)
+        if(UICREATOR_USE_LVGL9)
+            set(ADVKBD_LVGL_TARGET lvgl::lvgl)
+        else()
+            set(ADVKBD_LVGL_TARGET LVGL)
+        endif()
+        add_subdirectory("${ADVKBD_SOURCE_ROOT}" "${CMAKE_CURRENT_BINARY_DIR}/advanced-keyboard" EXCLUDE_FROM_ALL)
     endif()
+else()
+    # Text-field constraints are independent of the optional widget/engine.
+    list(APPEND serialization_sources "${ADVKBD_SOURCE_ROOT}/src/TextareaInputMode.c")
 endif()
 if(LVSERIAL_MINIMAL_RUNTIME)
     list(FILTER serialization_sources EXCLUDE REGEX "/(PNGToArray|lodepng)\\.cpp$")
@@ -59,12 +64,13 @@ if(MSVC)
 endif()
 target_compile_definitions(LVSerial PUBLIC LVSERIAL_USE_ADVANCED_KEYBOARD=$<BOOL:${LVSERIAL_USE_ADVANCED_KEYBOARD}>)
 target_compile_definitions(LVSerial PUBLIC LVSERIAL_USE_XML=$<BOOL:${LVSERIAL_USE_XML}>)
+target_compile_definitions(LVSerial PUBLIC UICREATOR_ADVANCED_KEYBOARD_SOURCE_DIR="${ADVKBD_SOURCE_ROOT}")
 target_compile_definitions(LVSerial PUBLIC
     LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION=$<BOOL:${LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION}>
     LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE=$<BOOL:${LVSERIAL_USE_ADVANCED_KEYBOARD_BUILTIN_TRIE}>)
-target_include_directories(LVSerial PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Widgets/AdvancedKeyboard/include")
+target_include_directories(LVSerial PUBLIC "${ADVKBD_SOURCE_ROOT}/include" "${ADVKBD_SOURCE_ROOT}/src")
 if(LVSERIAL_USE_ADVANCED_KEYBOARD)
-    target_include_directories(LVSerial PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Widgets/AdvancedKeyboard")
+    target_link_libraries(LVSerial PUBLIC AdvancedKeyboard::AdvancedKeyboard)
 endif()
 if(LVSERIAL_MINIMAL_RUNTIME)
     target_compile_definitions(LVSerial PUBLIC LVSERIAL_MINIMAL_RUNTIME=1 LVSERIAL_EMBEDDED_RUNTIME=1)

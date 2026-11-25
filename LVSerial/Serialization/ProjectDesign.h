@@ -454,6 +454,6 @@ inline void Materialize(json& doc,bool stripAuthoring=false)
         Materialize(screen,stripAuthoring);
         if(inherit)screen.erase("projectTheme");
     }
-    if(stripAuthoring){if(doc.contains("canvas")&&doc["canvas"].contains("base"))doc["canvas"]["base"].erase("design");for(const auto* key:{"components","projectTheme","sharedStyles","previewProfiles","deviceTargets","editorScreen","editorSession","accessibility"})doc.erase(key);}
+    if(stripAuthoring){if(doc.contains("canvas")&&doc["canvas"].contains("base"))doc["canvas"]["base"].erase("design");for(const auto* key:{"components","componentLibrary","projectTheme","sharedStyles","previewProfiles","deviceTargets","editorScreen","editorSession","accessibility"})doc.erase(key);}
 }
 } }

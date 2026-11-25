@@ -26,7 +26,8 @@ def selected_trie(settings: dict) -> str:
 
 
 def text_features(model: bytes) -> tuple[bool, bool]:
-    """Inspect Unicode along validated BFS paths, not arbitrary payload bytes."""
+    """Inspect Unicode along validated paths, including bytes inside radix spans."""
+    version = int.from_bytes(model[4:8], "little")
     count = int.from_bytes(model[8:12], "little")
     states = array("I", [0]) * count
     offset, next_child, bidi, arabic = 16, 2, False, False
@@ -38,22 +39,32 @@ def text_features(model: bytes) -> tuple[bool, bool]:
             if byte < 128: return value, position
             shift += 7
     for node in range(count):
-        label = model[offset];offset += 1
-        flags, offset = integer(offset)
-        if flags & 1: _, offset = integer(offset)
+        if version == 2:
+            record = 16 + node * 12
+            span = model[record + 10:record + 11]
+            degree = int.from_bytes(model[record + 8:record + 10], "little")
+        else:
+            length = 1
+            if version == 4: length, offset = integer(offset)
+            span = model[offset:offset + length];offset += length
+            flags, offset = integer(offset)
+            if flags & 1: _, offset = integer(offset)
+            degree = flags >> (3 if version == 4 else 1)
+            if version == 4:
+                offset += (2 if flags & 2 else 0) + (2 if flags & 4 else 0)
         remaining, scalar = states[node] & 3, states[node] >> 2
-        if label < 128: remaining, scalar = 0, label
-        elif remaining and 0x80 <= label < 0xc0:
-            scalar = (scalar << 6) | (label & 63);remaining -= 1
-        elif 0xc2 <= label < 0xe0: remaining, scalar = 1, label & 31
-        elif 0xe0 <= label < 0xf0: remaining, scalar = 2, label & 15
-        elif 0xf0 <= label < 0xf5: remaining, scalar = 3, label & 7
-        else: remaining, scalar = 0, 0
-        if not remaining:
-            bidi |= 0x590 <= scalar <= 0x8ff
-            arabic |= 0x600 <= scalar <= 0x8ff
-            if bidi and arabic: return True, True
-        degree = flags >> 1
+        for label in span:
+            if label < 128: remaining, scalar = 0, label
+            elif remaining and 0x80 <= label < 0xc0:
+                scalar = (scalar << 6) | (label & 63);remaining -= 1
+            elif 0xc2 <= label < 0xe0: remaining, scalar = 1, label & 31
+            elif 0xe0 <= label < 0xf0: remaining, scalar = 2, label & 15
+            elif 0xf0 <= label < 0xf5: remaining, scalar = 3, label & 7
+            else: remaining, scalar = 0, 0
+            if not remaining:
+                bidi |= 0x590 <= scalar <= 0x8ff
+                arabic |= 0x600 <= scalar <= 0x8ff
+                if bidi and arabic: return True, True
         state = (scalar << 2) | remaining
         for child in range(next_child, next_child + degree): states[child] = state
         next_child += degree
@@ -75,7 +86,7 @@ def references(document: dict) -> set[str]:
     return result
 
 
-def payload(value) -> bytes:
+def payload(value, *, allow_empty=False) -> bytes:
     if isinstance(value, bytes): result = value
     elif isinstance(value, str):
         if len(value) > ((MAX_ASSET + 2) // 3) * 4: raise ValueError("Trie asset exceeds 16 MiB")
@@ -83,12 +94,13 @@ def payload(value) -> bytes:
         if base64.b64encode(result).decode("ascii") != value:
             raise ValueError("Trie assets require canonical base64")
     else: raise ValueError("Trie assets require embedded binary or base64 data")
-    if not result or len(result) > MAX_ASSET: raise ValueError("Trie asset is empty or exceeds 16 MiB")
+    if (not result and not allow_empty) or len(result) > MAX_ASSET: raise ValueError("Trie asset is empty or exceeds 16 MiB")
     return result
 
 
 def index_builder(root: Path):
-    path = root / "LVSerial/Widgets/AdvancedKeyboard/layout/build_ngtr_index.py"
+    import keyboard_dependency
+    path = keyboard_dependency.resolve_root(root) / "tools/layout/build_ngtr_index.py"
     specification = importlib.util.spec_from_file_location("lvgl_pb_ngtr_index", path)
     module = importlib.util.module_from_spec(specification)
     specification.loader.exec_module(module)
@@ -115,7 +127,7 @@ def prepare(document: dict, root: Path, *, prune=False) -> dict:
         model = payload(item.get("data"))
         if build_index is None: build_index = index_builder(root)
         expected_index = bytes(build_index(model))
-        if "indexData" in item and payload(item["indexData"]) != expected_index:
+        if "indexData" in item and payload(item["indexData"], allow_empty=True) != expected_index:
             raise ValueError("Trie index does not match the embedded NGTR model")
         if identity in needed:
             needs_bidi, needs_arabic = text_features(model)

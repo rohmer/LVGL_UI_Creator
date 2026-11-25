@@ -32,7 +32,7 @@ constexpr Entry entries[]={
     {"Show panel","Screens","view:screens"},{"Show panel","Tool Tray","view:widgets"},{"Show panel","Hierarchy","view:hierarchy"},
     {"Show panel","Properties","view:properties"},{"Show panel","Tools","view:tools"},{"Show panel","Simulator preview","view:simulator"},
     {"Assets","Theme gallery...","theme-gallery"},{"Assets","Reusable components...","component-library"},{"Assets","Project fonts...","font-manager"},
-    {"Assets","Project images...","image-manager"},{"Assets","Convert font...","font-converter"},{"Assets","Convert images...","image-converter"},
+    {"Assets","Project images...","image-manager"},{"Assets","Add font...","font-converter"},{"Assets","Convert images...","image-converter"},
     {"Language Models","Model playground...","model-playground"},{"Language Models","Generate language model...","language-model-generator"},
     {"Language Models","Load model into project...","language-model-load"},
     {"Export","Device Protobuf (.pb)...","export-protobuf"},{"Export","LVGL source project...","export-c"},

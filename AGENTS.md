@@ -1,27 +1,24 @@
-# Shared Advanced Keyboard
+# Advanced Keyboard authority
 
-When changing Advanced Keyboard, read `Integrations/ESPOS/README.md` and its
-sync manifest. Keep the portable implementation, layouts and bundled model
-catalog aligned with the ESPOS AdvancedKeyboard component.
+Read `Integrations/AdvancedKeyboard/README.md` before keyboard changes.
+The implementation, tools, layouts, fonts, tries and portable tests are
+maintained only in `https://github.com/rohmer/AdvancedKeyboard`.
 
-- Edit shared native code in `LVSerial/Widgets/AdvancedKeyboard`. ESPOS board
-  drivers and compatibility/UI adapters belong outside the portable component;
-  their maintained deployment sources are in `Integrations/ESPOS/templates`.
-- For new language, model, prediction, target-field or language/size-control
-  behavior, update the corresponding ESPOS adapter where applicable. The
-  Creator inspector itself is platform UI and is not copied into ESPOS.
-- After changing manifest-owned files, run the sync unit tests, review and apply
-  a push to the explicit ESPOS checkout, then run both `--check` and
-  `--check-source` before declaring those shared changes synchronized. Use a
-  reviewed pull for changes authored in ESPOS. Resolve conflicts without
-  overwriting edits on either side.
-- Include `sync-baseline.json` updates with the source changes, and run the
-  relevant native/editor and ESP32 builds/tests. Source checks are also
-  registered with CTest. If the peer is unavailable, state that parity remains
-  unverified; do not fabricate a new baseline.
-- Preserve unrelated board configuration, corpora, saved settings and build
-  outputs. Never use an ancestor Git repository as the ESPOS repository, and
-  do not initialize or publish a separate repository unless requested.
-
-The user's instruction to keep these projects in sync authorizes routine
-paired source updates. It does not authorize discarding conflicts or user data.
+- Creator consumes the pinned `3rdParty/AdvancedKeyboard` Git submodule;
+  ESPOS consumes `third_party/AdvancedKeyboard` at the same locked commit.
+  Edit and commit shared code in that repository, then update the consumer
+  gitlink and `advanced-keyboard.lock.json`. Never recreate source/model copies
+  in the old LVSerial, Tools, UICreator trainer or ESPOS keyboard directories.
+- The Creator inspector and editor windows stay in Creator. ESPOS board
+  drivers/startup and project-specific wrappers stay outside the dependency.
+  `Integrations/ESPOS/manifest.json` owns only their deployment glue, lock and
+  bootstrap helpers. Its reviewed sync preserves edits/conflicts and user data.
+- After adapter changes, run sync unit tests, review/apply a push to the
+  explicit ESPOS project, and run both `--check` and `--check-source`. Use a
+  reviewed pull for peer-authored changes; never overwrite conflicts. Include
+  the real resulting `sync-baseline.json`, not a fabricated baseline.
+- Run relevant canonical, Creator/export/runtime and ESP32 checks. Generated
+  SDK/project source snapshots are outputs, never another maintained fork.
+- Preserve corpora, custom layouts/models, saved settings, ignored downloads,
+  board configuration and build outputs. Never use an ancestor Git repository
+  as ESPOS, and never initialize ESPOS itself without an explicit request.

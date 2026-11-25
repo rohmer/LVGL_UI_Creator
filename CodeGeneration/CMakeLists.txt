@@ -5,12 +5,14 @@ configure_file(Targets/CompatSource.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/Ta
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 set(UICREATOR_MICROPYTHON_EXECUTABLE "" CACHE FILEPATH "MicroPython executable built with the official LVGL binding, for native export smoke tests")
 set(UICREATOR_MICROPYTHON_WSL_DISTRIBUTION "" CACHE STRING "Optional WSL distribution used to run the LVGL-enabled MicroPython interpreter from Windows")
-file(GLOB_RECURSE keyboard_resources CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard/*")
+file(GLOB_RECURSE keyboard_resources CONFIGURE_DEPENDS "${ADVKBD_SOURCE_ROOT}/src/*" "${ADVKBD_SOURCE_ROOT}/include/*")
 set(keyboard_source_header "${CMAKE_CURRENT_BINARY_DIR}/include/AdvancedKeyboardSource.h")
 add_custom_command(OUTPUT "${keyboard_source_header}"
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/EmbedAdvancedKeyboard.py"
-        "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard" "${keyboard_source_header}"
-    DEPENDS EmbedAdvancedKeyboard.py ${keyboard_resources} VERBATIM)
+        "${ADVKBD_SOURCE_ROOT}" "${keyboard_source_header}"
+    DEPENDS EmbedAdvancedKeyboard.py ${keyboard_resources}
+        "${ADVKBD_SOURCE_ROOT}/LICENSE" "${ADVKBD_SOURCE_ROOT}/NOTICE.md"
+        "${PROJECT_SOURCE_DIR}/advanced-keyboard.lock.json" VERBATIM)
 file(GLOB micropython_resources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/MicroPython/*.py")
 set(micropython_source_header "${CMAKE_CURRENT_BINARY_DIR}/include/MicroPythonSource.h")
 add_custom_command(OUTPUT "${micropython_source_header}"
@@ -79,9 +81,14 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         DEPENDS UICreatorCodeGenFixture
         VERBATIM)
     add_executable(UICreatorGeneratedCTests ../Tests/Integration/CodeGeneration/Generated.c
-        "${generated_dir}/ui.c" "${generated_dir}/ui_assets.c")
-    target_include_directories(UICreatorGeneratedCTests PRIVATE "${generated_dir}")
+        "${generated_dir}/ui.c" "${generated_dir}/ui_assets.c"
+        "${ADVKBD_SOURCE_ROOT}/src/TextareaInputMode.c")
+    target_include_directories(UICreatorGeneratedCTests PRIVATE "${generated_dir}" "${ADVKBD_SOURCE_ROOT}/include")
     target_link_libraries(UICreatorGeneratedCTests PRIVATE lvgl::lvgl)
+    if(MSVC)
+        target_compile_options(UICreatorCodeGenFixture PRIVATE /utf-8)
+        target_compile_options(UICreatorGeneratedCTests PRIVATE /utf-8)
+    endif()
     set_target_properties(UICreatorGeneratedCTests PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED YES)
     include("${PROJECT_SOURCE_DIR}/Tests/Integration/CodeGeneration/Versions/Register.cmake")
     include("${PROJECT_SOURCE_DIR}/Tests/Integration/CodeGeneration/Interactions/Register.cmake")

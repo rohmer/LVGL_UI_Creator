@@ -2,20 +2,16 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     cmake_minimum_required(VERSION 3.24)
     project(LVGLCreatorLanguageModels LANGUAGES CXX)
 endif()
-add_library(UICreatorLanguageModels STATIC Generator.cpp)
-target_compile_features(UICreatorLanguageModels PUBLIC cxx_std_17)
-target_include_directories(UICreatorLanguageModels PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-if(MSVC)
-    target_compile_options(UICreatorLanguageModels PRIVATE /utf-8 /EHsc)
-endif()
-find_package(Threads REQUIRED)
-target_link_libraries(UICreatorLanguageModels PUBLIC Threads::Threads)
+include("${CMAKE_CURRENT_LIST_DIR}/../../cmake/AdvancedKeyboardDependency.cmake")
 
-add_executable(UICreatorModelGen ModelGen.cpp)
-target_link_libraries(UICreatorModelGen PRIVATE UICreatorLanguageModels)
-if(MSVC)
-    target_compile_options(UICreatorModelGen PRIVATE /utf-8 /EHsc)
+# Only LanguageModelWindow and ModelPlayground are Creator-specific sources.
+# Build the maintained native trainer/model codec from the pinned dependency.
+if(CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(ADVKBD_NATIVE_HELPER_OUTPUT "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+else()
+    set(ADVKBD_NATIVE_HELPER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
-add_custom_command(TARGET UICreatorModelGen POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/wordlists"
-        "$<TARGET_FILE_DIR:UICreatorModelGen>/wordlists" VERBATIM)
+if(NOT TARGET UICreatorLanguageModels)
+    add_subdirectory("${ADVKBD_SOURCE_ROOT}/tools/NativeTrieGenerator"
+        "${CMAKE_CURRENT_BINARY_DIR}/advanced-keyboard-trainer")
+endif()

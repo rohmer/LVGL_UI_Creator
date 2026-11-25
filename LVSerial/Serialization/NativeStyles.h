@@ -2,7 +2,7 @@
 #include "LVObject.h"
 #include "RuntimeFeatures.h"
 #if LVSERIAL_USE_ADVANCED_KEYBOARD
-#include "../Widgets/AdvancedKeyboard/KeyboardVisibility.h"
+#include <KeyboardVisibility.h>
 #endif
 #include "LVFont.h"
 #include "ImageRecords.h"
@@ -396,6 +396,7 @@ namespace Serialization
         inline static std::vector<const lv_style_t*> transientStyles;
     public:
         static void IgnoreTransientStyle(const lv_style_t* style) { transientStyles.push_back(style); }
+        static bool IsTransientStyle(const lv_style_t* style) { return std::find(transientStyles.begin(),transientStyles.end(),style)!=transientStyles.end(); }
 
         static json Read(lv_obj_t* object)
         {

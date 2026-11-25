@@ -9,6 +9,7 @@
 #include "../LVSerial/Serialization/ImageRecords.h"
 #include "../LVSerial/Serialization/LVVariable.h"
 #include "../LVSerial/Serialization/ProjectFonts.h"
+#include "../LVSerial/Serialization/ProjectScreens.h"
 #include "../LVSerial/Serialization/ProjectImages.h"
 #include "../LVSerial/Serialization/CodeWidgets.h"
 #include "../LVSerial/Serialization/AdvancedKeyboard.h"
@@ -41,6 +42,14 @@ std::string number(const json& j) {
     return j.dump();
 }
 std::string upper(std::string s) { for(char& c:s) c=char(std::toupper(static_cast<unsigned char>(c))); return s; }
+std::string inputMode(const json& record) {
+    const auto mode=record.value("inputMode",std::string("alphanumeric"));
+    if(mode=="alphanumeric")return {};
+    if(mode=="uppercase")return "LV_ADVANCED_KEYBOARD_INPUT_UPPERCASE";
+    if(mode=="lowercase")return "LV_ADVANCED_KEYBOARD_INPUT_LOWERCASE";
+    if(mode=="numeric")return "LV_ADVANCED_KEYBOARD_INPUT_NUMERIC";
+    throw std::invalid_argument("Text input mode must be alphanumeric, uppercase, lowercase or numeric");
+}
 std::string identifier(std::string s) {
     for(char& c:s) if(!((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9'))) c='_';
     return "v_" + s;
@@ -74,6 +83,7 @@ std::string kind(const json& r) {
 struct Generator {
     std::ostringstream globals,body,assets,assetHeader,header,variableCode,variableInit,variableFree,variableWiring,keyboardFree,actionCode,actionInit;
     std::filesystem::path source;
+    std::string target="9.6";
     std::set<std::string> requirements, keyboardLanguages;
     std::map<std::string,std::string> assetCache,fontCache;
     std::map<std::pair<std::string,bool>,std::string> byteCache;
@@ -85,6 +95,7 @@ struct Generator {
     json manifest={{"lvglVersion","9.6.0"},{"screens",json::array()},{"objects",json::array()},{"variables",json::array()},{"images",json::array()}};
     size_t serial=0,screenCount=0;
     bool usesAdvancedKeyboard=false;
+    bool usesInputModes=false;
     bool usesPrediction=false;
     std::vector<std::pair<std::string,int32_t>> focusOwners;
     std::vector<std::pair<std::string,uint32_t>> screenTransitions;
@@ -97,6 +108,25 @@ struct Generator {
     std::vector<std::pair<size_t,std::string>> textTargets;
     std::set<std::string> bootstrapActions;
     std::string unique(const std::string& prefix) {return "ui_"+prefix+"_"+std::to_string(serial++);}
+    std::string selector(const json& value) const {
+        const auto raw=value.get<uint32_t>(),state=raw&0xffffu;
+        if(!state)return number(value);
+        auto expression="(lv_style_selector_t)"+std::to_string(raw&0xffff0000u);
+        if(state==LV_STATE_ANY)return expression+" | LV_STATE_ANY";
+        uint32_t remaining=state;
+        static const std::pair<uint32_t,const char*> states[]={
+            {LV_STATE_ALT,"LV_STATE_ALT"},{LV_STATE_CHECKED,"LV_STATE_CHECKED"},{LV_STATE_FOCUSED,"LV_STATE_FOCUSED"},
+            {LV_STATE_FOCUS_KEY,"LV_STATE_FOCUS_KEY"},{LV_STATE_EDITED,"LV_STATE_EDITED"},{LV_STATE_HOVERED,"LV_STATE_HOVERED"},
+            {LV_STATE_PRESSED,"LV_STATE_PRESSED"},{LV_STATE_SCROLLED,"LV_STATE_SCROLLED"},{LV_STATE_DISABLED,"LV_STATE_DISABLED"},
+            {LV_STATE_USER_1,"LV_STATE_USER_1"},{LV_STATE_USER_2,"LV_STATE_USER_2"},{LV_STATE_USER_3,"LV_STATE_USER_3"},{LV_STATE_USER_4,"LV_STATE_USER_4"}};
+        for(const auto& entry:states) {
+            if(!(state&entry.first))continue;
+            if(entry.first==LV_STATE_ALT&&target!="9.6"&&target!="9.5")throw std::runtime_error("LVGL "+target+" does not support the alternate widget state");
+            expression+=" | "+std::string(entry.second);remaining&=~entry.first;
+        }
+        if(remaining)throw std::runtime_error("Invalid widget style state bits");
+        return expression;
+    }
     void line(const std::string& s) {body << "    " << s << "\n";}
     void call(const std::string& fn,const std::string& o,const std::string& args) {line(fn+"("+o+(args.empty()?"":", "+args)+");");}
     void prop(const json& d,const std::string& key,const std::string& fn,const std::string& o,const std::string& extra="") {
@@ -272,7 +302,7 @@ struct Generator {
         for(auto p:{std::make_pair("click","clickable"),{"hidden","hidden"},{"parevent","event_bubble"},{"checked","checked"},{"disabled","disabled"}}) prop(b,p.first,"lv_obj_set_"+std::string(p.second),o);
         if(b.value("opascaleen",false)) prop(b,"opascale","lv_obj_set_style_opa",o,", LV_PART_MAIN");
         if(b.contains("nativeStyles")) for(const auto& entry:b["nativeStyles"]) {
-            const auto sel=number(entry.at("selector")); const auto& v=entry.at("values");
+            const auto sel=selector(entry.at("selector")); const auto& v=entry.at("values");
             for(auto it=v.begin();it!=v.end();++it) {
                 const auto& key=it.key();const auto& val=it.value();
                 if(key=="text_font") call("lv_obj_set_style_text_font",o,font(val)+", "+sel);
@@ -325,8 +355,19 @@ std::string Generator::font(const json& record) {
     if(record.is_null() || (record.is_string()&&record=="default")) return "LV_FONT_DEFAULT";
     const auto key=(record.contains("asset")?json{{"asset",record.at("asset")}}:record).dump();if(fontCache.count(key)) return "&"+fontCache[key];
     const auto& d=section(record,"dsc");if(!d.contains("bitmap")) throw std::runtime_error("Font has no embedded bitmap; save a bitmap font before exporting");
+    if(d.value("bitmapFmt",0))requirements.insert("FONT_COMPRESSED");
+    for(const auto& glyph:d.at("GlyphDsc")) {
+        if(glyph.value("bitmapIdx",uint64_t{})>0xfffff || glyph.value("adv_w",uint64_t{})>0xfff ||
+           glyph.value("box_w",uint64_t{})>255 || glyph.value("box_h",uint64_t{})>255 ||
+           glyph.value("ofs_x",int64_t{}) < -128 || glyph.value("ofs_x",int64_t{}) > 127 ||
+           glyph.value("ofs_y",int64_t{}) < -128 || glyph.value("ofs_y",int64_t{}) > 127)
+            requirements.insert("FONT_FMT_TXT_LARGE");
+    }
     auto name=unique("font");fontCache[key]=name;
-    auto bitmap=bytes(base64_decode(d.at("bitmap")));
+    auto bitmapData=base64_decode(d.at("bitmap"));
+    // LVGL may read one byte ahead at an exact compressed-bit boundary.
+    if(d.value("bitmapFmt",0))bitmapData.push_back('\0');
+    auto bitmap=bytes(bitmapData);
     auto glyphs=unique("glyphs");assets<<"static const lv_font_fmt_txt_glyph_dsc_t "<<glyphs<<"[] = {\n";
     for(const auto& g:d.at("GlyphDsc")) assets<<"{.bitmap_index="<<g.value("bitmapIdx",0u)<<",.adv_w="<<g.value("adv_w",0)<<",.box_w="<<g.value("box_w",0)<<",.box_h="<<g.value("box_h",0)<<",.ofs_x="<<g.value("ofs_x",0)<<",.ofs_y="<<g.value("ofs_y",0)<<"},\n";
     assets<<"};\n";
@@ -458,7 +499,7 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
         call("lv_"+t+"_set_update_mode",o,t=="barcode"?"LV_BARCODE_UPDATE_MODE_IMMEDIATE":"LV_QRCODE_UPDATE_MODE_IMMEDIATE");
         children(r,"contentChildren",o);return o;
     } else if(t=="arc") {
-        call("lv_obj_remove_style",o,"NULL, LV_PART_KNOB | LV_STATE_ANY");call("lv_obj_set_style_arc_opa",o,"0, LV_PART_INDICATOR");
+        call("lv_obj_remove_style",o,"NULL, (lv_style_selector_t)LV_PART_KNOB | LV_STATE_ANY");call("lv_obj_set_style_arc_opa",o,"0, LV_PART_INDICATOR");
         if(d.contains("min")&&d.contains("max"))call("lv_arc_set_range",o,number(d["min"])+", "+number(d["max"]));
         if(d.contains("mode"))line("if (lv_arc_get_mode("+o+") != "+number(d["mode"])+") lv_arc_set_mode("+o+", "+number(d["mode"])+");");
         if(d.contains("value")&&d["value"]!=INT16_MIN)prop(d,"value","lv_arc_set_value",o);
@@ -487,7 +528,7 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
     } else if(t=="checkbox"||t=="switch") {
         if(t=="checkbox")literalText(d,"text","lv_checkbox_set_text",o);
         prop(d,"checked","lv_obj_set_checked",o);prop(d,"inact","lv_obj_set_disabled",o);
-        if(t=="checkbox")for(auto s:{std::make_pair("bg","LV_PART_MAIN"),{"rel","LV_PART_INDICATOR"},{"pr","LV_PART_INDICATOR | LV_STATE_PRESSED"},{"tglRel","LV_PART_INDICATOR | LV_STATE_CHECKED"},{"tglPr","LV_PART_INDICATOR | LV_STATE_CHECKED | LV_STATE_PRESSED"},{"ina","LV_PART_INDICATOR | LV_STATE_DISABLED"}})legacyStyle(o,section(section(d,"style"),s.first),s.second);
+        if(t=="checkbox")for(auto s:{std::make_pair("bg","LV_PART_MAIN"),{"rel","LV_PART_INDICATOR"},{"pr","(lv_style_selector_t)LV_PART_INDICATOR | LV_STATE_PRESSED"},{"tglRel","(lv_style_selector_t)LV_PART_INDICATOR | LV_STATE_CHECKED"},{"tglPr","(lv_style_selector_t)LV_PART_INDICATOR | LV_STATE_CHECKED | LV_STATE_PRESSED"},{"ina","(lv_style_selector_t)LV_PART_INDICATOR | LV_STATE_DISABLED"}})legacyStyle(o,section(section(d,"style"),s.first),s.second);
     } else if(t=="buttonMatrix")matrix(o,d);
     else if(t=="keyboard") {prop(d,"mode","lv_keyboard_set_mode",o);prop(d,"popovers","lv_keyboard_set_popovers",o);matrix(o,section(d,"buttons"));}
     else if(t=="dropdown") {
@@ -502,6 +543,11 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
     } else if(t=="textarea") {
         for(auto p:{std::make_pair("accepted","accepted_chars"),{"passwordBullet","password_bullet"},{"placeholder","placeholder_text"}})text(d,p.first,"lv_textarea_set_"+std::string(p.second),o);
         for(auto p:{std::make_pair("maxLength","max_length"),{"oneLine","one_line"},{"password","password_mode"},{"passwordShowTime","password_show_time"},{"cursorClick","cursor_click_pos"},{"selection","text_selection"}})prop(d,p.first,"lv_textarea_set_"+std::string(p.second),o);
+        const auto mode=inputMode(d);
+        if(!mode.empty()) {
+            usesInputModes=true;
+            line("if (!lv_advanced_keyboard_set_textarea_input_mode("+o+", "+mode+")) { ui_deinit(); return false; }");
+        }
         text(d,"text","lv_textarea_set_text",o);prop(d,"cursor","lv_textarea_set_cursor_pos",o);
     } else if(t=="led") {
         if(d.contains("color"))call("lv_led_set_color",o,"lv_color_hex("+number(d["color"])+")");prop(d,"brightness","lv_led_set_brightness",o);
@@ -603,16 +649,22 @@ void Generator::custom(const std::string& o,const std::string& t,const json& d) 
     auto title=object({{"base",json::object()},{"text",d.value("title",std::string(t=="textBox"?"Value":"Layer view"))}},o);
     const auto state=o+"_custom";
     if(t=="textBox") {
+        auto minimum=d.value("min",int64_t(0)),maximum=d.value("max",int64_t(100));
+        const auto step=d.value("step",int64_t(1));
+        if(minimum>maximum||step<=0)throw std::invalid_argument("Text box requires an ordered range and a positive step");
+        if(d.value("inputMode",std::string("alphanumeric"))=="numeric") {minimum=std::max<int64_t>(0,minimum);maximum=std::max<int64_t>(0,maximum);}
+        const auto value=d.value("numeric",true)?std::clamp(d.value("value",int64_t(0)),minimum,maximum):d.value("value",int64_t(0));
+        const auto initialText=d.value("text",d.value("numeric",true)?std::to_string(value):std::string("0"));
         globals<<"static ui_textbox_t "<<state<<";\n";
         call("lv_obj_set_flex_flow",o,"LV_FLEX_FLOW_ROW");call("lv_obj_set_flex_align",o,"LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER");
         call("lv_obj_set_style_pad_column",o,std::to_string(d.value("spacing",6))+", 0");call("lv_obj_set_width",title,std::to_string(d.value("titleWidth",64)));
-        auto entry=object({{"base",json::object()},{"textarea",{{"oneLine",true},{"text",d.value("text",std::string("0"))},{"placeholder",d.value("placeholder",std::string{})},{"password",d.value("password",false)},{"maxLength",d.value("maxLength",32)}}}},o);
+        auto entry=object({{"base",json::object()},{"textarea",{{"oneLine",true},{"text",initialText},{"placeholder",d.value("placeholder",std::string{})},{"password",d.value("password",false)},{"maxLength",d.value("maxLength",32)},{"accepted",d.value("acceptedChars",std::string{}).empty()?json(nullptr):d.at("acceptedChars")},{"inputMode",d.value("inputMode",std::string("alphanumeric"))}}}},o);
         call("lv_obj_set_flex_grow",entry,"1");call("lv_obj_set_height",entry,"36");
-        if(!d.value("acceptedChars",std::string{}).empty())call("lv_textarea_set_accepted_chars",entry,quote(d["acceptedChars"]));
         call("lv_obj_set_disabled",entry,d.value("readOnly",false)?"true":"false");
         line(state+".root = "+o+"; "+state+".entry = "+entry+";");line("ui_track_object("+o+", &"+state+".root);");
-        line(state+".minimum = "+std::to_string(d.value("min",int64_t(0)))+"; "+state+".maximum = "+std::to_string(d.value("max",int64_t(100)))+"; "+state+".step = "+std::to_string(d.value("step",int64_t(1)))+";");
-        line(state+".value = "+std::to_string(d.value("value",int64_t(0)))+"; "+state+".numeric = "+(d.value("numeric",true)?"true":"false")+"; "+state+".read_only = "+(d.value("readOnly",false)?"true":"false")+";");
+        line(state+".minimum = "+std::to_string(minimum)+"; "+state+".maximum = "+std::to_string(maximum)+"; "+state+".step = "+std::to_string(step)+";");
+        line(state+".value = "+std::to_string(value)+"; "+state+".numeric = "+(d.value("numeric",true)?"true":"false")+"; "+state+".read_only = "+(d.value("readOnly",false)?"true":"false")+";");
+        line("ui_textbox_read_value(&"+state+");");
         call("lv_obj_add_event_cb",entry,"ui_textbox_entry, LV_EVENT_VALUE_CHANGED, &"+state);
         base(title,section(section(d,"partBases"),"Title"));base(entry,section(section(d,"partBases"),"Entry"));
         legacyStyle(title,section(section(d,"styles"),"Title"));legacyStyle(entry,section(section(d,"styles"),"Entry"));
@@ -1038,7 +1090,7 @@ void Generator::interactions(const json& project) {
 }
 
 std::map<std::string,std::string> Generator::files(const json& input) {
-    auto project=input;Serialization::ProjectDesign::Materialize(project,true);Serialization::MigrateAdvancedKeyboardEditors(project);
+    auto project=Serialization::ProjectScreens::Device(input);Serialization::MigrateAdvancedKeyboardEditors(project);
     const auto catalog=Serialization::ProjectFonts::Normalize(project.value("fonts",json::array()));
     Serialization::ProjectFonts::References(project,catalog,true);
     Serialization::ProjectImages::References(project,project.value("images",json::array()),true);
@@ -1084,7 +1136,7 @@ std::map<std::string,std::string> Generator::files(const json& input) {
 #define ui_dropdown_set_fixed_options lv_dropdown_set_options
 #endif
 )TEXT";
-    for(auto& r:requirements) {const auto macro=r=="BIN_DECODER_RAM_LOAD"?"LV_BIN_DECODER_RAM_LOAD":r=="FLEX"||r=="GRID"?"LV_USE_"+r:r=="DRAW_SW_COMPLEX_GRADIENTS"?"LV_DRAW_SW_COMPLEX_GRADIENTS":"LV_USE_"+r;requirementsFile<<"#if !"<<macro<<"\n#error Enable "<<macro<<" in lv_conf.h for this project\n#endif\n";}
+    for(auto& r:requirements) {const auto macro=r=="BIN_DECODER_RAM_LOAD"?"LV_BIN_DECODER_RAM_LOAD":r=="FONT_FMT_TXT_LARGE"?"LV_FONT_FMT_TXT_LARGE":r=="DRAW_SW_COMPLEX_GRADIENTS"?"LV_DRAW_SW_COMPLEX_GRADIENTS":"LV_USE_"+r;requirementsFile<<"#if !"<<macro<<"\n#error Enable "<<macro<<" in lv_conf.h for this project\n#endif\n";}
     for(const auto& feature:std::vector<std::pair<std::string,std::string>>{{"zh-CN","LV_FONT_SOURCE_HAN_SANS_SC_16_CJK"},{"zh-CN","LV_ADVANCED_KEYBOARD_USE_PINYIN"},
         {"ar-SA","LV_FONT_DEJAVU_16_PERSIAN_HEBREW"},{"hi-IN","LV_ADVANCED_KEYBOARD_USE_HINDI_FONT"},{"bn-BD","LV_ADVANCED_KEYBOARD_USE_BENGALI_FONT"},
         {"ur-PK","LV_ADVANCED_KEYBOARD_USE_URDU_FONT"},{"ru-RU","LV_ADVANCED_KEYBOARD_USE_CYRILLIC_FONT"},
@@ -1094,6 +1146,7 @@ std::map<std::string,std::string> Generator::files(const json& input) {
     std::string h="#pragma once\n#include <lvgl.h>\n#include <stdbool.h>\n#include <stdint.h>\n#include <stddef.h>\n#ifdef __cplusplus\nextern \"C\" {\n#endif\nbool ui_init(void);\nvoid ui_deinit(void);\nsize_t ui_screen_count(void);\nlv_obj_t *ui_get_screen(size_t index);\nlv_obj_t *ui_get_object(size_t screen, int32_t object_id);\nbool ui_show_screen(size_t index);\n"+header.str()+"#ifdef __cplusplus\n}\n#endif\n";
     std::ostringstream c;c<<"/* Generated by LVGL UI Creator. LVGL and your display/input drivers must be initialized first. */\n#include \"ui.h\"\n#include \"ui_assets.h\"\n#include \"ui_requirements.h\"\n#include <math.h>\n#include <float.h>\n";
     if(usesAdvancedKeyboard)c<<"#include \"advanced_keyboard/include/lv_advanced_keyboard.h\"\n#include \"advanced_keyboard/include/lv_advanced_keyboard_prediction.h\"\n";
+    else if(usesInputModes)c<<"#include \"advanced_keyboard/include/lv_textarea_input_mode.h\"\n";
     c<<CGeneration::Runtime<<globals.str()<<focusCode()<<variableCode.str()<<actionCode.str()<<fontAccess.str();
     if(usesTransitions) {
         c<<R"TRANSITION(
@@ -1189,6 +1242,7 @@ static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
     const std::string readme="# Generated LVGL project\n\nThese C11 sources target LVGL 9.6.x. No editor, C++, JSON, Protobuf, SDL, filesystem or image decoder is required on the device. PNG/JPEG/GIF assets are decoded during export to ARGB8888 arrays; GIF frames advance using LVGL timers. Fonts and widget maps are compiled into the assets. Canvas buffers are writable RAM. Budget flash for uncompressed images and RAM for screens, canvases and variable histories.\n\nAdd LVGL to your firmware build, configure the options listed in ui_requirements.h, then add_subdirectory(path/to/generated_ui) and link generated_ui. Your firmware supplies LVGL, the display/input drivers and periodic tick/timer handling. After initializing them:\n\n```c\n#include \"ui.h\"\nif (!ui_init()) { /* initialization failed */ }\n/* ui_init loads the initial screen. */\n```\n\nUse ui_get_screen(index), ui_show_screen(index), and ui_get_object(screen_index, saved_object_id). manifest.json maps original names and IDs to generated symbols. Variables are exposed in ui_variables; update them through ui_set_v_NAME to maintain bindings and history. String pointers are borrowed and expire on the next update or ui_deinit. History getters return oldest first; a configured history of zero grows until memory is exhausted. Setters report allocation failures. Interactive bindings update variables on VALUE_CHANGED. All calls must run on the LVGL thread.\n\nui_init is idempotent. ui_deinit releases generated screens, animation timers and variable storage, restoring the previous screen when available. Call it before deleting the display or deinitializing LVGL. Application-specific actions and hardware behavior should be attached by firmware after ui_init; editor-only drag settings are not exported. Re-export overwrites generated files, so keep application logic outside this directory.\n\nCLI: UICreatorCodeGen project.json output_directory (also accepts project.pb). The editor exports through File > Export C project. External image paths resolve relative to the saved project; embedded assets are preferred. Optional multi-screen project records use a screens array of {name,canvas,obj} plus activeScreen and shared variables (binding screen defaults to 0).\n";
     std::map<std::string,std::string> output={{"ui.h",h},{"ui.c",c.str()},{"ui_assets.h","#pragma once\n#include <lvgl.h>\n"+assetHeader.str()},{"ui_assets.c","#include \"ui_assets.h\"\n"+assets.str()},{"ui_requirements.h",requirementsFile.str()},{"CMakeLists.txt",cmake},{"README.md",readme},{"manifest.json",manifest.dump(2)+"\n"}};
     output["CMakeLists.txt"]+="\noption(UI_USE_STATIC_TEXT \"Keep authored fixed text in read-only storage\" ON)\ntarget_compile_definitions(generated_ui PRIVATE UI_USE_STATIC_TEXT=$<BOOL:${UI_USE_STATIC_TEXT}>)\n";
+    output["README.md"]+="\nProject fonts are embedded automatically and shared by every widget that uses them. Export chooses C symbols; friendly font names can contain spaces or Unicode. Use ui_get_font(project_font_id) to retrieve an immutable font for application-created widgets. IDs survive renaming, and the returned font remains valid for the lifetime of the program. The source TTF/OTF, conversion settings and conversion tools are not needed on the device.\n\n";
     output["README.md"]+=R"MEMORY(
 Memory and update costs
 -----------------------
@@ -1219,6 +1273,16 @@ The public setter types and oldest-first history access remain unchanged.
     if(!variableWiring.str().empty())output["README.md"]+="\nSetters and binders return false when called again from a synchronous widget callback during variable propagation. Queue such application updates for the next LVGL iteration. Authored widget actions are suppressed while propagating programmatic variable updates; actions still run for user-generated events.\n";
     if(usesTransitions)output["README.md"]+="\nui_show_screen applies the destination screen's transition and duration. Transitions retain both screens and never automatically delete them; repeated navigation and ui_deinit safely cancel pending transitions.\n";
     if(!focusOwners.empty())output["README.md"]+="\nCreate and set the default LVGL input group before ui_init; keep it alive through ui_deinit. Authored tabIndex values sort explicit controls before natural controls. -1 excludes a widget and its internal controls. Only the active generated screen's controls remain in that group. Focus storage and deletion callbacks are omitted when no explicit focus metadata is authored.\n";
+    if(usesInputModes&&!usesAdvancedKeyboard) {
+        const auto support=CGeneration::AdvancedKeyboardSources();
+        for(const auto* name:{"advanced_keyboard/TextareaInputMode.c","advanced_keyboard/UnicodeCase.inc","advanced_keyboard/include/lv_textarea_input_mode.h"}) {
+            const auto found=support.find(name);
+            if(found==support.end())throw std::runtime_error("Text input-mode support sources were not bundled with this compiler");
+            output.emplace(found->first,found->second);
+        }
+        output["CMakeLists.txt"]+="\ntarget_sources(generated_ui PRIVATE advanced_keyboard/TextareaInputMode.c)\ntarget_include_directories(generated_ui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/advanced_keyboard/include)\n";
+    }
+    if(usesInputModes)output["README.md"]+="\nText input modes enforce case or decimal-only input for every input path, including physical keyboards and pasted text. Case conversion retains Unicode accents and scripts. Numeric fields accept ASCII digits and one decimal point; an empty value is allowed while editing. Existing accepted-character and maximum-length settings still apply. Plain text fields use the small bundled C input helper and do not pull in Advanced Keyboard, prediction models or keyboard fonts.\n";
     if(usesAdvancedKeyboard) {
         auto support=CGeneration::AdvancedKeyboardSources();
         if(support.empty())throw std::runtime_error("Advanced Keyboard support sources were not bundled with this compiler");
@@ -1239,8 +1303,8 @@ The public setter types and oldest-first history access remain unchanged.
 bool CCodeGenerator::Preflight(nlohmann::json& summary) {
     summary = nlohmann::json::object();
     try {
-        Generator generator; generator.source = std::filesystem::u8path(sourceDirectory);
-        auto prepared = project;
+        Generator generator; generator.source = std::filesystem::u8path(sourceDirectory);generator.target=targetVersion;
+        auto prepared = Serialization::ProjectScreens::Device(project);
         CGeneration::EmbedLocalImages(prepared, generator.source);
         CGeneration::PrepareTarget(prepared, targetVersion);
         auto output = generator.files(prepared);
@@ -1265,8 +1329,8 @@ std::string CCodeGenerator::VariableIdentifier(const nlohmann::json& records,siz
 bool CCodeGenerator::ExportProject(std::string directory) {
     try {
         if(directory.empty()) throw std::runtime_error("Choose an output directory");
-        Generator generator;generator.source=std::filesystem::u8path(sourceDirectory);
-        auto prepared=project;CGeneration::EmbedLocalImages(prepared,generator.source);CGeneration::PrepareTarget(prepared,targetVersion);
+        Generator generator;generator.source=std::filesystem::u8path(sourceDirectory);generator.target=targetVersion;
+        auto prepared=Serialization::ProjectScreens::Device(project);CGeneration::EmbedLocalImages(prepared,generator.source);CGeneration::PrepareTarget(prepared,targetVersion);
         auto output=generator.files(prepared);
         if(targetVersion!="9.6"){output["ui_lvgl_compat.h"]=targetVersion=="8.3"?CGeneration::Compat8:CGeneration::Compat9;CGeneration::AdaptTarget(output,targetVersion);} // Validate everything before touching the destination.
         auto path=std::filesystem::u8path(directory);std::filesystem::create_directories(path);

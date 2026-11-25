@@ -22,8 +22,11 @@ static std::wstring Quote(const std::wstring& text) {
     result.append(slashes*2,L'\\');return result+L'"';
 }
 #endif
-int Run(const std::filesystem::path& runtime,const std::filesystem::path& script,const std::filesystem::path& request,const std::filesystem::path& log,const std::atomic<bool>* cancel) {
-    const auto deadline=std::chrono::steady_clock::now()+std::chrono::minutes(3);
+int Run(const std::filesystem::path& runtime,const std::filesystem::path& script,const std::filesystem::path& request,const std::filesystem::path& log,const std::atomic<bool>* cancel,std::chrono::milliseconds timeout) {
+    const auto now=std::chrono::steady_clock::now();
+    if(timeout<=std::chrono::milliseconds::zero() || timeout>std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::time_point::max()-now))
+        throw std::invalid_argument("Project tool timeout must be positive and finite");
+    const auto deadline=now+timeout;
 #ifdef _WIN32
     SECURITY_ATTRIBUTES attributes{sizeof attributes,nullptr,TRUE};
     HANDLE output=CreateFileW(log.c_str(),GENERIC_WRITE,FILE_SHARE_READ,&attributes,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,nullptr);

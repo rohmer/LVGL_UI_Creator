@@ -20,8 +20,8 @@ static bool ui_interaction_validate(lv_obj_t *target, const char *text, bool req
         number=strtod(first,&end); while (end && *end && isspace((unsigned char)*end)) ++end;
         valid=end!=first && end && !*end && isfinite(number) && (!has_min || number>=minimum) && (!has_max || number<=maximum);
     }
-    lv_obj_set_style_border_color(target,lv_color_hex(0xd92d20),LV_PART_MAIN|LV_STATE_USER_4);
-    lv_obj_set_style_border_width(target,2,LV_PART_MAIN|LV_STATE_USER_4);
+    lv_obj_set_style_border_color(target,lv_color_hex(0xd92d20),(lv_style_selector_t)LV_PART_MAIN|LV_STATE_USER_4);
+    lv_obj_set_style_border_width(target,2,(lv_style_selector_t)LV_PART_MAIN|LV_STATE_USER_4);
     if (valid) lv_obj_remove_state(target,LV_STATE_USER_4);
     else {lv_obj_add_state(target,LV_STATE_USER_4);lv_obj_scroll_to_view_recursive(target,LV_ANIM_OFF);}
     return valid;
@@ -112,6 +112,14 @@ typedef struct {
     int64_t value, minimum, maximum, step;
     bool numeric, read_only, updating;
 } ui_textbox_t;
+static void ui_textbox_read_value(ui_textbox_t* box)
+{
+    if (box->numeric) {
+        char* end; const char* text = lv_textarea_get_text(box->entry);
+        int64_t value = strtoll(text, &end, 10);
+        if (*text && !*end) box->value = value < box->minimum ? box->minimum : value > box->maximum ? box->maximum : value;
+    }
+}
 static void ui_textbox_assign(ui_textbox_t* box, int64_t value)
 {
     char text[32];
@@ -124,11 +132,7 @@ static void ui_textbox_entry(lv_event_t* event)
 {
     ui_textbox_t* box = (ui_textbox_t*)lv_event_get_user_data(event);
     if (box->updating || box->read_only) return;
-    if (box->numeric) {
-        char* end; const char* text = lv_textarea_get_text(box->entry);
-        int64_t value = strtoll(text, &end, 10);
-        if (*text && !*end) box->value = value < box->minimum ? box->minimum : value > box->maximum ? box->maximum : value;
-    }
+    ui_textbox_read_value(box);
     lv_obj_send_event(box->root, LV_EVENT_VALUE_CHANGED, NULL);
 }
 static void ui_textbox_plus(lv_event_t* event)

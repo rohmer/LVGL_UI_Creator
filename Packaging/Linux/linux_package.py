@@ -16,7 +16,7 @@ import zlib
 
 MACHINES = {"x86_64": 62, "aarch64": 183}
 TOOLS = ("UICreator", "UICreatorConverter", "LVGLCompiler", "UICreatorCodeGen", "UICreatorViewer")
-HELPERS = ("project-creator", "language-models", "python-runtime", "integrations")
+HELPERS = ("project-creator", "language-models", "python-runtime", "integrations", "fonts")
 # SDL's X11/Wayland backends load these by name. They do not appear in ELF
 # DT_NEEDED, so declare the desktop runtime contract explicitly in the DEB.
 DESKTOP_DEPENDENCIES = ("libx11-6", "libxext6", "libxcursor1", "libxi6", "libxfixes3", "libxrandr2",

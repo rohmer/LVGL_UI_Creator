@@ -566,6 +566,29 @@ TEST_CASE("Malformed font metrics and cmap tables are rejected", "[runtime][font
     }
 }
 
+TEST_CASE("Malformed embedded kerning tables are rejected before loading", "[runtime][fonts][validation]") {
+    const auto original=LVFont::ToJSON(*LV_FONT_DEFAULT);
+    for(const auto& kern:std::vector<json>{
+        {{"glyphIDSize",1},{"GlyphIDs",{1,999999}},{"Values",{-1}}},
+        {{"glyphIDSize",0},{"GlyphIDs",{1,2,1,2}},{"Values",{-1,-2}}},
+        {{"glyphIDSize",0},{"GlyphIDs",{1,2}},{"Values",json::array()}},
+        {{"glyphIDSize",2},{"GlyphIDs",{1,2}},{"Values",{-1}}}
+    }) {
+        auto font=original;font["dsc"]["kernClasses"]=0;font["dsc"]["Kern"]=kern;
+        auto document=Empty();document["fonts"]={{{"id","font_1"},{"name","Body"},{"font",font}}};Reject(document);
+    }
+    auto font=original;
+    const auto count=font["dsc"]["GlyphDsc"].size();
+    font["dsc"]["kernClasses"]=1;
+    font["dsc"]["Kern"]={{"leftCount",1},{"rightCount",1},{"Values",{-1}},
+        {"leftClasses",std::vector<uint8_t>(count,0)},{"rightClasses",std::vector<uint8_t>(count,0)}};
+    font["dsc"]["Kern"]["leftClasses"][1]=2;
+    auto document=Empty();document["fonts"]={{{"id","font_1"},{"name","Body"},{"font",font}}};Reject(document);
+    font=original;font["dsc"]["kernClasses"]=0;font["dsc"]["Kern"]=json::object();
+    document["fonts"][0]["font"]=font;
+    CHECK(lvgl_runtime_font(Load(document).get(),"font_1")!=nullptr);
+}
+
 TEST_CASE("Backends reject properties without a native equivalent", "[runtime][capabilities]") {
     std::string backend=lvgl_runtime_backend();
     auto object=json{{"base",json::object()},{"oid",0}};

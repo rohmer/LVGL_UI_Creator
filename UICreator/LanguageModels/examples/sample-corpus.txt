@@ -1,8 +1,0 @@
-the cat is in the garden. the dog is in the garden.
-the cat is on the table. the dog is under the table.
-hello world. hello there. hello world.
-help the small cat. help the small dog. help the hero.
-the sun is bright. the sky is blue. the garden is green.
-we are in the garden. we are in the world.
-the cat and the dog are friends. the cat and the dog are happy.
-this is a small example. this example is for testing the language model.

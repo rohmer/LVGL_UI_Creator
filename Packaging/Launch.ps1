@@ -15,7 +15,7 @@ foreach($name in @('UICreator.exe','UICreatorConverter.exe','UICreatorViewer.exe
     Copy-Item -LiteralPath (Join-Path $ApplicationDirectory $name) -Destination $live
 }
 Get-ChildItem -LiteralPath $ApplicationDirectory -Filter '*.dll' -File | Copy-Item -Destination $live
-foreach($name in @('project-creator','language-models','docs','licenses','sdk')){
+foreach($name in @('project-creator','language-models','fonts','docs','licenses','sdk')){
     $source=Join-Path $ApplicationDirectory $name
     if(Test-Path -LiteralPath $source){Copy-Item -LiteralPath $source -Destination $live -Recurse}
 }

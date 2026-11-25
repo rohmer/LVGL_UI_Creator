@@ -6,6 +6,18 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
+PB_BIND(lvserial_FontGlyph, lvserial_FontGlyph, AUTO)
+
+
+PB_BIND(lvserial_FontCmap, lvserial_FontCmap, AUTO)
+
+
+PB_BIND(lvserial_FontKerning, lvserial_FontKerning, AUTO)
+
+
+PB_BIND(lvserial_FontData, lvserial_FontData, AUTO)
+
+
 PB_BIND(lvserial_Property, lvserial_Property, 2)
 
 

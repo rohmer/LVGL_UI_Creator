@@ -1,0 +1,187 @@
+# Bundled font notices
+
+The original four user-provided TTF files retain their embedded notices.
+Eight additional open-source regular faces are redistributed unmodified under
+the SIL Open Font License 1.1, with each full upstream license alongside its TTF.
+Original TTF bytes and embedded naming notices are preserved in all cases.
+
+Badh Regular
+------------
+Original filename: 67d6b1e9cdc02_BadhRegularttnorm.ttf
+
+Copyright:
+Copyright (c) 1994 ImageLine Incorporated. All Rights Reserved.
+
+No license text or license URL is embedded in this user-provided font.
+
+Caliper Regular
+---------------
+Original filename: 67d6b1eddb072_CaliperRegular.ttf
+
+Copyright:
+Copyright 2002 YouWorkForThem.  All Rights Reserved. http://www.youworkforthem.com.  YWFT Administration Contact: info@youworkforthem.com
+
+No license text or license URL is embedded in this user-provided font.
+
+Inter Regular
+-------------
+Original filename: extras/ttf/Inter-Regular.ttf
+
+Upstream: https://github.com/rsms/inter
+Source: https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip
+Revision/version: v4.1
+License: OFL-1.1 (full text: inter-regular-OFL.txt)
+
+Copyright:
+Copyright 2016 The Inter Project Authors
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL
+
+Embedded license URL:
+http://scripts.sil.org/OFL
+
+JetBrains Mono Regular
+----------------------
+Original filename: JetBrainsMono-Regular.ttf
+
+Upstream: https://github.com/JetBrains/JetBrainsMono
+Source: https://raw.githubusercontent.com/JetBrains/JetBrainsMono/19371302b95d218af43299bce79ddbddd0bc364d/fonts/ttf/JetBrainsMono-Regular.ttf
+Revision/version: 19371302b95d218af43299bce79ddbddd0bc364d
+License: OFL-1.1 (full text: jetbrains-mono-regular-OFL.txt)
+
+Copyright:
+Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org
+
+Embedded license URL:
+https://openfontlicense.org
+
+Lato Regular
+------------
+Original filename: Lato-Regular.ttf
+
+Upstream: https://github.com/google/fonts
+Source: https://raw.githubusercontent.com/google/fonts/83c62e30d87daa70216dab6b984d00d20d96d585/ofl/lato/Lato-Regular.ttf
+Revision/version: 83c62e30d87daa70216dab6b984d00d20d96d585
+License: OFL-1.1 (full text: lato-regular-OFL.txt)
+
+Copyright:
+Copyright (c) 2011-2015 by tyPoland Lukasz Dziedzic (http://www.typoland.com/) with Reserved Font Name "Lato". Licensed under the SIL Open Font License, Version 1.1 (http://scripts.sil.org/OFL). 
+
+Embedded license text:
+Copyright (c) 2011-2015 by tyPoland Lukasz Dziedzic (http://www.typoland.com/) with Reserved Font Name "Lato". Licensed under the SIL Open Font License, Version 1.1 (http://scripts.sil.org/OFL). 
+
+Embedded license URL:
+http://scripts.sil.org/OFL
+
+MicrogrammaDMedExt
+------------------
+Original filename: 6790d20e8be67_M025094D.TTF
+
+Copyright:
+URW Software, Copyright 1994 by URW
+
+No license text or license URL is embedded in this user-provided font.
+
+Montserrat Regular
+------------------
+Original filename: Montserrat-Regular.ttf
+
+Upstream: https://github.com/JulietaUla/Montserrat
+Source: https://raw.githubusercontent.com/JulietaUla/Montserrat/555facfb2a18c72c3c0380f0d9c0f060453a9058/fonts/ttf/Montserrat-Regular.ttf
+Revision/version: 555facfb2a18c72c3c0380f0d9c0f060453a9058
+License: OFL-1.1 (full text: montserrat-regular-OFL.txt)
+
+Copyright:
+Copyright 2011 The Montserrat Project Authors (https://github.com/JulietaUla/Montserrat)
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org
+
+Embedded license URL:
+https://openfontlicense.org
+
+Noto Sans Regular
+-----------------
+Original filename: NotoSans-Regular.ttf
+
+Upstream: https://github.com/notofonts/latin-greek-cyrillic
+Source: https://notofonts.github.io/latin-greek-cyrillic/fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf
+Revision/version: 2.015
+License: OFL-1.1 (full text: noto-sans-regular-OFL.txt)
+
+Copyright:
+Copyright 2022 The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic)
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL
+
+Embedded license URL:
+https://scripts.sil.org/OFL
+
+OCR A Extended
+--------------
+Original filename: 679da8f53689a_OCRAExtended.ttf
+
+Copyright:
+Digitized data copyright The Monotype Corporation 1991-1995. All rights reserved.
+
+No license text or license URL is embedded in this user-provided font.
+
+Open Sans Regular
+-----------------
+Original filename: OpenSans-Regular.ttf
+
+Upstream: https://github.com/googlefonts/opensans
+Source: https://raw.githubusercontent.com/googlefonts/opensans/6cbc400d4855abee59d85c4ed871d510399bce7b/fonts/ttf/OpenSans-Regular.ttf
+Revision/version: 6cbc400d4855abee59d85c4ed871d510399bce7b
+License: OFL-1.1 (full text: open-sans-regular-OFL.txt)
+
+Copyright:
+Copyright 2020 The Open Sans Project Authors (https://github.com/googlefonts/opensans)
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL
+
+Embedded license URL:
+http://scripts.sil.org/OFL
+
+Roboto Regular
+--------------
+Original filename: Roboto[wdth,wght].ttf
+
+Upstream: https://github.com/google/fonts
+Source: https://raw.githubusercontent.com/google/fonts/83c62e30d87daa70216dab6b984d00d20d96d585/ofl/roboto/Roboto%5Bwdth%2Cwght%5D.ttf
+Revision/version: 83c62e30d87daa70216dab6b984d00d20d96d585
+License: OFL-1.1 (full text: roboto-regular-OFL.txt)
+
+Copyright:
+Copyright 2011 The Roboto Project Authors (https://github.com/googlefonts/roboto-classic)
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org
+
+Embedded license URL:
+https://openfontlicense.org
+
+Source Sans 3 Regular
+---------------------
+Original filename: SourceSans3-Regular.ttf
+
+Upstream: https://github.com/adobe-fonts/source-sans
+Source: https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/TTF/SourceSans3-Regular.ttf
+Revision/version: 87b37a2daaed80fcb8e8ccb0085c4d72ddade12e
+License: OFL-1.1 (full text: source-sans-3-regular-OFL.txt)
+
+Copyright:
+© 2023 Adobe (http://www.adobe.com/), with Reserved Font Name ‘Source’
+
+Embedded license text:
+This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL. This Font Software is distributed on an ‘AS IS’ BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software.
+
+Embedded license URL:
+http://scripts.sil.org/OFL
+

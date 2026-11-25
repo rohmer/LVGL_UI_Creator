@@ -7,8 +7,8 @@
 #include <stdexcept>
 
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
-#include "../Widgets/AdvancedKeyboard/include/lv_advanced_keyboard_prediction.h"
-#include "../Widgets/AdvancedKeyboard/PredictionStorage.h"
+#include <lv_advanced_keyboard_prediction.h>
+#include <PredictionStorage.h>
 #endif
 
 namespace Serialization {
@@ -59,20 +59,28 @@ uint32_t Read32(const uint8_t* bytes)
 {
     return uint32_t(bytes[0]) | (uint32_t(bytes[1]) << 8) | (uint32_t(bytes[2]) << 16) | (uint32_t(bytes[3]) << 24);
 }
-void Header(const Bytes& bytes)
+uint32_t Header(const Bytes& bytes)
 {
-    if (bytes.Size() < 20 || bytes.Size() > kMaxAssetBytes || std::memcmp(bytes.Data(), "NGTR", 4) ||
-        Read32(bytes.Data() + 4) != 3 || Read32(bytes.Data() + 12) != 0)
-        throw std::invalid_argument("Trie must be a compact NGTR v3 model between 20 bytes and 16 MiB");
+    if (bytes.Size() < 20 || bytes.Size() > kMaxAssetBytes || std::memcmp(bytes.Data(), "NGTR", 4))
+        throw std::invalid_argument("Trie must be an NGTR v2, v3 or radix v4 model between 20 bytes and 16 MiB");
+    const auto version = Read32(bytes.Data() + 4), metadata = Read32(bytes.Data() + 12);
     const auto nodes = Read32(bytes.Data() + 8);
-    if (nodes < 2 || nodes > (bytes.Size() - 16) / 2 || bytes.Size() - 16 > uint64_t(nodes) * 8)
+    if (version == 2) {
+        if (nodes < 2 || metadata != 12 || bytes.Size() != 16 + uint64_t(nodes) * 12)
+            throw std::invalid_argument("Fixed-record trie node count does not match its byte length");
+        return version;
+    }
+    if ((version != 3 && version != 4) || nodes < 2 || nodes > (bytes.Size() - 16) / 2 ||
+        (version == 3 && (metadata || bytes.Size() - 16 > uint64_t(nodes) * 8)) ||
+        (version == 4 && (nodes > 0x00ffffffu || metadata < nodes || metadata > 2 + uint64_t(nodes - 2) * 256)))
         throw std::invalid_argument("Trie node count does not match its byte length");
+    return version;
 }
 std::string Base64(const Bytes& bytes)
 {
     return base64_encode(bytes.Data(), static_cast<unsigned int>(bytes.Size()));
 }
-Bytes Read(const json& value)
+Bytes Read(const json& value, bool allowEmpty = false)
 {
     Bytes result;
     if (value.is_binary()) result.owned.assign(value.get_binary().begin(), value.get_binary().end());
@@ -84,15 +92,15 @@ Bytes Read(const json& value)
         result.owned.assign(decoded.begin(), decoded.end());
         if (Base64(result) != text) throw std::invalid_argument("Trie asset must use canonical base64");
     } else throw std::invalid_argument("Trie assets require embedded base64 or binary data");
-    if (!result.Size() || result.Size() > kMaxAssetBytes) throw std::invalid_argument("Trie asset is empty or exceeds 16 MiB");
+    if ((!result.Size() && !allowEmpty) || result.Size() > kMaxAssetBytes) throw std::invalid_argument("Trie asset is empty or exceeds 16 MiB");
     return result;
 }
-Bytes Take(json& value, const std::string& path, const BorrowedAssets& borrowed)
+Bytes Take(json& value, const std::string& path, const BorrowedAssets& borrowed, bool allowEmpty = false)
 {
     if (value.is_object() && value.size() == 2 && value.contains("borrowedBytes") && value.contains("size")) {
         const auto found = borrowed.find(path);
         if (!value.at("borrowedBytes").is_string() || value.at("borrowedBytes") != path ||
-            found == borrowed.end() || !found->second.data || !found->second.size ||
+            found == borrowed.end() || (!found->second.data && found->second.size) || (!found->second.size && !allowEmpty) ||
             !value.at("size").is_number_unsigned() || value.at("size").get<size_t>() != found->second.size ||
             found->second.size > kMaxAssetBytes)
             throw std::invalid_argument("Invalid borrowed trie asset");
@@ -100,30 +108,31 @@ Bytes Take(json& value, const std::string& path, const BorrowedAssets& borrowed)
     }
     if (value.is_binary()) {
         Bytes result; result.owned = std::move(value.get_binary());
-        if (!result.Size() || result.Size() > kMaxAssetBytes) throw std::invalid_argument("Trie asset is empty or exceeds 16 MiB");
+        if ((!result.Size() && !allowEmpty) || result.Size() > kMaxAssetBytes) throw std::invalid_argument("Trie asset is empty or exceeds 16 MiB");
         return result;
     }
-    return Read(value);
+    return Read(value, allowEmpty);
 }
 void Validate(Asset& asset)
 {
-    Header(asset.trie);
-    if (!asset.index.Size()) {
+    const auto version = Header(asset.trie);
+    if (version == 2 && asset.index.Size()) throw std::invalid_argument("Fixed-record NGTR v2 models do not use an index sidecar");
+    if (version != 2 && !asset.index.Size()) {
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
         void* generated = nullptr; size_t size = 0;
         if (!lv_advanced_keyboard_build_trie_index(asset.trie.Data(), asset.trie.Size(), &generated, &size))
             throw std::invalid_argument("Invalid trie structure or insufficient memory for its index");
-        try { asset.index.owned.assign(static_cast<const uint8_t*>(generated), static_cast<const uint8_t*>(generated) + size); }
+        try { if (size) asset.index.owned.assign(static_cast<const uint8_t*>(generated), static_cast<const uint8_t*>(generated) + size); }
         catch (...) { lv_advanced_keyboard_free_trie_index(generated); throw; }
         lv_advanced_keyboard_free_trie_index(generated);
 #else
         throw std::invalid_argument("Prediction support is required to generate a missing trie index");
 #endif
     }
-    if (asset.index.Size() < 16 || asset.index.Size() > kMaxAssetBytes ||
-        std::memcmp(asset.index.Data(), "NGIX", 4) || Read32(asset.index.Data() + 4) != 1 ||
+    if (version != 2 && (asset.index.Size() < 16 || asset.index.Size() > kMaxAssetBytes ||
+        std::memcmp(asset.index.Data(), "NGIX", 4) || Read32(asset.index.Data() + 4) != (version == 4 ? 2u : 1u) ||
         Read32(asset.index.Data() + 8) != asset.trie.Size() ||
-        Read32(asset.index.Data() + 12) != Read32(asset.trie.Data() + 8))
+        Read32(asset.index.Data() + 12) != Read32(asset.trie.Data() + 8)))
         throw std::invalid_argument("Trie index does not match the embedded NGTR model");
 #if LVSERIAL_USE_ADVANCED_KEYBOARD_PREDICTION
     if (!lv_advanced_keyboard_validate_trie(asset.trie.Data(), asset.trie.Size(), asset.index.Data(), asset.index.Size()))
@@ -194,7 +203,7 @@ nlohmann::json ProjectTries::Normalize(const json& tries)
     Array(tries); std::set<std::string> ids; auto result = json::array();
     for (const auto& item : tries) {
         Metadata(item, ids); Asset asset; asset.trie = Read(item.at("data"));
-        if (item.contains("indexData")) asset.index = Read(item.at("indexData"));
+        if (item.contains("indexData")) asset.index = Read(item.at("indexData"), true);
         Validate(asset);
         result.push_back({{"id", item.at("id")}, {"name", item.at("name")}, {"format", "ngtr"},
                           {"data", Base64(asset.trie)}, {"indexData", Base64(asset.index)}});
@@ -236,7 +245,7 @@ nlohmann::json ProjectTries::ToWire(const json& tries)
 {
     auto result = Normalize(tries);
     for (auto& item : result) for (const auto* key : {"data", "indexData"}) {
-        auto bytes = Read(item.at(key)); item[key] = json::binary(std::move(bytes.owned));
+        auto bytes = Read(item.at(key), std::strcmp(key, "indexData") == 0); item[key] = json::binary(std::move(bytes.owned));
     }
     return result;
 }
@@ -275,7 +284,7 @@ ProjectTries::CatalogPtr LoadCatalog(json& document, const BorrowedAssets& borro
         Metadata(item, ids); auto asset = std::make_shared<Asset>();
         const auto path = "/tries/" + std::to_string(position++);
         asset->trie = Take(item.at("data"), path + "/data", borrowed);
-        if (item.contains("indexData")) asset->index = Take(item.at("indexData"), path + "/indexData", borrowed);
+        if (item.contains("indexData")) asset->index = Take(item.at("indexData"), path + "/indexData", borrowed, true);
         Validate(*asset);
         auto& matches = byContent[Identity(asset->trie)];
         bool shared = false;

@@ -46,7 +46,7 @@ foreach(pair "lvgl-ui-creator|UICreator" "lvgl-compiler|LVGLCompiler" "uicreator
 endforeach()
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/Linux/lvgl-ui-creator.desktop" DESTINATION share/applications)
 install(FILES "${CMAKE_CURRENT_LIST_DIR}/Linux/lvgl-ui-creator.svg" DESTINATION share/icons/hicolor/scalable/apps)
-foreach(helper project-creator language-models python-runtime integrations)
+foreach(helper project-creator language-models python-runtime integrations fonts)
     install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${helper}" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}" USE_SOURCE_PERMISSIONS)
 endforeach()
 foreach(pair "esp32|LVGLProtobuf-ESP32-Toolkit.zip"
@@ -74,7 +74,9 @@ endforeach()
 install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/LICENCE.txt" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/LVGL" OPTIONAL)
 install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/JSON/json.hpp" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/JSON")
 install(FILES "${PROJECT_SOURCE_DIR}/ImgLib/stb_image.h" "${PROJECT_SOURCE_DIR}/ImgLib/stb.h" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/stb")
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard/" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/AdvancedKeyboard"
+include("${PROJECT_SOURCE_DIR}/cmake/AdvancedKeyboardDependency.cmake")
+install(FILES "${ADVKBD_SOURCE_ROOT}/LICENSE" "${ADVKBD_SOURCE_ROOT}/NOTICE.md" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/AdvancedKeyboard")
+install(DIRECTORY "${ADVKBD_SOURCE_ROOT}/src/" DESTINATION "${UICREATOR_LINUX_APP_DIRECTORY}/licenses/AdvancedKeyboard"
     FILES_MATCHING PATTERN "*LICENSE*" PATTERN "README.md" PATTERN "PROVENANCE.md")
 foreach(document BUILD.md EDITOR_WORKFLOWS.md Packaging/RELEASE_NOTES.md Packaging/LINUX.md Docs/CI.md
         Runtime/PERFORMANCE.md Runtime/INTERACTIONS.md Runtime/pico/README.md CodeGeneration/PERFORMANCE.md
@@ -89,7 +91,7 @@ endforeach()
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Linux/CollectDependencies.cmake.in" "${PROJECT_BINARY_DIR}/LinuxCollectDependencies.cmake" @ONLY)
 install(SCRIPT "${PROJECT_BINARY_DIR}/LinuxCollectDependencies.cmake")
-set(UICREATOR_LINUX_PACKAGE_INPUTS "$<TARGET_FILE:UICreator>;$<TARGET_FILE:UICreatorConverter>;$<TARGET_FILE:UICreatorViewer>;$<TARGET_FILE:LVGLCompiler>;$<TARGET_FILE:UICreatorCodeGen>;$<TARGET_FILE:UICreatorModelGen>;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/python-runtime;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations")
+set(UICREATOR_LINUX_PACKAGE_INPUTS "$<TARGET_FILE:UICreator>;$<TARGET_FILE:UICreatorConverter>;$<TARGET_FILE:UICreatorViewer>;$<TARGET_FILE:LVGLCompiler>;$<TARGET_FILE:UICreatorCodeGen>;$<TARGET_FILE:UICreatorModelGen>;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/project-creator;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/language-models;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/python-runtime;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/integrations;${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/fonts")
 file(GENERATE OUTPUT "${PROJECT_BINARY_DIR}/LinuxPackageInputs-$<CONFIG>.cmake" CONTENT "set(UICREATOR_LINUX_PACKAGE_INPUTS \"${UICREATOR_LINUX_PACKAGE_INPUTS}\")\n")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/Linux/CPackConfig.cmake.in" "${PROJECT_BINARY_DIR}/LinuxCPackConfig.cmake" @ONLY)
 set(CPACK_PROJECT_CONFIG_FILE "${PROJECT_BINARY_DIR}/LinuxCPackConfig.cmake")

@@ -12,6 +12,7 @@ import struct
 import sys
 import time
 import uuid
+import keyboard_dependency
 
 from feature_plan import (MAX_INPUT, analyze_projects, decode_project, encode_project,
                           lvgl_config, optimize_document, repository_root, source_plan)
@@ -96,8 +97,8 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${profile_project
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/project_sources.cmake")
 set(pb_includes include config vendor/Runtime/include vendor/Runtime/compat
     vendor/LVSerial vendor/LVSerial/Device vendor/LVSerial/Proto vendor/3rdParty/nanopb
-    vendor/LVSerial/Widgets/AdvancedKeyboard/include
-    vendor/LVSerial/Widgets/AdvancedKeyboard
+    vendor/3rdParty/AdvancedKeyboard/include
+    vendor/3rdParty/AdvancedKeyboard/src
     vendor/3rdParty/LVGL/lvgl vendor/3rdParty/LVGL/lvgl/include)
 set(pb_sources ${LVGL_PB_PROJECT_SOURCES} src/lvgl_pb_esp32.cpp src/lvgl_pb_projects.c)
 set(pb_xml_enabled OFF)
@@ -219,8 +220,23 @@ def make_component(inputs, output: Path, *, color_depth=16, default_font=14, emb
             if (lvgl / name).is_file(): copy_file(lvgl / name, stage / "vendor/3rdParty/LVGL/lvgl" / name)
         for directory in (repo / "LVSerial", repo / "Runtime/common", repo / "Runtime/include", repo / "Runtime/compat"):
             for path in directory.rglob("*"):
+                if path.is_relative_to(repo / "LVSerial/Widgets/AdvancedKeyboard"):
+                    continue
                 if path.is_file() and path.suffix.lower() in (".h", ".hpp", ".inc", ".inl"):
                     copy_file(path, stage / "vendor" / path.relative_to(repo))
+        keyboard = keyboard_dependency.resolve_root(repo)
+        for directory in (keyboard / "src", keyboard / "include"):
+            for path in directory.rglob("*"):
+                if path.is_file() and path.suffix.lower() in (".h", ".hpp", ".inc", ".inl"):
+                    copy_file(path, stage / "vendor" / keyboard_dependency.PREFIX / path.relative_to(keyboard))
+        for path in [*keyboard.iterdir(), *(keyboard / "src").rglob("*")]:
+            if not path.is_file() or not (path.is_relative_to(keyboard / "src") or path.parent == keyboard):
+                continue
+            notice = path.name == "PROVENANCE.md" or any(marker in path.name.upper() for marker in ("LICENSE", "LICENCE", "COPYING", "NOTICE"))
+            if notice:
+                relative = path.relative_to(keyboard)
+                copy_file(path, stage / "vendor" / keyboard_dependency.PREFIX / relative)
+                copy_file(path, stage / "licenses/AdvancedKeyboard" / relative)
         custom_directories = {str(Path(source).parent) for source in sources if source.startswith("LVSerial/Widgets/")}
         for directory in custom_directories:
             for path in (repo / directory).rglob("*"):
@@ -231,7 +247,7 @@ def make_component(inputs, output: Path, *, color_depth=16, default_font=14, emb
                 if notice:
                     copy_file(path, stage / "licenses" / path.relative_to(repo))
         for source in sources:
-            copy_file(repo / source, stage / "vendor" / source)
+            copy_file(keyboard_dependency.source_file(repo, source), stage / "vendor" / source)
         xml_source = repo / "LVSerial/Serialization/Xml.cpp"
         if xml_source.is_file():
             copy_file(xml_source, stage / "optional/xml/Xml.cpp")

@@ -39,6 +39,12 @@ the save dialog; Ctrl+S uses the same command.
 
 **Debug > Debug current screen** (F5) opens the current design in the standalone Windows Protobuf display library. It writes a separate temporary Protobuf snapshot; saving the editor project is unnecessary. F5 again refreshes the same viewer. **Debug > Stop debug viewer** closes it. The simulator preview has no close button.
 
+The simulator frame shows **Screen Memory** in bytes: native LVGL widget sizes
+plus the font structures, bitmaps, Unicode maps and kerning tables used by that
+screen. Shared font storage is counted once, including inherited, state/part
+and fallback fonts. Unused project fonts and source TTF files do not contribute.
+This is an estimate for the current LVGL build; hover over it for its scope.
+
 **Advanced Widgets** now includes native **Barcode** (Code 128/GS1) and **QR code**, with editable content and encoding options. See [code widget details](Codes.md). Use the [ESP32 component builder](../Runtime/esp32/README.md) to bundle a project-specific runtime and the required LVGL sources, or the [Windows display SDK](../Runtime/windows/README.md) to display Protobuf from a desktop application.
 
 **Advanced Keyboard** ports the ESPOS keyboard and prediction/autocorrect engine. It targets external text fields, switches with field selection, and stays open until Enter or its X button closes it. Its inspector offers English (US), Spanish, French, German, Italian and Portuguese layouts, a prediction-trie dropdown and a **Load trie…** button for a specific model. See [Advanced Keyboard](AdvancedKeyboard.md).
@@ -54,6 +60,15 @@ Export dialogs offer an LVGL target and **Check project before export**. C prefl
 Click an entry in Widgets, Advanced Widgets, Dialogs, or Custom to create that component in the simulator. The selected hierarchy node determines its parent. Select Screen to create a top-level widget.
 
 The Custom tab provides Text box and Layer view using LVGL 9.6 controls. Text box combines a caption, editable text, and increment/decrement buttons, with optional numeric range and step. Layer view provides independent, selectable, expandable tree rows. Its property editor shows stable layer IDs, with parent 0 indicating a root row. Removing a layer in the editor also removes its descendants.
+
+Text areas and Custom Text boxes have an **Input mode** property:
+
+- **Alpha Numeric** (default) accepts unrestricted text, including spaces, punctuation and Unicode.
+- **Upper case** converts letters to uppercase and locks Advanced Keyboard to uppercase letters.
+- **Lower case** converts letters to lowercase and locks Advanced Keyboard to lowercase letters.
+- **Numeric** accepts digits `0`–`9` and one decimal point. Advanced Keyboard displays a numeric keypad with a decimal point and delete key, plus its Enter and close controls.
+
+The mode applies to physical keyboard input, pasted text, suggestions and autocorrect. Advanced Keyboard follows each selected field's mode. Existing maximum length and accepted-character restrictions still apply. Input modes are saved in projects and included in C, MicroPython, Protobuf and XML exports; plain text fields do not require the full Advanced Keyboard engine.
 
 Custom widget properties, internal styles, contents, selection, and expansion are saved through LVSerial under `textBox` and `layerView` records. Document widgets placed inside a Layer view keep their content host when a project is reloaded.
 
@@ -78,23 +93,33 @@ Firmware supplies LVGL 9.6.x, display/input drivers and periodic LVGL tick/timer
 
 CTest compiles a generated project as C11 and runs it against LVGL, covering all 31 serialized widget types, two screens, nested content, custom control events, all variable types, image formats, animation and repeated initialization/cleanup. The editor workflow also exercises C export from the menu.
 
-## Font converter
+## Adding fonts
 
-Open **Assets > Convert font…**, browse to a TTF, OTF, WOFF or WOFF2 font, and choose an output path. The converter uses the pinned official [lv_font_conv](https://github.com/lvgl/lv_font_conv) engine. Add more sources to merge fonts or icon sets. Each source has its own Unicode ranges, literal symbols and light/off/strong hinting. Ranges accept decimal or hexadecimal codepoints, comma-separated ranges, and remapping such as `0xE000-0xE010=>0xF000`.
+Open **Assets > Add font…**, choose a built-in font in **Source font** or browse to a TTF, OTF, WOFF or WOFF2 font, and choose its size and characters. Built-in fonts are also listed in each widget's **Font** dropdown; selecting one opens its preparation options. A friendly project name is optional; an automatic name is supplied when left blank. Add more sources to merge fonts or icon sets. Each source has its own Unicode ranges, literal symbols and light/off/strong hinting. Ranges accept decimal or hexadecimal codepoints, comma-separated ranges, and remapping such as `0xE000-0xE010=>0xF000`.
 
-Options include pixel size, 1/2/3/4/8 bpp, grayscale or horizontal/vertical LCD subpixel rendering, color-glyph information, RLE compression, XOR prefiltering, kerning, forced fast kerning classes, row stride and glyph address alignment. Stride alignment requires compression off and 1/2/4/8 bpp. C output also accepts a font symbol, LVGL include path and fallback font symbol. Relative project paths stabilize generated comments; full-info retains pixel data in debug JSON. The removed upstream `--byte-align` option is represented by stride 1.
+Choose glyph quality (1/2/3/4/8 bits), grayscale or horizontal/vertical LCD smoothing, color-glyph information, compression and kerning. **Preview** lets you inspect the font without changing the project. **Add to project** stores the font for reuse; **Add and apply** also assigns it to the selected widget in one undoable action. Preparing runs in the background, and closing the window cancels the current job.
 
-Export produces **LVGL C (.c + .h)**, a **binary font**, or a **glyph PNG/JSON dump folder**. C fonts can be compiled with LVGL 9.6; include the generated header and use the declared font in a text style. Enable `LV_USE_FONT_COMPRESSED` for compressed C output and `LV_FONT_FMT_TXT_LARGE` for fonts exceeding the small glyph descriptor limits. Link the named fallback separately. Binary fonts need LVGL's binary font loader and a device filesystem or memory-file driver.
+The editor stores prepared bitmap, character mapping, kerning and metric data in the project. There are no output paths, C symbols or intermediate font files to manage. Saving or exporting a screen includes the font data automatically, and generated C chooses its own asset names. Protobuf and UI Creator XML carry the same font resource for on-device loading without the source font or a font converter.
 
-Conversion runs in the background; closing the window cancels its current job. The preview uses packed, uncompressed glyphs independently of export compression/alignment. **Apply to selected widget** stores a stable bitmap font in its main text style. The font survives closing the converter and is included in JSON, Protobuf and generated project C. Missing glyphs should be added to the source ranges or symbols before converting.
+Source paths, ranges and rendering settings are remembered for later edits. Keep the original source files available when changing a font's size or character set; reopening and exporting an existing project uses its embedded bitmap and does not require them. Missing glyphs should be added to the source ranges or symbols before saving the font.
+
+Built-in fonts are bundled with the desktop application and resolved by a stable source ID when editing a project on another machine. Browsing or previewing a built-in font does not add it to the project. Only prepared fonts selected by screen content are included in device exports; the built-in TTF catalog stays with the editor.
+
+| Collection | Built-in fonts |
+| --- | --- |
+| Open source sans serif | Inter, Roboto, Open Sans, Lato, Montserrat, Noto Sans, Source Sans 3 |
+| Open source monospace | JetBrains Mono |
+| Imported fonts | Badh Regular, Caliper Regular, MicrogrammaDMedExt, OCR A Extended |
+
+The open source families are supplied as regular TrueType fonts. Pick the size and characters needed by the screen to keep its prepared font small. Source versions, copyright and license files are included in the [font catalog](Fonts/builtin/README.md).
 
 CMake and Visual Studio compile the C++ converter directly into the editor. FreeType/Brotli rasterize the source; native code writes LVGL C, binary fonts and PNG glyph dumps. Conversion needs no Node runtime or network connection. See [converter provenance and licenses](../3rdParty/lv_font_conv/UICREATOR.md).
 
 ## Project fonts
 
-**Assets > Project fonts…** lists reusable project fonts, their IDs and usage counts. Successful font conversions add their bitmap to this library. Rename fonts without changing their IDs, apply them to the selected widget, or remove unused entries. In-use fonts must first be changed to **Inherit / theme** in their widget properties. Every widget inspector includes a **Font** dropdown; widgets choosing the same entry share its font instance.
+**Assets > Project fonts…** lists reusable project fonts and their project usage. Add, rename or edit fonts without changing widget bindings, apply them to the selected widget, or remove unused entries. Editing a font updates its uses across screens. Removal checks every screen, shared style and reusable component. Every widget inspector includes a **Font** dropdown; widgets choosing the same entry share its font instance. Choose **Inherit / theme** to clear a widget's explicit font.
 
-JSON and Protobuf store the font library once and use references in widget styles. Original projects with inline fonts remain supported. Converted font bitmaps are embedded, so reopening does not require the original font files. New project clears the font library. Generated C deduplicates font assets and exposes `ui_get_font("font_ID")`; the generated manifest maps IDs to font names and symbols.
+JSON, Protobuf and UI Creator XML store the font library once and use references in widget styles. Original projects with inline fonts remain supported. New project clears the font library. Generated C deduplicates font assets and exposes `ui_get_font("font_ID")`; the generated manifest maps stable IDs to font names and automatic symbols.
 
 ## Image conversion
 
@@ -140,7 +165,7 @@ The C backends emit compatibility helpers, version guards, screens, widgets, typ
 
 Protobuf records its selected runtime target. The on-device loader supports **9.6, 9.5, 9.3, 9.2, 9.1, and 8.3**; configure `LVGL_RUNTIME_TARGET` to match the compiled Protobuf target and your native LVGL library. Its C API creates project screens and resources, resolves object IDs, and provides typed variable/history access. Firmware must enable C++17 for the library even when application code is C. See [runtime integration](../Runtime/README.md) and [test instructions](../Tests/README.md).
 
-Project preview fonts requested at 3 bpp are normalized to 4 bpp because LVGL cannot render uncompressed 3 bpp glyphs. Standalone font conversion retains the requested bit depth and compression settings.
+Project fonts and their previews retain the selected bit depth and compression. LVGL requires compression for 3 bpp glyphs. The desktop editor supports large glyph descriptors; generated device profiles enable them only when the exported font data needs them.
 
 ### Editing history and firmware projects
 
@@ -175,7 +200,7 @@ The second canvas-toolbar row contains **Grid**, **Snap**, **Guides**, and **Spa
 
 With Snap enabled, dragged widgets snap to the grid and nearby sibling/parent edges and centers. Cyan alignment guides appear during movement and clear on release. Guide attraction uses a screen-pixel tolerance, so it remains consistent when zoomed. Nested widget positions use the screen's grid origin; locked drag axes stay locked. View settings and overlay drawings do not become project objects or serialization records. Snapped moves participate in normal undo/redo.
 
-Use the top-level **Assets** menu for **Project fonts…**, **Project images…**, **Convert font…**, and **Convert images…**. The bottom Assets tab also provides shortcuts to the resource managers.
+Use the top-level **Assets** menu for **Project fonts…**, **Project images…**, **Add font…**, and **Convert images…**. The bottom Assets tab also provides shortcuts to the resource managers.
 
 
 ### Selecting and editing groups

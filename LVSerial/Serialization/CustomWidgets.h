@@ -10,6 +10,7 @@
 #include <limits>
 
 #if LVGL_VERSION_MAJOR >= 9 || defined(LV_RUNTIME_PORTABLE)
+#include "TextInputMode.h"
 namespace Serialization
 {
     // Composite widgets keep their model on the object, independently of the editor.
@@ -30,7 +31,7 @@ namespace Serialization
         {
             if (type == "textBox") return {{"title", "Value"}, {"text", "0"}, {"value", 0}, {"min", 0}, {"max", 100},
                 {"step", 1}, {"numeric", true}, {"readOnly", false}, {"password", false}, {"placeholder", ""},
-                {"maxLength", 32}, {"acceptedChars", ""}, {"showButtons", true}, {"titleWidth", 64}, {"buttonWidth", 28},
+                {"maxLength", 32}, {"acceptedChars", ""}, {"inputMode", "alphanumeric"}, {"showButtons", true}, {"titleWidth", 64}, {"buttonWidth", 28},
                 {"minusText", LV_SYMBOL_MINUS}, {"plusText", LV_SYMBOL_PLUS}, {"spacing", 6}, {"children", json::array()}};
             return {{"title", "Layer view"}, {"indent", 18}, {"rowHeight", 32}, {"selected", 1}, {"showTitle", true},
                 {"nodes", {{{"id", 1}, {"parent", 0}, {"text", "Screen"}, {"expanded", true}, {"disabled", false}},
@@ -40,6 +41,27 @@ namespace Serialization
 
         static bool Changed(const json& old, const json& record, const char* key)
         { return record.contains(key) && (!old.contains(key) || old[key] != record[key]); }
+
+        static std::pair<int32_t, int32_t> StepperRange(const json& record)
+        {
+            const auto low = record.at("min").get<int32_t>(), high = record.at("max").get<int32_t>();
+            if (record.value("inputMode", std::string("alphanumeric")) == "numeric")
+                return {(std::max)(0, low), (std::max)(0, high)};
+            return {low, high};
+        }
+
+        static void ReconcileValue(json& record, const std::string& text)
+        {
+            if (!record.value("numeric", true)) return;
+            try
+            {
+                size_t used = 0;
+                const auto number = std::stoll(text, &used);
+                const auto range = StepperRange(record);
+                if (used == text.size()) record["value"] = std::clamp<int64_t>(number, range.first, range.second);
+            }
+            catch (const std::exception&) { /* Preserve incomplete and decimal text independently of the integer stepper. */ }
+        }
 
         static lv_obj_t* Button(lv_obj_t* parent, const char* text)
         {
@@ -64,17 +86,9 @@ namespace Serialization
             {
                 const std::string text = lv_textarea_get_text(state.parts.at("Entry"));
                 state.record["text"] = text;
-                if (state.record.value("numeric", true))
-                {
-                    try
-                    {
-                        size_t used = 0;
-                        const auto number = std::stoll(text, &used);
-                        if (used == text.size()) state.record["value"] = std::clamp<int64_t>(number,
-                            state.record.at("min").get<int32_t>(), state.record.at("max").get<int32_t>());
-                    }
-                    catch (const std::exception&) { /* Preserve incomplete typed numbers. */ }
-                }
+                state.record["inputMode"] = TextInputMode::Name(
+                    lv_advanced_keyboard_get_textarea_input_mode(state.parts.at("Entry")));
+                ReconcileValue(state.record, text);
                 PreserveSection(root, "textBox", state.record);
                 lv_obj_send_event(root, LV_EVENT_VALUE_CHANGED, nullptr);
             }
@@ -83,8 +97,9 @@ namespace Serialization
             if (action->direction)
             {
                 if (state.record.value("readOnly", false) || !state.record.value("numeric", true)) return;
+                const auto range = StepperRange(state.record);
                 const auto next = std::clamp<int64_t>(state.record.at("value").get<int64_t>() +
-                    action->direction * state.record.at("step").get<int64_t>(), state.record.at("min").get<int32_t>(), state.record.at("max").get<int32_t>());
+                    action->direction * state.record.at("step").get<int64_t>(), range.first, range.second);
                 auto record = state.record;
                 record["value"] = next;
                 record["text"] = std::to_string(next);
@@ -323,29 +338,19 @@ namespace Serialization
             const bool textBox = std::string(type) == "textBox";
             if (textBox)
             {
+                TextInputMode::Parse(record.at("inputMode").get<std::string>());
                 const auto low = record.at("min").get<int32_t>(), high = record.at("max").get<int32_t>();
                 if (low > high || record.at("step").get<int32_t>() <= 0) throw std::invalid_argument("Use an ordered range and a positive step");
                 if (record.at("titleWidth").get<int>() < 0 || record.at("buttonWidth").get<int>() < 16 || record.at("maxLength").get<int>() < 0)
                     throw std::invalid_argument("Use nonnegative title width and text length, and button width of at least 16");
                 if (record.value("numeric", true))
                 {
-                    int64_t value = record.at("value").get<int32_t>();
-                    bool parsed = false;
-                    if (Changed(old, record, "text") && !Changed(old, record, "value"))
-                    {
-                        try
-                        {
-                            const auto text = record.at("text").get<std::string>();
-                            size_t used = 0;
-                            const auto typed = std::stoll(text, &used);
-                            if (used == text.size()) { value = typed; parsed = true; }
-                        }
-                        catch (const std::exception&) { /* Incomplete numeric text is still saved. */ }
-                    }
-                    value = std::clamp<int64_t>(value, low, high);
-                    record["value"] = value;
-                    if (Changed(old, record, "value") || Changed(old, record, "numeric") || parsed)
-                        record["text"] = std::to_string(value);
+                    const auto range = StepperRange(record);
+                    record["value"] = std::clamp<int64_t>(record.at("value").get<int32_t>(), range.first, range.second);
+                    // A saved/explicit text value may contain a decimal or an
+                    // unfinished edit. Only value-only changes replace it.
+                    if (!incoming.contains("text") && (incoming.contains("value") || Changed(old, record, "numeric")))
+                        record["text"] = std::to_string(record.at("value").get<int64_t>());
                 }
             }
             else
@@ -377,6 +382,9 @@ namespace Serialization
                 lv_textarea_set_placeholder_text(entry, record.at("placeholder").get<std::string>().c_str());
                 lv_textarea_set_accepted_chars(entry, record.at("acceptedChars").get_ref<const std::string&>().empty() ? nullptr :
                     state.record.at("acceptedChars").get_ref<const std::string&>().c_str());
+                if (!lv_advanced_keyboard_set_textarea_input_mode(entry,
+                    TextInputMode::Parse(record.at("inputMode").get<std::string>())))
+                    throw std::runtime_error("Unable to configure text input mode");
                 lv_textarea_set_text(entry, record.at("text").get<std::string>().c_str());
                 lv_obj_set_state(entry, LV_STATE_DISABLED, record.value("readOnly", false));
                 for (const auto* name : {"Minus", "Plus"})
@@ -413,7 +421,11 @@ namespace Serialization
             }
             // Keep the model consistent with textarea filtering and maximum length.
 #if LVSERIAL_USE_TEXTBOX
-            if (textBox) state.record["text"] = lv_textarea_get_text(state.parts.at("Entry"));
+            if (textBox)
+            {
+                state.record["text"] = lv_textarea_get_text(state.parts.at("Entry"));
+                ReconcileValue(state.record, state.record.at("text").get_ref<const std::string&>());
+            }
 #endif
             PreserveSection(root, type, state.record);
         }
@@ -424,7 +436,11 @@ namespace Serialization
             auto& state = WidgetData<State>(root);
             auto record = state.record;
 #if LVSERIAL_USE_TEXTBOX
-            if (std::string(type) == "textBox") record["text"] = lv_textarea_get_text(state.parts.at("Entry"));
+            if (std::string(type) == "textBox")
+            {
+                record["text"] = lv_textarea_get_text(state.parts.at("Entry"));
+                record["inputMode"] = TextInputMode::Name(lv_advanced_keyboard_get_textarea_input_mode(state.parts.at("Entry")));
+            }
 #endif
             record["styles"] = json::object();
             record["partBases"] = json::object();

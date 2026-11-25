@@ -45,6 +45,18 @@ Memory loading borrows the Protobuf input while decoding instead of making anoth
 
 Enable `LV_USE_FONT_COMPRESSED` for compressed fonts. Enable all widget features used by your project (including chart, scale, tabview, tileview, window and messagebox). The backends instantiate the complete editor widget set. LVGL 9.6 assets use their exact device color format, stride, flags and compressed bytes. Older backends normalize imported assets through their embedded previews to native ARGB8888; LVGL 8.3 uses native true-color-alpha descriptors and requires `LV_COLOR_DEPTH=32`. Enable `LV_USE_RLE`, `LV_USE_LZ4`, and `LV_BIN_DECODER_RAM_LOAD` for compressed images; RAW images need the matching LVGL decoder (for example LODEPNG or TJPGD). Indexed/NEMA data needs hardware support appropriate to the exported format. Older embedded PNG/JPG/GIF assets without device frames are decoded in software to ARGB8888. GIF animation timers are owned by the runtime. Shared image descriptors and restored font storage are owned per runtime and released after its objects are deleted.
 
+Project fonts travel with the screen as portable raster data: metrics, Unicode
+maps, glyphs, bitmap and kerning. Protobuf uses the typed `FontData` schema with
+raw bitmap bytes; XML uses `<font format_version="1">` with typed tables and a
+binary bitmap. Both readers also accept earlier generic font records. The
+runtime creates one immutable font resource for identical font data and shares
+it among all widgets selecting its stable project font ID. `base.fontId`
+selects the main default text style; explicit state/part font styles remain
+independent. `lvgl_runtime_font(runtime, "font_1")` retrieves that resource;
+the returned pointer remains valid until runtime destruction. Input bytes may
+be released after normal loading. Firmware needs no TTF/OTF source, FreeType,
+desktop converter or generated font C file.
+
 ## Load
 
 Compile with `LVGLCompiler project.json --target 9.6 --format protobuf --output project.pb`. Load bytes from flash/network or use LVGL's registered filesystem driver:
@@ -68,6 +80,8 @@ NULL options select the default display, load the initial screen, and limit inpu
 `lvgl_runtime_font` and `lvgl_runtime_image` look up project assets by stable ID. Image lookup returns the first `lv_image_dsc_t` frame on LVGL 9 or `lv_img_dsc_t` on 8.3. Borrowed resources expire at destroy. Variables expose typed get/set and saved history. Setters update supported widget bindings; interactive VALUE_CHANGED events update variables. String pointers are borrowed until mutation/destroy. History length zero grows without a bound, as in the editor/generator. Bindings support the same property subset as C generation: text, numeric widget values/selections, checked/hidden/disabled, geometry, opacity, LED brightness, and custom Text box/Layer view values. Application actions/hardware behavior are supplied by firmware.
 
 The Advanced Keyboard requires LVGL 9.6 and `LVSERIAL_USE_ADVANCED_KEYBOARD=1`, with button, label and textarea support. It contains keys and suggestions and edits independent textareas or Custom Text box entries. `targetOid` selects a field; its default `-1` with `autoFocus=true` follows fields on the authored screen. It stays open across outside clicks until Enter/Done or the X control closes it. Enter commits autocorrect and sends READY to the field and keyboard without adding a newline; X sends CANCEL only to the keyboard. Both clear the active target before application callbacks and retain focus watchers so clicking a field reopens it. Programmatic newlines remain intact. Earlier Creator hide-on-defocus records are upgraded to this behavior. Text bindings belong to the external field; switching targets preserves each field's text and configuration, and deleting either side safely detaches it.
+
+Text area and Custom Text box records support `inputMode`: `alphanumeric` (unrestricted default), `uppercase`, `lowercase`, or `numeric`. Case modes preserve Unicode letters while normalizing their case. Numeric input allows ASCII digits and one decimal point. Restrictions apply to inserted, pasted and assigned text, combined with existing accepted characters and maximum length. Advanced Keyboard follows the active field's case lock or numeric keypad automatically. Plain fields use only the small C `TextareaInputMode.c` helper; minimal source profiles omit keyboard fonts and prediction when no Advanced Keyboard is used. The public `lv_textarea_input_mode.h` API can also configure native fields directly.
 
 Full builds include the ESPOS suggestion/autocorrect engine and shared built-in English trie. `trieId` chooses the built-in model or a project trie, and `autocorrectThreshold` defaults to 0.3. Predictors borrow immutable model/index bytes and own their scratch workspace. Normal memory loading retains owned trie bytes; the explicit `lvgl_runtime_load_memory_borrowed_assets` API can retain trie/index spans in immutable flash input until runtime destruction. Project-specific firmware can omit the engine or built-in model separately. Prediction is suppressed for password fields. No hardware driver is included.
 

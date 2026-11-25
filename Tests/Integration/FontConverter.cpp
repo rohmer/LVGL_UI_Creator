@@ -2,6 +2,7 @@
 #include <Serialization/LVFont.h>
 #include <Serialization/ObjectSerializer.h>
 #include <Serialization/Protobuf.h>
+#include <Serialization/Xml.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -82,6 +83,56 @@ int main(int argc,char** argv) {
         lv_init();auto* display=lv_display_create(800,600);
         auto* font=lv_binfont_create_from_buffer(result.preview.data(),static_cast<uint32_t>(result.preview.size()));CHECK(font);
         CheckGlyph(font,o.sources[0].path,4);
+        // Adding a project font must never require or create technical outputs.
+        // Verify the actual stored resource, rather than just its UI preview.
+        auto assetOptions=o;assetOptions.output=out/"must-not-be-created"/"asset.c";
+        assetOptions.name="Friendly font name";assetOptions.include.clear();assetOptions.format="ignored";
+        for(int bpp:{1,2,3,4,8}) {
+            assetOptions.bpp=bpp;
+            auto asset=Prepare(assetOptions);if(!asset.success)throw std::runtime_error(asset.message);
+            CHECK(asset.files.empty()&&!std::filesystem::exists(assetOptions.output.parent_path()));
+            CHECK(asset.font["dsc"]["bpp"]==bpp);
+            CHECK(asset.font["dsc"]["bitmapFmt"]==((bpp==1||bpp==8)?0:1));
+            auto& stored=Serialization::LVFont::FromJSON(asset.font);
+            CheckGlyph(&stored,o.sources[0].path,bpp);
+            auto* preview=lv_binfont_create_from_buffer(asset.preview.data(),static_cast<uint32_t>(asset.preview.size()));CHECK(preview);
+            CheckGlyph(preview,o.sources[0].path,bpp);
+            lv_font_glyph_dsc_t storedPair{},previewPair{};
+            CHECK(lv_font_get_glyph_dsc(&stored,&storedPair,'A','V'));
+            CHECK(lv_font_get_glyph_dsc(preview,&previewPair,'A','V'));
+            CHECK(storedPair.adv_w==previewPair.adv_w);lv_binfont_destroy(preview);
+            const auto protobuf=Serialization::Protobuf::Decode(Serialization::Protobuf::Encode(Serialization::EntityKind::Font,"asset",asset.font));
+            CHECK(protobuf.data==asset.font);
+            auto& fromProtobuf=Serialization::LVFont::FromJSON(protobuf.data);
+            CheckGlyph(&fromProtobuf,o.sources[0].path,bpp);
+            const auto xml=Serialization::Xml::Decode(Serialization::Xml::Encode(Serialization::EntityKind::Font,"asset",asset.font));
+            CHECK(xml.data==asset.font);
+            auto& fromXml=Serialization::LVFont::FromJSON(xml.data);
+            CheckGlyph(&fromXml,o.sources[0].path,bpp);
+        }
+        // This fixture has independently checked legacy kerning; the full
+        // source font also has GPOS rules that differ from FT_Get_Kerning.
+        for(bool classes:{false,true}) {
+            auto settings=kernFixture;settings.fastKerning=classes;
+            auto asset=Prepare(settings);CHECK(asset.success);
+            CheckGlyph(&Serialization::LVFont::FromJSON(asset.font),o.sources[0].path,4,24,true);
+        }
+        assetOptions.bpp=4;assetOptions.compress=false;assetOptions.stride=4;assetOptions.align=16;
+        auto alignedAsset=Prepare(assetOptions);CHECK(alignedAsset.success);
+        auto& alignedFont=Serialization::LVFont::FromJSON(alignedAsset.font);
+        CheckGlyph(&alignedFont,o.sources[0].path,4);
+        // Stored raster data remains usable after moving/removing the source.
+        auto offlineAsset=alignedAsset.font;
+        assetOptions.sources[0].path=out/"no-source-font-here.ttf";
+        CHECK(!Prepare(assetOptions).success);
+        CheckGlyph(&Serialization::LVFont::FromJSON(offlineAsset),o.sources[0].path,4);
+        // Large display fonts must work in the editor as well as in generated
+        // firmware configured for large descriptors.
+        auto largeOptions=o;largeOptions.size=512;largeOptions.sources[0].ranges="0x41";
+        auto largeAsset=Prepare(largeOptions);CHECK(largeAsset.success);
+        CHECK(largeAsset.font["dsc"]["GlyphDsc"][1]["box_w"].get<int>()>255);
+        auto& largeFont=Serialization::LVFont::FromJSON(largeAsset.font);
+        CheckGlyph(&largeFont,o.sources[0].path,4,512);
         lv_font_glyph_dsc_t glyph{};CHECK(font->get_glyph_dsc(font,&glyph,'A','V'));CHECK(glyph.adv_w>0);
         const auto record=Serialization::LVFont::ToJSON(*font);CHECK(record["dsc"].contains("bitmap"));
         auto& copy=Serialization::LVFont::FromJSON(Serialization::Protobuf::Decode(Serialization::Protobuf::Encode(Serialization::EntityKind::Font,"font",record)).data);

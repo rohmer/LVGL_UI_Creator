@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -75,6 +75,9 @@
     <ClInclude Include="Serialization\LVFont.h">
       <Filter>Header Files\Font</Filter>
     </ClInclude>
+    <ClInclude Include="Serialization\FontData.h">
+      <Filter>Header Files\Font</Filter>
+    </ClInclude>
     <ClInclude Include="Serialization\LVFontCMap.h">
       <Filter>Header Files\Font</Filter>
     </ClInclude>
@@ -99,9 +102,15 @@
     <ClInclude Include="Serialization\ObjectUserData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="$(AdvancedKeyboardRoot)\include\lv_textarea_input_mode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Serialization\Base64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\TextareaInputMode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\Xml.cpp">
@@ -147,6 +156,9 @@
       <Filter>Source Files\Font</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\LVFont.cpp">
+      <Filter>Source Files\Font</Filter>
+    </ClCompile>
+    <ClCompile Include="Serialization\FontData.cpp">
       <Filter>Source Files\Font</Filter>
     </ClCompile>
     <ClCompile Include="Serialization\LVFontCMap.cpp">

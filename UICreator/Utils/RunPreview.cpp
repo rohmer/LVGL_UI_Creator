@@ -12,7 +12,7 @@
 #include <array>
 #include <Serialization/AdvancedKeyboard.h>
 #include <Serialization/FocusOrder.h>
-#include "../../LVSerial/Widgets/AdvancedKeyboard/Utf8Fold.h"
+#include <Utf8Fold.h>
 #include <lv_advanced_keyboard_prediction.h>
 
 namespace {

@@ -1,5 +1,5 @@
 #include "LanguageModelSmoke.h"
-#include "../LanguageModels/Generator.h"
+#include <Generator.h>
 #include "../../3rdParty/JSON/json.hpp"
 #include <lv_advanced_keyboard_prediction.h>
 #include <array>

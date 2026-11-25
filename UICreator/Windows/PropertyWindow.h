@@ -44,6 +44,9 @@ public:
     lv_obj_t* GetSelectedObject();
     ImageLibrary& Images() { return images; }
     FontLibrary& Fonts() { return fonts; }
+    std::function<size_t(const std::string&)> projectFontUsage;
+    std::function<void()> prepareProjectFontChange;
+    size_t FontUsage(const std::string& id) { return projectFontUsage?projectFontUsage(id):fonts.Usage(ProjectScreen(),id); }
     TrieLibrary& Tries() { return tries; }
     lv_obj_t* ProjectScreen() { return simWindow->GetDrawSurface(); }
     void AddFontSelector();

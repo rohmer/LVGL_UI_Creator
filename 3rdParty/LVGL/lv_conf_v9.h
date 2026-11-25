@@ -11,6 +11,9 @@
 #define LV_FS_MEMFS_LETTER 'M'
 #define LV_USE_RLE 1
 #define LV_USE_FONT_COMPRESSED 1
+/* The editor must preview imported large glyphs. Generated device profiles
+ * choose this independently from their actual font metrics. */
+#define LV_FONT_FMT_TXT_LARGE 1
 #define LV_USE_LZ4 1
 #define LV_BIN_DECODER_RAM_LOAD 1
 #define LV_USE_LODEPNG 1

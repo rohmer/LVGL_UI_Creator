@@ -10,6 +10,7 @@ import shutil
 import sys
 import uuid
 import zipfile
+import keyboard_dependency
 
 from feature_plan import repository_root
 from make_component import copy_file, text_file
@@ -98,6 +99,7 @@ def package(output: Path, example_projects=(), replace=False):
             for path in source.rglob("*"):
                 relative = path.relative_to(source)
                 if any(part in (".git", "__pycache__", "build", "node_modules") for part in relative.parts): continue
+                if path.is_relative_to(repo / "LVSerial/Widgets/AdvancedKeyboard"): continue
                 if path.is_file() and (predicate is None or predicate(path)):
                     copy_file(path, destination / relative)
         source_file = lambda path: path.name == "Kconfig" or path.suffix.lower() in (".h", ".hpp", ".inc", ".inl", ".c", ".cpp", ".py", ".md", ".json", ".ngtr", ".ngix", ".proto", ".options", ".txt", ".cmake", ".defaults", ".projbuild") or any(
@@ -105,6 +107,8 @@ def package(output: Path, example_projects=(), replace=False):
         tree(repo / "Runtime/esp32", stage / "Runtime/esp32", source_file)
         for directory in ("Runtime/common", "Runtime/include", "Runtime/compat", "LVSerial/Serialization", "LVSerial/Device", "LVSerial/Proto", "LVSerial/Widgets"):
             tree(repo / directory, stage / directory, source_file)
+        keyboard_dependency.copy_runtime(repo, stage / keyboard_dependency.PREFIX)
+        keyboard_dependency.copy_integration(repo, stage)
         copy_file(repo / "Runtime/README.md", stage / "Runtime/README.md")
         copy_file(repo / "LVSerial/README.md", stage / "LVSerial/README.md")
         lvgl = repo / "3rdParty/LVGL/lvgl"

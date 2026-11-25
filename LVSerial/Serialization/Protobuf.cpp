@@ -1,5 +1,6 @@
 #include "Protobuf.h"
 #include "ProjectTries.h"
+#include "FontData.h"
 #include "../Device/lvserial_defaults.h"
 #include <set>
 #include <stdexcept>
@@ -40,6 +41,14 @@ namespace Serialization
             auto& property = entry.value.metadata;
             std::set<std::string> omitted;
             std::memcpy(property.path, path.c_str(), path.size() + 1);
+            if (omitDefaults && FontData::Matches(value))
+            {
+                property.kind = lvserial_ValueKind_FONT_DATA;
+                const auto bytes = FontData::Encode(value);
+                entry.payload.assign(bytes.begin(), bytes.end());
+                properties.push_back(std::move(entry));
+                return;
+            }
             if (value.is_object() || value.is_array())
             {
                 property.kind = value.is_object() ? lvserial_ValueKind_OBJECT : lvserial_ValueKind_ARRAY;
@@ -165,6 +174,9 @@ namespace Serialization
                 case lvserial_ValueKind_REAL:
                     if (!std::isfinite(property->real_value)) throw std::invalid_argument("Invalid real number");
                     value = property->real_value; break;
+                case lvserial_ValueKind_FONT_DATA:
+                    if (!payload) throw std::invalid_argument("Missing font payload");
+                    value = FontData::Decode(*payload); break;
                 case lvserial_ValueKind_TEXT: case lvserial_ValueKind_BINARY:
                 {
                     if (property->kind == lvserial_ValueKind_BINARY) {

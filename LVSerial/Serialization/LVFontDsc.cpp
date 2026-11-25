@@ -68,6 +68,10 @@ namespace Serialization
         if (j["bitmap"].is_string())
         {
             storage.bitmap = base64_decode(j["bitmap"].get<std::string>());
+            // LVGL's compressed bit reader looks one byte ahead even when a
+            // read ends exactly on a byte boundary. Keep that byte owned by the
+            // font rather than depending on another allocation's contents.
+            if(fontDsc.bitmap_format)storage.bitmap.push_back('\0');
             fontDsc.glyph_bitmap = reinterpret_cast<const uint8_t*>(storage.bitmap.data());
         }
         if (j["Kern"].is_object())

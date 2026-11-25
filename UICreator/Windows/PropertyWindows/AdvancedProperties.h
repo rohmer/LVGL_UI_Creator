@@ -6,6 +6,7 @@
 
 #include "../PropertyWindow.h"
 #include "../../Utils/EditorControls.h"
+#include "TextInputModeControl.h"
 #include "../../KeyboardModels/BundledTries.h"
 #include <Serialization/ExtendedWidgets.h>
 #include <Serialization/CustomWidgets.h>
@@ -71,6 +72,8 @@ class AdvancedProperties
 
     static std::string Name(std::string key)
     {
+        if (key == "inputMode") return "Input mode";
+        if (key == "numeric") return "Number stepper";
         if (key == "rightToLeft") return "Right-to-left display";
         if (key == "hlDates") return "Highlighted dates";
         if (key == "dayN") return "Day names";
@@ -139,7 +142,9 @@ class AdvancedProperties
             else
             {
                 json value;
-                if (!binding->choices.empty()) value = binding->choices.at(lv_dropdown_get_selected(field));
+                if (binding->path == "/textBox/inputMode")
+                    value = Serialization::TextInputMode::Name(static_cast<lv_advanced_keyboard_input_mode_t>(lv_dropdown_get_selected(field)));
+                else if (!binding->choices.empty()) value = binding->choices.at(lv_dropdown_get_selected(field));
                 else if (lv_obj_get_class(field) == &lv_checkbox_class) value = lv_obj_has_state(field, LV_STATE_CHECKED);
                 else
                 {
@@ -173,11 +178,14 @@ class AdvancedProperties
                     destination = (destination.get<uint32_t>() & ~0xfu) | std::clamp(value.get<uint32_t>(), 1u, 15u);
                 else destination = value;
             }
+            // A deliberate integer value edit uses the stepper value. Saved
+            // text remains authoritative for every other edit and on reload.
+            if (binding->path == "/textBox/value") record["textBox"].erase("text");
             Apply(binding->window,binding->object, record);
             auto* data = static_cast<ObjectUserData*>(lv_obj_get_user_data(binding->object));
             data->objectJson = Serialization::ObjectSerializer::SerializeObject(binding->object);
             lv_obj_set_style_border_color(field, lv_color_hex(EditorStyle::Border), LV_PART_MAIN);
-            if (action) Refresh(binding->window, binding->object);
+            if (action || binding->path == "/textBox/inputMode") Refresh(binding->window, binding->object);
         }
         catch (const std::exception& error)
         {
@@ -248,7 +256,8 @@ class AdvancedProperties
         lv_obj_t* control;
         std::vector<int> choices;
         std::string options;
-        if (path == "/chart/type") { options = "None\nLine\nBar\nScatter"; choices = {0, 1, 2, 3}; }
+        if (path == "/textBox/inputMode") options = TextInputModeControl::Options;
+        else if (path == "/chart/type") { options = "None\nLine\nBar\nScatter"; choices = {0, 1, 2, 3}; }
         else if (path == "/chart/updateMode") { options = "Shift\nCircular"; choices = {0, 1}; }
         else if (path == "/scale/mode") { options = "Horizontal top\nHorizontal bottom\nVertical left\nVertical right\nRound inner\nRound outer"; choices = {LV_SCALE_MODE_HORIZONTAL_TOP, LV_SCALE_MODE_HORIZONTAL_BOTTOM, LV_SCALE_MODE_VERTICAL_LEFT, LV_SCALE_MODE_VERTICAL_RIGHT, LV_SCALE_MODE_ROUND_INNER, LV_SCALE_MODE_ROUND_OUTER}; }
         else if (path == "/tabview/position") { options = "Top\nBottom\nLeft\nRight"; choices = {LV_DIR_TOP, LV_DIR_BOTTOM, LV_DIR_LEFT, LV_DIR_RIGHT}; }
@@ -270,12 +279,17 @@ class AdvancedProperties
             auto* field = Column(parent);
             auto* label = lv_label_create(field);
             lv_label_set_text(label, title.c_str());
-            if (!choices.empty())
+            if (path == "/textBox/inputMode") TextInputModeControl::AddHint(label);
+            if (!options.empty())
             {
                 control = lv_dropdown_create(field);
                 lv_dropdown_set_options(control, options.c_str());
-                const auto selected = std::find(choices.begin(), choices.end(), value.get<int>());
-                if (selected != choices.end()) lv_dropdown_set_selected(control, static_cast<uint32_t>(selected - choices.begin()));
+                if (path == "/textBox/inputMode") lv_dropdown_set_selected(control, Serialization::TextInputMode::Parse(value.get<std::string>()));
+                else
+                {
+                    const auto selected = std::find(choices.begin(), choices.end(), value.get<int>());
+                    if (selected != choices.end()) lv_dropdown_set_selected(control, static_cast<uint32_t>(selected - choices.begin()));
+                }
             }
             else
             {

@@ -2,22 +2,35 @@
 #include "../../UICreator/Fonts/FontLibrary.h"
 #include "../../UICreator/Images/ImageLibrary.h"
 #include <Serialization/Project.h>
+#include <Serialization/ProjectScreens.h>
 #include <Serialization/ObjectSerializer.h>
+#include <Serialization/Base64.h>
+#include <Serialization/Xml.h>
 #include "../../CodeGeneration/CCodeGenerator.h"
+#include "../../CodeGeneration/XmlCodeGenerator.h"
 #include <fstream>
 #include <iostream>
 #define CHECK(condition) do {if(!(condition))throw std::runtime_error(std::string("Check failed line ")+std::to_string(__LINE__)+": " #condition);}while(0)
 using namespace Serialization;
 ImageConversion::Result Converted(const std::filesystem::path& path,const json& options,const std::filesystem::path& output={}) {auto result=ImageConversion::Convert({path},options,output);if(!result.success)throw std::runtime_error(result.message);return result;}
+json TinyCompressedFont() {
+    return {{"lineHeight",4},{"baseLine",0},{"dsc",{
+        {"bitmap","8A=="},{"bitmapFmt",2},{"bpp",4},{"cmapNum",1},{"kernScale",0},{"kernClasses",0},
+        {"GlyphDsc",json::array({{{"bitmapIdx",0},{"adv_w",0},{"box_w",0},{"box_h",0},{"ofs_x",0},{"ofs_y",0}},
+            {{"bitmapIdx",0},{"adv_w",16},{"box_w",1},{"box_h",1},{"ofs_x",0},{"ofs_y",0}}})},
+        {"cmaps",json::array({{{"rangeStart",65},{"rangeLength",1},{"glyphIDstart",1},{"type",2},{"formatVersion",9}}})},
+        {"Kern",json::object()}}}};
+}
 int main(int argc,char** argv) {
     try {
         const bool fixture=argc==4&&std::string(argv[1])=="--fixture";if(!fixture&&argc!=3)return 2;
         const auto root=std::filesystem::path(argv[fixture?2:1]),out=std::filesystem::path(argv[fixture?3:2]);std::filesystem::create_directories(out);
         const auto png=root/"Tests/Fixtures/Images/sample.png",gif=root/"Tests/Fixtures/Images/sample.gif";
         lv_init();auto* display=lv_display_create(800,600);
-        FontLibrary library;auto id=library.Add("Body",LVFont::ToJSON(*LV_FONT_DEFAULT));auto* first=ObjectSerializer::Create("label"),*second=ObjectSerializer::Create("label");
+        FontLibrary library;auto id=library.Add("Body",LVFont::ToJSON(*LV_FONT_DEFAULT),
+            {{"output","private/source/location/font.c"},{"name","obsolete_output_symbol"},{"include","private_font_include.h"}});auto* first=ObjectSerializer::Create("label"),*second=ObjectSerializer::Create("label");
         library.Apply(first,id);library.Apply(second,id);CHECK(library.Get(id)==lv_obj_get_style_text_font(first,LV_PART_MAIN));
-        auto* pointer=library.Get(id);library.Rename(id,"Body renamed");CHECK(library.Get(id)==pointer);CHECK(library.Usage(lv_screen_active(),id)==2);
+        auto* pointer=library.Get(id);library.Rename(id,u8"Body / renamed + \"quoted\" \u65e5\u672c\u8a9e");CHECK(library.Get(id)==pointer);CHECK(library.Usage(lv_screen_active(),id)==2);
         auto lz4=Converted(png,{{"colorFormat","RGB565A8"},{"compression","LZ4"},{"align",8}});
         auto rle=Converted(png,{{"colorFormat","ARGB8888"},{"compression","RLE"}});
         auto animation=Converted(gif,{{"colorFormat","RGB565"},{"compression","LZ4"}});
@@ -42,9 +55,51 @@ int main(int argc,char** argv) {
         CHECK(lv_obj_get_style_text_font(restored.objects[0],LV_PART_MAIN)==lv_obj_get_style_text_font(restored.objects[1],LV_PART_MAIN));
         CHECK(ObjectSerializer::SerializeObject(restored.objects[7])["imagebutton"]["states"]==buttonRecord["imagebutton"]["states"]);
         for(auto* object:restored.objects)lv_obj_delete(object);
-        {auto bytes=Protobuf::Encode(EntityKind::Project,"project",document);std::ofstream binary(out/"runtime.pb",std::ios::binary);binary.write((const char*)bytes.data(),bytes.size());}
+        // Saved conversion settings and friendly names are project metadata.
+        // Exports derive their own symbols and share identical bitmap data.
+        document["fonts"].push_back({{"id","font_alias"},{"name","Shared body alias"},{"font",library.ToJSON()[0]["font"]}});
+        document["fonts"].push_back({{"id","font_compressed"},{"name","Pressed accent"},{"font",TinyCompressedFont()}});
+        document["obj"][0]["base"]["nativeStyles"].push_back({{"selector",LV_STATE_PRESSED},{"values",{{"text_font",{{"projectFont","font_compressed"}}}}}});
+        document["obj"][1]["base"]["nativeStyles"].push_back({{"selector",LV_STATE_CHECKED},{"values",{{"text_font",{{"projectFont","font_alias"}}}}}});
+        auto unusedFont=library.ToJSON()[0]["font"];unusedFont["lineHeight"]=unusedFont["lineHeight"].get<int>()+1;
+        auto unusedBitmap=base64_decode(unusedFont["dsc"]["bitmap"]);unusedBitmap+="UNUSED_FONT_FLASH_SENTINEL_3721";
+        unusedFont["dsc"]["bitmap"]=base64_encode(reinterpret_cast<const unsigned char*>(unusedBitmap.data()),unusedBitmap.size());
+        document["fonts"].push_back({{"id","font_unused"},{"name",u8"Unused \u03a9 font"},{"font",unusedFont}});
+        const auto unusedStyle=json::array({{{"selector",0},{"values",{{"text_font",{{"projectFont","font_unused"}}}}}}});
+        document["sharedStyles"]=unusedStyle;document["components"]=json::array({{{"records",json::array({{{"base",{{"nativeStyles",unusedStyle}}}}})}}});
+        const auto device=ProjectScreens::Device(document);CHECK(document["fonts"][0].contains("conversion"));CHECK(!device["fonts"][0].contains("conversion"));
+        CHECK(document["fonts"].size()==4);CHECK(device["fonts"].size()==3);CHECK(!device.contains("components"));CHECK(!device.contains("sharedStyles"));
+        CHECK(Protobuf::Decode(Protobuf::Encode(EntityKind::Project,"project",document)).data["fonts"].size()==4);
+        CHECK(ProjectScreens::Canonical(document)["fonts"][0].contains("conversion"));CHECK(device["fonts"][0]["font"]==document["fonts"][0]["font"]);
+        {auto bytes=Protobuf::Encode(EntityKind::Project,"project",device);CHECK(Protobuf::Decode(bytes).data["fonts"]==device["fonts"]);
+            std::ofstream binary(out/"runtime.pb",std::ios::binary);binary.write((const char*)bytes.data(),bytes.size());}
+#if LVSERIAL_USE_XML
+        {XmlCodeGenerator xml;CHECK(xml.LoadProject(document));CHECK(xml.ExportProject((out/"runtime.xml").u8string()));
+            std::ifstream file(out/"runtime.xml",std::ios::binary);const std::string text((std::istreambuf_iterator<char>(file)),{});
+            CHECK(text.find("private/source/location")==std::string::npos);CHECK(Xml::Decode(text.data(),text.size()).data["fonts"]==device["fonts"]);}
+#endif
         CCodeGenerator generator;CHECK(generator.LoadProject(document));CHECK(generator.ExportProject(out.u8string()));
+        json summary;CHECK(generator.Preflight(summary));
+        CHECK(summary["manifest"]["fonts"].size()==3);CHECK(summary["manifest"]["fonts"][0]["symbol"]==summary["manifest"]["fonts"][1]["symbol"]);
+        for(const auto& font:summary["manifest"]["fonts"])CHECK(font["id"]!="font_unused");
+        CHECK(summary["requirements"].get<std::string>().find("LV_USE_FONT_COMPRESSED")!=std::string::npos);
+        CHECK(summary["requirements"].get<std::string>().find("LV_FONT_FMT_TXT_LARGE")==std::string::npos);
+        for(const auto& entry:std::filesystem::directory_iterator(out))if(entry.path().extension()==".c"||entry.path().extension()==".h"||entry.path().filename()=="manifest.json") {
+            std::ifstream file(entry.path(),std::ios::binary);const std::string text((std::istreambuf_iterator<char>(file)),{});
+            CHECK(text.find("private/source/location")==std::string::npos);CHECK(text.find("obsolete_output_symbol")==std::string::npos);CHECK(text.find("private_font_include.h")==std::string::npos);
+            CHECK(text.find("font_unused")==std::string::npos);
+        }
         if(!fixture) {
+            auto large=document;auto& font=large["fonts"][2]["font"];font["lineHeight"]=300;
+            font["dsc"]["GlyphDsc"][1]["box_w"]=256;font["dsc"]["GlyphDsc"][1]["adv_w"]=4096;
+            const std::string wideBitmap(32,char(255));font["dsc"]["bpp"]=1;font["dsc"]["bitmapFmt"]=0;
+            font["dsc"]["bitmap"]=base64_encode(reinterpret_cast<const unsigned char*>(wideBitmap.data()),wideBitmap.size());
+            for(const auto& target:{"8.3","9.1","9.2","9.3","9.5","9.6"}) {
+                CCodeGenerator exportFont;exportFont.SetTargetVersion(target);CHECK(exportFont.LoadProject(large));CHECK(exportFont.Preflight(summary));
+                const auto requirements=summary["requirements"].get<std::string>();CHECK(requirements.find("#if !LV_FONT_FMT_TXT_LARGE")!=std::string::npos);
+                CHECK(requirements.find("LV_USE_FONT_FMT_TXT_LARGE")==std::string::npos);
+                CHECK(requirements.find("LV_USE_FONT_COMPRESSED")==std::string::npos);
+            }
             const std::vector<std::string> colors={"ARGB8888","XRGB8888","RGB888","RGB565","RGB565_SWAPPED","RGB565A8","ARGB8565","ARGB8888_PREMULTIPLIED","L8","AL88","A1","A2","A4","A8","I1","I2","I4","I8","AUTO","RAW","RAW_ALPHA"};
             for(const auto& color:colors) {std::cerr<<"Converting "<<color<<'\n';auto converted=Converted(png,{{"colorFormat",color}},out/color);CHECK(converted.assets.size()==1);CHECK(!converted.assets[0]["deviceFrames"].empty());CHECK(!ImageAsset::Decode(converted.assets[0]).pixels.empty());CHECK(!converted.files.empty());}
             CHECK(animation.assets[0]["deviceFrames"].size()==2);

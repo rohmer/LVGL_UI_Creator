@@ -18,6 +18,7 @@ static bool valid_property(const lvserial_Property* property)
         case lvserial_ValueKind_UNSIGNED: return property->has_unsigned_value;
         case lvserial_ValueKind_REAL: return property->has_real_value;
         case lvserial_ValueKind_TEXT: case lvserial_ValueKind_BINARY: return true;
+        case lvserial_ValueKind_FONT_DATA: return true;
         default: return false;
     }
 }
@@ -31,10 +32,11 @@ static bool encode_properties(pb_ostream_t* stream, const pb_field_t* field, voi
         if (!context->read(context->context, i, &property)) PB_RETURN_ERROR(stream, "property callback failed");
         if (!memchr(property.metadata.path, 0, sizeof property.metadata.path) || !valid_property(&property.metadata))
             PB_RETURN_ERROR(stream, "invalid property");
-        if (property.metadata.kind == lvserial_ValueKind_TEXT || property.metadata.kind == lvserial_ValueKind_BINARY) {
+        if (property.metadata.kind == lvserial_ValueKind_TEXT || property.metadata.kind == lvserial_ValueKind_BINARY || property.metadata.kind == lvserial_ValueKind_FONT_DATA) {
             if (property.size && !property.bytes) PB_RETURN_ERROR(stream, "missing payload");
-            property.metadata.text_value.funcs.encode = encode_bytes;
-            property.metadata.text_value.arg = &property;
+            pb_callback_t* payload = property.metadata.kind == lvserial_ValueKind_FONT_DATA ? &property.metadata.font_value : &property.metadata.text_value;
+            payload->funcs.encode = encode_bytes;
+            payload->arg = &property;
         }
         if (!pb_encode_tag_for_field(stream, field) || !pb_encode_submessage(stream, lvserial_Property_fields, &property.metadata)) return false;
     }
@@ -71,14 +73,24 @@ static bool decode_property(pb_istream_t* stream, const pb_field_t* field, void*
 {
     decoder_context* context = (decoder_context*)*argument;
     lvserial_Property property = lvserial_Property_init_zero;
-    captured_bytes captured;
+    captured_bytes captured, font;
     pb_istream_t empty = pb_istream_from_buffer(NULL, 0);
     (void)field;
     memset(&captured, 0, sizeof captured);
+    memset(&font, 0, sizeof font);
     property.text_value.funcs.decode = capture_bytes;
     property.text_value.arg = &captured;
+    property.font_value.funcs.decode = capture_bytes;
+    property.font_value.arg = &font;
     if (!pb_decode(stream, lvserial_Property_fields, &property)) return false;
     if (!valid_property(&property)) PB_RETURN_ERROR(stream, "invalid property value");
+    if (property.kind == lvserial_ValueKind_FONT_DATA) {
+        if (!font.present || captured.present) PB_RETURN_ERROR(stream, "invalid font property payload");
+        if (context->visit && !context->visit(context->context, context->record, &property, &font.stream))
+            PB_RETURN_ERROR(stream, "property visitor rejected font data");
+        return true;
+    }
+    if (font.present) PB_RETURN_ERROR(stream, "font payload on a non-font property");
     if (context->record->format_version >= 2 && property.kind == lvserial_ValueKind_OBJECT &&
         (property.has_signed_value || property.has_unsigned_value)) {
         size_t count = 0, i, added = 0;

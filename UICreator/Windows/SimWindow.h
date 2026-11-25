@@ -5,13 +5,18 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "../Utils/ObjectTools.h"
+#if LVGL_VERSION_MAJOR >= 9
+class ScreenFontMemory;
+#endif
 
 class SimWindow
 {
 public:
     SimWindow(int iWidth, int iHeight);
+    ~SimWindow();
     lv_obj_t* GetWindow() const { return window; }
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
@@ -30,6 +35,9 @@ private:
     lv_group_t* keyboardGroup = nullptr;
     lv_obj_t* memoryLabel = nullptr;
     size_t memoryBytes = static_cast<size_t>(-1);
+#if LVGL_VERSION_MAJOR >= 9
+    std::unique_ptr<ScreenFontMemory> fontMemory;
+#endif
 
     int updateFrame();
 

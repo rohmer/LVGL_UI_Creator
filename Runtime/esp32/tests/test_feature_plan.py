@@ -2,12 +2,14 @@ import copy
 import base64
 import importlib.util
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import struct
 import unittest
+from unittest.mock import patch
 
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
@@ -53,6 +55,50 @@ class FeaturePlanTests(unittest.TestCase):
             self.assertEqual(profile.decode_project(encoded), document)
             with self.assertRaises(ValueError): profile.decode_project(encoded[:-1])
 
+    def test_only_live_fonts_affect_export_and_minimal_configuration(self):
+        font = {"lineHeight": 10, "baseLine": 0, "dsc": {"bitmap": "gA==", "bitmapFmt": 0, "bpp": 1,
+            "GlyphDsc": [{"bitmapIdx": 0, "adv_w": 0, "box_w": 0, "box_h": 0, "ofs_x": 0, "ofs_y": 0},
+                         {"bitmapIdx": 0, "adv_w": 16, "box_w": 1, "box_h": 1, "ofs_x": 0, "ofs_y": 0}],
+            "cmaps": [{"rangeStart": 65, "rangeLength": 1, "glyphIDstart": 1, "type": 2, "formatVersion": 9}]}}
+        catalog = []
+        for index, identity in enumerate(("canvas", "body", "state", "inline", "unused")):
+            data = copy.deepcopy(font);data["lineHeight"] += index
+            catalog.append({"id": identity, "name": identity, "font": data, "conversion": {"path": "host.ttf"}})
+        unused = catalog[-1]["font"]
+        unused["dsc"].update(bitmap=base64.b64encode(b"UNUSED_FONT_FLASH_SENTINEL").decode(), bitmapFmt=2, bpp=4)
+        unused["dsc"]["GlyphDsc"][1]["box_w"] = 256
+        first = project({"text": "Body"})
+        first["canvas"]["base"]["fontId"] = "canvas"
+        first["obj"][0]["base"].update(fontId="body", nativeStyles=[
+            {"selector": 0, "values": {"text_font": {"projectFont": "unused"}}},
+            {"selector": 0x40080, "values": {"text_font": {"projectFont": "state"}}}])
+        first["obj"][0]["base"]["design"] = {"component": {"baseline": {"base": {"fontId": "unused"}}}}
+        second = project({"text": "Inline"})
+        second["obj"][0]["base"]["nativeStyles"] = [{"selector": 0, "values": {"text_font": catalog[3]["font"]}}]
+        document = {"fonts": catalog, "screens": [first, second], "activeScreen": 0,
+            "components": [{"records": [{"base": {"fontId": "unused"}}]}],
+            "sharedStyles": [{"text_font": {"projectFont": "unused"}}],
+            "componentLibrary": {"font": {"projectFont": "unused"}}}
+        original = copy.deepcopy(document)
+        optimized = profile.optimize_document(document)
+        self.assertEqual(document, original)
+        self.assertEqual([entry["id"] for entry in optimized["fonts"]], ["canvas", "body", "state", "inline"])
+        self.assertTrue(all("conversion" not in entry for entry in optimized["fonts"]))
+        self.assertNotIn("componentLibrary", optimized)
+        self.assertEqual(optimized["screens"][0]["obj"][0]["base"]["nativeStyles"][0]["values"]["text_font"], {"projectFont": "body"})
+        self.assertEqual(optimized["screens"][1]["obj"][0]["base"]["nativeStyles"][0]["values"]["text_font"], {"projectFont": "inline"})
+        self.assertEqual(profile.decode_project(profile.encode_project(optimized)), optimized)
+        plan = profile.analyze_projects([document])
+        self.assertFalse(plan["fontCompressed"]);self.assertFalse(plan["fontLargeDescriptors"])
+        self.assertEqual(plan["fontAssetCount"], 4)
+        retained = profile.optimize_document(document, retain_editor_assets=True)
+        self.assertEqual([entry["id"] for entry in retained["fonts"]], ["canvas", "body", "state", "inline"])
+        self.assertTrue(all("conversion" in entry for entry in retained["fonts"]))
+        blank = copy.deepcopy(document);blank["screens"] = [{"obj": []}]
+        self.assertEqual(profile.optimize_document(blank)["fonts"], [])
+        broken = copy.deepcopy(document);broken["screens"][1]["canvas"]["base"]["fontId"] = "missing"
+        with self.assertRaisesRegex(ValueError, "Unknown project font"): profile.optimize_document(broken)
+
     def test_real_project_default_profiles(self):
         fixtures = profile.repository_root() / "build/professional/bootstrap-generated"
         if not fixtures.is_dir(): self.skipTest("Generated fixture matrix is not present")
@@ -60,6 +106,61 @@ class FeaturePlanTests(unittest.TestCase):
             if not (directory / "fixture.pb").is_file(): continue
             expected = json.loads((directory / "fixture.json").read_text(encoding="utf-8"))
             self.assertEqual(profile.decode_project((directory / "fixture.pb").read_bytes()), expected, directory.name)
+
+    def test_typed_fonts_survive_offline_analysis_and_component_generation(self):
+        font = {"lineHeight": 4, "baseLine": 0, "underlinePosition": -1, "dsc": {
+            "bitmap": "8A==", "bitmapFmt": 2, "bpp": 4, "stride": 0, "cmapNum": 1,
+            "GlyphDsc": [{"bitmapIdx": 0, "adv_w": 0, "box_w": 0, "box_h": 0, "ofs_x": 0, "ofs_y": 0},
+                         {"bitmapIdx": 0, "adv_w": 16, "box_w": 1, "box_h": 1, "ofs_x": -1, "ofs_y": 0}],
+            "cmaps": [{"rangeStart": 65, "rangeLength": 1, "glyphIDstart": 1, "type": 2,
+                       "formatVersion": 9, "unicodeList": [], "glyphIDOffsetList": []}],
+            "kernScale": 16, "kernClasses": 0, "Kern": None}}
+        document = project({"text": "A"})
+        document["fonts"] = [{"id": "body", "name": "Body", "font": font,
+                              "conversion": {"output": "not/needed.c", "sources": [{"path": "missing.ttf"}]}}]
+        document["obj"][0]["base"]["fontId"] = "body"
+        compact = profile.encode_project(document)
+        legacy = profile.encode_project(document, omit_defaults=False)
+        self.assertLess(len(compact), len(legacy))
+        self.assertEqual(profile.decode_project(compact), document)
+        self.assertEqual(profile.decode_project(legacy), document)
+        unusual = copy.deepcopy(document)
+        unusual["fonts"][0]["font"]["dsc"]["bitmap"] = "8B=="  # noncanonical padding bits
+        self.assertEqual(profile.decode_project(profile.encode_project(unusual)), unusual)
+        for kern in ({"glyphIDSize": 0, "GlyphIDs": [1, 1], "Values": [-128, -1, 0, 127]},
+                     {"leftCount": 1, "rightCount": 1, "leftClasses": [0, 1], "rightClasses": [0, 1], "Values": [-2]}):
+            candidate = copy.deepcopy(document)
+            candidate["fonts"][0]["font"]["dsc"]["Kern"] = kern
+            self.assertEqual(profile.decode_project(profile.encode_project(candidate)), candidate)
+        optimized = profile.optimize_document(document)
+        self.assertNotIn("conversion", optimized["fonts"][0])
+        self.assertIn("conversion", document["fonts"][0])
+        self.assertEqual(profile.optimize_document(document, retain_editor_assets=True)["fonts"], document["fonts"])
+        root = profile.repository_root()
+        plan = profile.analyze_projects([profile.decode_project(compact)])
+        self.assertTrue(plan["fontCompressed"])
+        self.assertFalse(plan["fontLargeDescriptors"])
+        self.assertIn("#define LV_USE_FONT_COMPRESSED 1", profile.lvgl_config(plan, root))
+        many = copy.deepcopy(document)
+        many["fonts"][0]["font"]["dsc"]["GlyphDsc"] *= 300
+        self.assertFalse(profile.analyze_projects([many])["fontLargeDescriptors"])
+        many["fonts"][0]["font"]["dsc"]["GlyphDsc"][1]["ofs_x"] = -129
+        self.assertTrue(profile.analyze_projects([many])["fontLargeDescriptors"])
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            source = directory / "font.pb"
+            source.write_bytes(compact)
+            output = directory / "font-component"
+            built = make_component([source], output)
+            self.assertTrue(built["fontCompressed"])
+            self.assertIn("LVSerial/Serialization/FontData.cpp", built["sourceFiles"])
+            self.assertTrue((output / "vendor/LVSerial/Serialization/FontData.cpp").is_file())
+            self.assertEqual(profile.decode_project((output / "projects/font.pb").read_bytes()), optimized)
+            self.assertFalse(any("freetype" in p.lower() for p in built["sourceFiles"]))
+        malformed = profile._wire(1, 0, 1) + profile._wire(3, 0, 4)  # missing required bitmap/bpp
+        import font_assets
+        with self.assertRaisesRegex(ValueError, "Missing required font field"):
+            font_assets.decode(malformed, profile._fields, profile._varint)
 
     def test_dependencies_and_union(self):
         label = profile.analyze_projects([project({"text": {"text": "hello"}})])
@@ -101,13 +202,38 @@ class FeaturePlanTests(unittest.TestCase):
         for name in ("KEYBOARD", "BUTTONMATRIX", "DROPDOWN", "FLEX"):
             self.assertIn(f"#define LV_USE_{name} 0", config)
         sources = profile.source_plan(plan, root)
-        widget = "LVSerial/Widgets/AdvancedKeyboard/"
-        for name in ("Key.cpp", "Keyboard.cpp", "TypingView.cpp", "SuggestionText.cpp", "Utf8Fold.cpp", "AdvancedKeyboard.cpp", "KeyboardFont.c"):
+        widget = "3rdParty/AdvancedKeyboard/src/"
+        for name in ("Key.cpp", "Keyboard.cpp", "TypingView.cpp", "SuggestionText.cpp", "Utf8Fold.cpp", "AdvancedKeyboard.cpp", "KeyboardFont.c", "TextareaInputMode.c"):
             self.assertIn(widget + name, sources)
         label_plan = profile.analyze_projects([project({"text": {"text": "hello"}})])
         self.assertNotIn("LVSERIAL_USE_ADVANCED_KEYBOARD", label_plan["customFeatures"])
         self.assertFalse(any(source.startswith(widget) for source in profile.source_plan(label_plan, root)))
         self.assertIn("#define LVSERIAL_USE_ADVANCED_KEYBOARD 0", profile.lvgl_config(label_plan, root))
+
+    def test_text_input_modes_do_not_require_the_keyboard_engine(self):
+        root = profile.repository_root()
+        helper = "3rdParty/AdvancedKeyboard/src/TextareaInputMode.c"
+        for section in ("textarea", "textBox"):
+            for mode in ("alphanumeric", "uppercase", "lowercase", "numeric"):
+                document = project({section: {"inputMode": mode}})
+                self.assertEqual(profile.decode_project(profile.encode_project(document)), document)
+                plan = profile.analyze_projects([document])
+                sources = profile.source_plan(plan, root)
+                self.assertIn(helper, sources)
+                self.assertNotIn("LVSERIAL_USE_ADVANCED_KEYBOARD", plan["customFeatures"])
+                self.assertFalse(any(name.endswith(("Keyboard.cpp", "Prediction.cpp", "KeyboardFont.c")) for name in sources))
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            source = directory / "numeric.json"
+            source.write_text(json.dumps(project({"textarea": {"inputMode": "numeric"}})), encoding="utf-8")
+            output = directory / "component"
+            plan = make_component([source], output)
+            vendor = output / "vendor/3rdParty/AdvancedKeyboard"
+            for name in ("src/TextareaInputMode.c", "include/lv_textarea_input_mode.h", "src/UnicodeCase.inc"):
+                self.assertTrue((vendor / name).is_file(), name)
+            self.assertIn(helper, plan["sourceFiles"])
+            self.assertFalse((vendor / "src/Keyboard.cpp").exists())
+            self.assertFalse((output / "vendor/LVSerial/Widgets/AdvancedKeyboard").exists())
 
     def test_prediction_builtin_custom_and_unused_catalogs(self):
         root = profile.repository_root()
@@ -116,7 +242,7 @@ class FeaturePlanTests(unittest.TestCase):
             self.assertIn("LVSERIAL_USE_ADVANCED_KEYBOARD_" + name, builtin["customFeatures"])
         sources = profile.source_plan(builtin, root)
         for name in ("PredictionModel.cpp", "PredictionPrefix.cpp", "Prediction.cpp", "PredictionStorage.cpp"):
-            self.assertIn("LVSerial/Widgets/AdvancedKeyboard/" + name, sources)
+            self.assertIn("3rdParty/AdvancedKeyboard/src/" + name, sources)
         model = struct.pack("<4sIII", b"NGTR", 3, 4, 0) + b"\0\2\0\2a\1\1a\1\1"
         document = project({"advancedKeyboard": {"trieId": "custom"}})
         document["tries"] = [{"id": "custom", "name": "Model.ngtr", "format": "ngtr", "data": base64.b64encode(model).decode()}]
@@ -260,12 +386,26 @@ class FeaturePlanTests(unittest.TestCase):
             for relative in profile.CUSTOM_SOURCES["LVSERIAL_USE_ADVANCED_KEYBOARD"]:
                 self.assertTrue((output / "vendor" / relative).is_file(), relative)
             for name in ("include/lv_advanced_keyboard.h", "include/espos_keyboard/TypingView.h", "include/espos_keyboard/Prediction.h",
-                         "PredictionStorage.h", "Utf8Fold.h", "UnicodeFold.inc", "en_us_qwerty.generated.h", "README.md", "PROVENANCE.md"):
-                self.assertTrue((output / "vendor/LVSerial/Widgets/AdvancedKeyboard" / name).is_file(), name)
-            self.assertFalse((output / "vendor/LVSerial/Widgets/AdvancedKeyboard/include/ngram_trie").exists())
-            self.assertTrue((output / "licenses/LVSerial/Widgets/AdvancedKeyboard/KeyboardFont.LICENSE.txt").is_file())
+                         "src/PredictionStorage.h", "src/Utf8Fold.h", "src/UnicodeFold.inc", "src/en_us_qwerty.generated.h", "src/PROVENANCE.md"):
+                self.assertTrue((output / "vendor/3rdParty/AdvancedKeyboard" / name).is_file(), name)
+            self.assertFalse((output / "vendor/3rdParty/AdvancedKeyboard/include/ngram_trie").exists())
+            self.assertFalse((output / "vendor/LVSerial/Widgets/AdvancedKeyboard").exists())
+            self.assertTrue((output / "licenses/AdvancedKeyboard/src/KeyboardFont.LICENSE.txt").is_file())
+            self.assertTrue((output / "licenses/AdvancedKeyboard/LICENSE").is_file())
+            self.assertTrue((output / "licenses/AdvancedKeyboard/NOTICE.md").is_file())
+            self.assertFalse((output / "vendor/3rdParty/AdvancedKeyboard/tools").exists())
+            self.assertFalse(any("BundledModels.cpp" in name or "RadixModelBuilder" in name or "NativeTrieGenerator" in name
+                                 for name in plan["sourceFiles"]))
             self.assertFalse((output / "vendor/3rdParty/LVGL/lvgl/src/widgets/keyboard/lv_keyboard.c").exists())
-            self.assertEqual(len([name for name in plan["sourceFiles"] if name.startswith("LVSerial/Widgets/AdvancedKeyboard/")]), 7)
+            self.assertEqual(len([name for name in plan["sourceFiles"] if name.startswith("3rdParty/AdvancedKeyboard/src/")]), 8)
+
+    def test_missing_dependency_does_not_fall_back_to_maintained_duplicate(self):
+        root = profile.repository_root()
+        plan = profile.analyze_projects([project({"advancedKeyboard": {"trieId": ""}})])
+        with tempfile.TemporaryDirectory() as temporary:
+            with patch.dict(os.environ, {"ADVANCED_KEYBOARD_ROOT": str(Path(temporary) / "missing")}):
+                with self.assertRaisesRegex(FileNotFoundError, "AdvancedKeyboard"):
+                    profile.source_plan(plan, root)
 
     def test_xml_codec_is_explicit_and_does_not_expand_widgets(self):
         with tempfile.TemporaryDirectory() as temporary:

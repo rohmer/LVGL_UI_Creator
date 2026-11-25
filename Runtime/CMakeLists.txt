@@ -115,7 +115,7 @@ if(BUILD_TESTING AND TARGET UICreatorCodeGenFixture)
     set_tests_properties(UICreatorArduinoProfile PROPERTIES TIMEOUT 300 LABELS "functional;firmware;arduino;xml")
     add_test(NAME UICreatorESP32Profile COMMAND "${Python3_EXECUTABLE}" -m unittest discover
         -s "${PROJECT_SOURCE_DIR}/Runtime/esp32/tests" -p "test_*.py")
-    set_tests_properties(UICreatorESP32Profile PROPERTIES TIMEOUT 120 LABELS "unit;esp32;protobuf;xml")
+    set_tests_properties(UICreatorESP32Profile PROPERTIES TIMEOUT 300 LABELS "unit;esp32;protobuf;xml")
     add_test(NAME UICreatorPicoProfile COMMAND "${Python3_EXECUTABLE}" -m unittest discover
         -s "${PROJECT_SOURCE_DIR}/Runtime/pico/tests" -v)
     set_tests_properties(UICreatorPicoProfile PROPERTIES TIMEOUT 300

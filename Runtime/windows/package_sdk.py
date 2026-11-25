@@ -129,8 +129,19 @@ lvgl_pb_copy_runtime(LVGLProtobufExample)
                 copy(notice, stage / "licenses/LVGL_dependencies" / notice.relative_to(lvgl))
         widgets = repo / "LVSerial/Widgets"
         for notice in widgets.rglob("*"):
+            if notice.is_relative_to(widgets / "AdvancedKeyboard"):
+                continue
             if notice.is_file() and (notice.name == "PROVENANCE.md" or any(marker in notice.name.upper() for marker in ("LICENSE", "LICENCE", "COPYING", "NOTICE"))):
                 copy(notice, stage / "licenses/LVSerial_widgets" / notice.relative_to(widgets))
+        resolver = repo / "Integrations/AdvancedKeyboard/dependency.py"
+        import importlib.util
+        specification = importlib.util.spec_from_file_location("windows_sdk_keyboard_dependency", resolver)
+        dependency = importlib.util.module_from_spec(specification)
+        specification.loader.exec_module(dependency)
+        keyboard = dependency.resolve_root(repo)
+        for notice in [*keyboard.iterdir(), *(keyboard / "src").rglob("*")]:
+            if notice.is_file() and (notice.name == "PROVENANCE.md" or any(marker in notice.name.upper() for marker in ("LICENSE", "LICENCE", "COPYING", "NOTICE"))):
+                copy(notice, stage / "licenses/AdvancedKeyboard" / notice.relative_to(keyboard))
         write(stage / "licenses/Microsoft_RUNTIME_NOTICE.txt", "Microsoft Visual C++ runtime binaries retain their vendor redistribution terms.\n")
         manifest = {"sdkVersion": "0.9.2", "api": "lvgl_pb_display.h", "lvglVersion": "9.6.0",
                     "architecture": architecture, "displayDll": dll.name, "importLibrary": library.name,

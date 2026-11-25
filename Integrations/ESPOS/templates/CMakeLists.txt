@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
+include("${CMAKE_CURRENT_LIST_DIR}/tools/advanced_keyboard_dependency.cmake")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 if(NOT DEFINED ESPOS_CONFIG)
@@ -21,15 +22,18 @@ if(NOT espos_config_result EQUAL 0)
 endif()
 
 include("${CMAKE_BINARY_DIR}/generated/espos_components.cmake")
+if(ESPOS_PROFILE STREQUAL "full" OR ESPOS_USE_LVGL)
+    espos_require_advanced_keyboard()
+endif()
 
 # Ship the ESP-IDF-compatible kernel as part of ESPOS. Registering the component
 # with the same name overrides IDF's copy; only one FreeRTOS kernel is linked.
 set(espos_freertos "${CMAKE_CURRENT_LIST_DIR}/third_party/freertos")
 if(NOT EXISTS "${espos_freertos}/CMakeLists.txt")
-    message(FATAL_ERROR "The bundled FreeRTOS component is missing: ${espos_freertos}")
+    message(FATAL_ERROR "The bundled ESP-OS kernel component is missing: ${espos_freertos}")
 endif()
 if(NOT IDF_VERSION_MAJOR EQUAL 6 OR NOT IDF_VERSION_MINOR EQUAL 1)
-    message(FATAL_ERROR "The bundled FreeRTOS port requires ESP-IDF 6.1.x. See third_party/freertos/README.ESPOS.md.")
+    message(FATAL_ERROR "The bundled ESP-OS kernel port requires ESP-IDF 6.1.x. See third_party/freertos/README.ESPOS.md.")
 endif()
 list(APPEND EXTRA_COMPONENT_DIRS "${espos_freertos}")
 
@@ -47,6 +51,28 @@ if(ESPOS_USE_WIFI)
     endforeach()
 endif()
 
+# Each optional library is registered only when selected by the YAML. The
+# MQTT Agent's dependency on coreMQTT is resolved by the configuration generator.
+set(espos_core_libraries_root "${CMAKE_CURRENT_LIST_DIR}/third_party/freertos_libraries/components")
+set(espos_core_library_components)
+foreach(component IN ITEMS core_mqtt core_mqtt_agent core_sntp core_json core_pkcs11)
+    string(TOUPPER "${component}" option)
+    if(ESPOS_USE_${option})
+        if(NOT EXISTS "${espos_core_libraries_root}/${component}/CMakeLists.txt")
+            message(FATAL_ERROR "The selected bundled library is missing: ${component}")
+        endif()
+        list(APPEND EXTRA_COMPONENT_DIRS "${espos_core_libraries_root}/${component}")
+        list(APPEND espos_core_library_components "${component}")
+    endif()
+endforeach()
+
+if(ESPOS_USE_TRACE)
+    if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/components/espos_trace/CMakeLists.txt")
+        message(FATAL_ERROR "The selected ESPOS trace recorder component is missing")
+    endif()
+    list(APPEND espos_core_library_components espos_trace)
+endif()
+
 if(ESPOS_PROFILE STREQUAL "minimal" OR NOT ESPOS_USE_WIFI)
     # Full builds with Wi-Fi disabled must also follow main's explicit dependency
     # closure, instead of main implicitly depending on every SDK component.
@@ -56,18 +82,61 @@ endif()
 if(ESPOS_PROFILE STREQUAL "minimal")
     # main declares only FreeRTOS/log/system dependencies in this profile.
     # IDF then builds their dependency closure instead of every project component.
-    if(DEFINED COMPONENTS AND NOT "${COMPONENTS}" STREQUAL "main")
-        message(FATAL_ERROR "The minimal profile supports only COMPONENTS=main and its required IDF dependencies")
-    endif()
+    foreach(component IN LISTS COMPONENTS)
+        if(NOT component STREQUAL "main" AND NOT component IN_LIST espos_core_library_components
+                AND NOT (ESPOS_PLATFORMIO AND component STREQUAL "__pio_env"))
+            message(FATAL_ERROR "The minimal profile supports only main, selected optional libraries and their required IDF dependencies")
+        endif()
+    endforeach()
     list(APPEND SDKCONFIG_DEFAULTS "${CMAKE_CURRENT_LIST_DIR}/sdkconfig.freertos-minimal.defaults")
     if(ESPOS_NGRAM_MODEL OR ESPOS_NGRAM_BENCH_CASES)
         message(FATAL_ERROR "NGTR model/benchmark options require espos.profile: full")
     endif()
 endif()
 
+# Trace settings follow the minimal defaults, which disable trace support.
+# Project Creator regeneration backs up old SDK configuration before changing
+# these settings. The normal disabled build retains the SDK's own defaults.
+if(ESPOS_USE_TRACE)
+    set(espos_trace_defaults "${CMAKE_BINARY_DIR}/generated/sdkconfig.trace.defaults")
+    set(espos_trace_stream_value n)
+    if(ESPOS_TRACE_STREAM)
+        set(espos_trace_stream_value y)
+    endif()
+    file(WRITE "${espos_trace_defaults}"
+        "CONFIG_ESPOS_TRACE_ENABLE=y\nCONFIG_ESPOS_TRACE_BUFFER_EVENTS=${ESPOS_TRACE_BUFFER_EVENTS}\nCONFIG_ESPOS_TRACE_STREAM=${espos_trace_stream_value}\nCONFIG_ESP_TRACE_ENABLE=y\nCONFIG_ESP_TRACE_LIB_EXTERNAL=y\nCONFIG_ESP_TRACE_TRANSPORT_NONE=y\nCONFIG_ESP_TRACE_TS_SOURCE_ESP_TIMER=y\nCONFIG_FREERTOS_USE_TRACE_FACILITY=y\n")
+    list(APPEND SDKCONFIG_DEFAULTS "${espos_trace_defaults}")
+endif()
+
+# Explicit roots keep optional libraries in minimal dependency builds, including
+# older generated projects whose customized main/CMakeLists.txt is preserved.
+# ESPOS_PLATFORMIO_COMPONENT_ROOTS v1
+# PlatformIO needs its C/C++/ASM environment component in the CMake codemodel.
+# An explicit component list bypasses its patched default minimal roots.
+if((espos_core_library_components OR ESPOS_PLATFORMIO)
+        AND (ESPOS_PROFILE STREQUAL "minimal" OR NOT ESPOS_USE_WIFI OR COMPONENTS))
+    list(APPEND COMPONENTS main ${espos_core_library_components})
+    if(ESPOS_PLATFORMIO)
+        list(APPEND COMPONENTS __pio_env)
+    endif()
+    list(REMOVE_DUPLICATES COMPONENTS)
+endif()
+
 if(ESPOS_USE_LVGL)
     # Apply script glyphs and logical Unicode bidi to fresh keyboard sdkconfigs.
     list(APPEND SDKCONFIG_DEFAULTS "${CMAKE_CURRENT_LIST_DIR}/sdkconfig.keyboard-languages.defaults")
+    # ESPOS_GENERATED_UI_REQUIREMENTS v1
+    # The editor exports explicit LVGL feature requirements beside its code.
+    # Apply them after board/language defaults when creating a fresh sdkconfig.
+    set(espos_generated_ui "${CMAKE_CURRENT_LIST_DIR}/components/GeneratedUI")
+    if(EXISTS "${espos_generated_ui}/espos-ui.json")
+        if(NOT EXISTS "${espos_generated_ui}/espos_ui_sdkconfig.defaults")
+            message(FATAL_ERROR "The sent UI has no LVGL SDK defaults. Send it again from LVGL UI Creator.")
+        endif()
+        list(APPEND SDKCONFIG_DEFAULTS "${espos_generated_ui}/espos_ui_sdkconfig.defaults")
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+            "${espos_generated_ui}/espos-ui.json" "${espos_generated_ui}/espos_ui_sdkconfig.defaults")
+    endif()
     include(FetchContent)
     if(POLICY CMP0135)
         cmake_policy(SET CMP0135 NEW)
@@ -84,11 +153,20 @@ endif()
 
 project(ESPOS)
 
+# ESPOS_OPTIONAL_CORE_LIBRARIES v1
+# Regeneration updates this managed root file without replacing user main code.
+if(espos_core_library_components)
+    idf_component_get_property(espos_main_component main COMPONENT_LIB)
+    foreach(component IN LISTS espos_core_library_components)
+        target_link_libraries(${espos_main_component} PRIVATE idf::${component})
+    endforeach()
+endif()
+
 idf_component_get_property(espos_kernel_dir freertos COMPONENT_DIR)
 if(NOT "${espos_kernel_dir}" STREQUAL "${espos_freertos}")
-    message(FATAL_ERROR "ESP-IDF selected an unexpected FreeRTOS component: ${espos_kernel_dir}")
+    message(FATAL_ERROR "ESP-IDF selected an unexpected ESP-OS kernel component: ${espos_kernel_dir}")
 endif()
-message(STATUS "ESPOS profile: ${ESPOS_PROFILE}; bundled FreeRTOS: ${espos_kernel_dir}")
+message(STATUS "ESP-OS profile: ${ESPOS_PROFILE}; bundled ESP-OS kernel: ${espos_kernel_dir}")
 if(ESPOS_USE_WIFI)
     idf_build_get_property(espos_built_components BUILD_COMPONENTS)
     foreach(component IN LISTS espos_wifi_components)

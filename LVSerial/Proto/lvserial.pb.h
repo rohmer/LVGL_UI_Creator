@@ -29,10 +29,79 @@ typedef enum _lvserial_ValueKind {
     lvserial_ValueKind_UNSIGNED = 5,
     lvserial_ValueKind_REAL = 6,
     lvserial_ValueKind_TEXT = 7,
-    lvserial_ValueKind_BINARY = 8
+    lvserial_ValueKind_BINARY = 8,
+    lvserial_ValueKind_FONT_DATA = 9
 } lvserial_ValueKind;
 
 /* Struct definitions */
+typedef struct _lvserial_FontGlyph {
+    uint32_t bitmap_index;
+    uint32_t advance;
+    uint32_t width;
+    uint32_t height;
+    int32_t offset_x;
+    int32_t offset_y;
+} lvserial_FontGlyph;
+
+typedef struct _lvserial_FontCmap {
+    uint32_t range_start;
+    uint32_t range_length;
+    uint32_t glyph_start;
+    uint32_t type;
+    bool has_format_version;
+    uint32_t format_version;
+    pb_callback_t unicode_list;
+    pb_callback_t glyph_offsets;
+} lvserial_FontCmap;
+
+typedef struct _lvserial_FontKerning {
+    bool has_glyph_id_size;
+    uint32_t glyph_id_size;
+    pb_callback_t glyph_ids;
+    pb_callback_t values;
+    bool has_left_count;
+    uint32_t left_count;
+    bool has_right_count;
+    uint32_t right_count;
+    pb_callback_t left_classes;
+    pb_callback_t right_classes;
+} lvserial_FontKerning;
+
+typedef struct _lvserial_FontData {
+    uint32_t format_version;
+    bool has_base_line;
+    int32_t base_line;
+    uint32_t line_height;
+    bool has_cap_height;
+    uint32_t cap_height;
+    bool has_x_height;
+    uint32_t x_height;
+    bool has_subpixel_mode;
+    uint32_t subpixel_mode;
+    bool has_kerning_mode;
+    uint32_t kerning_mode;
+    bool has_underline_position;
+    int32_t underline_position;
+    bool has_underline_thickness;
+    uint32_t underline_thickness;
+    pb_callback_t bitmap;
+    uint32_t bitmap_format;
+    uint32_t bpp;
+    bool has_stride;
+    uint32_t stride;
+    bool has_kern_scale;
+    uint32_t kern_scale;
+    bool has_kern_classes;
+    uint32_t kern_classes;
+    pb_callback_t glyphs;
+    pb_callback_t cmaps;
+    pb_callback_t kern;
+    bool has_kern_is_null;
+    bool kern_is_null;
+    bool has_cmap_count;
+    uint32_t cmap_count;
+} lvserial_FontData;
+
 typedef struct _lvserial_Property {
     char path[512];
     lvserial_ValueKind kind;
@@ -47,6 +116,7 @@ typedef struct _lvserial_Property {
     pb_callback_t text_value;
     bool has_child_count;
     uint32_t child_count;
+    pb_callback_t font_value;
 } lvserial_Property;
 
 typedef struct _lvserial_Record {
@@ -67,8 +137,12 @@ extern "C" {
 #define _lvserial_EntityKind_ARRAYSIZE ((lvserial_EntityKind)(lvserial_EntityKind_ASSET+1))
 
 #define _lvserial_ValueKind_MIN lvserial_ValueKind_NULL_VALUE
-#define _lvserial_ValueKind_MAX lvserial_ValueKind_BINARY
-#define _lvserial_ValueKind_ARRAYSIZE ((lvserial_ValueKind)(lvserial_ValueKind_BINARY+1))
+#define _lvserial_ValueKind_MAX lvserial_ValueKind_FONT_DATA
+#define _lvserial_ValueKind_ARRAYSIZE ((lvserial_ValueKind)(lvserial_ValueKind_FONT_DATA+1))
+
+
+
+
 
 #define lvserial_Property_kind_ENUMTYPE lvserial_ValueKind
 
@@ -76,12 +150,60 @@ extern "C" {
 
 
 /* Initializer values for message structs */
-#define lvserial_Property_init_default           {"", _lvserial_ValueKind_MIN, false, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, false, 0}
+#define lvserial_FontGlyph_init_default          {0, 0, 0, 0, 0, 0}
+#define lvserial_FontCmap_init_default           {0, 0, 0, 0, false, 0, {{NULL}, NULL}, {{NULL}, NULL}}
+#define lvserial_FontKerning_init_default        {false, 0, {{NULL}, NULL}, {{NULL}, NULL}, false, 0, false, 0, {{NULL}, NULL}, {{NULL}, NULL}}
+#define lvserial_FontData_init_default           {1u, false, 0, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, 0, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, false, 0, false, 0}
+#define lvserial_Property_init_default           {"", _lvserial_ValueKind_MIN, false, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, false, 0, {{NULL}, NULL}}
 #define lvserial_Record_init_default             {1u, _lvserial_EntityKind_MIN, "", {{NULL}, NULL}}
-#define lvserial_Property_init_zero              {"", _lvserial_ValueKind_MIN, false, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, false, 0}
+#define lvserial_FontGlyph_init_zero             {0, 0, 0, 0, 0, 0}
+#define lvserial_FontCmap_init_zero              {0, 0, 0, 0, false, 0, {{NULL}, NULL}, {{NULL}, NULL}}
+#define lvserial_FontKerning_init_zero           {false, 0, {{NULL}, NULL}, {{NULL}, NULL}, false, 0, false, 0, {{NULL}, NULL}, {{NULL}, NULL}}
+#define lvserial_FontData_init_zero              {0, false, 0, 0, false, 0, false, 0, false, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, 0, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, false, 0, false, 0}
+#define lvserial_Property_init_zero              {"", _lvserial_ValueKind_MIN, false, 0, false, 0, false, 0, false, 0, {{NULL}, NULL}, false, 0, {{NULL}, NULL}}
 #define lvserial_Record_init_zero                {0, _lvserial_EntityKind_MIN, "", {{NULL}, NULL}}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define lvserial_FontGlyph_bitmap_index_tag      1
+#define lvserial_FontGlyph_advance_tag           2
+#define lvserial_FontGlyph_width_tag             3
+#define lvserial_FontGlyph_height_tag            4
+#define lvserial_FontGlyph_offset_x_tag          5
+#define lvserial_FontGlyph_offset_y_tag          6
+#define lvserial_FontCmap_range_start_tag        1
+#define lvserial_FontCmap_range_length_tag       2
+#define lvserial_FontCmap_glyph_start_tag        3
+#define lvserial_FontCmap_type_tag               4
+#define lvserial_FontCmap_format_version_tag     5
+#define lvserial_FontCmap_unicode_list_tag       6
+#define lvserial_FontCmap_glyph_offsets_tag      7
+#define lvserial_FontKerning_glyph_id_size_tag   1
+#define lvserial_FontKerning_glyph_ids_tag       2
+#define lvserial_FontKerning_values_tag          3
+#define lvserial_FontKerning_left_count_tag      4
+#define lvserial_FontKerning_right_count_tag     5
+#define lvserial_FontKerning_left_classes_tag    6
+#define lvserial_FontKerning_right_classes_tag   7
+#define lvserial_FontData_format_version_tag     1
+#define lvserial_FontData_base_line_tag          2
+#define lvserial_FontData_line_height_tag        3
+#define lvserial_FontData_cap_height_tag         4
+#define lvserial_FontData_x_height_tag           5
+#define lvserial_FontData_subpixel_mode_tag      6
+#define lvserial_FontData_kerning_mode_tag       7
+#define lvserial_FontData_underline_position_tag 8
+#define lvserial_FontData_underline_thickness_tag 9
+#define lvserial_FontData_bitmap_tag             10
+#define lvserial_FontData_bitmap_format_tag      11
+#define lvserial_FontData_bpp_tag                12
+#define lvserial_FontData_stride_tag             13
+#define lvserial_FontData_kern_scale_tag         14
+#define lvserial_FontData_kern_classes_tag       15
+#define lvserial_FontData_glyphs_tag             16
+#define lvserial_FontData_cmaps_tag              17
+#define lvserial_FontData_kern_tag               18
+#define lvserial_FontData_kern_is_null_tag       19
+#define lvserial_FontData_cmap_count_tag         20
 #define lvserial_Property_path_tag               1
 #define lvserial_Property_kind_tag               2
 #define lvserial_Property_boolean_value_tag      3
@@ -90,12 +212,72 @@ extern "C" {
 #define lvserial_Property_real_value_tag         6
 #define lvserial_Property_text_value_tag         7
 #define lvserial_Property_child_count_tag        8
+#define lvserial_Property_font_value_tag         9
 #define lvserial_Record_format_version_tag       1
 #define lvserial_Record_kind_tag                 2
 #define lvserial_Record_type_tag                 3
 #define lvserial_Record_properties_tag           4
 
 /* Struct field encoding specification for nanopb */
+#define lvserial_FontGlyph_FIELDLIST(X, a) \
+X(a, STATIC,   REQUIRED, UINT32,   bitmap_index,      1) \
+X(a, STATIC,   REQUIRED, UINT32,   advance,           2) \
+X(a, STATIC,   REQUIRED, UINT32,   width,             3) \
+X(a, STATIC,   REQUIRED, UINT32,   height,            4) \
+X(a, STATIC,   REQUIRED, SINT32,   offset_x,          5) \
+X(a, STATIC,   REQUIRED, SINT32,   offset_y,          6)
+#define lvserial_FontGlyph_CALLBACK NULL
+#define lvserial_FontGlyph_DEFAULT NULL
+
+#define lvserial_FontCmap_FIELDLIST(X, a) \
+X(a, STATIC,   REQUIRED, UINT32,   range_start,       1) \
+X(a, STATIC,   REQUIRED, UINT32,   range_length,      2) \
+X(a, STATIC,   REQUIRED, UINT32,   glyph_start,       3) \
+X(a, STATIC,   REQUIRED, UINT32,   type,              4) \
+X(a, STATIC,   OPTIONAL, UINT32,   format_version,    5) \
+X(a, CALLBACK, REPEATED, UINT32,   unicode_list,      6) \
+X(a, CALLBACK, REPEATED, UINT32,   glyph_offsets,     7)
+#define lvserial_FontCmap_CALLBACK pb_default_field_callback
+#define lvserial_FontCmap_DEFAULT NULL
+
+#define lvserial_FontKerning_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, UINT32,   glyph_id_size,     1) \
+X(a, CALLBACK, REPEATED, UINT32,   glyph_ids,         2) \
+X(a, CALLBACK, REQUIRED, BYTES,    values,            3) \
+X(a, STATIC,   OPTIONAL, UINT32,   left_count,        4) \
+X(a, STATIC,   OPTIONAL, UINT32,   right_count,       5) \
+X(a, CALLBACK, OPTIONAL, BYTES,    left_classes,      6) \
+X(a, CALLBACK, OPTIONAL, BYTES,    right_classes,     7)
+#define lvserial_FontKerning_CALLBACK pb_default_field_callback
+#define lvserial_FontKerning_DEFAULT NULL
+
+#define lvserial_FontData_FIELDLIST(X, a) \
+X(a, STATIC,   REQUIRED, UINT32,   format_version,    1) \
+X(a, STATIC,   OPTIONAL, SINT32,   base_line,         2) \
+X(a, STATIC,   REQUIRED, UINT32,   line_height,       3) \
+X(a, STATIC,   OPTIONAL, UINT32,   cap_height,        4) \
+X(a, STATIC,   OPTIONAL, UINT32,   x_height,          5) \
+X(a, STATIC,   OPTIONAL, UINT32,   subpixel_mode,     6) \
+X(a, STATIC,   OPTIONAL, UINT32,   kerning_mode,      7) \
+X(a, STATIC,   OPTIONAL, SINT32,   underline_position,   8) \
+X(a, STATIC,   OPTIONAL, UINT32,   underline_thickness,   9) \
+X(a, CALLBACK, REQUIRED, BYTES,    bitmap,           10) \
+X(a, STATIC,   REQUIRED, UINT32,   bitmap_format,    11) \
+X(a, STATIC,   REQUIRED, UINT32,   bpp,              12) \
+X(a, STATIC,   OPTIONAL, UINT32,   stride,           13) \
+X(a, STATIC,   OPTIONAL, UINT32,   kern_scale,       14) \
+X(a, STATIC,   OPTIONAL, UINT32,   kern_classes,     15) \
+X(a, CALLBACK, REPEATED, MESSAGE,  glyphs,           16) \
+X(a, CALLBACK, REPEATED, MESSAGE,  cmaps,            17) \
+X(a, CALLBACK, OPTIONAL, MESSAGE,  kern,             18) \
+X(a, STATIC,   OPTIONAL, BOOL,     kern_is_null,     19) \
+X(a, STATIC,   OPTIONAL, UINT32,   cmap_count,       20)
+#define lvserial_FontData_CALLBACK pb_default_field_callback
+#define lvserial_FontData_DEFAULT (const pb_byte_t*)"\x08\x01\x00"
+#define lvserial_FontData_glyphs_MSGTYPE lvserial_FontGlyph
+#define lvserial_FontData_cmaps_MSGTYPE lvserial_FontCmap
+#define lvserial_FontData_kern_MSGTYPE lvserial_FontKerning
+
 #define lvserial_Property_FIELDLIST(X, a) \
 X(a, STATIC,   REQUIRED, STRING,   path,              1) \
 X(a, STATIC,   REQUIRED, UENUM,    kind,              2) \
@@ -104,9 +286,11 @@ X(a, STATIC,   OPTIONAL, SINT64,   signed_value,      4) \
 X(a, STATIC,   OPTIONAL, UINT64,   unsigned_value,    5) \
 X(a, STATIC,   OPTIONAL, DOUBLE,   real_value,        6) \
 X(a, CALLBACK, OPTIONAL, BYTES,    text_value,        7) \
-X(a, STATIC,   OPTIONAL, UINT32,   child_count,       8)
+X(a, STATIC,   OPTIONAL, UINT32,   child_count,       8) \
+X(a, CALLBACK, OPTIONAL, MESSAGE,  font_value,        9)
 #define lvserial_Property_CALLBACK pb_default_field_callback
 #define lvserial_Property_DEFAULT NULL
+#define lvserial_Property_font_value_MSGTYPE lvserial_FontData
 
 #define lvserial_Record_FIELDLIST(X, a) \
 X(a, STATIC,   REQUIRED, UINT32,   format_version,    1) \
@@ -117,16 +301,29 @@ X(a, CALLBACK, REPEATED, MESSAGE,  properties,        4)
 #define lvserial_Record_DEFAULT (const pb_byte_t*)"\x08\x01\x00"
 #define lvserial_Record_properties_MSGTYPE lvserial_Property
 
+extern const pb_msgdesc_t lvserial_FontGlyph_msg;
+extern const pb_msgdesc_t lvserial_FontCmap_msg;
+extern const pb_msgdesc_t lvserial_FontKerning_msg;
+extern const pb_msgdesc_t lvserial_FontData_msg;
 extern const pb_msgdesc_t lvserial_Property_msg;
 extern const pb_msgdesc_t lvserial_Record_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
+#define lvserial_FontGlyph_fields &lvserial_FontGlyph_msg
+#define lvserial_FontCmap_fields &lvserial_FontCmap_msg
+#define lvserial_FontKerning_fields &lvserial_FontKerning_msg
+#define lvserial_FontData_fields &lvserial_FontData_msg
 #define lvserial_Property_fields &lvserial_Property_msg
 #define lvserial_Record_fields &lvserial_Record_msg
 
 /* Maximum encoded size of messages (where known) */
+/* lvserial_FontCmap_size depends on runtime parameters */
+/* lvserial_FontKerning_size depends on runtime parameters */
+/* lvserial_FontData_size depends on runtime parameters */
 /* lvserial_Property_size depends on runtime parameters */
 /* lvserial_Record_size depends on runtime parameters */
+#define LVSERIAL_LVSERIAL_PB_H_MAX_SIZE          lvserial_FontGlyph_size
+#define lvserial_FontGlyph_size                  36
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -86,6 +86,13 @@ UI::UI(lv_indev_t* kb_indev)
     CreateMenuBar();
     CreateWorkspace();
     toolBar->variableDocument = [this] { return ProjectDocument(); };
+    propertyWindow->projectFontUsage = [this](const std::string& id) { return propertyWindow->Fonts().References(Serialization::ProjectScreens::Canonical(ProjectDocument()),id); };
+    propertyWindow->prepareProjectFontChange = [this] {
+        // Stored screens and component/shared styles may predate stable asset
+        // references. Preserve their relationship before replacing the bitmap.
+        Serialization::ProjectFonts::References(screenRecords,propertyWindow->Fonts().ToJSON(),false);
+        Serialization::ProjectFonts::References(projectMetadata,propertyWindow->Fonts().ToJSON(),false);
+    };
     toolBar->variableScreen = [this] { return editingScreen; };
     toolBar->revealVariableTarget = [this](size_t screen, int oid) { SelectObjectOnScreen(screen, oid); };
     toolBar->variableRenamed = [this](const std::string& from, const std::string& to) { RenameVariableReferences(from, to); };

@@ -7,8 +7,9 @@ import sys
 root, output = Path(sys.argv[1]), Path(sys.argv[2])
 sys.path.insert(0, str(root / "Runtime/esp32"))
 from feature_plan import encode_project
+from keyboard_dependency import resolve_root
 
-models = root / "LVSerial/Widgets/AdvancedKeyboard/models"
+models = resolve_root(root) / "src/models"
 document = {
     "formatVersion": 2, "lvglVersion": "9.6.0", "runtimeTarget": "9.6",
     "canvas": {"width": 640, "height": 400},

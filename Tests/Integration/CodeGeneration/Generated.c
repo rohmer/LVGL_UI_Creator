@@ -4,11 +4,13 @@
 #include <string.h>
 #define CHECK(x) do { if (!(x)) { fprintf(stderr,"Failed line %d: %s\n",__LINE__,#x); return 1; } } while (0)
 #define OBJ(name) ui_get_object(0, ID_##name)
+#include "InputModes.h"
 int main(void) {
     lv_display_t *display; lv_obj_t *previous; int64_t history;
     lv_init();display=lv_display_create(800,600);previous=lv_screen_active();
     CHECK(ui_init());CHECK(ui_init());CHECK(ui_screen_count()==2);
     CHECK(lv_screen_active()==ui_get_screen(0));
+    CHECK(VerifyInputModes()==0);
     CHECK(lv_obj_get_x(ui_get_screen(0))==0&&lv_obj_get_y(ui_get_screen(0))==0);
     CHECK(lv_obj_get_class(OBJ(checkbox))==&lv_checkbox_class);CHECK(lv_obj_is_checked(OBJ(checkbox)));
     CHECK(lv_arc_get_value(OBJ(arc))==42);CHECK(lv_bar_get_value(OBJ(bar))==51);

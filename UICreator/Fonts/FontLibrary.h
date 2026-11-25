@@ -2,6 +2,7 @@
 #include "../Utils/EditorEdit.h"
 #include <Serialization/ProjectFonts.h>
 #include <Serialization/ObjectUserData.h>
+#include <Serialization/NativeStyles.h>
 #include <map>
 
 class FontLibrary {
@@ -15,16 +16,61 @@ public:
         records=std::move(normalized);fonts=std::move(loaded);
     }
     const lv_font_t* Get(const std::string& id) const {auto found=fonts.find(id);if(found==fonts.end())throw std::invalid_argument("Project font not found");return found->second;}
+    const json& Record(const std::string& id) const {for(const auto& record:records)if(record.at("id")==id)return record;throw std::invalid_argument("Project font not found");}
     std::string Add(std::string name,const json& font,const json& settings=json::object()) {
-        if(name.empty())name="Converted font";for(char& c:name)if(c=='\n'||c=='\r')c=' ';
+        EditorEdit::Scope edit;
+        if(name.empty())name="Project font";for(char& c:name)if(c=='\n'||c=='\r')c=' ';
         for(const auto& record:records)if(record.at("font")==font)return record.at("id");
         auto stem=name;size_t suffix=2;auto exists=[&](const std::string& n){for(auto& r:records)if(r.at("name")==n)return true;return false;};
         while(exists(name))name=stem+" ("+std::to_string(suffix++)+")";
         std::string id;size_t index=1;do{id="font_"+std::to_string(index++);}while(fonts.count(id));
         auto next=records;next.push_back({{"id",id},{"name",name},{"font",font},{"conversion",settings}});Serialization::ProjectFonts::Normalize(next);fonts[id]=&Serialization::LVFont::FromJSON(font);records=std::move(next);return id;
     }
+    void Update(const std::string& id,const std::string& name,const json& font,const json& settings,lv_obj_t* root=nullptr) { EditorEdit::Scope edit;
+        auto next=records;bool found=false;
+        for(auto& record:next)if(record.at("id")==id){record["name"]=name;record["font"]=font;record["conversion"]=settings;found=true;break;}
+        if(!found)throw std::invalid_argument("Project font not found");
+        Serialization::ProjectFonts::Normalize(next);auto previous=Serialization::LVFont::ToJSON(*Get(id));auto* loaded=&Serialization::LVFont::FromJSON(font);records=std::move(next);fonts[id]=loaded;
+        if(root) {
+            const auto replace=[&](const auto& self,lv_obj_t* object)->void {
+                for(const auto& style:Serialization::NativeStyles::Read(object))if(style.contains("values")&&style["values"].contains("text_font")&&style["values"]["text_font"]==previous)
+                    lv_obj_set_style_text_font(object,loaded,style.value("selector",0u));
+                for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)self(self,lv_obj_get_child(object,i));
+            };
+            replace(replace,root);Rebind(root);
+        }
+    }
     void Rename(const std::string& id,const std::string& name) { EditorEdit::Scope edit;auto next=records;bool found=false;for(auto& record:next)if(record.at("id")==id){record["name"]=name;found=true;}if(!found)throw std::invalid_argument("Font not found");Serialization::ProjectFonts::Normalize(next);records=std::move(next);}
     void Remove(const std::string& id) { EditorEdit::Scope edit;auto next=json::array();for(auto& record:records)if(record.at("id")!=id)next.push_back(record);records=std::move(next);fonts.erase(id);}
+    // Count a widget once even when both its stable selection and text style
+    // reference the same font. Also protect shared styles and component data.
+    size_t References(const json& document,const std::string& id) const {
+        const auto& font=Record(id).at("font");
+        const auto contains=[&](const auto& self,const json& value)->bool {
+            if(value.is_array()){for(const auto& child:value)if(self(self,child))return true;return false;}
+            if(!value.is_object())return false;
+            for(const auto& item:value.items()) {
+                if(item.key()=="fonts"||item.key()=="conversion")continue;
+                if((item.key()=="fontId"||item.key()=="projectFont")&&item.value()==id)return true;
+                if((item.key()=="font"||item.key()=="text_font")&&item.value()==font)return true;
+                if(self(self,item.value()))return true;
+            }
+            return false;
+        };
+        const auto count=[&](const auto& self,const json& value)->size_t {
+            if(value.is_array()){size_t result=0;for(const auto& child:value)result+=self(self,child);return result;}
+            if(!value.is_object())return 0;
+            if(value.contains("base"))return contains(contains,value)?1:0;
+            size_t result=0;
+            for(const auto& item:value.items()) {
+                if(item.key()=="fonts"||item.key()=="conversion")continue;
+                if(((item.key()=="fontId"||item.key()=="projectFont")&&item.value()==id)||((item.key()=="font"||item.key()=="text_font")&&item.value()==font))++result;
+                else result+=self(self,item.value());
+            }
+            return result;
+        };
+        return count(count,document);
+    }
     static std::string Selection(lv_obj_t* object) {auto* data=static_cast<ObjectUserData*>(lv_obj_get_user_data(object));if(!data)return {};auto base=data->objectJson.find("base");return base!=data->objectJson.end()?base->value("fontId",std::string{}):std::string{};}
     void Apply(lv_obj_t* object,const std::string& id) { EditorEdit::Scope edit;
         if(!object)return;

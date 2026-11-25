@@ -23,7 +23,7 @@ import time
 TEMPLATE_ID = "raspberry-pi-linux"
 TOOLKIT_MARKER = "lvgl-pb-linux-toolkit.json"
 PROFILE_MARKER = "lvgl-pb-linux-sdk.json"
-MODULE_NAMES = ("feature_plan", "make_component", "package_toolkit", "trie_assets",
+MODULE_NAMES = ("feature_plan", "make_component", "package_toolkit", "trie_assets", "font_assets",
                 "linux_toolkit", "lvgl_pb_ngtr_index", "_uicreator_linux_generator")
 _WINDOWS_PUBLISH = sys.platform == "win32"
 _PUBLISH_DELAYS = (0.05, 0.1, 0.2, 0.4, 0.8)

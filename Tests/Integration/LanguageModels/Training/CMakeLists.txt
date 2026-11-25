@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.24)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    project(LanguageModelTrainingTests LANGUAGES CXX)
+endif()
+get_filename_component(training_root "${CMAKE_CURRENT_LIST_DIR}/../../../.." ABSOLUTE)
+include("${training_root}/cmake/AdvancedKeyboardDependency.cmake")
+add_executable(UICreatorLanguageModelTrainingTests "${ADVKBD_SOURCE_ROOT}/tests/native/language-models/Training.cpp"
+    "${ADVKBD_SOURCE_ROOT}/tools/NativeTrieGenerator/source/TrainingModel.cpp")
+target_include_directories(UICreatorLanguageModelTrainingTests PRIVATE "${ADVKBD_SOURCE_ROOT}/tools/NativeTrieGenerator/source")
+target_compile_features(UICreatorLanguageModelTrainingTests PRIVATE cxx_std_17)
+if(MSVC)
+    target_compile_options(UICreatorLanguageModelTrainingTests PRIVATE /utf-8 /EHsc)
+endif()
+enable_testing()
+add_test(NAME UICreatorLanguageModelTraining COMMAND UICreatorLanguageModelTrainingTests
+    "${CMAKE_CURRENT_BINARY_DIR}/scratch")
+set_tests_properties(UICreatorLanguageModelTraining PROPERTIES TIMEOUT 90 LABELS "language-models;training;prediction")

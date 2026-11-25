@@ -6,6 +6,7 @@
 #include <vector>
 
 #if LVGL_VERSION_MAJOR >= 9 || defined(LV_RUNTIME_PORTABLE)
+#include "TextInputMode.h"
 namespace Serialization
 {
     class BasicWidgets
@@ -167,6 +168,9 @@ namespace Serialization
                 data["cursor"] = lv_textarea_get_cursor_pos(object);
                 data["cursorClick"] = lv_textarea_get_cursor_click_pos(object);
                 data["selection"] = lv_textarea_get_text_selection(object);
+                const auto inputMode = lv_advanced_keyboard_get_textarea_input_mode(object);
+                if (inputMode == LV_ADVANCED_KEYBOARD_INPUT_ALPHANUMERIC) data.erase("inputMode");
+                else data["inputMode"] = TextInputMode::Name(inputMode);
             }
 #endif
 #if !LVSERIAL_MINIMAL_RUNTIME || LV_USE_LED
@@ -200,6 +204,9 @@ namespace Serialization
         static void Apply(lv_obj_t* object, const json& data)
         {
             const std::string type = Type(object);
+#if !LVSERIAL_MINIMAL_RUNTIME || LV_USE_TEXTAREA
+            if (type == "textarea") TextInputMode::Parse(data.value("inputMode", std::string("alphanumeric")));
+#endif
             PreserveSection(object, type.c_str(), data);
 #if !LVSERIAL_MINIMAL_RUNTIME || LV_USE_DROPDOWN
             if (type == "dropdown")
@@ -263,6 +270,9 @@ namespace Serialization
                 strings.bullet = data.value("passwordBullet", std::string("*"));
                 lv_textarea_set_accepted_chars(object, accepted != data.end() && accepted->is_string() ? strings.accepted.c_str() : nullptr);
                 lv_textarea_set_max_length(object, data.value("maxLength", 0u));
+                if (!lv_advanced_keyboard_set_textarea_input_mode(object,
+                    TextInputMode::Parse(data.value("inputMode", std::string("alphanumeric")))))
+                    throw std::runtime_error("Unable to configure text input mode");
                 lv_textarea_set_one_line(object, data.value("oneLine", false));
                 lv_textarea_set_password_mode(object, data.value("password", false));
                 lv_textarea_set_password_bullet(object, strings.bullet.c_str());

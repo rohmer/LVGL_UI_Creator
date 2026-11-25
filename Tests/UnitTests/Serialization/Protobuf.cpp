@@ -9,6 +9,116 @@
 #include <Serialization/CustomWidgets.h>
 #include <limits>
 #include <Serialization/ImageAsset.h>
+#include <Serialization/FontData.h>
+#include <Serialization/ProjectFonts.h>
+#include <Serialization/Xml.h>
+#include <Serialization/ResourceArena.h>
+
+TEST_CASE("Typed font data preserves raster tables and legacy records with compact transport", "[fonts]")
+{
+    using namespace Serialization;
+    auto font = LVFont::ToJSON(lv_font_montserrat_14);
+    REQUIRE(FontData::Matches(font));
+    const auto typed = Protobuf::Encode(EntityKind::Font,"font",font);
+    const auto legacy = Protobuf::Encode(EntityKind::Font,"font",font,false);
+    CHECK(typed.size() < legacy.size() / 4);
+    CHECK(Protobuf::Decode(typed).data == font);
+    CHECK(Protobuf::Decode(legacy).data == font);
+    const auto xml = Xml::Encode(EntityKind::Font,"font",font);
+    CHECK(xml.find("<font format_version=\"1\">") != std::string::npos);
+    CHECK(xml.find("<binary encoding=\"base64\">") != std::string::npos);
+    CHECK(Xml::Decode(xml).data == font);
+    const auto encoded = FontData::Encode(font);
+    for(size_t prefix=1;prefix<=12;++prefix) {
+        auto input=pb_istream_from_buffer(encoded.data(),prefix);
+        CHECK_THROWS(FontData::Decode(input));
+    }
+    auto invalid = encoded;
+    REQUIRE(invalid[0] == 8); invalid[1] = 99;
+    auto input=pb_istream_from_buffer(invalid.data(),invalid.size());
+    CHECK_THROWS(FontData::Decode(input));
+    invalid=encoded;invalid.push_back(82);invalid.push_back(0); // duplicate bitmap
+    input=pb_istream_from_buffer(invalid.data(),invalid.size());
+    CHECK_THROWS(FontData::Decode(input));
+    // Nonstandard optional-table presence must use the lossless generic path.
+    auto unusual=font;
+    unusual["dsc"]["Kern"]={{"Values",json::array()},{"leftCount",0},{"rightCount",0},
+        {"leftClasses",json::array()},{"rightClasses",json::array()},{"GlyphIDs",json::array()}};
+    CHECK_FALSE(FontData::Matches(unusual));
+    CHECK(Protobuf::Decode(Protobuf::Encode(EntityKind::Font,"font",unusual)).data==unusual);
+    unusual["dsc"]["Kern"].erase("GlyphIDs");unusual["dsc"]["Kern"]["glyphIDSize"]=0;
+    CHECK_FALSE(FontData::Matches(unusual));
+    CHECK(Protobuf::Decode(Protobuf::Encode(EntityKind::Font,"font",unusual)).data==unusual);
+    // Unknown future metadata must survive via the generic legacy property
+    // representation instead of being silently discarded by the typed codec.
+    font["futureMetadata"]="preserved";
+    CHECK_FALSE(FontData::Matches(font));
+    CHECK(Protobuf::Decode(Protobuf::Encode(EntityKind::Font,"font",font)).data==font);
+}
+
+TEST_CASE("Font selection creates main binding and preserves independent state fonts", "[fonts]")
+{
+    using namespace Serialization;
+    const auto font = LVFont::ToJSON(lv_font_montserrat_14);
+    const json catalog={{{"id","body"},{"name","Body"},{"font",font}}};
+    json document={{"base",{{"fontId","body"},{"nativeStyles",{
+        {{"selector",LV_STATE_PRESSED},{"values",{{"text_color",123}}}},
+        {{"selector",0},{"values",{{"text_color",456},{"text_font",{{"obsolete",true}}}}}}
+    }}}}};
+    ProjectFonts::References(document,catalog,false);
+    const auto& styles=document["base"]["nativeStyles"];
+    CHECK(styles[0]["values"]==json{{"text_color",123}});
+    CHECK(styles[1]["values"]["text_color"]==456);
+    CHECK(styles[1]["values"]["text_font"]==json{{"projectFont","body"}});
+    ProjectFonts::References(document,catalog,true);
+    CHECK(document["base"]["nativeStyles"][1]["values"]["text_font"]==font);
+    ResourceArena arena;
+    ResourceScope scope(arena);
+    auto& restored=LVFont::FromJSON(font);
+    CHECK(LVFont::ToJSON(restored)==font);
+    CHECK(&LVFont::FromJSON(font)==&restored);
+}
+
+TEST_CASE("Device fonts follow concrete canvases screens and part state styles", "[fonts]")
+{
+    using namespace Serialization;
+    auto font=LVFont::ToJSON(lv_font_montserrat_14);
+    auto catalog=json::array();
+    for(const auto* id:{"canvas","body","state","inline","unused"}) {
+        font["lineHeight"]=font["lineHeight"].get<int>()+1;
+        catalog.push_back({{"id",id},{"name",id},{"font",font},{"conversion",{{"path","host-only.ttf"}}}});
+    }
+    const auto unused=json{{"projectFont","unused"}};
+    const auto state=json{{"projectFont","state"}};
+    json body={{"base",{{"fontId","body"},{"nativeStyles",json::array({
+        {{"selector",0},{"values",{{"text_font",unused}}}},
+        {{"selector",(lv_style_selector_t)LV_PART_SELECTED|LV_STATE_PRESSED},{"values",{{"text_font",state}}}}
+    })}}},{"text","Body"}};
+    body["base"]["design"]["component"]["baseline"]={{"base",{{"fontId","unused"}}}};
+    const json inlined={{"base",{{"nativeStyles",json::array({
+        {{"selector",0},{"values",{{"text_font",catalog[3]["font"]}}}}
+    })}}},{"text","Inline"}};
+    json document={{"fonts",catalog},{"screens",json::array({
+        {{"canvas",{{"base",{{"fontId","canvas"}}}}},{"obj",json::array({body})}},
+        {{"canvas",json::object()},{"obj",json::array({inlined})}}
+    })}};
+    document["components"]=json::array({{{"records",json::array({{{"base",{{"fontId","unused"}}}}})}}});
+    document["sharedStyles"]={{"unused",{{"text_font",unused}}}};
+    document["componentLibrary"]={{"font",unused}};
+    const auto original=document;
+    const auto device=ProjectScreens::Device(document);
+    CHECK(document==original);REQUIRE(device["fonts"].size()==4);
+    std::set<std::string> ids;for(const auto& record:device["fonts"]){ids.insert(record.at("id"));CHECK_FALSE(record.contains("conversion"));}
+    CHECK((ids==std::set<std::string>{"canvas","body","state","inline"}));
+    CHECK_FALSE(device.contains("components"));CHECK_FALSE(device.contains("componentLibrary"));CHECK_FALSE(device.contains("sharedStyles"));
+    CHECK(device["screens"][0]["obj"][0]["base"]["nativeStyles"][0]["values"]["text_font"]==json{{"projectFont","body"}});
+    CHECK(device["screens"][1]["obj"][0]["base"]["nativeStyles"][0]["values"]["text_font"]==json{{"projectFont","inline"}});
+    CHECK(Protobuf::Decode(Protobuf::Encode(EntityKind::Project,"project",device)).data["fonts"]==device["fonts"]);
+    auto blank=document;blank["screens"]=json::array({{{"obj",json::array()}}});
+    CHECK(ProjectScreens::Device(blank)["fonts"].empty());
+    auto invalid=document;invalid["screens"][1]["obj"][0]["base"]["fontId"]="missing";
+    CHECK_THROWS(ProjectScreens::Device(invalid));
+}
 
 TEST_CASE("Structured Protobuf preserves all JSON values and empty containers")
 {

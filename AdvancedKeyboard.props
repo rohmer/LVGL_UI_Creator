@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AdvancedKeyboardDependencyImported>true</AdvancedKeyboardDependencyImported>
+    <AdvancedKeyboardRoot Condition="'$(AdvancedKeyboardRoot)' == ''">$(MSBuildThisFileDirectory)3rdParty\AdvancedKeyboard</AdvancedKeyboardRoot>
+    <AdvancedKeyboardRootSlash>$([System.String]::Copy('$(AdvancedKeyboardRoot)').Replace('\', '/'))</AdvancedKeyboardRootSlash>
+  </PropertyGroup>
+  <Target Name="RequireAdvancedKeyboardRepository" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(AdvancedKeyboardRoot)\src\PredictionModel.cpp')" Text="Initialize the pinned AdvancedKeyboard submodule: git submodule update --init --recursive. AdvancedKeyboardRoot can name an explicit development checkout." />
+  </Target>
+</Project>

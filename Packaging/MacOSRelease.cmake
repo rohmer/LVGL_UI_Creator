@@ -31,7 +31,7 @@ foreach(target LVGLProtobufMacOS SDL3-shared freetype)
         endif()
     endif()
 endforeach()
-foreach(helper project-creator language-models python-runtime integrations)
+foreach(helper project-creator language-models python-runtime integrations fonts)
     install(DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${helper}"
         DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources" USE_SOURCE_PERMISSIONS)
 endforeach()
@@ -77,7 +77,10 @@ install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/JSON/json.hpp"
     DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses/JSON")
 install(FILES "${PROJECT_SOURCE_DIR}/ImgLib/stb_image.h" "${PROJECT_SOURCE_DIR}/ImgLib/stb.h"
     DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses/stb")
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/LVSerial/Widgets/AdvancedKeyboard/"
+include("${PROJECT_SOURCE_DIR}/cmake/AdvancedKeyboardDependency.cmake")
+install(FILES "${ADVKBD_SOURCE_ROOT}/LICENSE" "${ADVKBD_SOURCE_ROOT}/NOTICE.md"
+    DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses/AdvancedKeyboard")
+install(DIRECTORY "${ADVKBD_SOURCE_ROOT}/src/"
     DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses/AdvancedKeyboard"
     FILES_MATCHING PATTERN "*LICENSE*" PATTERN "README.md" PATTERN "PROVENANCE.md")
 foreach(document BUILD.md EDITOR_WORKFLOWS.md Packaging/RELEASE_NOTES.md Packaging/MACOS.md Docs/CI.md

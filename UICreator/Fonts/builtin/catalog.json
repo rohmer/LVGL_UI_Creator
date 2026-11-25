@@ -1,0 +1,526 @@
+{
+  "formatVersion": 1,
+  "source": "Four user-provided TTF files and eight original upstream open-source regular faces",
+  "fonts": [
+    {
+      "id": "badh-regular",
+      "name": "Badh Regular",
+      "file": "badh-regular.ttf",
+      "sourceName": "67d6b1e9cdc02_BadhRegularttnorm.ttf",
+      "bytes": 61408,
+      "sha256": "7e4853eb9f4cc73d98589827a430265083d0d4dfd69e74e74def303ef288e042",
+      "nameRecords": {
+        "0": [
+          "Copyright (c) 1994 ImageLine Incorporated. All Rights Reserved."
+        ],
+        "1": [
+          "Badh",
+          "Badh ttnorm"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Badh Regular",
+          "Badh Regular ttnorm"
+        ],
+        "6": [
+          "BadhHabit71"
+        ],
+        "13": [],
+        "14": [],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 1,
+      "glyphs": 232,
+      "origin": "user-provided"
+    },
+    {
+      "id": "caliper-regular",
+      "name": "Caliper Regular",
+      "file": "caliper-regular.ttf",
+      "sourceName": "67d6b1eddb072_CaliperRegular.ttf",
+      "bytes": 43016,
+      "sha256": "a5aea3dc99ba65cf689111a9818ce8efb9934bb3ab1f3c8d2ffe502b2651965d",
+      "nameRecords": {
+        "0": [
+          "Copyright 2002 YouWorkForThem.  All Rights Reserved. http://www.youworkforthem.com.  YWFT Administration Contact: info@youworkforthem.com"
+        ],
+        "1": [
+          "Caliper"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Caliper",
+          "Caliper Regular"
+        ],
+        "6": [
+          "Caliper"
+        ],
+        "13": [],
+        "14": [],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 244,
+      "origin": "user-provided"
+    },
+    {
+      "id": "inter-regular",
+      "name": "Inter Regular",
+      "file": "inter-regular.ttf",
+      "sourceName": "extras/ttf/Inter-Regular.ttf",
+      "sourceUrl": "https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip",
+      "revision": "v4.1",
+      "upstream": "https://github.com/rsms/inter",
+      "license": "OFL-1.1",
+      "licenseFile": "inter-regular-OFL.txt",
+      "licenseUrl": "https://github.com/rsms/inter/blob/v4.1/LICENSE.txt",
+      "bytes": 411640,
+      "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
+      "licenseSHA256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright 2016 The Inter Project Authors"
+        ],
+        "1": [
+          "Inter"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Inter Regular"
+        ],
+        "5": [
+          "Version 4.001;git-9221beed3"
+        ],
+        "6": [
+          "Inter-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL"
+        ],
+        "14": [
+          "http://scripts.sil.org/OFL"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 2937,
+      "style": "Regular"
+    },
+    {
+      "id": "jetbrains-mono-regular",
+      "name": "JetBrains Mono Regular",
+      "sourceName": "JetBrainsMono-Regular.ttf",
+      "sourceUrl": "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/19371302b95d218af43299bce79ddbddd0bc364d/fonts/ttf/JetBrainsMono-Regular.ttf",
+      "upstream": "https://github.com/JetBrains/JetBrainsMono",
+      "revision": "19371302b95d218af43299bce79ddbddd0bc364d",
+      "license": "OFL-1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/JetBrains/JetBrainsMono/19371302b95d218af43299bce79ddbddd0bc364d/OFL.txt",
+      "licenseFile": "jetbrains-mono-regular-OFL.txt",
+      "file": "jetbrains-mono-regular.ttf",
+      "bytes": 270224,
+      "sha256": "e6fd0d7e91550b3ed2b735d4312474362c4716edc4fc0577a0f61ed782d5aed1",
+      "licenseSHA256": "a76abf002c49097d146e86740a3105a5d00450b1592e820a1109a8c5680cd697",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)"
+        ],
+        "1": [
+          "JetBrains Mono"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "JetBrains Mono Regular"
+        ],
+        "5": [
+          "Version 2.305; ttfautohint (v1.8.4.7-5d5b)"
+        ],
+        "6": [
+          "JetBrainsMono-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+        ],
+        "14": [
+          "https://openfontlicense.org"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 1754,
+      "style": "Regular"
+    },
+    {
+      "id": "lato-regular",
+      "name": "Lato Regular",
+      "sourceName": "Lato-Regular.ttf",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/83c62e30d87daa70216dab6b984d00d20d96d585/ofl/lato/Lato-Regular.ttf",
+      "upstream": "https://github.com/google/fonts",
+      "revision": "83c62e30d87daa70216dab6b984d00d20d96d585",
+      "license": "OFL-1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/83c62e30d87daa70216dab6b984d00d20d96d585/ofl/lato/OFL.txt",
+      "licenseFile": "lato-regular-OFL.txt",
+      "file": "lato-regular.ttf",
+      "bytes": 656568,
+      "sha256": "d636e4683231f931eda222d588e944d082bfd3bdba02f928bee461c0f185b251",
+      "licenseSHA256": "74ba064d03f1f1c4a952da936c3eb71866c34404916734de3cae73b34357e59e",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright (c) 2011-2015 by tyPoland Lukasz Dziedzic (http://www.typoland.com/) with Reserved Font Name \"Lato\". Licensed under the SIL Open Font License, Version 1.1 (http://scripts.sil.org/OFL). "
+        ],
+        "1": [
+          "Lato"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Lato Regular"
+        ],
+        "5": [
+          "Version 2.015; 2015-08-06; http://www.latofonts.com/"
+        ],
+        "6": [
+          "Lato-Regular"
+        ],
+        "13": [
+          "Copyright (c) 2011-2015 by tyPoland Lukasz Dziedzic (http://www.typoland.com/) with Reserved Font Name \"Lato\". Licensed under the SIL Open Font License, Version 1.1 (http://scripts.sil.org/OFL). "
+        ],
+        "14": [
+          "http://scripts.sil.org/OFL"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 3023,
+      "style": "Regular"
+    },
+    {
+      "id": "microgramma-d-medium-extended",
+      "name": "MicrogrammaDMedExt",
+      "file": "microgramma-d-medium-extended.ttf",
+      "sourceName": "6790d20e8be67_M025094D.TTF",
+      "bytes": 55796,
+      "sha256": "525a6b89b6cb58b459af00156c7fdf06f93d0705c8fa9649018e6538667e4897",
+      "nameRecords": {
+        "0": [
+          "URW Software, Copyright 1994 by URW"
+        ],
+        "1": [
+          "MicrogrammaDMedExt"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "MicrogrammaDMedExt"
+        ],
+        "6": [
+          "MicrogrammaD-MediExte"
+        ],
+        "13": [],
+        "14": [],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 6,
+      "glyphs": 304,
+      "origin": "user-provided"
+    },
+    {
+      "id": "montserrat-regular",
+      "name": "Montserrat Regular",
+      "sourceName": "Montserrat-Regular.ttf",
+      "sourceUrl": "https://raw.githubusercontent.com/JulietaUla/Montserrat/555facfb2a18c72c3c0380f0d9c0f060453a9058/fonts/ttf/Montserrat-Regular.ttf",
+      "upstream": "https://github.com/JulietaUla/Montserrat",
+      "revision": "555facfb2a18c72c3c0380f0d9c0f060453a9058",
+      "license": "OFL-1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/JulietaUla/Montserrat/555facfb2a18c72c3c0380f0d9c0f060453a9058/OFL.txt",
+      "licenseFile": "montserrat-regular-OFL.txt",
+      "file": "montserrat-regular.ttf",
+      "bytes": 445928,
+      "sha256": "3e8abe50c44c82e2242e97d1ec8c0d385c4890cdc50447bcdb8605c81a38cfb2",
+      "licenseSHA256": "8b7141c03fa4f8d44e6345d5d4931709290f0f67875e452e95ac1fd3a027802e",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright 2011 The Montserrat Project Authors (https://github.com/JulietaUla/Montserrat)"
+        ],
+        "1": [
+          "Montserrat"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Montserrat Regular"
+        ],
+        "5": [
+          "Version 9.000; ttfautohint (v1.8.4.7-5d5b)"
+        ],
+        "6": [
+          "Montserrat-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+        ],
+        "14": [
+          "https://openfontlicense.org"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 2747,
+      "style": "Regular"
+    },
+    {
+      "id": "noto-sans-regular",
+      "name": "Noto Sans Regular",
+      "file": "noto-sans-regular.ttf",
+      "sourceName": "NotoSans-Regular.ttf",
+      "sourceUrl": "https://notofonts.github.io/latin-greek-cyrillic/fonts/NotoSans/hinted/ttf/NotoSans-Regular.ttf",
+      "revision": "2.015",
+      "upstream": "https://github.com/notofonts/latin-greek-cyrillic",
+      "license": "OFL-1.1",
+      "licenseFile": "noto-sans-regular-OFL.txt",
+      "licenseUrl": "https://raw.githubusercontent.com/notofonts/latin-greek-cyrillic/ffaec0a756877220dbf718ce08b8479a0be82479/OFL.txt",
+      "bytes": 566696,
+      "sha256": "c1a05d8f2b11ddcb4fcc84e7a4d4fc9b59bcda08c7b48a2f9ac5e68d4be6b53c",
+      "licenseSHA256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
+      "licenseRevision": "ffaec0a756877220dbf718ce08b8479a0be82479",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright 2022 The Noto Project Authors (https://github.com/notofonts/latin-greek-cyrillic)"
+        ],
+        "1": [
+          "Noto Sans"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Noto Sans Regular"
+        ],
+        "5": [
+          "Version 2.015;fontc 1.0.0; tilvisan (v0.1.1)"
+        ],
+        "6": [
+          "NotoSans-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL"
+        ],
+        "14": [
+          "https://scripts.sil.org/OFL"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 3887,
+      "style": "Regular"
+    },
+    {
+      "id": "ocr-a-extended",
+      "name": "OCR A Extended",
+      "file": "ocr-a-extended.ttf",
+      "sourceName": "679da8f53689a_OCRAExtended.ttf",
+      "bytes": 47996,
+      "sha256": "a82e5d53b31519d8ae47ee9daceee5aae3819b49096f1de565fd62719d8e6225",
+      "nameRecords": {
+        "0": [
+          "Digitized data copyright The Monotype Corporation 1991-1995. All rights reserved."
+        ],
+        "1": [
+          "OCR A Extended"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "OCR A Extended"
+        ],
+        "6": [
+          "OCRAExtended"
+        ],
+        "13": [],
+        "14": [],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 8,
+      "glyphs": 250,
+      "origin": "user-provided"
+    },
+    {
+      "id": "open-sans-regular",
+      "name": "Open Sans Regular",
+      "sourceName": "OpenSans-Regular.ttf",
+      "sourceUrl": "https://raw.githubusercontent.com/googlefonts/opensans/6cbc400d4855abee59d85c4ed871d510399bce7b/fonts/ttf/OpenSans-Regular.ttf",
+      "upstream": "https://github.com/googlefonts/opensans",
+      "revision": "6cbc400d4855abee59d85c4ed871d510399bce7b",
+      "license": "OFL-1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/googlefonts/opensans/6cbc400d4855abee59d85c4ed871d510399bce7b/OFL.txt",
+      "licenseFile": "open-sans-regular-OFL.txt",
+      "file": "open-sans-regular.ttf",
+      "bytes": 147528,
+      "sha256": "c53aceea2dcf5b4098099c0c4d0a061d17e178a049317b42a422b1a9f7f8eb59",
+      "licenseSHA256": "01cd5ffb3a528c219a86e49a814c6c53bd8a69b9a3c305dd237074ba1c811af7",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright 2020 The Open Sans Project Authors (https://github.com/googlefonts/opensans)"
+        ],
+        "1": [
+          "Open Sans"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Open Sans Regular"
+        ],
+        "5": [
+          "Version 3.003; ttfautohint (v1.8.4)"
+        ],
+        "6": [
+          "OpenSans-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL"
+        ],
+        "14": [
+          "http://scripts.sil.org/OFL"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 1150,
+      "style": "Regular"
+    },
+    {
+      "id": "roboto-regular",
+      "name": "Roboto Regular",
+      "sourceName": "Roboto[wdth,wght].ttf",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/83c62e30d87daa70216dab6b984d00d20d96d585/ofl/roboto/Roboto%5Bwdth%2Cwght%5D.ttf",
+      "upstream": "https://github.com/google/fonts",
+      "revision": "83c62e30d87daa70216dab6b984d00d20d96d585",
+      "license": "OFL-1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/83c62e30d87daa70216dab6b984d00d20d96d585/ofl/roboto/OFL.txt",
+      "licenseFile": "roboto-regular-OFL.txt",
+      "file": "roboto-regular.ttf",
+      "bytes": 488584,
+      "sha256": "d7598e12c5dbef095ff8272cfc55da0250bd07fbdecbac8a530b9b277872a134",
+      "licenseSHA256": "061402327a96aadb0bfb694a960ed289ecd38d383e396243831ab81feb109c41",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "Copyright 2011 The Roboto Project Authors (https://github.com/googlefonts/roboto-classic)"
+        ],
+        "1": [
+          "Roboto"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Roboto Regular"
+        ],
+        "5": [
+          "Version 3.015; 2026"
+        ],
+        "6": [
+          "Roboto-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
+        ],
+        "14": [
+          "https://openfontlicense.org"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 1326,
+      "style": "Regular",
+      "variableAxes": {
+        "wght": {
+          "minimum": 100.0,
+          "default": 400.0,
+          "maximum": 900.0
+        },
+        "wdth": {
+          "minimum": 75.0,
+          "default": 100.0,
+          "maximum": 100.0
+        }
+      }
+    },
+    {
+      "id": "source-sans-3-regular",
+      "name": "Source Sans 3 Regular",
+      "sourceName": "SourceSans3-Regular.ttf",
+      "sourceUrl": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/TTF/SourceSans3-Regular.ttf",
+      "upstream": "https://github.com/adobe-fonts/source-sans",
+      "revision": "87b37a2daaed80fcb8e8ccb0085c4d72ddade12e",
+      "license": "OFL-1.1",
+      "licenseUrl": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/LICENSE.md",
+      "licenseFile": "source-sans-3-regular-OFL.txt",
+      "file": "source-sans-3-regular.ttf",
+      "bytes": 431196,
+      "sha256": "4644c81b86ec9caaa76b634889968ed3c4f4f52f054855933acc7c2b21e53b0f",
+      "licenseSHA256": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328",
+      "origin": "upstream",
+      "nameRecords": {
+        "0": [
+          "© 2023 Adobe (http://www.adobe.com/), with Reserved Font Name ‘Source’"
+        ],
+        "1": [
+          "Source Sans 3"
+        ],
+        "2": [
+          "Regular"
+        ],
+        "4": [
+          "Source Sans 3"
+        ],
+        "5": [
+          "Version 3.052;hotconv 1.1.0;makeotfexe 2.6.0"
+        ],
+        "6": [
+          "SourceSans3-Regular"
+        ],
+        "13": [
+          "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL. This Font Software is distributed on an ‘AS IS’ BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the SIL Open Font License for the specific language, permissions and limitations governing your use of this Font Software."
+        ],
+        "14": [
+          "http://scripts.sil.org/OFL"
+        ],
+        "16": [],
+        "17": []
+      },
+      "embeddingFlags": 0,
+      "glyphs": 2478,
+      "style": "Regular"
+    }
+  ]
+}

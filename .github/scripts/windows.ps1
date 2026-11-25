@@ -14,15 +14,31 @@ Enter-VsDevShell -VsInstallPath $vs -SkipAutomaticLocation -DevCmdArguments "-ar
 if($env:UICREATOR_CI_CMAKE_BIN){$env:PATH=$env:UICREATOR_CI_CMAKE_BIN+[IO.Path]::PathSeparator+$env:PATH}
 Set-Location -LiteralPath $repo
 if($Managed){
-    cmake -S Tools/NativeTrieGenerator -B build/ci-trie -G Ninja -DCMAKE_BUILD_TYPE=Release
+    $keyboardRoot=Join-Path $repo '3rdParty/AdvancedKeyboard'
+    $nativeHelper=Join-Path $repo 'build/ci-native-helper/UICreatorModelGen.exe'
+    cmake -S "$keyboardRoot/tools/NativeTrieGenerator" -B build/ci-trie -G Ninja -DCMAKE_BUILD_TYPE=Release "-DADVKBD_NATIVE_HELPER_OUTPUT=$repo/build/ci-native-helper"
     if($LASTEXITCODE){exit $LASTEXITCODE}
     cmake --build build/ci-trie --parallel 2
     if($LASTEXITCODE){exit $LASTEXITCODE}
-    dotnet build Tools/CorpusWorkbench/CorpusWorkbench.csproj -c Release
+    cmake -S Tests/Integration/RadixPrediction -B build/ci-radix -G Ninja -DCMAKE_BUILD_TYPE=Release
     if($LASTEXITCODE){exit $LASTEXITCODE}
-    dotnet run --project Tools/CorpusLanguageTests/CorpusLanguageTests.csproj -c Release -- $repo (Join-Path $repo 'Tools/NativeTrieGenerator/bin/UICreatorModelGen.exe')
+    cmake --build build/ci-radix --target radix_prediction --parallel 2
     if($LASTEXITCODE){exit $LASTEXITCODE}
-    dotnet run --project Tools/KeyboardSimulator.Tests/KeyboardSimulator.LanguageTests.csproj -c Release -- (Join-Path $repo 'LVSerial/Widgets/AdvancedKeyboard/layout')
+    dotnet build "$keyboardRoot/tools/CorpusWorkbench/CorpusWorkbench.csproj" -c Release
+    if($LASTEXITCODE){exit $LASTEXITCODE}
+    dotnet run --project "$keyboardRoot/tools/CorpusLanguageTests/CorpusLanguageTests.csproj" -c Release -- $keyboardRoot $nativeHelper
+    if($LASTEXITCODE){exit $LASTEXITCODE}
+    dotnet run --project "$keyboardRoot/tools/KeyboardSimulator.Tests/KeyboardSimulator.LanguageTests.csproj" -c Release -- (Join-Path $keyboardRoot 'tools/layout') --native $nativeHelper --policy-probe (Join-Path $repo 'build/ci-radix/radix_prediction.exe')
+    if($LASTEXITCODE){exit $LASTEXITCODE}
+    $parityBuild=Join-Path $repo 'build/ci-keyboard-parity'
+    $parityAssembly=Join-Path $keyboardRoot 'build/corpus-tools/bin/KeyboardParity/Release/net8.0-windows/KeyboardParity.dll'
+    dotnet build "$keyboardRoot/tools/KeyboardParity/KeyboardParity.csproj" -c Release
+    if($LASTEXITCODE){exit $LASTEXITCODE}
+    cmake -S "$keyboardRoot/tools/KeyboardParity" -B $parityBuild -G Ninja -DCMAKE_BUILD_TYPE=Release "-DADVKBD_PARITY_ASSEMBLY=$parityAssembly"
+    if($LASTEXITCODE){exit $LASTEXITCODE}
+    cmake --build $parityBuild --parallel 2
+    if($LASTEXITCODE){exit $LASTEXITCODE}
+    ctest --test-dir $parityBuild --output-on-failure --no-tests=error
     exit $LASTEXITCODE
 }
 python .github/scripts/desktop.py --architecture $Architecture --configuration $Configuration --phase $Phase --jobs 2

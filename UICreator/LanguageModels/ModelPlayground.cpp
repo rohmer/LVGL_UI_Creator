@@ -6,8 +6,8 @@
 #include "../Utils/EditorWindow.h"
 #include "../Utils/EditorControls.h"
 #include "../Utils/EditorSession.h"
-#include "../../LVSerial/Widgets/AdvancedKeyboard/SuggestionText.h"
-#include "../../LVSerial/Widgets/AdvancedKeyboard/Utf8Fold.h"
+#include <SuggestionText.h>
+#include <Utf8Fold.h>
 #include <Serialization/Base64.h>
 #include <Serialization/ProjectTries.h>
 #include <array>
@@ -89,7 +89,7 @@ std::filesystem::path Pick() {
     d.Flags=OFN_FILEMUSTEXIST|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST;d.lpstrTitle=L"Try a language model";
     if(GetOpenFileNameW(&d))return path;
 #else
-    return NativeFileDialogUI::PickOne(false,false,L"Try a language model",L"Compact language models\0*.ngtr;*.trie;*.bin\0All files\0*.*\0\0");
+    return NativeFileDialogUI::PickOne(false,false,L"Try a language model",L"Language models\0*.ngtr;*.trie;*.bin\0All files\0*.*\0\0");
 #endif
     return {};
 }
@@ -109,8 +109,8 @@ void SetModel(Column& column,const std::string& id,const std::vector<uint8_t>* e
         if(next.bytes.empty())throw std::runtime_error("Choose a valid model");
         if(next.index.empty()) {
             void* data=nullptr;size_t size=0;
-            if(!lv_advanced_keyboard_build_trie_index(next.bytes.data(),next.bytes.size(),&data,&size))throw std::runtime_error("Model must be a valid compact NGTR v3 trie");
-            try {next.index.assign(static_cast<uint8_t*>(data),static_cast<uint8_t*>(data)+size);}catch(...){lv_advanced_keyboard_free_trie_index(data);throw;}
+            if(!lv_advanced_keyboard_build_trie_index(next.bytes.data(),next.bytes.size(),&data,&size))throw std::runtime_error("Model must be a valid NGTR v2, v3 or compressed radix v4 trie");
+            try {if(size)next.index.assign(static_cast<uint8_t*>(data),static_cast<uint8_t*>(data)+size);}catch(...){lv_advanced_keyboard_free_trie_index(data);throw;}
             lv_advanced_keyboard_free_trie_index(data);
         }
         next.trieBytes=next.bytes.size();next.indexBytes=next.index.size();

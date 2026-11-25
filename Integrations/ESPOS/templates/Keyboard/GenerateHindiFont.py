@@ -1,5 +1,11 @@
-"""Compatibility entry point; maintain shared font generation in AdvancedKeyboard."""
+"""Compatibility entry point into the project's pinned AdvancedKeyboard tools."""
+import importlib.util
 import runpy
 from pathlib import Path
 
-runpy.run_path(str(Path(__file__).resolve().parent / "AdvancedKeyboard" / "GenerateHindiFont.py"), run_name="__main__")
+project = Path(__file__).resolve().parents[1]
+spec = importlib.util.spec_from_file_location("advanced_keyboard_dependency", project / "tools/setup_advanced_keyboard.py")
+dependency = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(dependency)
+root = dependency.resolve_root(project)
+runpy.run_path(str(root / "tools/fonts/GenerateHindiFont.py"), run_name="__main__")

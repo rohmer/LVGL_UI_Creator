@@ -3,6 +3,10 @@
 #include "lvgl_runtime.h"
 #include <Serialization/LVFont.h>
 #include <Serialization/Protobuf.h>
+#include <Serialization/Xml.h>
+#include <Serialization/ResourceArena.h>
+#include <Serialization/FontData.h>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -16,14 +20,27 @@
     } while (0)
 using json = nlohmann::json;
 using Handle = std::unique_ptr<lvgl_runtime_t, decltype(&lvgl_runtime_destroy)>;
-Handle Load(const json &project)
+Handle Load(const json &project,bool xml=false)
 {
     auto data = Serialization::Protobuf::Encode(Serialization::EntityKind::Project, "project", project);
+    if(xml){auto text=Serialization::Xml::Encode(Serialization::EntityKind::Project,"project",project);data.assign(text.begin(),text.end());}
     lvgl_runtime_t *runtime = nullptr;
     char error[512];
     if (!lvgl_runtime_load_memory(data.data(), data.size(), nullptr, &runtime, error, sizeof error))
         throw std::runtime_error(error);
     return Handle(runtime, lvgl_runtime_destroy);
+}
+std::vector<uint8_t> GlyphPixels(const lv_font_t* font,lv_font_glyph_dsc_t& glyph) {
+    CHECK(lv_font_get_glyph_dsc(font,&glyph,'A','V'));
+    auto* bitmap=lv_draw_buf_create(glyph.box_w,glyph.box_h,LV_COLOR_FORMAT_A8,LV_STRIDE_AUTO);
+    CHECK(bitmap);CHECK(lv_font_get_glyph_bitmap(&glyph,bitmap));
+    std::vector<uint8_t> pixels;
+    for(unsigned y=0;y<glyph.box_h;++y) {
+        auto* row=bitmap->data+y*bitmap->header.stride;
+        pixels.insert(pixels.end(),row,row+glyph.box_w);
+    }
+    lv_font_glyph_release_draw_data(&glyph);lv_draw_buf_destroy(bitmap);
+    return pixels;
 }
 void SaveCase(const std::filesystem::path& path, const json& project) {
     auto data=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",project);
@@ -125,40 +142,41 @@ int main(int argc, char **argv)
                     options.compress = true;
                     options.prefilter = false;
                 }
-                auto converted = FontConversion::Convert(options);
+                auto converted = FontConversion::Prepare(options);
                 if (!converted.success)
                     throw std::runtime_error(converted.message);
-                auto *source = lv_binfont_create_from_buffer(converted.preview.data(),
-                                                             (uint32_t)converted.preview.size());
-                CHECK(source);
-                auto font = Serialization::LVFont::ToJSON(*source);
-                lv_binfont_destroy(source);
+                auto font=converted.font;
+                CHECK(Serialization::FontData::Matches(font));
+                Serialization::ResourceArena arena;
+                std::vector<uint8_t> expectedPixels;
+                lv_font_glyph_dsc_t expectedGlyph{};
+                {
+                    Serialization::ResourceScope scope(arena);
+                    auto& source=Serialization::LVFont::FromJSON(font);
+                    expectedPixels=GlyphPixels(&source,expectedGlyph);
+                    CHECK(Serialization::LVFont::ToJSON(source)==font);
+                }
                 json project = {
                     {"obj",
                      {{{"base",
-                        {{"nativeStyles",
-                          {{{"selector", 0}, {"values", {{"text_font", {{"projectFont", "font_1"}}}}}}}}}},
+                        {{"fontId","font_1"}}},
                        {"text", "AV 123"},
                        {"oid", 0}}}},
                     {"fonts", {{{"id", "font_1"}, {"name", "Body"}, {"font", font}}}}};
                 SaveCase(output / ("font_"+std::to_string(bpp)+"_"+std::to_string(compress)+".pb"),project);
-                {
-                    auto runtime = Load(project);
+                for(bool xml:{false,true}) {
+                    auto runtime = Load(project,xml);
                     auto *loaded = lvgl_runtime_font(runtime.get(), "font_1");
                     CHECK(loaded);
                     CHECK(lv_obj_get_style_text_font(lvgl_runtime_object(runtime.get(), 0, 0),
                                                      LV_PART_MAIN) == loaded);
                     lv_font_glyph_dsc_t glyph{};
-                    CHECK(lv_font_get_glyph_dsc(loaded, &glyph, 'A', 'V'));
-                    CHECK(glyph.adv_w > 0);
-                    auto *bitmap =
-                        lv_draw_buf_create(glyph.box_w, glyph.box_h, LV_COLOR_FORMAT_A8, LV_STRIDE_AUTO);
-                    CHECK(bitmap);
-                    CHECK(lv_font_get_glyph_bitmap(&glyph, bitmap));
-                    lv_font_glyph_release_draw_data(&glyph);
-                    lv_draw_buf_destroy(bitmap);
-                    ++fonts;
+                    CHECK(GlyphPixels(loaded,glyph)==expectedPixels);
+                    CHECK(glyph.adv_w==expectedGlyph.adv_w);CHECK(glyph.box_w==expectedGlyph.box_w);
+                    CHECK(glyph.box_h==expectedGlyph.box_h);CHECK(glyph.ofs_x==expectedGlyph.ofs_x);CHECK(glyph.ofs_y==expectedGlyph.ofs_y);
+                    CHECK(loaded->line_height==font["lineHeight"].get<int>());
                 }
+                ++fonts;
                 CHECK(lv_screen_active() == previous);
             }
         lv_display_delete(display);

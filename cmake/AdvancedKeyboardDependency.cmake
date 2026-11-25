@@ -1,0 +1,33 @@
+include_guard(GLOBAL)
+get_filename_component(_advkbd_creator_root "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+set(ADVKBD_SOURCE_ROOT "${_advkbd_creator_root}/3rdParty/AdvancedKeyboard" CACHE PATH
+    "AdvancedKeyboard repository checkout (normally the pinned submodule)")
+get_filename_component(ADVKBD_SOURCE_ROOT "${ADVKBD_SOURCE_ROOT}" ABSOLUTE)
+foreach(_advkbd_required CMakeLists.txt src/PredictionModel.cpp include/lv_advanced_keyboard.h)
+    if(NOT EXISTS "${ADVKBD_SOURCE_ROOT}/${_advkbd_required}")
+        message(FATAL_ERROR "AdvancedKeyboard dependency is missing: ${ADVKBD_SOURCE_ROOT}/${_advkbd_required}. Run git submodule update --init --recursive, or python Integrations/AdvancedKeyboard/dependency.py --project-root ${_advkbd_creator_root} --kind creator --init. Set ADVKBD_SOURCE_ROOT only for an explicit development checkout.")
+    endif()
+endforeach()
+if(ADVKBD_SOURCE_ROOT STREQUAL "${_advkbd_creator_root}/3rdParty/AdvancedKeyboard"
+        AND EXISTS "${ADVKBD_SOURCE_ROOT}/.git"
+        AND EXISTS "${_advkbd_creator_root}/advanced-keyboard.lock.json")
+    file(READ "${_advkbd_creator_root}/advanced-keyboard.lock.json" _advkbd_lock)
+    string(JSON _advkbd_revision GET "${_advkbd_lock}" revision)
+    find_program(_advkbd_git NAMES git REQUIRED)
+    execute_process(COMMAND "${_advkbd_git}" -C "${ADVKBD_SOURCE_ROOT}" rev-parse --show-toplevel
+        RESULT_VARIABLE _advkbd_git_status OUTPUT_VARIABLE _advkbd_owner OUTPUT_STRIP_TRAILING_WHITESPACE)
+    get_filename_component(_advkbd_owner "${_advkbd_owner}" REALPATH)
+    get_filename_component(_advkbd_expected_owner "${ADVKBD_SOURCE_ROOT}" REALPATH)
+    if(WIN32)
+        string(TOLOWER "${_advkbd_owner}" _advkbd_owner)
+        string(TOLOWER "${_advkbd_expected_owner}" _advkbd_expected_owner)
+    endif()
+    if(NOT _advkbd_git_status EQUAL 0 OR NOT _advkbd_owner STREQUAL _advkbd_expected_owner)
+        message(FATAL_ERROR "AdvancedKeyboard must be its own pinned repository, never an ancestor Git root")
+    endif()
+    execute_process(COMMAND "${_advkbd_git}" -C "${ADVKBD_SOURCE_ROOT}" rev-parse HEAD
+        RESULT_VARIABLE _advkbd_git_status OUTPUT_VARIABLE _advkbd_head OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if(NOT _advkbd_git_status EQUAL 0 OR NOT _advkbd_head STREQUAL _advkbd_revision)
+        message(FATAL_ERROR "AdvancedKeyboard HEAD does not match advanced-keyboard.lock.json; run git submodule update --init --recursive after updating the consumer checkout")
+    endif()
+endif()

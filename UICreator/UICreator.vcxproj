@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\AdvancedKeyboard.props" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <ClCompile Include="Fonts\FTFont.cpp" /><ClCompile Include="Fonts\FontConverter.cpp" /><ClCompile Include="Fonts\FontConverterWindow.cpp" /><ClCompile Include="Fonts\FontManagerWindow.cpp" /><ClCompile Include="Images\ImageConverter.cpp" /><ClCompile Include="Images\ImageConverterWindow.cpp" /><ClCompile Include="Images\ImageManagerWindow.cpp" />
     <ClCompile Include="Fonts\NativeFont.cpp" />
+    <ClCompile Include="Fonts\BuiltinFonts.cpp" />
     <ClCompile Include="Fonts\NativeFontBinary.cpp" />
     <ClCompile Include="Images\NativeApng.cpp" />
     <ClCompile Include="Utils\ExternalTool.cpp" />
@@ -61,7 +63,9 @@
     <ClCompile Include="Windows\ProductWindows.cpp" />
     <ClCompile Include="ProjectCreator\ProjectCreator.cpp" />
     <ClCompile Include="ProjectCreator\ProjectCreatorWindow.cpp" />
-    <ClCompile Include="LanguageModels\Generator.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\Generator.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\TrainingModel.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\tools\ModelCodec\RadixModelBuilder.cpp" />
     <ClCompile Include="LanguageModels\LanguageModelWindow.cpp" />
     <ClCompile Include="KeyboardModels\BundledTries.cpp" />
     <ClCompile Include="Windows\PropertyWindow.cpp" />
@@ -72,15 +76,19 @@
   <ItemGroup><ResourceCompile Include="..\Packaging\UICreator.rc"><AdditionalIncludeDirectories>$(ProjectDir)..\Packaging;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ResourceCompile></ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
-    <ClInclude Include="LanguageModels\Generator.h" />
+    <ClInclude Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\Generator.h" />
+    <ClInclude Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\TrainingModel.h" />
+    <ClInclude Include="$(AdvancedKeyboardRoot)\tools\ModelCodec\RadixModelBuilder.h" />
     <ClInclude Include="KeyboardModels\BundledTries.h" />
-    <ClInclude Include="KeyboardModels\CatalogData.inc" />
     <ClInclude Include="LanguageModels\LanguageModelWindow.h" />
     <ClInclude Include="Utils\CrashReporter.h" />
     <ClInclude Include="custom_widget.h" />
     <ClInclude Include="dataset.h" />
     <ClInclude Include="Fonts\FTFont.h" /><ClInclude Include="Fonts\FontConverter.h" /><ClInclude Include="Fonts\FontConverterWindow.h" /><ClInclude Include="Fonts\FontLibrary.h" /><ClInclude Include="Fonts\FontManagerWindow.h" /><ClInclude Include="Images\ImageConverter.h" /><ClInclude Include="Images\ImageConverterWindow.h" /><ClInclude Include="Images\ImageManagerWindow.h" /><ClInclude Include="Images\ImageLibrary.h" />
     <ClInclude Include="Fonts\NativeFont.h" />
+    <ClInclude Include="Fonts\BuiltinFonts.h" />
+    <ClInclude Include="Fonts\BuiltinFontData.inc" />
+    <ClInclude Include="Fonts\FontMemory.h" />
     <ClInclude Include="Fonts\NativeFontData.h" />
     <ClInclude Include="Fonts\NativeFontKerning.h" />
     <ClInclude Include="Images\NativeApng.h" />
@@ -170,10 +178,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
-    <None Include="KeyboardModels\catalog.json" />
-    <None Include="KeyboardModels\README.md" />
-    <None Include="KeyboardModels\import_corpus.py" />
-    <None Include="KeyboardModels\models\*.ngtr" />
+    <None Include="$(AdvancedKeyboardRoot)\models\bundled\catalog.json" />
+    <None Include="$(AdvancedKeyboardRoot)\models\bundled\README.md" />
+    <None Include="$(AdvancedKeyboardRoot)\models\bundled\models\*.ngtr" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -353,8 +360,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(UICreatorNativeConverterRoot)\freetype\include;$(ProjectDir)..\ImgLib;$(ProjectDir)..\3rdParty\libimagequant\imagequant-sys;$(ProjectDir)..\3rdParty\resvg\crates\c-api;$(ProjectDir)..\Runtime\include;$(ProjectDir)..\Runtime\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>LVGL_RUNTIME_MAJOR=9;LVGL_RUNTIME_MINOR=6;LVGL_RUNTIME_VERSION=&quot;9.6&quot;;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(UICreatorNativeConverterRoot)\freetype\include;$(ProjectDir)..\ImgLib;$(ProjectDir)..\3rdParty\libimagequant\imagequant-sys;$(ProjectDir)..\3rdParty\resvg\crates\c-api;$(ProjectDir)..\Runtime\include;$(ProjectDir)..\Runtime\compat;$(AdvancedKeyboardRoot)\src;$(AdvancedKeyboardRoot)\include;$(AdvancedKeyboardRoot)\tools\ModelCodec;$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UICREATOR_ADVANCED_KEYBOARD_SOURCE_DIR=&quot;$(AdvancedKeyboardRootSlash)&quot;;LVGL_RUNTIME_MAJOR=9;LVGL_RUNTIME_MINOR=6;LVGL_RUNTIME_VERSION=&quot;9.6&quot;;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorNativeFreeType.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorBrotliDecoder.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorBrotliCommon.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorNativePng.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorImageQuant.lib;$(UICreatorNativeConverterRoot)\$(Configuration)\lib\UICreatorResvg.lib;advapi32.lib;bcrypt.lib;userenv.lib;ws2_32.lib;ntdll.lib;synchronization.lib;comdlg32.lib;ole32.lib;shell32.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -375,11 +382,11 @@
   </ImportGroup>
   <Target Name="BundleLanguageModels" AfterTargets="Build">
     <ItemGroup>
-      <LanguageModelWords Include="$(ProjectDir)LanguageModels\wordlists\*" />
-      <LanguageModelExamples Include="$(ProjectDir)LanguageModels\examples\*" />
-      <LanguageModelNotices Include="$(ProjectDir)LanguageModels\README.md;$(ProjectDir)LanguageModels\PROVENANCE.md" />
-      <BundledTrieFiles Include="$(ProjectDir)KeyboardModels\models\*.ngtr" />
-      <BundledTrieNotices Include="$(ProjectDir)KeyboardModels\catalog.json;$(ProjectDir)KeyboardModels\README.md" />
+      <LanguageModelWords Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\wordlists\*" />
+      <LanguageModelExamples Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\examples\*" />
+      <LanguageModelNotices Include="$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\README.md;$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\PROVENANCE.md;$(AdvancedKeyboardRoot)\tools\NativeTrieGenerator\source\TrainingModel.md;$(AdvancedKeyboardRoot)\src\RadixFormat.md" />
+      <BundledTrieFiles Include="$(AdvancedKeyboardRoot)\models\bundled\models\*.ngtr" />
+      <BundledTrieNotices Include="$(AdvancedKeyboardRoot)\models\bundled\catalog.json;$(AdvancedKeyboardRoot)\models\bundled\README.md" />
     </ItemGroup>
     <MakeDir Directories="$(TargetDir)language-models\wordlists;$(TargetDir)language-models\examples;$(TargetDir)language-models\bundled" />
     <Copy SourceFiles="@(LanguageModelWords)" DestinationFolder="$(TargetDir)language-models\wordlists" SkipUnchangedFiles="true" />
@@ -388,6 +395,12 @@
     <Copy SourceFiles="@(BundledTrieFiles)" DestinationFolder="$(TargetDir)language-models\bundled" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(BundledTrieNotices)" DestinationFolder="$(TargetDir)language-models\bundled" SkipUnchangedFiles="true" />
   </Target>
+  <Target Name="BundleBuiltinFonts" AfterTargets="Build">
+    <ItemGroup><BuiltinFontFiles Include="$(ProjectDir)Fonts\builtin\**\*" /></ItemGroup>
+    <MakeDir Directories="$(TargetDir)fonts\builtin" />
+    <Copy SourceFiles="@(BuiltinFontFiles)" DestinationFiles="@(BuiltinFontFiles->'$(TargetDir)fonts\builtin\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+  <ItemGroup><None Include="Fonts\builtin\**\*" /></ItemGroup>
   <Target Name="BundleFigmaPlugin" AfterTargets="Build">
     <ItemGroup>
       <FigmaPluginFiles Include="$(ProjectDir)..\Integrations\Figma\*" />

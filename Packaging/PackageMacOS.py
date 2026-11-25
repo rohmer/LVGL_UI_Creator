@@ -21,7 +21,7 @@ from MacOS import macho
 
 APP_NAME = "LVGL UI Creator.app"
 EXECUTABLES = ("UICreator", "UICreatorConverter", "UICreatorViewer", "LVGLCompiler", "UICreatorCodeGen", "UICreatorModelGen")
-RESOURCE_FOLDERS = ("project-creator", "language-models", "python-runtime", "integrations")
+RESOURCE_FOLDERS = ("project-creator", "language-models", "python-runtime", "integrations", "fonts")
 SECURITY_FLAGS = {1: "host", 0x100: "hard", 0x200: "kill", 0x400: "expires", 0x2000: "library", 0x10000: "runtime"}
 SECURITY_MASK = sum(SECURITY_FLAGS)
 

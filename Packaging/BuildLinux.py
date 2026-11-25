@@ -1,7 +1,68 @@
 #!/usr/bin/env python3
 """Build the complete Linux desktop editor and matching helper resources."""
 from pathlib import Path
-import argparse, hashlib, json, os, shutil, subprocess
+import argparse, hashlib, json, os, shlex, shutil, subprocess
+
+def rust_linker(directory,cc,sysroot,assembler_directory,crt,triplet):
+    """Cargo also builds a cdylib; keep that link on the target GCC/sysroot."""
+    command=[str(cc),'--sysroot='+str(sysroot),'-B'+str(assembler_directory)+'/',
+        '-B'+str(crt)+'/','-B'+str(sysroot/('usr/lib/'+triplet))+'/',
+        '-L'+str(sysroot/('usr/lib/gcc/'+triplet+'/11')),'-L'+str(sysroot/('usr/lib/'+triplet)),
+        '-Wl,-rpath-link,'+str(sysroot/('usr/lib/'+triplet)),
+        '-Wl,-rpath-link,'+str(sysroot/('lib/'+triplet))]
+    script=directory/'rust-linker.sh'
+    content='#!/bin/sh\nexec '+' '.join(shlex.quote(item) for item in command)+' "$@"\n'
+    if not script.is_file() or script.read_text()!=content:script.write_text(content)
+    script.chmod(0o755)
+    return script
+
+def keyboard_checkout(source,base,destination):
+    """Keep a real pinned generated checkout; never copy consumer .git files."""
+    lock_path=source/'advanced-keyboard.lock.json'
+    if not lock_path.is_file():return None
+    import importlib.util
+    import uuid
+    spec=importlib.util.spec_from_file_location('linux_keyboard_dependency',source/'Integrations/AdvancedKeyboard/dependency.py')
+    helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)
+    lock=helper.load_lock(source)
+    relative=Path(lock['paths']['creator'])
+    original=(source/relative).resolve()
+    helper.check_checkout(original,lock)
+    target=destination/relative
+    if target.is_symlink() or not target.resolve().is_relative_to(destination.resolve()):
+        raise ValueError('Generated keyboard dependency escaped the source mirror')
+    marker=checked(base,base/'keyboard-checkout.json')
+    ownership=json.loads(marker.read_text()) if marker.is_file() else None
+    owned=bool(ownership and ownership.get('path')==relative.as_posix() and ownership.get('repository')==lock['repository'])
+    if (target/'.git').exists():
+        owner=Path(helper.git(target,'rev-parse','--show-toplevel')).resolve()
+        if owner!=target.resolve():raise ValueError('Generated dependency must own its Git repository')
+        if helper.git(target,'status','--porcelain','--untracked-files=all'):
+            raise ValueError('Generated keyboard checkout has local edits; preserved without updating')
+        revision=helper.git(target,'rev-parse','HEAD')
+        if revision!=lock['revision']:
+            if not owned:raise ValueError('Unowned keyboard checkout has a different revision; review it before updating')
+            helper.git(target,'fetch','--no-tags',str(original),lock['revision'])
+            helper.git(target,'checkout','--detach',lock['revision'])
+        helper.check_checkout(target,lock)
+    else:
+        if target.exists():
+            # Earlier mirrors contained ordinary source files. Keep every byte
+            # in an explicit owned-cache backup before replacing that directory.
+            backup=checked(base,base/'source-backups'/('AdvancedKeyboard-'+uuid.uuid4().hex))
+            backup.parent.mkdir(parents=True,exist_ok=True)
+            checked(base,target).rename(backup)
+            print('Preserved prior source-only keyboard mirror:',backup,flush=True)
+        target.parent.mkdir(parents=True,exist_ok=True)
+        subprocess.run(['git','clone','--no-hardlinks','--no-checkout','--',str(original),str(target)],check=True)
+        helper.git(target,'checkout','--detach',lock['revision'])
+        helper.git(target,'remote','set-url','origin',lock['repository'])
+        helper.check_checkout(target,lock)
+        owned=True
+    if owned:
+        marker.write_text(json.dumps({'version':1,'path':relative.as_posix(),'repository':lock['repository'],
+            'revision':lock['revision']},indent=2)+'\n')
+    return relative
 
 def prepare(base,source,arch):
     import importlib.util
@@ -21,7 +82,8 @@ def checked(base,path):
     return resolved
 
 def mirror(source,base):
-    destination=base/'source';destination.mkdir(parents=True,exist_ok=True)
+    destination=checked(base,base/'source');destination.mkdir(parents=True,exist_ok=True)
+    dependency=keyboard_checkout(source,base,destination)
     previous_path=base/'source-files.json'
     previous=set(json.loads(previous_path.read_text())) if previous_path.is_file() else set()
     files=[];changed=0
@@ -36,11 +98,20 @@ def mirror(source,base):
             dirs[:]=[]
             continue
         if relative==Path('.'):
-            dirs[:]=[name for name in dirs if name in {'3rdParty','CodeGeneration','ImgLib','Integrations','LVSerial','Runtime','UICreator','Tests','Packaging','Docs','Docker','Examples'}]
+            dirs[:]=[name for name in dirs if name in {'3rdParty','CodeGeneration','ImgLib','Integrations','LVSerial','Runtime','UICreator','Tests','Packaging','Docs','Docker','Examples','cmake','.github','Tools'}]
+        if relative==Path('Tools'):
+            dirs[:]=[name for name in dirs if name in {'NativeTrieGenerator','RadixModel'}]
+            names=[name for name in names if name=='README.md']
+        elif relative.parts and relative.parts[0]=='Tools':
+            # These are thin compatibility bridges. Retired managed projects,
+            # ignored bin/obj trees and preserved user resources stay local.
+            dirs[:]=[]
+            names=[name for name in names if name in {'CMakeLists.txt','README.md'}]
         dirs[:]=[name for name in dirs if name not in {'.git','.agents','.codex','.vs','.idea','.venv','.cache','__pycache__','.pytest_cache'}
                  and (name!='build' or relative.as_posix()=='3rdParty/lv_font_conv/lib/freetype')
-                 and name!='node_modules']
+                 and name!='node_modules' and (dependency is None or relative/name!=dependency)]
         for name in names:
+            if name=='.git':continue
             path=Path(folder)/name;part=relative/name
             if path.suffix in {'.pyc','.pyo'}:continue
             target=checked(base,destination/part);target.parent.mkdir(parents=True,exist_ok=True)
@@ -48,6 +119,7 @@ def mirror(source,base):
                 shutil.copy2(path,target);changed+=1
             files.append(part.as_posix())
     for part in previous-set(files):
+        if dependency is not None and Path(part).is_relative_to(dependency):continue
         target=checked(base,destination/part)
         if target.is_file():target.unlink()
     previous_path.write_text(json.dumps(files)+'\n');print('Source mirror:',len(files),'files,',changed,'updated',flush=True)
@@ -91,11 +163,15 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
     cflags=compiler_prefix+' -nostdinc -isystem '+str(builtin)+' -isystem '+str(sysroot/('usr/include/'+triplet))+' -isystem '+str(sysroot/'usr/include')
     cpp=compiler_prefix+' -nostdinc -nostdinc++ -isystem '+str(sysroot/'usr/include/c++/11')+' -isystem '+str(sysroot/('usr/include/'+triplet+'/c++/11'))+' -isystem '+str(builtin)+' -isystem '+str(sysroot/('usr/include/'+triplet))+' -isystem '+str(sysroot/'usr/include')
     link='-L'+str(sysroot/('usr/lib/gcc/'+triplet+'/11'))+' -L'+str(sysroot/('usr/lib/'+triplet))+' -Wl,-rpath-link,'+str(sysroot/('usr/lib/'+triplet))+' -Wl,-rpath-link,'+str(sysroot/('lib/'+triplet))
+    rust_linker_variable='CARGO_TARGET_'+('X86_64' if arch=='x86_64' else 'AARCH64')+'_UNKNOWN_LINUX_GNU_LINKER'
+    env[rust_linker_variable]=str(rust_linker(directory,cc,sysroot,assembler_directory,crt,triplet))
     toolchain=directory/'desktop-toolchain.cmake'
     content=''
     if arch=='aarch64':content+='set(CMAKE_SYSTEM_NAME Linux)\nset(CMAKE_SYSTEM_PROCESSOR aarch64)\n'
     content+='set(CMAKE_C_COMPILER "'+str(cc)+'")\n'
     content+='set(CMAKE_CXX_COMPILER "'+str(cxx)+'")\n'
+    for name,program in [('AR','ar'),('RANLIB','ranlib'),('LINKER','ld'),('NM','nm')]:
+        content+='set(CMAKE_'+name+' "/usr/bin/'+('' if arch=='x86_64' else 'aarch64-linux-gnu-')+program+'")\n'
     content+='set(CMAKE_SYSROOT "'+str(sysroot)+'")\nset(CMAKE_FIND_ROOT_PATH "'+str(sysroot)+'")\n'
     content+='set(CMAKE_C_FLAGS_INIT "'+cflags+'")\nset(CMAKE_CXX_FLAGS_INIT "'+cpp+'")\nset(CMAKE_ASM_FLAGS_INIT "'+compiler_prefix+'")\nset(CMAKE_EXE_LINKER_FLAGS_INIT "'+link+'")\nset(CMAKE_SHARED_LINKER_FLAGS_INIT "'+link+'")\n'
     content+='set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)\nset(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\nset(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)\n'
@@ -103,6 +179,7 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
     if not toolchain.is_file() or toolchain.read_text()!=content:toolchain.write_text(content)
     sdk=(sdk_directory or Path(__file__).resolve().parents[1]/'build/professional/packages').resolve()
     command=[cmake,'-S',source,'-B',directory,'-G','Ninja','-DCMAKE_BUILD_TYPE=Release',
+        '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY='+str(directory/'bin'),
         '-DCMAKE_C_COMPILER='+str(cc),'-DCMAKE_CXX_COMPILER='+str(cxx),'-DCMAKE_ASM_COMPILER='+str(cc),
         '-DCMAKE_AR='+('/usr/bin/ar' if arch=='x86_64' else '/usr/bin/aarch64-linux-gnu-ar'),
         '-DCMAKE_RANLIB='+('/usr/bin/ranlib' if arch=='x86_64' else '/usr/bin/aarch64-linux-gnu-ranlib'),
@@ -134,7 +211,7 @@ def build(base,source,arch,jobs,configure_only=False,sdk_directory=None,require_
               'sysroot':str(sysroot),'binaryDirectory':str(directory/'bin'),'targets':targets,
               'compiler':{'c':str(cc),'cxx':str(cxx),'version':subprocess.check_output([str(cxx),'--version'],text=True).splitlines()[0]},
               'targetLibraryDirectories':[str(sysroot/('usr/lib/'+triplet)),str(sysroot/('lib/'+triplet))],
-              'environment':{name:env[name] for name in ['PATH','QEMU_LD_PREFIX','PKG_CONFIG_SYSROOT_DIR','PKG_CONFIG_LIBDIR','RUSTUP_HOME','CARGO_HOME']}}
+              'environment':{name:env[name] for name in ['PATH','QEMU_LD_PREFIX','PKG_CONFIG_SYSROOT_DIR','PKG_CONFIG_LIBDIR','RUSTUP_HOME','CARGO_HOME',rust_linker_variable]}}
     (directory/'build-metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')
 
 def main():

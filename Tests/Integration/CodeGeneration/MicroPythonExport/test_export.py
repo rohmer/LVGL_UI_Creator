@@ -33,7 +33,7 @@ def main():
             {'selector': 0, 'values': {'bg_color': 0x123456, 'radius': 6}}]}},
         {'oid': 2, 'par': 1, 'base': {'coords': {'width': 536871002}}, 'text': 'Label "quoted"\nUnicode é'},
         {'oid': 3, 'par': 1, 'base': {}, 'slider': {'min': 0, 'max': 100, 'value': 7}},
-        {'oid': 4, 'par': 1, 'base': {}, 'textarea': {'text': 'Type here'}},
+        {'oid': 4, 'par': 1, 'base': {}, 'textarea': {'text': 'café', 'inputMode': 'uppercase'}},
         {'oid': 5, 'par': 1, 'base': {}, 'qrcode': {'data': 'https://lvgl.io', 'size': 64, 'quietZone': True,
                                                 'darkColor': 0xff2244aa, 'lightColor': 0xffffcc88}},
         {'oid': 6, 'par': 1, 'base': {'coords': {'width': 360, 'height': 40}},
@@ -58,13 +58,14 @@ def main():
     assert manifest['binding']['revision'] == '032dda4b7e8419702a4b9c4c8748a4d85d51be61'
     assert manifest['lvglVersion'] == '9.3.0'
     assert len(manifest['staticCodeWidgets']) == 2
-    for filename in ('ui.py', 'main.py', 'uicreator_lvgl.py'):
+    for filename in ('ui.py', 'main.py', 'uicreator_lvgl.py', 'uicreator_input_modes.py'):
         compile((destination / filename).read_text(encoding='utf-8'), filename, 'exec')
     exported = json.loads((destination / 'ui.json').read_text())
     encoded = json.dumps(exported)
     assert 'deviceTargets' not in exported and 'private_sensor' not in encoded and 'sourceData' not in encoded
     records = exported['screens'][0]['obj']
     assert records[1]['base']['coords']['width'] == {'percent': 90}
+    assert records[3]['textarea']['inputMode'] == 'uppercase'
     assert 'qrcode' not in records[4] and 'barcode' not in records[5]
     assert records[4]['img']['mpyAsset'] and records[5]['img']['mpyAsset']
     # Code 128 keeps its encoded module width (99 * scale 2), while the

@@ -1,4 +1,5 @@
 #include "Xml.h"
+#include "FontData.h"
 #include <array>
 #include <charconv>
 #include <cmath>
@@ -259,7 +260,13 @@ struct Writer
     {
         if (depth > limits.maxDepth) Fail("document exceeds maxDepth");
         Node();
-        if (value.is_object())
+        if (FontData::Matches(value))
+        {
+            Indent(indent); Append("<font format_version=\"1\">\n");
+            Value(FontData::ToXML(value), depth + 1, indent + 1);
+            Indent(indent); Append("</font>\n");
+        }
+        else if (value.is_object())
         {
             Indent(indent);
             if (value.empty()) { Append("<object/>\n"); return; }
@@ -494,6 +501,13 @@ class Reader
     {
         if (depth > limits.maxDepth) Fail("document exceeds maxDepth");
         const auto tag = Open();
+        if (tag.name == "font")
+        {
+            Attributes(tag, {"format_version"});
+            if (Required(tag, "format_version") != "1" || tag.empty) Fail("invalid font format_version or missing data");
+            Trivia(); auto value = Value(depth + 1); Trivia(); Close("font");
+            return FontData::FromXML(std::move(value));
+        }
         if (tag.name == "object")
         {
             Attributes(tag, {});

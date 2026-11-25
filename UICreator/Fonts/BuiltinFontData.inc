@@ -1,0 +1,13 @@
+// Stable project IDs; rasterization occurs only after selection.
+{"badh-regular", "Badh Regular", "badh-regular.ttf"},
+{"caliper-regular", "Caliper Regular", "caliper-regular.ttf"},
+{"inter-regular", "Inter Regular", "inter-regular.ttf"},
+{"jetbrains-mono-regular", "JetBrains Mono Regular", "jetbrains-mono-regular.ttf"},
+{"lato-regular", "Lato Regular", "lato-regular.ttf"},
+{"microgramma-d-medium-extended", "MicrogrammaDMedExt", "microgramma-d-medium-extended.ttf"},
+{"montserrat-regular", "Montserrat Regular", "montserrat-regular.ttf"},
+{"noto-sans-regular", "Noto Sans Regular", "noto-sans-regular.ttf"},
+{"ocr-a-extended", "OCR A Extended", "ocr-a-extended.ttf"},
+{"open-sans-regular", "Open Sans Regular", "open-sans-regular.ttf"},
+{"roboto-regular", "Roboto Regular", "roboto-regular.ttf"},
+{"source-sans-3-regular", "Source Sans 3 Regular", "source-sans-3-regular.ttf"},

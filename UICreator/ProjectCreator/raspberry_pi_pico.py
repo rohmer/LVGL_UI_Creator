@@ -10,7 +10,7 @@ import sys
 TEMPLATE_BOARDS = {"raspberry-pi-pico": "pico", "raspberry-pi-pico2": "pico2"}
 TOOLKIT_MARKER = "lvgl-pb-pico-toolkit.json"
 PROFILE_MARKER = "lvgl-pb-pico-sdk.json"
-MODULE_NAMES = ("feature_plan", "make_component", "trie_assets", "package_toolkit",
+MODULE_NAMES = ("feature_plan", "make_component", "trie_assets", "font_assets", "package_toolkit",
                 "lvgl_pb_ngtr_index", "_uicreator_pico_generator")
 
 

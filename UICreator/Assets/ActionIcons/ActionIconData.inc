@@ -850,7 +850,7 @@ static const Icon actionCatalog[] = {
     {"action.components", "Component library", actionGeometry41, 9},
     {"action.fonts", "Project fonts", actionGeometry42, 7},
     {"action.images", "Project images", actionGeometry43, 6},
-    {"action.font_converter", "Convert font", actionGeometry44, 6},
+    {"action.font_converter", "Add font", actionGeometry44, 6},
     {"action.image_converter", "Convert images", actionGeometry45, 8},
     {"action.model_playground", "Model playground", actionGeometry46, 16},
     {"action.model_generator", "Generate language model", actionGeometry47, 9},

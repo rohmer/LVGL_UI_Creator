@@ -274,6 +274,56 @@ FontData Rasterize(const Options& options, const std::atomic<bool>* cancel) {
     return font;
 }
 
+nlohmann::json ProjectFont(const FontData& font, const Options& options) {
+    // Match the portable LVFont resource format directly. Loading the editor's
+    // uncompressed preview and serializing it loses compression and 3-bpp data.
+    json glyphs=json::array({{{"bitmapIdx",0},{"adv_w",0},{"box_w",0},{"box_h",0},{"ofs_x",0},{"ofs_y",0}}});
+    std::vector<uint8_t> bitmap;
+    for(const auto& glyph:font.glyphs) {
+        if(glyph.advance16<0||glyph.advance16>65535||glyph.width>65535||glyph.height>65535||glyph.x< -32768||glyph.x>32767||glyph.y< -32768||glyph.y>32767)
+            throw std::invalid_argument("Glyph metrics exceed LVGL's large font descriptor");
+        glyphs.push_back({{"bitmapIdx",bitmap.size()},{"adv_w",glyph.advance16},{"box_w",glyph.width},{"box_h",glyph.height},{"ofs_x",glyph.x},{"ofs_y",glyph.y}});
+        auto encoded=Bitmap(glyph,options);
+        bitmap.insert(bitmap.end(),encoded.begin(),encoded.end());
+    }
+    json maps=json::array();
+    for(const auto& map:Maps(font)) {
+        const auto start=font.glyphs[map.first].code;
+        json unicode=json::array();
+        if(map.sparse)for(size_t g=map.first;g<map.last;++g)unicode.push_back(font.glyphs[g].code-start);
+        maps.push_back({{"rangeStart",start},{"rangeLength",font.glyphs[map.last-1].code-start+1},{"glyphIDstart",map.first+1},
+            {"type",map.sparse?3:2},{"formatVersion",9},{"unicodeList",std::move(unicode)},{"glyphIDOffsetList",json::array()}});
+    }
+    // This engine deliberately has no dependency on LVGL's allocator or the
+    // serializer library; the catalog's JSON bitmap uses standard base64.
+    static constexpr char alphabet[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    std::string encoded;
+    encoded.reserve(((bitmap.size()+2)/3)*4);
+    for(size_t i=0;i<bitmap.size();i+=3) {
+        const auto remaining=bitmap.size()-i;
+        const uint32_t value=(uint32_t(bitmap[i])<<16)|(remaining>1?uint32_t(bitmap[i+1])<<8:0)|(remaining>2?bitmap[i+2]:0);
+        encoded.push_back(alphabet[(value>>18)&63]);encoded.push_back(alphabet[(value>>12)&63]);
+        encoded.push_back(remaining>1?alphabet[(value>>6)&63]:'=');encoded.push_back(remaining>2?alphabet[value&63]:'=');
+    }
+    const auto kern=Kerning(font,options);
+    const bool hasKern=options.kerning&&!font.kerning.empty();
+    json kerning=nullptr;
+    if(hasKern) {
+        if(kern.classes)kerning={{"leftCount",kern.leftClasses},{"rightCount",kern.rightClasses},
+            {"leftClasses",kern.leftMapping},{"rightClasses",kern.rightMapping},{"Values",kern.values}};
+        else {
+            std::vector<uint16_t> ids;
+            for(const auto& pair:font.kerning){ids.push_back(pair.left);ids.push_back(pair.right);}
+            kerning={{"glyphIDSize",font.glyphs.size()>255?1:0},{"GlyphIDs",ids},{"Values",kern.values}};
+        }
+    }
+    return {{"lineHeight",font.ascent-font.descent},{"baseLine",-font.descent},{"capHeight",font.capHeight},{"xHeight",font.xHeight},
+        {"subpx",options.smoothing},{"kerning",0},{"underlinePosition",font.underlinePosition},{"underlineThickness",font.underlineThickness},
+        {"dsc",{{"bitmapFmt",Compression(options)},{"stride",options.stride},{"bpp",options.bpp},{"cmapNum",maps.size()},
+            {"kernScale",hasKern?kern.scale16:0},{"kernClasses",hasKern&&kern.classes?1:0},
+            {"cmaps",std::move(maps)},{"GlyphDsc",std::move(glyphs)},{"Kern",std::move(kerning)},{"bitmap",std::move(encoded)}}}};
+}
+
 std::string CSource(const FontData& font, const Options& options) {
     if (options.bpp == 3 && !options.compress) throw std::invalid_argument("LVGL C supports 3 bpp only with compression enabled");
     std::ostringstream out;
@@ -288,6 +338,9 @@ std::string CSource(const FontData& font, const Options& options) {
     }
     large |= bitmap.size() > 0xfffff;
     if (large) out << "#if !LV_FONT_FMT_TXT_LARGE\n#error \"Enable LV_FONT_FMT_TXT_LARGE for this font\"\n#endif\n";
+    // The compressed reader prefetches one byte beyond its current bit window.
+    // Keep that lookahead inside the emitted array, including the last glyph.
+    if (Compression(options)) bitmap.push_back(0);
     Array(out, "uint8_t", "glyph_bitmap", bitmap, true);
     out << "static const lv_font_fmt_txt_glyph_dsc_t glyph_dsc[] = {\n    {0, 0, 0, 0, 0, 0}";
     for (size_t i = 0; i < font.glyphs.size(); ++i) {

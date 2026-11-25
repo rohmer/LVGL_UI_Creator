@@ -147,6 +147,17 @@ class Suite:
         assert (screen_canvas['width'], screen_canvas['height']) == (320, 240)
         assert screen_canvas['base']['nativeStyles'][0]['values']['bg_color'] == 0x274a68
         assert 'LV_USE_IMAGE' not in minimal_manifest['requiredConfiguration']
+        # A project may keep a large font library without making it a firmware
+        # requirement. Only an applied custom font needs the native extension.
+        unused = copy.deepcopy(label)
+        unused['fonts'] = [{'id': 'unused-custom', 'name': 'Unused custom font', 'font': {
+            'lineHeight': 9, 'baseLine': 1, 'dsc': {'bitmap': 'VU5VU0VEX0ZPTlQ=', 'bpp': 4,
+            'bitmapFmt': 2, 'stride': 1, 'GlyphDsc': [], 'cmaps': []}}}]
+        with_unused = self.export(unused, 'unused-font-library')
+        unused_manifest = self.manifest(with_unused)
+        assert (with_unused / 'ui.json').read_bytes() == (minimal / 'ui.json').read_bytes()
+        assert unused_manifest['requiredConfiguration'] == minimal_manifest['requiredConfiguration']
+        assert b'UNUSED_FONT' not in b''.join(tree(with_unused).values())
         # Exactly the same bytes form two valid shapes. Pixel deduplication must
         # preserve each descriptor's geometry and actual byte payload.
         pixels = bytes((0x11, 0x22, 0x33, 0xff, 0x44, 0x55, 0x66, 0xff))

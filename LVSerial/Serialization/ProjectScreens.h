@@ -1,5 +1,7 @@
 #pragma once
 #include "../../3rdParty/JSON/json.hpp"
+#include "ProjectDesign.h"
+#include "ProjectFonts.h"
 #include <algorithm>
 #include <map>
 #include <set>
@@ -92,7 +94,13 @@ inline json Canonical(json doc){
 }
 inline json Device(json doc){
     doc=Canonical(std::move(doc));
+    ProjectDesign::Materialize(doc,true);
+    ProjectFonts::PruneUnused(doc);
     for(const auto* key:{"deviceTargets","previewProfiles","accessibility","editorSession"})doc.erase(key);
+    // Font conversion inputs are authoring metadata. Devices need only the
+    // stable asset identity and embedded glyph data, without desktop paths.
+    if(doc.contains("fonts")&&doc["fonts"].is_array())
+        for(auto& font:doc["fonts"])if(font.is_object())font.erase("conversion");
     return doc;
 }
 inline size_t Add(json& doc,const std::string& name){

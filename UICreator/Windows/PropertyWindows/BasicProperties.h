@@ -2,6 +2,7 @@
 #include "../../Utils/EditorStyle.h"
 #include "../PropertyWindow.h"
 #include "../../Utils/EditorControls.h"
+#include "TextInputModeControl.h"
 #include <Serialization/BasicWidgets.h>
 #include <cctype>
 #include <charconv>
@@ -37,7 +38,9 @@ class BasicProperties
         EditorEdit::Scope edit(lv_event_get_target_obj(event),lv_obj_get_class(lv_event_get_target_obj(event))==&lv_textarea_class);
         try
         {
-            if (!binding->choices.empty()) value = binding->choices.at(lv_dropdown_get_selected(control));
+            if (binding->section == "textarea" && binding->key == "inputMode")
+                value = Serialization::TextInputMode::Name(static_cast<lv_advanced_keyboard_input_mode_t>(lv_dropdown_get_selected(control)));
+            else if (!binding->choices.empty()) value = binding->choices.at(lv_dropdown_get_selected(control));
             else if (binding->original.is_boolean()) value = lv_obj_has_state(control, LV_STATE_CHECKED);
             else if (binding->original.is_string()) value = lv_textarea_get_text(control);
             else if (binding->key == "color")
@@ -81,6 +84,16 @@ class BasicProperties
             auto* data = static_cast<ObjectUserData*>(lv_obj_get_user_data(object));
             data->objectJson = Serialization::ObjectSerializer::SerializeObject(object);
             lv_obj_set_style_border_color(control, lv_color_hex(EditorStyle::Border), LV_PART_MAIN);
+            if (binding->key == "inputMode")
+            {
+                struct Refresh { PropertyWindow* window; lv_obj_t* object; };
+                lv_async_call([](void* context) {
+                    auto* refresh = static_cast<Refresh*>(context);
+                    if (refresh->window->GetSelectedObject() == refresh->object)
+                        refresh->window->SetSelectedObject(refresh->object);
+                    delete refresh;
+                }, new Refresh{binding->window, object});
+            }
         }
         catch (const json::exception&)
         {
@@ -106,10 +119,12 @@ class BasicProperties
             name += character == '/' ? ' ' : character;
         }
         if (!name.empty()) name[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(name[0])));
+        if (key == "inputMode") name = "Input mode";
         lv_obj_t* control;
         std::vector<int> choices;
         const char* options = nullptr;
-        if (section == "slider" && key == "mode") { options = "Normal\nSymmetrical\nRange"; choices = {0, 1, 2}; }
+        if (section == "textarea" && key == "inputMode") options = TextInputModeControl::Options;
+        else if (section == "slider" && key == "mode") { options = "Normal\nSymmetrical\nRange"; choices = {0, 1, 2}; }
         else if (section == "slider" && key == "orientation") { options = "Automatic\nHorizontal\nVertical"; choices = {0, 1, 2}; }
         else if (section == "roller" && key == "mode") { options = "Normal\nInfinite"; choices = {0, 1}; }
         else if (section == "dropdown" && key == "direction") { options = "Bottom\nTop\nLeft\nRight"; choices = {LV_DIR_BOTTOM, LV_DIR_TOP, LV_DIR_LEFT, LV_DIR_RIGHT}; }
@@ -130,12 +145,17 @@ class BasicProperties
             lv_obj_set_style_bg_opa(field, LV_OPA_TRANSP, LV_PART_MAIN);
             auto* label = lv_label_create(field);
             lv_label_set_text(label, name.c_str());
+            if (key == "inputMode") TextInputModeControl::AddHint(label);
             if (options)
             {
                 control = lv_dropdown_create(field);
                 lv_dropdown_set_options(control, options);
-                const auto selected = std::find(choices.begin(), choices.end(), value.get<int>());
-                if (selected != choices.end()) lv_dropdown_set_selected(control, static_cast<uint32_t>(selected - choices.begin()));
+                if (key == "inputMode") lv_dropdown_set_selected(control, Serialization::TextInputMode::Parse(value.get<std::string>()));
+                else
+                {
+                    const auto selected = std::find(choices.begin(), choices.end(), value.get<int>());
+                    if (selected != choices.end()) lv_dropdown_set_selected(control, static_cast<uint32_t>(selected - choices.begin()));
+                }
             }
             else control = lv_textarea_create(field);
             lv_obj_set_width(control, LV_PCT(100));
@@ -175,8 +195,12 @@ public:
         {
             if (entry.key() == "base") continue;
             if (entry.value().is_object())
+            {
+                if (entry.key() == "textarea" && !entry.value().contains("inputMode"))
+                    Field(window, content, "textarea", "inputMode", "alphanumeric");
                 for (auto field = entry.value().begin(); field != entry.value().end(); ++field)
                     Field(window, content, entry.key(), field.key(), field.value());
+            }
             else Field(window, content, "", entry.key(), entry.value());
         }
         window->CurrentlyLoadedProp = PropertyWindow::NONE;

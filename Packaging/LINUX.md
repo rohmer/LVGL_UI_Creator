@@ -14,6 +14,20 @@ and produces both formats for that build's architecture:
 cmake --build build/linux-x86_64 --target UICreatorLinuxPackages --parallel 6
 ```
 
+The frontend mirrors consumer sources into its Linux cache and keeps a genuine
+detached checkout of the locked AdvancedKeyboard dependency inside that mirror.
+It verifies the original and generated dependency revisions and refuses local
+edits. Earlier source-only dependency mirrors are moved to the cache's
+`source-backups` directory before cloning. Git metadata is never copied between
+checkouts, and stale source-file cleanup never touches the generated dependency.
+Only checkouts created by this frontend can advance automatically to a new lock;
+an unrelated checkout at a different revision requires deliberate review.
+
+The frontend also records a target-specific Cargo linker wrapper. Rust native
+libraries use the same GCC 11, target sysroot, startup objects and binutils as
+the C/C++ build, including ARM64 cross-links. Package rebuilds restore that
+recorded environment instead of using the build host's default `cc`.
+
 The outputs are named `LVGL-UI-Creator-0.9.2-Linux-x86_64.deb` and `.tar.gz`,
 or `LVGL-UI-Creator-0.9.2-Linux-arm64.deb` and `.tar.gz`. A DEB installs the
 application below `/usr/lib/lvgl-ui-creator`, launchers in `/usr/bin`, and a

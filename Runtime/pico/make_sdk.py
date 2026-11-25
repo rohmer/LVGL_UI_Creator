@@ -118,8 +118,8 @@ def component_cmake(c_project: bool, enable_xml=False):
     prefix = '''include("${CMAKE_CURRENT_LIST_DIR}/cmake/project_sources.cmake")
 set(pico_includes "${CMAKE_CURRENT_LIST_DIR}/../include" config
     vendor/Runtime/include vendor/Runtime/compat vendor/LVSerial vendor/LVSerial/Device
-    vendor/LVSerial/Proto vendor/3rdParty/nanopb vendor/LVSerial/Widgets/AdvancedKeyboard/include
-    vendor/LVSerial/Widgets/AdvancedKeyboard vendor/3rdParty/LVGL/lvgl vendor/3rdParty/LVGL/lvgl/include)
+    vendor/LVSerial/Proto vendor/3rdParty/nanopb vendor/3rdParty/AdvancedKeyboard/include
+    vendor/3rdParty/AdvancedKeyboard/src vendor/3rdParty/LVGL/lvgl vendor/3rdParty/LVGL/lvgl/include)
 '''
     if c_project:
         prefix += '''list(FILTER LVGL_PB_PROJECT_SOURCES INCLUDE REGEX "vendor/3rdParty/LVGL/")

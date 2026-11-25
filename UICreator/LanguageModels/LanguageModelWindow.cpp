@@ -2,7 +2,7 @@
 #ifndef _WIN32
 #include "../Utils/NativeFileDialogUI.h"
 #endif
-#include "Generator.h"
+#include <Generator.h>
 #include "../Windows/PropertyWindow.h"
 #include "../Windows/ProductWindows.h"
 #include "../Utils/EditorControls.h"
@@ -17,6 +17,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <limits>
 #include <sstream>
 #include <thread>
 #ifdef _WIN32
@@ -139,6 +140,20 @@ lv_obj_t* Check(Window* window, lv_obj_t* parent, const char* caption, bool sele
     auto* field = lv_checkbox_create(parent); lv_checkbox_set_text(field, caption); lv_obj_set_checked(field, selected);
     window->fields[key] = field; window->editable.push_back(field); Focus(window, field); return field;
 }
+lv_obj_t* Choice(Window* window, lv_obj_t* parent, const char* caption, const char* options, const char* key) {
+    auto* row = Row(parent); Label(row, caption);
+    auto* field = lv_dropdown_create(row); lv_dropdown_set_options(field, options); lv_obj_set_flex_grow(field, 1);
+    EditorStyle::Control(field); Focus(window, field); window->fields[key] = field; window->editable.push_back(field);
+    return field;
+}
+void SyncFormat(Window* window, bool selectDefault = false) {
+    const bool radix = lv_dropdown_get_selected(window->fields.at("format")) == 0;
+    auto* scoring = window->fields.at("smoothing");
+    if (!radix) lv_dropdown_set_selected(scoring, 1);
+    else if (selectDefault) lv_dropdown_set_selected(scoring, 1);
+    lv_obj_set_disabled(scoring, window->job != nullptr || !radix);
+    lv_obj_set_disabled(window->fields.at("profiles"), window->job != nullptr || !radix);
+}
 std::filesystem::path Pick(bool save, bool folder, const wchar_t* title, const std::filesystem::path& initial = {}) {
 #ifdef _WIN32
     if (folder) {
@@ -207,23 +222,51 @@ LanguageModels::Options ReadOptions(Window* window) {
     options.workers = static_cast<unsigned>(workers);
     const auto bytes = Trim(Text(window, "maximumBytes"));
     options.maximumBytes = bytes.empty() ? std::optional<uint64_t>{} : Number(bytes, "Maximum trie bytes");
-    if (options.maximumBytes && *options.maximumBytes < 20) throw std::invalid_argument("Maximum trie bytes must be at least 20, or blank for unlimited.");
     const char* keys[] = {"unigrams", "bigrams", "trigrams"};
     for (size_t order = 0; order < 3; ++order) {
         const auto text = Trim(Text(window, keys[order]));
         options.limits[order] = text.empty() ? std::optional<uint64_t>{} : Number(text, keys[order]);
     }
     options.recursive = Checked(window, "recursive"); options.useCache = Checked(window, "cache");
-    options.lowMemory = Checked(window, "lowMemory"); options.compact = true;
+    options.useTrainingCache = Checked(window, "trainingCache");
+    options.lowMemory = Checked(window, "lowMemory");
+    const auto format = lv_dropdown_get_selected(window->fields.at("format"));
+    options.format = format == 0 ? LanguageModels::ModelFormat::Radix : LanguageModels::ModelFormat::Compatibility;
+    options.compact = format != 2;
+    const uint64_t minimumBytes = format == 0 ? 64 : format == 1 ? 20 : 40;
+    if (options.maximumBytes && *options.maximumBytes < minimumBytes)
+        throw std::invalid_argument("Model size budget must be at least " + std::to_string(minimumBytes) + " bytes for this format, or blank for unlimited.");
+    options.smoothing = lv_dropdown_get_selected(window->fields.at("smoothing")) == 0 ?
+        LanguageModels::Smoothing::ModifiedKneserNey : LanguageModels::Smoothing::Counts;
+    if (format != 0 && options.smoothing != LanguageModels::Smoothing::Counts)
+        throw std::invalid_argument("Smoothed prediction requires the compressed radix format.");
+    const auto memory = Number(Text(window, "memoryMiB"), "RAM budget");
+    if (memory < 16 || memory > (std::numeric_limits<uint64_t>::max)() / (1024 * 1024))
+        throw std::invalid_argument("RAM budget must be at least 16 MiB and fit the supported address range.");
+    options.memoryBytes = memory * 1024 * 1024;
+    const auto profiles = Trim(Text(window, "profiles"));
+    if (format == 0 && !profiles.empty()) {
+        std::istringstream entries(profiles); std::string item;
+        while (std::getline(entries, item, ',')) {
+            const auto bytes = Number(item, "Additional model size");
+            if (bytes < 64) throw std::invalid_argument("Additional radix model sizes must be at least 64 bytes, including the lookup index.");
+            if (std::find(options.profileSizes.begin(), options.profileSizes.end(), bytes) == options.profileSizes.end())
+                options.profileSizes.push_back(bytes);
+        }
+        if (profiles.back() == ',') throw std::invalid_argument("Enter a size after each comma.");
+    }
     options.cacheDirectory = EditorSession::DefaultDirectory() / "language-model-cache";
     options.scratchDirectory = EditorSession::DefaultDirectory() / "language-model-work";
     return options;
 }
 void SaveSettings(Window* window) {
     try {
-        json settings = {{"version", 1}, {"recursive", Checked(window, "recursive")}, {"cache", Checked(window, "cache")},
+        const auto format = lv_dropdown_get_selected(window->fields.at("format"));
+        json settings = {{"version", 2}, {"recursive", Checked(window, "recursive")}, {"cache", Checked(window, "cache")},
+            {"trainingCache", Checked(window, "trainingCache")}, {"format", format == 0 ? "radix" : format == 1 ? "compact" : "legacy"},
+            {"smoothing", lv_dropdown_get_selected(window->fields.at("smoothing")) == 0 ? "modified-kn" : "counts"},
             {"lowMemory", Checked(window, "lowMemory")}, {"language", languageIds[(std::min)(lv_dropdown_get_selected(window->fields.at("language")), languageCount - 1)]}};
-        for (const auto* key : {"directories", "output", "maximumBytes", "unigrams", "bigrams", "trigrams", "workers"}) settings[key] = Text(window, key);
+        for (const auto* key : {"directories", "output", "maximumBytes", "unigrams", "bigrams", "trigrams", "workers", "memoryMiB", "profiles"}) settings[key] = Text(window, key);
         const auto path = SettingsFile(); std::filesystem::create_directories(path.parent_path());
         EditorSession::WriteAtomic(path, settings.dump(2));
     } catch (const std::exception& error) { Status(window, std::string("Could not save generator settings: ") + error.what(), true); }
@@ -232,10 +275,19 @@ void LoadSettings(Window* window) {
     try {
         std::ifstream stream(SettingsFile(), std::ios::binary); if (!stream) return;
         const auto settings = json::parse(stream);
-        if (!settings.is_object() || settings.value("version", 0) != 1) return;
-        for (const auto* key : {"directories", "output", "maximumBytes", "unigrams", "bigrams", "trigrams", "workers"})
+        if (!settings.is_object()) return;
+        const auto version = settings.value("version", 0);
+        if (version != 1 && version != 2) return;
+        for (const auto* key : {"directories", "output", "maximumBytes", "unigrams", "bigrams", "trigrams", "workers", "memoryMiB", "profiles"})
             if (settings.contains(key) && settings.at(key).is_string()) lv_textarea_set_text(window->fields.at(key), settings.at(key).get_ref<const std::string&>().c_str());
-        for (const auto* key : {"recursive", "cache", "lowMemory"}) if (settings.contains(key) && settings.at(key).is_boolean()) lv_obj_set_checked(window->fields.at(key), settings.at(key).get<bool>());
+        for (const auto* key : {"recursive", "cache", "lowMemory", "trainingCache"}) if (settings.contains(key) && settings.at(key).is_boolean()) lv_obj_set_checked(window->fields.at(key), settings.at(key).get<bool>());
+        // Version one always generated compact count models. Preserve that
+        // choice while new sessions start with radix + counts prediction.
+        const auto format = settings.value("format", version == 1 ? std::string("compact") : std::string("radix"));
+        lv_dropdown_set_selected(window->fields.at("format"), format == "legacy" ? 2 : format == "compact" ? 1 : 0);
+        const auto scoring = settings.value("smoothing", std::string("counts"));
+        lv_dropdown_set_selected(window->fields.at("smoothing"), scoring == "counts" ? 1 : 0);
+        SyncFormat(window);
         const auto language = settings.value("language", std::string("en"));
         for (uint32_t index = 0; index < languageCount; ++index) if (language == languageIds[index]) lv_dropdown_set_selected(window->fields.at("language"), index);
     } catch (const std::exception& error) { Status(window, std::string("Could not load generator settings: ") + error.what(), true); }
@@ -244,6 +296,7 @@ void SetRunning(Window* window, bool running) {
     for (auto* field : window->editable) lv_obj_set_disabled(field, running);
     lv_obj_set_disabled(window->generate, running); lv_obj_set_disabled(window->stop, !running);
     lv_obj_set_disabled(window->load, running || window->generated.empty());
+    SyncFormat(window);
 }
 std::string Duration(uint64_t seconds) {
     std::ostringstream text; text << std::setfill('0') << std::setw(2) << seconds / 3600 << ':' << std::setw(2) << seconds / 60 % 60 << ':' << std::setw(2) << seconds % 60;
@@ -254,7 +307,10 @@ void Start(Window* window, LanguageModels::Options options) {
     SaveSettings(window); window->generated.clear(); window->closeWhenDone = false;
     window->job = std::make_unique<Job>(); auto work = window->job->work;
     window->started = Clock::now(); SetRunning(window, true);
-    lv_bar_set_value(window->bar, 0, LV_ANIM_OFF); Status(window, "Generating a compact NGTR v3 model. The editor remains responsive.");
+    lv_bar_set_value(window->bar, 0, LV_ANIM_OFF);
+    Status(window, options.format == LanguageModels::ModelFormat::Radix ?
+        "Generating a compressed radix model. The editor remains responsive." :
+        "Generating a compatibility model. The editor remains responsive.");
     try { window->job->thread = std::thread([work, options = std::move(options)] {
         try {
             auto result = LanguageModels::Generate(options, [work](const LanguageModels::Progress& update) {
@@ -276,7 +332,16 @@ void RequestStart(Window* window) {
     if (window->job || window->confirmation) return;
     try {
         auto options = ReadOptions(window);
-        if (!std::filesystem::exists(options.trieOutput)) { Start(window, std::move(options)); return; }
+        std::vector<std::filesystem::path> outputs{options.trieOutput};
+        for (const auto bytes : options.profileSizes) if (!options.maximumBytes || bytes != *options.maximumBytes) outputs.push_back(options.trieOutput.parent_path() /
+            (options.trieOutput.stem().u8string() + "-" + std::to_string(bytes) + options.trieOutput.extension().u8string()));
+        if (options.format == LanguageModels::ModelFormat::Radix) {
+            const auto models = outputs;
+            for (auto path : models) { path.replace_extension(".ngix"); outputs.push_back(std::move(path)); }
+        }
+        std::string existing;
+        for (const auto& path : outputs) if (std::filesystem::exists(path)) existing += "\n" + path.u8string();
+        if (existing.empty()) { Start(window, std::move(options)); return; }
         window->confirmation = lv_obj_create(lv_layer_top());
         auto* overlay = window->confirmation; lv_obj_set_size(overlay, LV_PCT(100), LV_PCT(100));
         lv_obj_set_style_bg_color(overlay, lv_color_black(), LV_PART_MAIN); lv_obj_set_style_bg_opa(overlay, LV_OPA_50, LV_PART_MAIN);
@@ -285,7 +350,7 @@ void RequestStart(Window* window) {
         EditorWindow::SetTitle(confirm, "Replace language model?");
         EditorWindow::SetCloseHandler(confirm, [window] { DeleteConfirmation(window); });
         auto* body = EditorWindow::Content(confirm); lv_obj_set_flex_flow(body, LV_FLEX_FLOW_COLUMN); lv_obj_set_style_pad_all(body, 16, LV_PART_MAIN);
-        EditorStyle::Help(body, ("Replace this existing file?\n" + options.trieOutput.u8string()).c_str());
+        EditorStyle::Help(body, ("Replace these existing model files?" + existing).c_str());
         auto* actions = Row(body);
         Button(window, actions, "Replace", [window, options] {
             DeleteConfirmation(window);
@@ -321,6 +386,11 @@ void Poll(lv_timer_t* timer) {
         message << "Saved " << work->result.trieBytes << " bytes to " << window->generated.u8string()
                 << "\n" << work->result.counts[0] << " unigrams, " << work->result.counts[1] << " bigrams, " << work->result.counts[2] << " trigrams"
                 << "; " << work->result.files << " corpus files, " << work->result.cacheHits << " reused count caches.";
+        if (work->result.effectiveWorkers) message << " Workers used: " << work->result.effectiveWorkers << '.';
+        if (work->result.indexBytes) message << "\nLookup index: " << work->result.indexBytes << " bytes; model + index: "
+            << work->result.trieBytes + work->result.indexBytes << " bytes.";
+        if (work->result.trainingCacheHit) message << " Trained model cache reused.";
+        if (!work->result.profileOutputs.empty()) message << "\nCreated " << work->result.profileOutputs.size() << " model files using the same training run.";
         if (work->result.trieBytes <= importLimit) message << "\nLoad into project to use this model in Advanced Keyboard.";
         else { message << "\nThis model exceeds the project's 16 MiB model limit. Generate with a smaller byte budget to embed it."; window->generated.clear(); }
         Status(window, message.str()); lv_bar_set_value(window->bar, 100, LV_ANIM_OFF);
@@ -397,7 +467,7 @@ void Open(PropertyWindow* properties) {
     lv_obj_set_style_pad_all(settings, 0, LV_PART_MAIN); lv_obj_set_style_pad_right(settings, 10, LV_PART_MAIN);
     lv_obj_set_style_border_width(settings, 0, LV_PART_MAIN); lv_obj_set_style_bg_opa(settings, LV_OPA_TRANSP, LV_PART_MAIN);
     lv_obj_set_style_pad_row(settings, 10, LV_PART_MAIN);
-    EditorStyle::Help(settings, "Build a compact language model from UTF-8 .txt corpora. The resulting NGTR v3 file works with Advanced Keyboard on every supported platform.");
+    EditorStyle::Help(settings, "Build language models from UTF-8 .txt corpora. Compressed radix models support smoothed suggestions; compatibility formats preserve older model readers.");
     auto* corpusRow = Row(settings); Label(corpusRow, "Corpus folders (one per line)");
     auto* directories = lv_textarea_create(corpusRow); lv_obj_set_height(directories, 100); lv_obj_set_flex_grow(directories, 1);
     lv_textarea_set_placeholder_text(directories, "Add folders containing corpus .txt files");
@@ -417,15 +487,25 @@ void Open(PropertyWindow* properties) {
     auto* language = lv_dropdown_create(languageRow); lv_dropdown_set_options(language, languageLabels); lv_obj_set_flex_grow(language, 1);
     EditorStyle::Control(language); Focus(window, language); window->fields["language"] = language; window->editable.push_back(language);
     Input(window, settings, "Worker threads", std::to_string((std::min)(1024u, (std::max)(1u, std::thread::hardware_concurrency()))), "workers");
-    auto* bytes = Input(window, settings, "Maximum trie bytes", "262144", "maximumBytes"); lv_textarea_set_placeholder_text(bytes, "Unlimited");
+    Input(window, settings, "RAM budget (MiB)", "512", "memoryMiB");
+    auto* format = Choice(window, settings, "Model format", "Compressed radix (NGTR v4)\nCompact (NGTR v3)\nLegacy (NGTR v2)", "format");
+    auto* scoring = Choice(window, settings, "Prediction scoring", "Modified Kneser-Ney\nCounts", "smoothing");
+    lv_dropdown_set_selected(scoring, 1);
+    lv_obj_add_event_cb(format, [](lv_event_t* event) { SyncFormat(static_cast<Window*>(lv_event_get_user_data(event)), true); }, LV_EVENT_VALUE_CHANGED, window);
+    auto* bytes = Input(window, settings, "Model size budget (bytes)", "262144", "maximumBytes"); lv_textarea_set_placeholder_text(bytes, "Unlimited");
+    auto* profiles = Input(window, settings, "Additional sizes (bytes)", "", "profiles");
+    lv_textarea_set_placeholder_text(profiles, "16384, 262144 (optional)");
     for (const auto* key : {"unigrams", "bigrams", "trigrams"}) {
         const auto* caption = key == std::string("unigrams") ? "Unigrams" : key == std::string("bigrams") ? "Bigrams" : "Trigrams";
         auto* field = Input(window, settings, caption, "", key); lv_textarea_set_placeholder_text(field, "Automatic (0 disables this order)");
     }
     Check(window, settings, "Reuse saved counts", true, "cache");
+    Check(window, settings, "Reuse trained models", true, "trainingCache");
     Check(window, settings, "Keep counts on disk", true, "lowMemory");
     EditorStyle::Help(settings, "Temporary counts use local application storage, including when the final trie is saved to a synced or network folder.");
-    EditorStyle::Help(settings, "Output format: compact NGTR v3. English, Spanish, French, German and Greek use bundled vocabulary filters. Other languages train directly from the corpus, preserving combining marks. Mandarin counts Han characters. The keyboard layout is selected separately. Blank count limits are automatic.");
+    EditorStyle::Help(settings, "The RAM budget is shared by the worker pool. Additional sizes reuse counting and training, with the size added to each output filename. English, Spanish, French, German and Greek use bundled vocabulary filters. Other languages preserve Unicode words and combining marks; Mandarin counts Han characters. Blank count limits are automatic.");
+    EditorStyle::Help(settings, "The radix size budget includes its lookup index. Compatibility formats keep their original trie-only byte budget.");
+    EditorStyle::Help(settings, "Counts is the default scoring. Modified Kneser-Ney can improve next-word context, but uses more model space and training time. Benchmark it for your language and size profile.");
     auto* footer = lv_obj_create(body); lv_obj_set_size(footer, LV_PCT(100), LV_SIZE_CONTENT); lv_obj_set_scrollable(footer, false);
     lv_obj_set_flex_flow(footer, LV_FLEX_FLOW_COLUMN); lv_obj_set_style_pad_all(footer, 0, LV_PART_MAIN);
     lv_obj_set_style_border_width(footer, 0, LV_PART_MAIN); lv_obj_set_style_bg_opa(footer, LV_OPA_TRANSP, LV_PART_MAIN);

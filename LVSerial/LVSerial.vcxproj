@@ -1,5 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\AdvancedKeyboard.props" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -71,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemDefinitionGroup>
-    <ClCompile><AdditionalIncludeDirectories>$(ProjectDir)..\3rdParty\nanopb;$(ProjectDir)Device;$(ProjectDir)Proto;$(ProjectDir)Widgets\AdvancedKeyboard\include;$(ProjectDir)Widgets\AdvancedKeyboard;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions><LanguageStandard>stdcpp17</LanguageStandard></ClCompile>
+    <ClCompile><PreprocessorDefinitions>UICREATOR_ADVANCED_KEYBOARD_SOURCE_DIR=&quot;$(AdvancedKeyboardRootSlash)&quot;;%(PreprocessorDefinitions)</PreprocessorDefinitions><AdditionalIncludeDirectories>$(ProjectDir)..\3rdParty\nanopb;$(ProjectDir)Device;$(ProjectDir)Proto;$(AdvancedKeyboardRoot)\include;$(AdvancedKeyboardRoot)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories><AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions><LanguageStandard>stdcpp17</LanguageStandard></ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -155,6 +156,7 @@
     <ClInclude Include="Serialization\LVCanvas.h" />
     <ClInclude Include="Serialization\LVCheckBox.h" />
     <ClInclude Include="Serialization\LVFont.h" />
+    <ClInclude Include="Serialization\FontData.h" />
     <ClInclude Include="Serialization\LVFontCMap.h" />
     <ClInclude Include="Serialization\LVFontDsc.h" />
     <ClInclude Include="Serialization\LVFontGlyphDsc.h" />
@@ -164,6 +166,7 @@
     <ClInclude Include="Serialization\LVObject.h" />
     <ClInclude Include="Serialization\ObjectSerializer.h" />
     <ClInclude Include="Serialization\ObjectUserData.h" />
+    <ClInclude Include="$(AdvancedKeyboardRoot)\include\lv_textarea_input_mode.h" />
     <ClInclude Include="Serialization\PNGToArray.h" />
     <ClInclude Include="Serialization\Realign.h" />
     <ClInclude Include="Serialization\Page.h" />
@@ -181,6 +184,7 @@
     <ClCompile Include="Serialization\LVCanvas.cpp" />
     <ClCompile Include="Serialization\LVCheckBox.cpp" />
     <ClCompile Include="Serialization\LVFont.cpp" />
+    <ClCompile Include="Serialization\FontData.cpp" />
     <ClCompile Include="Serialization\LVFontCMap.cpp" />
     <ClCompile Include="Serialization\LVFontDsc.cpp" />
     <ClCompile Include="Serialization\LVFontGlyphDsc.cpp" />
@@ -205,22 +209,23 @@
     <ClCompile Include="Serialization\PNGToArray.cpp" />
     <ClCompile Include="Serialization\Page.cpp" />
     <ClCompile Include="Serialization\Style.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\Key.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\Keyboard.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\TypingView.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\SuggestionText.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\Utf8Fold.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\AdvancedKeyboard.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\Prediction.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\PredictionStorage.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\PredictionModel.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\PredictionPrefix.cpp" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardFont.c" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardHindiFont.c" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardBengaliFont.c" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardCyrillicFont.c" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardGreekFont.c" />
-    <ClCompile Include="Widgets\AdvancedKeyboard\KeyboardUrduFont.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\Key.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\Keyboard.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\TypingView.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\SuggestionText.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\Utf8Fold.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\AdvancedKeyboard.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\TextareaInputMode.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\Prediction.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\PredictionStorage.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\PredictionModel.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\PredictionPrefix.cpp" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\KeyboardFont.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\KeyboardHindiFont.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\KeyboardBengaliFont.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\KeyboardCyrillicFont.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\KeyboardGreekFont.c" />
+    <ClCompile Include="$(AdvancedKeyboardRoot)\src\KeyboardUrduFont.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">

@@ -22,6 +22,61 @@ enum ValueKind {
   REAL = 6;
   TEXT = 7;
   BINARY = 8;
+  FONT_DATA = 9;
+}
+
+// Portable raster-font data. No C pointers, native structure padding, source
+// file paths or platform font engine are needed on the device. All offsets are
+// relative to bitmap; maps use the LVGL v9 cmap enum (legacy maps retain their
+// explicit format_version). Repeated integer fields may use packed encoding.
+message FontGlyph {
+  required uint32 bitmap_index = 1;
+  required uint32 advance = 2;
+  required uint32 width = 3;
+  required uint32 height = 4;
+  required sint32 offset_x = 5;
+  required sint32 offset_y = 6;
+}
+message FontCmap {
+  required uint32 range_start = 1;
+  required uint32 range_length = 2;
+  required uint32 glyph_start = 3;
+  required uint32 type = 4;
+  optional uint32 format_version = 5;
+  repeated uint32 unicode_list = 6 [packed = true];
+  repeated uint32 glyph_offsets = 7 [packed = true];
+}
+message FontKerning {
+  optional uint32 glyph_id_size = 1;
+  repeated uint32 glyph_ids = 2 [packed = true];
+  required bytes values = 3; // signed int8 two's-complement kerning values
+  optional uint32 left_count = 4;
+  optional uint32 right_count = 5;
+  optional bytes left_classes = 6;
+  optional bytes right_classes = 7;
+}
+message FontData {
+  required uint32 format_version = 1 [default = 1];
+  optional sint32 base_line = 2;
+  required uint32 line_height = 3;
+  optional uint32 cap_height = 4;
+  optional uint32 x_height = 5;
+  optional uint32 subpixel_mode = 6;
+  optional uint32 kerning_mode = 7;
+  optional sint32 underline_position = 8;
+  optional uint32 underline_thickness = 9;
+  required bytes bitmap = 10;
+  required uint32 bitmap_format = 11;
+  required uint32 bpp = 12;
+  optional uint32 stride = 13;
+  optional uint32 kern_scale = 14;
+  optional uint32 kern_classes = 15;
+  repeated FontGlyph glyphs = 16;
+  repeated FontCmap cmaps = 17;
+  optional FontKerning kern = 18 [(nanopb).type = FT_CALLBACK];
+  // Presence and null differ in legacy JSON records; both round-trip exactly.
+  optional bool kern_is_null = 19;
+  optional uint32 cmap_count = 20;
 }
 
 // Typed property tree in preorder. Paths use RFC 6901 JSON Pointer escaping.
@@ -40,6 +95,7 @@ message Property {
   optional double real_value = 6;
   optional bytes text_value = 7;
   optional uint32 child_count = 8;
+  optional FontData font_value = 9 [(nanopb).type = FT_CALLBACK];
 }
 message Record {
   required uint32 format_version = 1 [default = 1];

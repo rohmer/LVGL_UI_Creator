@@ -22,27 +22,49 @@ in `integrations/figma`; its JavaScript and HTML run directly in Figma. See the
 usage. Online import requires a Figma personal access token with `file_content:read`;
 local plugin imports require no token.
 
-The optional Corpus Workbench source tools are in `Tools`. Their Windows GUI
+The optional Corpus Workbench source tools are in the pinned
+`3rdParty/AdvancedKeyboard/tools` dependency. Their Windows GUI
 requires the .NET 8 SDK to build; crawler, Wikipedia and managed trie command-line
 tools also support .NET on Linux. Build the GUI with
-`dotnet build Tools/CorpusWorkbench/CorpusWorkbench.csproj -c Release`.
+`dotnet build 3rdParty/AdvancedKeyboard/tools/CorpusWorkbench/CorpusWorkbench.csproj -c Release`.
 See [the tool guide](Tools/README.md) for workspace output paths, OpenNLP setup
 for the original language profiles and Unicode fallback sentence extraction for
 the additional languages. New-language fallback mode does not require Java.
 
 Corpus Workbench prefers the native `UICreatorModelGen` helper when found.
 Normal desktop builds include it. To build just the standalone helper, use
-`cmake -S Tools/NativeTrieGenerator -B build/native-trie -DCMAKE_BUILD_TYPE=Release`
+`cmake -S 3rdParty/AdvancedKeyboard/tools/NativeTrieGenerator -B build/native-trie -DCMAKE_BUILD_TYPE=Release`
 followed by `cmake --build build/native-trie --config Release --parallel` from a
 Visual Studio developer shell or a Linux C++17 toolchain. This creates the helper
-in `Tools/NativeTrieGenerator/bin` for automatic discovery. See
-[native backend options](Tools/NativeTrieGenerator/README.md).
+in `3rdParty/AdvancedKeyboard/tools/NativeTrieGenerator/bin` for discovery. See
+[native backend options](3rdParty/AdvancedKeyboard/tools/NativeTrieGenerator/README.md).
+
+Radix/Patricia NGTR v4 generation and modified Kneser–Ney training use the same
+C++17 helper, with no additional machine-learning dependency. The editor and
+Corpus Workbench default to radix with count scoring; Kneser–Ney is optional.
+Use `--format radix --memory-mib 512 --trie-size 262144 --profile-sizes 16384`
+to train once and export both combined model/index budgets. Use a separate
+`--cache-directory` and `--scratch-directory` on a local disk. The training RAM
+setting bounds the algorithm's workspace; it is not a process address-space
+limit. Managed simulators require the .NET 8 SDK as above.
+
+The native statistical trainer, runtime, legacy compatibility and editor tests
+are registered with CTest when `BUILD_TESTING=ON`. For the reproducible French
+corpus performance/quality benchmark, see
+[the benchmark guide](Tests/Benchmarks/LanguageModels/README.md). It reads the
+original corpus and writes derived splits, models and measurements under an
+ignored output directory; do not use a corpus directory as its output.
 
 ## Source checkout and tools
 
-Use a complete checkout containing the supplied `3rdParty` dependencies. If the
-checkout uses Git submodules, initialize them with
-`git submodule update --init --recursive`. LVGL, SDL3, FreeType, nanopb, JSON and
+Use a complete checkout containing the supplied `3rdParty` dependencies.
+Initialize the pinned AdvancedKeyboard submodule with
+`git submodule update --init --recursive`, then run
+`python Integrations/AdvancedKeyboard/dependency.py --check`. Source ZIPs can
+use that helper with `--init` to fetch the exact locked dependency. All keyboard
+source/tools/tries are maintained in [AdvancedKeyboard](https://github.com/rohmer/AdvancedKeyboard);
+see [dependency maintenance](Integrations/AdvancedKeyboard/README.md).
+LVGL, SDL3, FreeType, nanopb, JSON and
 the editor's other native dependencies are supplied in the repository; do not
 replace them with arbitrary system LVGL/SDL releases.
 
@@ -273,6 +295,7 @@ sidecars in a flat input directory:
 ```text
 LVGLProtobuf-ESP32-Toolkit.zip
 LVGLProtobuf-Arduino-Toolkit.zip
+LVGLProtobuf-Pico-Toolkit.zip
 LVGLProtobuf-Linux-Toolkit.zip
 LVGLProtobuf-Linux-Keyboard-Profile.zip
 LVGLProtobuf-Linux-aarch64-keyboard.tar.gz

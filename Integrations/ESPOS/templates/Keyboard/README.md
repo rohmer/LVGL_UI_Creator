@@ -1,9 +1,18 @@
 # ESPOS Advanced Keyboard
 
-`AdvancedKeyboard/` is the shared LVGL UI Creator keyboard core. Keep shared
-fixes in the Creator source and use `Integrations/ESPOS/sync_keyboard.py` from that
-checkout to verify and synchronize ESPOS. The parent `Keyboard` component owns
-only the board display/touch startup and the legacy typing-view adapter.
+The portable keyboard, prediction engine, layouts, models, tools and legacy
+typing-view adapter come from the pinned AdvancedKeyboard dependency at
+`third_party/AdvancedKeyboard`. The `AdvancedKeyboard/` component is a thin build
+wrapper; the parent `Keyboard` component owns board display/touch startup.
+Initialize the dependency from the ESPOS project root before configuring:
+
+```powershell
+python tools/setup_advanced_keyboard.py --project-root . --kind espos --init
+```
+
+`advanced-keyboard.lock.json` pins the source revision. Configuration never
+downloads or changes the dependency. Make portable fixes in the AdvancedKeyboard
+repository, then deliberately update the lock for both consuming projects.
 
 ## Build and model selection
 
@@ -18,6 +27,20 @@ firmware and a None option. Arabic and Urdu enable RTL by default; the checkbox
 can override this. Enter commits and dismisses the keyboard; X dismisses it.
 Selecting a bound textarea reopens the keyboard and keeps that field visible.
 
+Every target independently supports unrestricted **Alpha Numeric** (default),
+**Upper case**, **Lower case** and **Numeric** input. Configure fields with
+`lv_advanced_keyboard_set_textarea_input_mode(field, mode)` and the constants
+`LV_ADVANCED_KEYBOARD_INPUT_ALPHANUMERIC`, `_UPPERCASE`, `_LOWERCASE`, `_NUMERIC`.
+The keyboard follows the active field immediately. Case conversion preserves
+Unicode accents and scripts and applies to physical typing, paste, suggestions,
+autocorrect and programmatic edits. Existing accepted-character/length limits
+still apply. Numeric accepts only 0–9 and one decimal point, with a 12-key numeric
+pad plus Enter/X controls; prediction/autocorrect/Pinyin are disabled there.
+The lightweight `lv_textarea_input_mode.h` helper also works without a keyboard.
+Legacy board integrations can use `set_typing_view_input_mode(view, mode)` and
+`typing_view_input_mode(view)` for their active editor. A different selected field
+retains its own restriction.
+
 The default firmware contains the English 16 KiB corpus model. Choose the model
 pairs to compile using the semicolon-separated `ADVANCED_KEYBOARD_MODELS` CMake
 cache setting, for example:
@@ -29,7 +52,7 @@ idf.py -B build-keyboard -D "ADVANCED_KEYBOARD_MODELS=en-US:16;zh-CN:16;el-GR:16
 Use `all` only when the application flash partition is large enough; `none`
 includes layouts and Pinyin without bundled prediction models. Available model
 pairs and their exact trie/index byte sizes are in
-`AdvancedKeyboard/bundled/catalog.json`. A generated `bundled-models.json` build
+`third_party/AdvancedKeyboard/models/bundled/catalog.json`. A generated `bundled-models.json` build
 report records what was linked. The bundled NGTR label describes the model
 profile, not its exact flash footprint; both NGTR and NGIX consume flash.
 
@@ -46,7 +69,7 @@ with `IDF_TARGET=esp32p4`; the board drivers are separate from the shared core.
 The keyboard requires LVGL logical bidi (`CONFIG_LV_USE_BIDI=y`) and disabled
 `CONFIG_LV_USE_ARABIC_PERSIAN_CHARS` to retain logical Unicode in textareas.
 Existing sdkconfig values override appended defaults. See
-`AdvancedKeyboard/KeyboardScriptFonts.md` for font licensing and script limits.
+`third_party/AdvancedKeyboard/src/KeyboardScriptFonts.md` for font licensing and script limits.
 
 ## Bind externally owned fields
 

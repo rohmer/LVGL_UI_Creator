@@ -82,6 +82,18 @@ static void Walk(json &value, const json &caps, const std::string &target, bool 
     }
     if (value.contains("nativeStyles"))
         for (auto &style : value["nativeStyles"])
+        {
+            // The Creator authors LVGL 9.6 state bits. Before 9.5, CHECKED
+            // through DISABLED occupied bits 0..7 instead of bits 2..9.
+            // C output uses symbolic constants; runtime data needs target bits.
+            if(runtime && target!="9.5") {
+                const auto selector=style.value("selector",0u);
+                const auto state=selector&0xffffu;
+                if(state!=0xffffu) {
+                    if(state&~0xf3fcu)throw std::invalid_argument("LVGL "+target+" does not support this font/style state");
+                    style["selector"]=(selector&0xffff0000u)|(state&0xf000u)|((state&0x3fcu)>>2);
+                }
+            }
             for (auto it = style["values"].begin(); it != style["values"].end();)
             {
                 auto key = it.key();
@@ -107,6 +119,7 @@ static void Walk(json &value, const json &caps, const std::string &target, bool 
                 else
                     ++it;
             }
+        }
     if (target == "8.3" && value.contains("img"))
     {
         auto &image = value["img"];

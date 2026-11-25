@@ -1,126 +1,542 @@
 {
   "version": 1,
   "templateRoot": "Integrations/ESPOS/templates",
-  "trees": [
-    {
-      "source": "LVSerial/Widgets/AdvancedKeyboard",
-      "target": "Keyboard/AdvancedKeyboard",
-      "include": [
-        "**"
-      ],
-      "exclude": [
-        "CMakeLists.txt",
-        "AGENTS.md"
-      ]
-    },
-    {
-      "source": "LVSerial/Widgets/AdvancedKeyboard/layout",
-      "target": "Keyboards",
-      "discoverPeerAdditions": false,
-      "include": [
-        "*.json"
-      ],
-      "exclude": []
-    },
-    {
-      "source": "UICreator/KeyboardModels",
-      "target": "Keyboard/AdvancedKeyboard/bundled",
-      "discoverPeerAdditions": false,
-      "include": [
-        "catalog.json",
-        "README.md",
-        "models/*.ngtr"
-      ],
-      "exclude": []
-    }
-  ],
+  "trees": [],
   "files": [
     {
       "source": "Integrations/ESPOS/templates/CMakeLists.txt",
       "target": "CMakeLists.txt"
     },
     {
-      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/BundledModels.cpp",
-      "target": "Keyboard/AdvancedKeyboard/BundledModels.cpp"
+      "source": "Integrations/ESPOS/templates/components/ngram_trie/CMakeLists.txt",
+      "target": "components/ngram_trie/CMakeLists.txt"
     },
     {
       "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/CMakeLists.txt",
       "target": "Keyboard/AdvancedKeyboard/CMakeLists.txt"
     },
     {
-      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/generate_bundled_models.py",
-      "target": "Keyboard/AdvancedKeyboard/generate_bundled_models.py"
-    },
-    {
-      "source": "Integrations/ESPOS/templates/Keyboard/AdvancedKeyboard/include/espos_keyboard/BundledModels.h",
-      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/BundledModels.h"
-    },
-    {
       "source": "Integrations/ESPOS/templates/Keyboard/CMakeLists.txt",
       "target": "Keyboard/CMakeLists.txt"
-    },
-    {
-      "source": "Integrations/ESPOS/templates/Keyboard/GenerateHindiFont.py",
-      "target": "Keyboard/GenerateHindiFont.py"
-    },
-    {
-      "source": "Integrations/ESPOS/templates/Keyboard/README.md",
-      "target": "Keyboard/README.md"
-    },
-    {
-      "source": "Integrations/ESPOS/templates/Keyboard/TypingView.cpp",
-      "target": "Keyboard/TypingView.cpp"
-    },
-    {
-      "source": "Integrations/ESPOS/templates/Keyboard/TypingViewEsp.cpp",
-      "target": "Keyboard/TypingViewEsp.cpp"
     },
     {
       "source": "Integrations/ESPOS/templates/Keyboard/generate_layout.py",
       "target": "Keyboard/generate_layout.py"
     },
     {
-      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/Key.h",
-      "target": "Keyboard/include/espos_keyboard/Key.h"
+      "source": "Integrations/ESPOS/templates/Keyboard/GenerateHindiFont.py",
+      "target": "Keyboard/GenerateHindiFont.py"
     },
     {
-      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/Keyboard.h",
-      "target": "Keyboard/include/espos_keyboard/Keyboard.h"
+      "source": "Integrations/ESPOS/templates/Keyboard/QemuDisplayEsp.cpp",
+      "target": "Keyboard/QemuDisplayEsp.cpp"
     },
     {
-      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/LegacyTypingView.h",
-      "target": "Keyboard/include/espos_keyboard/LegacyTypingView.h"
+      "source": "Integrations/ESPOS/templates/Keyboard/QemuStartupEsp.cpp",
+      "target": "Keyboard/QemuStartupEsp.cpp"
     },
     {
-      "source": "Integrations/ESPOS/templates/Keyboard/include/espos_keyboard/TypingView.h",
-      "target": "Keyboard/include/espos_keyboard/TypingView.h"
+      "source": "Integrations/ESPOS/templates/Keyboard/README.md",
+      "target": "Keyboard/README.md"
     },
     {
-      "source": "Integrations/ESPOS/templates/components/ngram_trie/CMakeLists.txt",
-      "target": "components/ngram_trie/CMakeLists.txt"
+      "source": "Integrations/ESPOS/templates/Keyboard/TypingViewEsp.cpp",
+      "target": "Keyboard/TypingViewEsp.cpp"
     },
     {
-      "source": "Integrations/ESPOS/templates/components/ngram_trie/esp_runtime.cpp",
-      "target": "components/ngram_trie/esp_runtime.cpp"
+      "source": "Integrations/ESPOS/templates/tools/advanced_keyboard_dependency.cmake",
+      "target": "tools/advanced_keyboard_dependency.cmake"
     },
     {
-      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/autocorrect.h",
-      "target": "components/ngram_trie/include/ngram_trie/autocorrect.h"
+      "source": "Integrations/ESPOS/templates/tools/KeyboardParity/KeyboardParity.csproj",
+      "target": "tools/KeyboardParity/KeyboardParity.csproj"
     },
     {
-      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/esp_runtime.h",
-      "target": "components/ngram_trie/include/ngram_trie/esp_runtime.h"
+      "source": "Integrations/ESPOS/templates/tools/KeyboardParity/README.md",
+      "target": "tools/KeyboardParity/README.md"
     },
     {
-      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/model.h",
-      "target": "components/ngram_trie/include/ngram_trie/model.h"
+      "source": "Integrations/ESPOS/templates/tools/python/build_ngtr_index.py",
+      "target": "tools/python/build_ngtr_index.py"
     },
     {
-      "source": "Integrations/ESPOS/templates/components/ngram_trie/include/ngram_trie/prefix.h",
-      "target": "components/ngram_trie/include/ngram_trie/prefix.h"
+      "source": "Integrations/ESPOS/templates/tools/python/ngram_model.py",
+      "target": "tools/python/ngram_model.py"
+    },
+    {
+      "source": "Integrations/ESPOS/templates/tools/python/pack_ngram_partition.py",
+      "target": "tools/python/pack_ngram_partition.py"
+    },
+    {
+      "source": "advanced-keyboard.lock.json",
+      "target": "advanced-keyboard.lock.json"
+    },
+    {
+      "source": "Integrations/AdvancedKeyboard/dependency.py",
+      "target": "tools/setup_advanced_keyboard.py"
     }
   ],
   "tombstones": [
+    {
+      "target": "Keyboard/AdvancedKeyboard/AdvancedKeyboard.cpp",
+      "expectedSha256": "bdf40c4bef392257fcc8ecb81e272f4ce0a85e06cc8fbb402bb7a35f6d7ed34e"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/BundledModels.cpp",
+      "expectedSha256": "0dbac67dea70a1f123d45821a11a936b5d4f2d5dc0d80a0aadb975982743b54e"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/GenerateHindiFont.py",
+      "expectedSha256": "cdcb62e5ad2b2c265106b32e973da2f432a4f20200fcae4bd6daafc67e320ef1"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/Key.cpp",
+      "expectedSha256": "d413b6d5f70108933908054ff77bb849dea581a815256ac56a9000ecce3b6603"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/Keyboard.cpp",
+      "expectedSha256": "7a0a2b512cdd6baf1977709728b99d2c2171de9e928ba3e277cf2180f2866d12"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardBengaliFont.LICENSE.txt",
+      "expectedSha256": "754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardBengaliFont.c",
+      "expectedSha256": "673b1aee3d694df14f8f5f25063b666959c9ba43e8c8753af04761c00096de89"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardCyrillicFont.LICENSE.txt",
+      "expectedSha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardCyrillicFont.c",
+      "expectedSha256": "44cd58e71e58de34128dfdecd635b0f9106078a0f54895e985aed9a1511d9a25"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardFont.LICENSE.txt",
+      "expectedSha256": "04366d3983dec0e56d79c5ebe0fc9fbed828fd02a4d3bc3437aa6e76701c3dfc"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardFont.c",
+      "expectedSha256": "803f8c2f9678337f5f350d22cec1cceac53c0991fb8cdbb32e626b976ad1394d"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardGreekFont.LICENSE.txt",
+      "expectedSha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardGreekFont.c",
+      "expectedSha256": "a0e97e3011319125a4c7748a4fc03d5bf1df918153302c2631093ab6d8e32eb1"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardHindiFont.LICENSE.txt",
+      "expectedSha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardHindiFont.c",
+      "expectedSha256": "af17e7611f7607ee845bbe1ae6cc62c637639806f9518137adda5698f942c25a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardHindiFont.md",
+      "expectedSha256": "72f866bc781b4fe6115c56cd57387aa7e9b40591384ffa5bc8e8516e8d2372ae"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardScriptFonts.md",
+      "expectedSha256": "9f3d9a8501e5154f986493c5d7ba972714eab55e05cd73c1ac707c6318f12719"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardUrduFont.LICENSE.txt",
+      "expectedSha256": "a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardUrduFont.c",
+      "expectedSha256": "68897cb28eba33c595668ce28658afacd3bd056d3ec409e1a1aaa2cb779091f7"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/KeyboardVisibility.h",
+      "expectedSha256": "946ea546d3d70cf0922a6498b52d3bb96a6133851aafd511ac3a8816ae9899a4"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/LayoutData.h",
+      "expectedSha256": "d2779210509a68a0f26324cf9fec7e95e4e95018084cd200be6f695f9aa156c9"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PROVENANCE.md",
+      "expectedSha256": "7fc99862fe7f8003c759cc337cfdf97f652205ff84ace19391423cb137e5c9db"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/Pinyin.h",
+      "expectedSha256": "0811d9c99d0dd42dd8fc24022cc75df752208a720202262ce38f9b2b9903cbfa"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PinyinData.LICENSE.txt",
+      "expectedSha256": "27a80bd36832ab42d35ad60c08b2b230a807a9bc0d58e94ec1531543dc49cbe8"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PinyinData.inc",
+      "expectedSha256": "0fff6ac2f5d6f7316d08368fd2bc3e3a46907a4f6161f0d152c0a80667894f7c"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/Prediction.cpp",
+      "expectedSha256": "afab4887ad7ea764077aec094c1c2d3ec4a85996cba179c182a3bf945c9acf78"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionAutocorrect.h",
+      "expectedSha256": "eda5c00ad0854db94028090a5c233e354b90d7fb4a839ddbd293a585445f5e0d"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionBuiltin.inc",
+      "expectedSha256": "c3ef055cd3a4a9526071defa5e00886e080b7cace87a28db2da42e92a42e9f4d"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionModel.cpp",
+      "expectedSha256": "0ac65dfbf7f263a29822789f78770b33b073aff13be176c8efda10b117fe2b3b"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionModel.h",
+      "expectedSha256": "03a8d78c60a28edae12c1ae823bff908437a7b84b85ac9981928ee6053b37700"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionPrefix.cpp",
+      "expectedSha256": "f239fc2c9fa0956ff3cb4d67a87c2659789946b59dba603fe83d3eb8b1e5676b"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionPrefix.h",
+      "expectedSha256": "94adec85deb6922a8cee0d02199d3d50ac0f0246680fc81f34f8ca10ee71ebb9"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionStorage.cpp",
+      "expectedSha256": "62cc80004f8c61acaef2db4334a1cc98d2cb8a07a820a22bc76e56456e42700a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/PredictionStorage.h",
+      "expectedSha256": "b4c1ca30d0b589c70b9791a301a6aae96785b32dfba66e7771a4fcdabdf89005"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/README.md",
+      "expectedSha256": "c06694e7473bf44cc451b4cbdce3f21124611ebe9614ca4d55450d0a96afbcff"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/RadixFormat.md",
+      "expectedSha256": "84aec2c8b178d1c8762e98cc8b6ad98694570b9f0464d78ace547b27a2d0016f"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/RadixModelBuilder.cpp",
+      "expectedSha256": "dba061097514065ab43c43b42aebb1e02cd7864700f42d661357f34238e61b3e"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/RadixModelBuilder.h",
+      "expectedSha256": "792069a3a87009389fa0596fa01618afeea3707b93dfae1d722dfe22e40ed5c4"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/SuggestionText.cpp",
+      "expectedSha256": "2be00e51cb932ccd7cd5a5fad37367268e2276dbb2d0499d50d4cb0cf6a57389"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/SuggestionText.h",
+      "expectedSha256": "ee5b52890440b68daafdabb3e74a6517aeae59b62f4e18298dbf765e054ff1aa"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/TextareaInputMode.c",
+      "expectedSha256": "2256fe7ae22f61bd431d7014a5adf4aacce0252c3d5988206016ae784256be25"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/TypingView.cpp",
+      "expectedSha256": "3489ad3e078879bafda2598da57f1237fa15734cf673724004b5a7c6d19dbb31"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/UnicodeCase.inc",
+      "expectedSha256": "ba20ac0df73c868e8fb0c608fc0c7fc9f63331ae8de51563e5bef98db6fdd745"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/UnicodeFold.inc",
+      "expectedSha256": "f05cd662e11a5503f9a8973e4459625a70e8895ecc78e647cbfb9956ef08b63f"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/UnicodeWordRanges.inc",
+      "expectedSha256": "77cedb7551b4d1a8905ad3b858f4f5d2fc26959e8b18813ca0f69de502f12288"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/Utf8Fold.cpp",
+      "expectedSha256": "0cb4c6abe2322ea94d52ef0cc8d8eb8442fd1933e618eba3b83c1eabdd672059"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/Utf8Fold.h",
+      "expectedSha256": "e2da3b95e9a65a631d9fcadea220b2d4f68abc29db963fdb627b65b966617168"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/ar_sa_arabic.generated.h",
+      "expectedSha256": "00d9e0106f9204cfc6fb3d3ea301c0a8f0a653469c6ab12b18edd9f889583677"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bn_bd_inscript.generated.h",
+      "expectedSha256": "faedef850783c3c6f4165f7260e5893652de3ee67de394b22ea64ffa371b7178"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/README.md",
+      "expectedSha256": "2f18da8075da2e2bede86bbf9e7e65bd3a06d747aff8a958557d020125a07439"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/catalog.json",
+      "expectedSha256": "4fb82b630cfabc312a5c9db1ad00246a28f6c9750bf94b090832001885bfb78c"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/ar-SA-16.ngtr",
+      "expectedSha256": "594aeec465fb8e3683950384adfe57f8f2887104b582a79bb71184bf9f4b30ad"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/ar-SA-256.ngtr",
+      "expectedSha256": "9cbf40c7304db6140476350c1dc48dcca58d32e36a1531fd9d35979b3c09ad4c"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/de-DE-16.ngtr",
+      "expectedSha256": "4eda4cbab561df0c54b4ee039c7f54ddaf0c9c6fb8e9cd9624000bbba0655bbc"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/de-DE-256.ngtr",
+      "expectedSha256": "55774a1195a2a787897f428b26430ddb7651ab9993705a2760ebc63d8f06b63c"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/el-GR-16.ngtr",
+      "expectedSha256": "5dea4ded4ad4d31e4c9dcb424fe5020b621ca7af5db1e34dc89c919b13c6d920"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/el-GR-256.ngtr",
+      "expectedSha256": "5334565b7392aeaa21ca532e2633edf671066142a25597a3f887d762f396fd80"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/en-US-16.ngtr",
+      "expectedSha256": "6d169a6166d9bf4864a50388a191cc7511508aed5fb80099b224ac0e51cb3243"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/en-US-256.ngtr",
+      "expectedSha256": "b74c602effe7698e6c464188b80cf1dacb263060701b372b29ca91f917986f36"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/es-ES-16.ngtr",
+      "expectedSha256": "ecd3f5f11673a1e76506becf10db1f6e60b7f759a4ff4d7c51e8e5219882bb49"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/es-ES-256.ngtr",
+      "expectedSha256": "a12dc060e49bd229c61d878836e1612d40a6318dfde672dc50a77024f1ac0083"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/fr-FR-16.ngtr",
+      "expectedSha256": "4a2a0b5cc8b81cef98c72f33991d7d5959b3c63f604f8d92baed45931d84d896"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/fr-FR-256.ngtr",
+      "expectedSha256": "f6a48241a4a9340c34da757ade142e9d3313f568c82fd0ab62707044fffc4cf2"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/hi-IN-16.ngtr",
+      "expectedSha256": "f8d9195741229c1c624247f34670083dd839623e3e67abd1b5ccd6c1beb3fc68"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/hi-IN-256.ngtr",
+      "expectedSha256": "82f0479cb23be406803943e27d05ee4962c8b3e2e3432cc7f2e81376b0d1eb65"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/zh-CN-16.ngtr",
+      "expectedSha256": "18853721421e2d91d30a2ded9903d13ebe7740e59a36480ca2e96441270d81f3"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/bundled/models/zh-CN-256.ngtr",
+      "expectedSha256": "f1f66024a21c59658dc350296447ccf6de0a281eb1f3cc8b0b7c5a377ae03c3b"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/de_de_qwertz.generated.h",
+      "expectedSha256": "77a3b1de30d3493a6085a57bf7fbe82d932385c922830312badda2801ecb4186"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/el_gr_qwerty.generated.h",
+      "expectedSha256": "7e2a51f8f1314f97d72a084b7d1b724c597dff507ee93db2e550a5b14e4ec710"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/en_us_qwerty.generated.h",
+      "expectedSha256": "16352512899354923866f6aa87d1fd1ef4ba6b4d92e7e6ab208415f7ac76b235"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/es_es_qwerty.generated.h",
+      "expectedSha256": "b21054dd3f05213b8161f9d67215d3791edc8bb91c75fae552131316c30a2a47"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/fr_fr_azerty.generated.h",
+      "expectedSha256": "0d4068ab8f29e424e20a2eda9face662723d47bcd020dd7c1d300e48e72652c6"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/generate_bundled_models.py",
+      "expectedSha256": "ffbc735cfbd3f69d9ac853cd829ecab9951ba430c6a8d0d9917aa57d172af9de"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/generate_word_ranges.py",
+      "expectedSha256": "29cf26d4f07e032536f93fd998eba09d81bd13364fc9373420cca5a7cb23b9c4"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/hi_in_inscript.generated.h",
+      "expectedSha256": "79b1235bcb3709e8e9aabf8ed4c181e7a30fbd36a4d331593aed206a64a8fdbe"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/id_id_qwerty.generated.h",
+      "expectedSha256": "4cef6e977b952532a0ccf6a9335213117c9716a03233caf015e6912fa78d86ea"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/AdvancedTypingView.h",
+      "expectedSha256": "f888b43bcb970a963c98dfcde833d46fd451d49324976cfd00f9db41b0b262a2"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/BundledModels.h",
+      "expectedSha256": "6e8688722d58e1be1a2ed2c329ab5a62d76bd594469fb716b125ff5409a581fc"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/Key.h",
+      "expectedSha256": "f6fd0b73ef3b588bc9a167ec74a164be4184e709144b6832203806e9fd58610d"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/Keyboard.h",
+      "expectedSha256": "bbb0809d26c9656d22ce744d4418a27f039da615df949a27377d9ba26cf58ec9"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/Prediction.h",
+      "expectedSha256": "b2f517a9506544dffbdc6d106355daddb6fad511d2058774877edc5233fe2cfe"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/espos_keyboard/TypingView.h",
+      "expectedSha256": "a82bb9982edfeca56fb8c21c6721adad58cb818d28341c9db7e978410131b5b4"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/lv_advanced_keyboard.h",
+      "expectedSha256": "9d7b7b668cddebc14dcc617b99440ad00757d507ed658b7195fbd2db10a7976c"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/lv_advanced_keyboard_prediction.h",
+      "expectedSha256": "5bd50df98f4033133e1606e00efb8306586db6efaea9e04ffd76879c9a6c9d54"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/include/lv_textarea_input_mode.h",
+      "expectedSha256": "92da877d87e21981f3026d586a61086bcf8eb43e133a1ec765e511244b6a8966"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/it_it_qwerty.generated.h",
+      "expectedSha256": "b4125f17c9e1aded9ff304213b7cb6c4464433b984d8ee15eae9f0f983a53630"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/ar-SA-arabic.json",
+      "expectedSha256": "ab2303e0bc572ac06cf5bea0276c9c03cea21634981a7b33028d9fe35cdde024"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/bn-BD-inscript.json",
+      "expectedSha256": "f02dab9fc502eeb316f01e33594b191cd121e8bc82aba7d886453b471f15f0f4"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/build_ngtr_index.py",
+      "expectedSha256": "1666f14d2eda1781464b2b6a972789213ad9ea497c48eb661a9b0cca9c1c2b06"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/de-DE-qwertz.json",
+      "expectedSha256": "7a3649bdb49406808934e9c729ad1d39ab28598f2d3ebc2d4b099e1e04e578fb"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/el-GR-qwerty.json",
+      "expectedSha256": "0baacf7e71845b40898eb866197e7db5d3d12a4fbb761c895927b5810863056e"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/en-US-qwerty.json",
+      "expectedSha256": "123831afaf4c2215526966deb00b08554e9430755c27bc183bd0faa92f73ffef"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/es-ES-qwerty.json",
+      "expectedSha256": "e2ac46ae22386fd2fd4d4815c1c742e6edeab6e5f535c679e20986fa2286749f"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/fr-FR-azerty.json",
+      "expectedSha256": "9df2e5bf541dc67af8288493192df56174c69405451657582853582949c5d349"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_languages.py",
+      "expectedSha256": "5b3fc93817a66d6527075bd24c311c6b1e40aa124eba73d6ebece4ad51c78891"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_layout.py",
+      "expectedSha256": "9ee4e1707c2f85b59d69c1240e745fdd8a88132bef5d038c93bce05b99b88b38"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_pinyin.py",
+      "expectedSha256": "5fde169dfaaebf6af82e9304a4afe28d2dfa928f15d206c6c1f07cfd97b76e80"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/generate_unicode_case.py",
+      "expectedSha256": "7ab7068cae126c9a8c03337df57744478d486b34f51add39fe9e4351483f701b"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/hi-IN-inscript.json",
+      "expectedSha256": "bc088016cc1508e606e67a8845756a65a3b8ab818b1f6da9898ae67b2d0958f2"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/id-ID-qwerty.json",
+      "expectedSha256": "b1110183ea0ce3beb4368125e8ae36f7ab959de6a0707966023461721c76738a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/it-IT-qwerty.json",
+      "expectedSha256": "bb5cb5a33811c7f949b7692445eedb17627accf4b36e09bb1cf5999eb5c1f4cb"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/keyboard.schema.json",
+      "expectedSha256": "1213622420dae10615b88efb7ad757edd715df9eecf532645012a018a442a4dd"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/pt-PT-qwerty.json",
+      "expectedSha256": "5dd7732498c38d4fd4c2456b5c08b0902d9c2b09e8be14d5a38edd6872ebd15e"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/ru-RU-jcuken.json",
+      "expectedSha256": "aef2f75aaba741b261807f70b5640d746480bff8c97937977c06da13a2b3ade0"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/ur-PK-phonetic.json",
+      "expectedSha256": "cae302c2851d600266ea968ef8c794b681e8b87e3b14b94dd117a55528416a3e"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/layout/zh-CN-pinyin.json",
+      "expectedSha256": "edb24715ff8ebaf7ce9c6b52428c95d1d11c35c1d43165b4a1eb5ba78b9cc432"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/models/EnglishWordList.LICENSE.md",
+      "expectedSha256": "f56361c2b93bbf304dd2e54e30f04ba2bcd77d3c54b59156cbafcaf437cebf6d"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/models/PROVENANCE.md",
+      "expectedSha256": "a5a2450c0ad44bbd0876d7ede70c33d86ff83a9ccfee10f28cf0150c9a3b5dbb"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/models/builtin.json",
+      "expectedSha256": "b41be410919c8a056a088ead9da0c5c118bbea95712fe4f48c53060f83c15722"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/models/enUS16.ngix",
+      "expectedSha256": "dd4b5a9c40ec0f1b7b4f8299d293ef21b2025e21f835457c2cb043ec1ea56d32"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/models/enUS16.ngtr",
+      "expectedSha256": "1b056647ea6c66460545ca0a3ccbd68ece85a44680c611e17ad10f73d4a0b75a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/pt_pt_qwerty.generated.h",
+      "expectedSha256": "2450773c2e708e8cf4955435655388fd72948173a49f55abc0135b99a0e3640a"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/ru_ru_jcuken.generated.h",
+      "expectedSha256": "2c3258d8c037db9eef812c17834d66fd7b344d44cb1ba46568082e75c50e3b30"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/ur_pk_phonetic.generated.h",
+      "expectedSha256": "7cd057c7f178296c4cc9b725dc9575e826311c575f4b03382860d7c8801d8cab"
+    },
+    {
+      "target": "Keyboard/AdvancedKeyboard/zh_cn_pinyin.generated.h",
+      "expectedSha256": "905a09e1713d67ad4214918134e67fc9f64a0c4afceb4c54ef1ac7fc66138ec1"
+    },
     {
       "expectedSha256": "0582479a806fe52fe9eda4ae54084852cc970b5c9f155a2ea32aa5548ec32ebb",
       "target": "Keyboard/Key.cpp"
@@ -128,6 +544,54 @@
     {
       "expectedSha256": "c3c58047ca4141fbee4a00460a44902a1d16ab34803078bbd92bc198554fa7c2",
       "target": "Keyboard/Keyboard.cpp"
+    },
+    {
+      "expectedSha256": "754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70",
+      "target": "Keyboard/KeyboardBengaliFont.LICENSE.txt"
+    },
+    {
+      "expectedSha256": "673b1aee3d694df14f8f5f25063b666959c9ba43e8c8753af04761c00096de89",
+      "target": "Keyboard/KeyboardBengaliFont.c"
+    },
+    {
+      "expectedSha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
+      "target": "Keyboard/KeyboardCyrillicFont.LICENSE.txt"
+    },
+    {
+      "expectedSha256": "44cd58e71e58de34128dfdecd635b0f9106078a0f54895e985aed9a1511d9a25",
+      "target": "Keyboard/KeyboardCyrillicFont.c"
+    },
+    {
+      "expectedSha256": "d75938dec098f06f0ac3c00853065d94f020be1c3c62ef1dc2975ba15b4d9b0e",
+      "target": "Keyboard/KeyboardFont.LICENSE.txt"
+    },
+    {
+      "expectedSha256": "0a4b93cd34097d903536d2cbc02d08d6e2e1a5dd86f16aeb6db56ff1fbf7e102",
+      "target": "Keyboard/KeyboardFont.c"
+    },
+    {
+      "expectedSha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331",
+      "target": "Keyboard/KeyboardHindiFont.LICENSE.txt"
+    },
+    {
+      "expectedSha256": "af17e7611f7607ee845bbe1ae6cc62c637639806f9518137adda5698f942c25a",
+      "target": "Keyboard/KeyboardHindiFont.c"
+    },
+    {
+      "expectedSha256": "72f866bc781b4fe6115c56cd57387aa7e9b40591384ffa5bc8e8516e8d2372ae",
+      "target": "Keyboard/KeyboardHindiFont.md"
+    },
+    {
+      "expectedSha256": "ff1092a52ab00433a2815cfd4f1c3496050530f33bde6c7cc64e0ff8c35a863b",
+      "target": "Keyboard/KeyboardScriptFonts.md"
+    },
+    {
+      "expectedSha256": "a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af",
+      "target": "Keyboard/KeyboardUrduFont.LICENSE.txt"
+    },
+    {
+      "expectedSha256": "68897cb28eba33c595668ce28658afacd3bd056d3ec409e1a1aaa2cb779091f7",
+      "target": "Keyboard/KeyboardUrduFont.c"
     },
     {
       "expectedSha256": "ad1677c7b53e3106f2a69eaa1048f0c6d0e6626ecb9166b21e57917e63a4faf8",
@@ -138,24 +602,12 @@
       "target": "Keyboard/Pinyin.h"
     },
     {
-      "expectedSha256": "0fff6ac2f5d6f7316d08368fd2bc3e3a46907a4f6161f0d152c0a80667894f7c",
-      "target": "Keyboard/PinyinData.inc"
-    },
-    {
       "expectedSha256": "27a80bd36832ab42d35ad60c08b2b230a807a9bc0d58e94ec1531543dc49cbe8",
       "target": "Keyboard/PinyinData.LICENSE.txt"
     },
     {
-      "expectedSha256": "bba189a6af542da33d67d457eba59dccd72c9c848e786c7c02cd3ca662cd55a2",
-      "target": "Keyboard/UnicodeText.cpp"
-    },
-    {
-      "expectedSha256": "fbc2556976a960cc3a0c2e1e069c73f7618a92e8e2a69d08f783ebeb8cbd158c",
-      "target": "Keyboard/Utf8Fold.h"
-    },
-    {
-      "expectedSha256": "77cedb7551b4d1a8905ad3b858f4f5d2fc26959e8b18813ca0f69de502f12288",
-      "target": "Keyboard/UnicodeWordRanges.inc"
+      "expectedSha256": "0fff6ac2f5d6f7316d08368fd2bc3e3a46907a4f6161f0d152c0a80667894f7c",
+      "target": "Keyboard/PinyinData.inc"
     },
     {
       "expectedSha256": "f3cf4f387a42d1e1816b4dc07ce6ab94db01d9f1df658c19d105c350a0d94673",
@@ -166,52 +618,124 @@
       "target": "Keyboard/SuggestionText.h"
     },
     {
-      "expectedSha256": "0a4b93cd34097d903536d2cbc02d08d6e2e1a5dd86f16aeb6db56ff1fbf7e102",
-      "target": "Keyboard/KeyboardFont.c"
+      "target": "Keyboard/TypingView.cpp",
+      "expectedSha256": "ace366a0b13b5310c06576450b1520acad8f3b452484570b945c463b32920d52"
     },
     {
-      "expectedSha256": "d75938dec098f06f0ac3c00853065d94f020be1c3c62ef1dc2975ba15b4d9b0e",
-      "target": "Keyboard/KeyboardFont.LICENSE.txt"
+      "expectedSha256": "bba189a6af542da33d67d457eba59dccd72c9c848e786c7c02cd3ca662cd55a2",
+      "target": "Keyboard/UnicodeText.cpp"
     },
     {
-      "expectedSha256": "af17e7611f7607ee845bbe1ae6cc62c637639806f9518137adda5698f942c25a",
-      "target": "Keyboard/KeyboardHindiFont.c"
+      "expectedSha256": "77cedb7551b4d1a8905ad3b858f4f5d2fc26959e8b18813ca0f69de502f12288",
+      "target": "Keyboard/UnicodeWordRanges.inc"
     },
     {
-      "expectedSha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331",
-      "target": "Keyboard/KeyboardHindiFont.LICENSE.txt"
+      "expectedSha256": "fbc2556976a960cc3a0c2e1e069c73f7618a92e8e2a69d08f783ebeb8cbd158c",
+      "target": "Keyboard/Utf8Fold.h"
     },
     {
-      "expectedSha256": "72f866bc781b4fe6115c56cd57387aa7e9b40591384ffa5bc8e8516e8d2372ae",
-      "target": "Keyboard/KeyboardHindiFont.md"
+      "target": "Keyboard/include/espos_keyboard/Key.h",
+      "expectedSha256": "d4b4c51d322b4baa95887064e6ded4835cc1531812923730e49843e886a07191"
     },
     {
-      "expectedSha256": "673b1aee3d694df14f8f5f25063b666959c9ba43e8c8753af04761c00096de89",
-      "target": "Keyboard/KeyboardBengaliFont.c"
+      "target": "Keyboard/include/espos_keyboard/Keyboard.h",
+      "expectedSha256": "4b15f9fb199f7b24ae19f59056826595315c160fd29b01fd627d9d319cdd5c70"
     },
     {
-      "expectedSha256": "754f0e221aa7d5a915489f3bf1f20fe53ddc35ab2834a4d91656d78f9622de70",
-      "target": "Keyboard/KeyboardBengaliFont.LICENSE.txt"
+      "target": "Keyboard/include/espos_keyboard/LegacyTypingView.h",
+      "expectedSha256": "1b1cd935bfe640ecada96d9a5df75748ad4c4ebec6c8c32d84a30bdcc00baf71"
     },
     {
-      "expectedSha256": "44cd58e71e58de34128dfdecd635b0f9106078a0f54895e985aed9a1511d9a25",
-      "target": "Keyboard/KeyboardCyrillicFont.c"
+      "target": "Keyboard/include/espos_keyboard/TypingView.h",
+      "expectedSha256": "1bfa794a2b8722c1fdc86b4d177f6bf7b0f6d02c65a1fc7b6f3e3940d6f44907"
     },
     {
-      "expectedSha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
-      "target": "Keyboard/KeyboardCyrillicFont.LICENSE.txt"
+      "target": "Keyboards/ar-SA-arabic.json",
+      "expectedSha256": "ab2303e0bc572ac06cf5bea0276c9c03cea21634981a7b33028d9fe35cdde024"
     },
     {
-      "expectedSha256": "68897cb28eba33c595668ce28658afacd3bd056d3ec409e1a1aaa2cb779091f7",
-      "target": "Keyboard/KeyboardUrduFont.c"
+      "target": "Keyboards/bn-BD-inscript.json",
+      "expectedSha256": "f02dab9fc502eeb316f01e33594b191cd121e8bc82aba7d886453b471f15f0f4"
     },
     {
-      "expectedSha256": "a7a5a25eb188bf1cd96982030d53e23c33485c69b1044a562254226857ee13af",
-      "target": "Keyboard/KeyboardUrduFont.LICENSE.txt"
+      "target": "Keyboards/de-DE-qwertz.json",
+      "expectedSha256": "7a3649bdb49406808934e9c729ad1d39ab28598f2d3ebc2d4b099e1e04e578fb"
     },
     {
-      "expectedSha256": "ff1092a52ab00433a2815cfd4f1c3496050530f33bde6c7cc64e0ff8c35a863b",
-      "target": "Keyboard/KeyboardScriptFonts.md"
+      "target": "Keyboards/el-GR-qwerty.json",
+      "expectedSha256": "0baacf7e71845b40898eb866197e7db5d3d12a4fbb761c895927b5810863056e"
+    },
+    {
+      "target": "Keyboards/en-US-qwerty.json",
+      "expectedSha256": "123831afaf4c2215526966deb00b08554e9430755c27bc183bd0faa92f73ffef"
+    },
+    {
+      "target": "Keyboards/es-ES-qwerty.json",
+      "expectedSha256": "e2ac46ae22386fd2fd4d4815c1c742e6edeab6e5f535c679e20986fa2286749f"
+    },
+    {
+      "target": "Keyboards/fr-FR-azerty.json",
+      "expectedSha256": "9df2e5bf541dc67af8288493192df56174c69405451657582853582949c5d349"
+    },
+    {
+      "target": "Keyboards/hi-IN-inscript.json",
+      "expectedSha256": "bc088016cc1508e606e67a8845756a65a3b8ab818b1f6da9898ae67b2d0958f2"
+    },
+    {
+      "target": "Keyboards/id-ID-qwerty.json",
+      "expectedSha256": "b1110183ea0ce3beb4368125e8ae36f7ab959de6a0707966023461721c76738a"
+    },
+    {
+      "target": "Keyboards/it-IT-qwerty.json",
+      "expectedSha256": "bb5cb5a33811c7f949b7692445eedb17627accf4b36e09bb1cf5999eb5c1f4cb"
+    },
+    {
+      "target": "Keyboards/keyboard.schema.json",
+      "expectedSha256": "1213622420dae10615b88efb7ad757edd715df9eecf532645012a018a442a4dd"
+    },
+    {
+      "target": "Keyboards/pt-PT-qwerty.json",
+      "expectedSha256": "5dd7732498c38d4fd4c2456b5c08b0902d9c2b09e8be14d5a38edd6872ebd15e"
+    },
+    {
+      "target": "Keyboards/ru-RU-jcuken.json",
+      "expectedSha256": "aef2f75aaba741b261807f70b5640d746480bff8c97937977c06da13a2b3ade0"
+    },
+    {
+      "target": "Keyboards/ur-PK-phonetic.json",
+      "expectedSha256": "cae302c2851d600266ea968ef8c794b681e8b87e3b14b94dd117a55528416a3e"
+    },
+    {
+      "target": "Keyboards/zh-CN-pinyin.json",
+      "expectedSha256": "edb24715ff8ebaf7ce9c6b52428c95d1d11c35c1d43165b4a1eb5ba78b9cc432"
+    },
+    {
+      "expectedSha256": "95a4ce247043c8e8fea916a850fed3ff431e76ef1e0f3198bed3f9e6506c2a46",
+      "target": "components/ngram_trie/autocorrect.cpp"
+    },
+    {
+      "expectedSha256": "6f0b7ad19c4c0716f68f1973c053eeac78dd17e22d5f5f429a0358cc3cb5b1bc",
+      "target": "components/ngram_trie/autocorrect_unicode.inc"
+    },
+    {
+      "target": "components/ngram_trie/esp_runtime.cpp",
+      "expectedSha256": "786349697ef8704cb009edbc7e8a7af5fa2fb6cbb1ce688cba651653a7881a33"
+    },
+    {
+      "target": "components/ngram_trie/include/ngram_trie/autocorrect.h",
+      "expectedSha256": "a00b5669b529bbd296d9a7e48e555200c245959f48eaecf0244ea2d9c0e22f56"
+    },
+    {
+      "target": "components/ngram_trie/include/ngram_trie/esp_runtime.h",
+      "expectedSha256": "f0405d6e7ffb9d02ffe7ea06754fabea57236a8b140e39394c19678e23660c98"
+    },
+    {
+      "target": "components/ngram_trie/include/ngram_trie/model.h",
+      "expectedSha256": "0c675bdde116d4e5d337cf80b4b830b2fb67bfbb738ee12d28c9985c8bbd14ac"
+    },
+    {
+      "target": "components/ngram_trie/include/ngram_trie/prefix.h",
+      "expectedSha256": "2bceda6fb2f4b3b7ca67fd6e29936ab20aa53787305499272a879bd46aecea0a"
     },
     {
       "expectedSha256": "002af3ba34818d8213b8937d895b42e5370a8d2927ec5e3c6db00b9d33f15a27",
@@ -222,12 +746,512 @@
       "target": "components/ngram_trie/prefix.cpp"
     },
     {
-      "expectedSha256": "95a4ce247043c8e8fea916a850fed3ff431e76ef1e0f3198bed3f9e6506c2a46",
-      "target": "components/ngram_trie/autocorrect.cpp"
+      "target": "tools/CorpusCrawler/CorpusCrawler.csproj",
+      "expectedSha256": "82a1263316ccfe4db2fe245c45ff16ffeec03cf3db31fd0c6759d751ade22ffc"
     },
     {
-      "expectedSha256": "6f0b7ad19c4c0716f68f1973c053eeac78dd17e22d5f5f429a0358cc3cb5b1bc",
-      "target": "components/ngram_trie/autocorrect_unicode.inc"
+      "target": "tools/CorpusCrawler/CrawlBatch.cs",
+      "expectedSha256": "4437313fdd18ca8756fe30e9de6f8262fc8a702a51d44eefb10ae930736a85e6"
+    },
+    {
+      "target": "tools/CorpusCrawler/CrawlCheckpoint.cs",
+      "expectedSha256": "dceda25019e2be8dd2e58ac078e981a17c3ed12c861dc19ab3a4a06c4d4be0b0"
+    },
+    {
+      "target": "tools/CorpusCrawler/Crawler.cs",
+      "expectedSha256": "e8edfe7d777dd5012938d0ea12ad87df162029d0d0e3c5ed29f4316c1c10defa"
+    },
+    {
+      "target": "tools/CorpusCrawler/OpenNlp/SentenceWorker.java",
+      "expectedSha256": "6367a3ae28b05d58999ffe13c6c5dc0a2a0af10c7652d0152dfb2bfc8d20cad4"
+    },
+    {
+      "target": "tools/CorpusCrawler/OpenNlpLanguages.cs",
+      "expectedSha256": "35e7e3ab50d09887251bd8575d974f562cd7207c6bb483599afa3da3cc044856"
+    },
+    {
+      "target": "tools/CorpusCrawler/OpenNlpSentences.cs",
+      "expectedSha256": "9d67ad8d229fdf80b8731128c4bf849f258befa4fded1620ba24b340ba4943be"
+    },
+    {
+      "target": "tools/CorpusCrawler/Program.cs",
+      "expectedSha256": "dcc89ee52aa9e2e5f617da56fa8cb0fe1b4b4dd1880e9d87834d271d92e7a96b"
+    },
+    {
+      "target": "tools/CorpusCrawler/README.md",
+      "expectedSha256": "60cc76ed9e42cd9542775ad101936e458311a03455e8d3f647f50e7e6b7bc5b3"
+    },
+    {
+      "target": "tools/CorpusCrawler/UnicodeSentenceFallback.cs",
+      "expectedSha256": "90d7376159e006f0959311ef3b5d7ee2aa5c66338543eb2206593cd4993e90f9"
+    },
+    {
+      "target": "tools/CorpusCrawler/WebText.cs",
+      "expectedSha256": "8216959534690af5c3ccac1ce882d8a3496ad4eefe595f06d8282d498a6cf42b"
+    },
+    {
+      "target": "tools/CorpusCrawler/setup-opennlp.ps1",
+      "expectedSha256": "26a6eaa48b7a1a3268aaf36337f52af170dace4bc070c9e618a5302e93e048cd"
+    },
+    {
+      "target": "tools/CorpusLanguageTests/CorpusLanguageTests.csproj",
+      "expectedSha256": "f531bb44c1b44f01713b8b02982562503c51c3b91db99aadb2899c34571324a2"
+    },
+    {
+      "target": "tools/CorpusLanguageTests/Program.cs",
+      "expectedSha256": "2b0e7c7cd353e0fd0af15ccb9a6cfa26b3146fa7394b0288fbaf9a4d9ee903ba"
+    },
+    {
+      "target": "tools/CorpusLanguageTests/README.md",
+      "expectedSha256": "38ab06d42c91e3ce8b473b19f2139609097c77671119ecd29ae163611cfabf9d"
+    },
+    {
+      "target": "tools/CorpusWorkbench/CorpusWorkbench.csproj",
+      "expectedSha256": "9459f853aaf4ae6bfc448e0b15ab01e1a7ce649f95878615d92cdeb8ceb87b9b"
+    },
+    {
+      "target": "tools/CorpusWorkbench/Program.cs",
+      "expectedSha256": "bcf65401fe56918dcc4146f0b77694a2e3ba4f60d407e888e502b038ca24823a"
+    },
+    {
+      "target": "tools/CorpusWorkbench/README.md",
+      "expectedSha256": "21265b9a40ab3b44de8afb0d43c0a92d65770cfd64b20b05d804c8b7e9afbda7"
+    },
+    {
+      "target": "tools/CorpusWorkbench/WorkbenchForm.cs",
+      "expectedSha256": "efeb5919500353566a597eeff11202db16b28be2744e6c62f415a3f3c1ccb455"
+    },
+    {
+      "target": "tools/CorpusWorkbench/WorkspaceSettings.cs",
+      "expectedSha256": "2b066a82ad512858aba59fd6252125cfb9326e4abc655dbc3c5282e68ca8a5fc"
+    },
+    {
+      "target": "tools/GBUTest.Fuzzer/FuzzerForm.cs",
+      "expectedSha256": "96cb9873d3ed84fb460ccb2c4e61775d5317160059c2b63f7e8a07b563fac85c"
+    },
+    {
+      "target": "tools/GBUTest.Fuzzer/GBUTest.Fuzzer.csproj",
+      "expectedSha256": "7c4a3b9a8b017894a657c1fe356ac8b234a07011bbc5c7cf81989348c544245a"
+    },
+    {
+      "target": "tools/GBUTest.Fuzzer/Program.cs",
+      "expectedSha256": "85c13c964f4db28761dd1d35a4327e210928576a3b507f16e406edacdbc4dafe"
+    },
+    {
+      "target": "tools/GBUTest.UI/GBUTest.UI.csproj",
+      "expectedSha256": "7c4a3b9a8b017894a657c1fe356ac8b234a07011bbc5c7cf81989348c544245a"
+    },
+    {
+      "target": "tools/GBUTest.UI/Program.cs",
+      "expectedSha256": "a8ee8a770a3cbc65fe41b3e8c7e7907a5c615fa42723c5c8dc9a7da4d2137680"
+    },
+    {
+      "target": "tools/GBUTest.UI/TypingTesterForm.cs",
+      "expectedSha256": "3a3170497b98d60bf5107281ef22ee653328e62b64cb3476b704f394635c76d8"
+    },
+    {
+      "target": "tools/GBUTest/GBUTest.csproj",
+      "expectedSha256": "5d14ecf5645e7829d6d9673c2b310849b921454945e3f8693761194fcaad02ce"
+    },
+    {
+      "target": "tools/GBUTest/Program.cs",
+      "expectedSha256": "bb662723032a91fdefe73d2b82b85061f59f88c5d4a20d79e8a5c791757f1104"
+    },
+    {
+      "target": "tools/GBUTest/README.md",
+      "expectedSha256": "14eb905fe167d54b4b79e0e565bdac4ce86c648cf483cd37e541c9af422808af"
+    },
+    {
+      "target": "tools/GBUTest/SentenceFuzzer.cs",
+      "expectedSha256": "90d95659c78ebebb1542def8c1a45ac6fe4f93bca2e5ddae194e14e31a5edefc"
+    },
+    {
+      "target": "tools/GBUTest/TestData.cs",
+      "expectedSha256": "43b99aad68a045063382eeb7f5bb1bbca5cd2550ec98243f0da65736b77b1817"
+    },
+    {
+      "target": "tools/GBUTest/TypingTester.cs",
+      "expectedSha256": "595d3ff8befedd854e43a839f112847aea0a0487c13521dee2f1d6d89223fc93"
+    },
+    {
+      "target": "tools/GBUTest/common-misspellings.jsonl",
+      "expectedSha256": "cd5c31fd3f3653ffe54eaea941552371b4e8e1071cf4addda2bd0dd1765883f9"
+    },
+    {
+      "target": "tools/KeyboardParity/Program.cs",
+      "expectedSha256": "1aec41d020aba4140e6469137fafa3e2154d26ec6359e3c78281a6cd6488f36f"
+    },
+    {
+      "target": "tools/KeyboardParity/host_parity.cpp",
+      "expectedSha256": "a6e45013c8e514be11a6778d842e4c4ad6c25c9c1f473e53d7e86d235682a383"
+    },
+    {
+      "target": "tools/KeyboardSimulator.Tests/KeyboardSimulator.LanguageTests.csproj",
+      "expectedSha256": "bacc35f54406b1d2a4e3c561228e5454c795e455d0917865f66957a4c23b0862"
+    },
+    {
+      "target": "tools/KeyboardSimulator.Tests/Program.cs",
+      "expectedSha256": "3e50739af5804e2d2076d37cb25633607d318ac2912feff6e8cb0684e9c9f65a"
+    },
+    {
+      "target": "tools/KeyboardSimulator.Tests/RadixChecks.cs",
+      "expectedSha256": "aaca42a8396025859fd5237659505642c85630ae9b93ffd2760779c9512087c2"
+    },
+    {
+      "target": "tools/KeyboardSimulator/KeyboardModel.cs",
+      "expectedSha256": "c5d76801d9f2e4c4be5f2584468134790770584abff42fa16a34e8fdb7f0316f"
+    },
+    {
+      "target": "tools/KeyboardSimulator/KeyboardNeighborMap.cs",
+      "expectedSha256": "a3d82d589a38bab6f171c4a274155ccefcca26fad941f8b9a2467278f6972bc4"
+    },
+    {
+      "target": "tools/KeyboardSimulator/KeyboardPreview.cs",
+      "expectedSha256": "3ce14b4646a360e1bd139bb7f8a26bd8b24c2b0d62329086b7bf18d8a6ba0067"
+    },
+    {
+      "target": "tools/KeyboardSimulator/KeyboardSimulator.csproj",
+      "expectedSha256": "5579f597ead5b9d9acee000f923aaa6a02378490b49232e752c4e099c59a5aab"
+    },
+    {
+      "target": "tools/KeyboardSimulator/NumericText.cs",
+      "expectedSha256": "bacd99fe96ffaa35ca315c28966ddafb584d9091bbac6a1439d5197c06f5d902"
+    },
+    {
+      "target": "tools/KeyboardSimulator/PinyinComposition.cs",
+      "expectedSha256": "329918574d0945bd9a24e672ab30164f70b245ba942d67598883164225d57910"
+    },
+    {
+      "target": "tools/KeyboardSimulator/PinyinData.LICENSE.txt",
+      "expectedSha256": "27a80bd36832ab42d35ad60c08b2b230a807a9bc0d58e94ec1531543dc49cbe8"
+    },
+    {
+      "target": "tools/KeyboardSimulator/PinyinData.tsv",
+      "expectedSha256": "486a54bf13a219ac191bcd6e419c85fdadc7194822c4fc5d0039062e93cb2a96"
+    },
+    {
+      "target": "tools/KeyboardSimulator/Program.cs",
+      "expectedSha256": "12b2e0396a226e8e4223d1af65365b539395c168fb1766efbbc4c20d04693585"
+    },
+    {
+      "target": "tools/KeyboardSimulator/README.md",
+      "expectedSha256": "938bf255286b9bea5c30366a7cfbb981e8d4ff9852980d27d993283ac7c4589f"
+    },
+    {
+      "target": "tools/KeyboardSimulator/SuggestionText.cs",
+      "expectedSha256": "361e4da7acbefc6b4872722f4017451643c73100309a4fd6594ec51917fc7d88"
+    },
+    {
+      "target": "tools/KeyboardSimulator/TrieCorrections.cs",
+      "expectedSha256": "927b709031bc923f8ade53d14201c80a36f5dfb99da690b80d58afaeec63d9b5"
+    },
+    {
+      "target": "tools/KeyboardSimulator/TrieEntries.cs",
+      "expectedSha256": "b08d62b8b143e03774b0903a6b90d5e2b5a33302166ee5521891d6550f9f8641"
+    },
+    {
+      "target": "tools/KeyboardSimulator/TrieSuggestions.cs",
+      "expectedSha256": "d69736f08f72d4dcf964a08327f3a321a949d4b79ccd06fd9385463a1b88e229"
+    },
+    {
+      "target": "tools/KeyboardSimulator/TrieViewerForm.cs",
+      "expectedSha256": "bc8c79c013e191152e5ba84c19a31cac781797fd996cc868bc58f6c4e9338cfb"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/CMakeLists.txt",
+      "expectedSha256": "e166a175701a8058c7ed413467dc7baa0cf3445f1193caef641b1bfe42167c2f"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/README.md",
+      "expectedSha256": "a4bad9994d297d201d1c7fbf817df1cb91e036df5bc95a62f0cb5555db391509"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/Utils/ExecutablePaths.h",
+      "expectedSha256": "705695eb208ee84c7df75394948cb28b6ce84b83a75dd58542bc5fd9ec2c0482"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/CMakeLists.txt",
+      "expectedSha256": "f27e18433e9fa588c4cc3e8331ae6e5f0597fad4aaddd359d48a8ecbcc3e02d4"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/PredictionProbe.cpp",
+      "expectedSha256": "30a6b1b044662f3147a6614695490fec12d6c4d2096649b57a3ddb8cf93f2155"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/README.md",
+      "expectedSha256": "8fb63ae6d5d365119ff0d3a4da35ef2d6c907b2f669bdd9e524f4bc98f7a91e5"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/RESULTS-fr-FR-radix-optimization.md",
+      "expectedSha256": "3f7d140d0207f2f9977709d3bddd04daa33ff408c73ba033cb63514c8f74de45"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/RESULTS-fr-FR.md",
+      "expectedSha256": "5fb2b016c46fff17393f1d3506891be921482795a221ddaf0fee299b0df0e6f3"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/RadixConvert.cpp",
+      "expectedSha256": "1374f62c5dc92b6100bca16016b2284cb7c0ec3565f1cd685f771727281cfad7"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/RuntimeProfile.cpp",
+      "expectedSha256": "df46e46c0665b6bcd33f1a225743b77ed852362d9229734abb5c17135075afbe"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/benchmark.py",
+      "expectedSha256": "4849efda69be170bb5d1565c8d9852d2c57159d2b565da76d2c55c7ef30f6545"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/compare.py",
+      "expectedSha256": "4bd74e96eb4dac1604f98c499cbec2ca37174b56d746b0f9d3355008b3e090b2"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/equal_storage.py",
+      "expectedSha256": "cba79bfed62617154d326532c4d64dab59977d17de186a346bd7a0c9761ea2b0"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/finish_analysis.py",
+      "expectedSha256": "e63a929f9afc7f3eeaad82f89b3a858a641b99a558dc964a34cfa3b94f773b4a"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/matrix.py",
+      "expectedSha256": "5a937fc1dfc5964d3502a2a8fc5af7780ddf58328e27bed221531249d5712d04"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/prepare_runtime_confirmation.py",
+      "expectedSha256": "39135c4b9ba642dc84cf9c7846f5edd0bcc388f2ee7f22d4a1c3008902de339c"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/publish_results.py",
+      "expectedSha256": "c964ffc92a7818b85bd467c602e6b2a8403e73973236300389ac6dfb760f0379"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/publish_runtime_results.py",
+      "expectedSha256": "d8bc34908eb0a95a0398a4c2c9012ee25237c397fb7a94dcba425fa53d485667"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/runtime_matrix.py",
+      "expectedSha256": "5d8d16fee8722c197c3417be6d265c4e1839b8e2cd943a2496e9f30db655a9f6"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/runtime_quality.py",
+      "expectedSha256": "1ed3360546f1b728c01b23b8af9dc563f618931b8e4588599bb8dad2f1f471e3"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/benchmarks/test_benchmark.py",
+      "expectedSha256": "aed3ba62b45cf4131fe4d1c7c46e35edd3e3358f2b9b14524a3c729191d04fb3"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/CMakeLists.txt",
+      "expectedSha256": "02e851d3dd8258c8a4d08ea2c722b57ed6895c576859c8be4dc0e4ea74a706bb"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/CaseFold.txt",
+      "expectedSha256": "ccf8470d45ea16382821e1557a129eea016d060ba62bb21bc953d3662236c609"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/GenerateUnicodeTables.py",
+      "expectedSha256": "00dc67931da15669162b861c924b35b37a5a1f982b9b1668e8699e7148cfbf19"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/Generator.cpp",
+      "expectedSha256": "f84506b24fc7731c4fd542b485dfc932d93500445fff3d595ebb49a532b5ec97"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/Generator.h",
+      "expectedSha256": "bb1f28a780ea545a5d56073e25d87646420a1b49edab2eaad50862800a9f0a92"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/ModelGen.cpp",
+      "expectedSha256": "cb877c99a6f92449deaeca60675d278eaa3f31bd860d7ee9cbf1bf62b57b619e"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/PROVENANCE.md",
+      "expectedSha256": "e7d4cbeb8278d1b230509c49857a5abfca110a483962eff779276f531e812eca"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/README.md",
+      "expectedSha256": "aa466ef2e474c54b21a7ba4c5a27ba53acbada7cf69ff63b15cc197f6ccaa71f"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/TrainingModel.cpp",
+      "expectedSha256": "f2f58f4ea540c9a9876d3174377c9ce902b784e315d1703cb27d483c7da2c611"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/TrainingModel.h",
+      "expectedSha256": "e641986a8c3f7c8f9991188c5308dd6362ae059227f4dcf48641a47da20a7f93"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/TrainingModel.md",
+      "expectedSha256": "c67f6782a093c801b9cc86e1c3b011a2fc007fd43d96056b6654214822ad44a8"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/UnicodeTables.inc",
+      "expectedSha256": "0810302498beea1b1ef57b894ed482ffcef817e1fcceb01db422654a8fc2d843"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/examples/sample-corpus.txt",
+      "expectedSha256": "5fb8bea9d3b7bc38b6ee70a0d494633d8a0241a15408ba104c4c99cfbeec67e2"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/LICENSE.md",
+      "expectedSha256": "dce9c3f9c10f36bf135f5ee2e7f130623efb7881b93e20655dc4e873e4855547"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/Unicode-LICENSE.txt",
+      "expectedSha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/words_alpha.txt",
+      "expectedSha256": "643c7f71d5caee9806be56f5ed83ba36e2246a06a04bcf4aaa0576790bb90d66"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/words_de_top150000.txt",
+      "expectedSha256": "043dd5b654a9e0c8ad3979e62f684be5748f371cd13a6c73f57ad911c4a45816"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/words_el_top150000.txt",
+      "expectedSha256": "8b7a2bd7b7a7b1c4bafb8a163a8ccecca9d1882f9178700b772409afdee0a15b"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/words_es_top150000.txt",
+      "expectedSha256": "da4c7501b542d9bcd16cdace23aa4ef2895244f2691cc3e975c4bf43738c608f"
+    },
+    {
+      "target": "tools/NativeTrieGenerator/source/wordlists/words_fr_top150000.txt",
+      "expectedSha256": "ed2d2c44184fbab577124fdbeb24469088404ae3b7f5f1000fa5f44d26fd2169"
+    },
+    {
+      "target": "tools/NgramTrie.Reader/NgramTrie.Reader.csproj",
+      "expectedSha256": "12985a174dc55d6f519f2205bf7b35d0123d6d7dfa7fe3fe34f2f3028ba30604"
+    },
+    {
+      "target": "tools/NgramTrie.Reader/RadixModelData.cs",
+      "expectedSha256": "9af0779c7623265f651539d3b2613fec86063a0d265746720db17b0f499b0715"
+    },
+    {
+      "target": "tools/NgramTrie.Reader/TrieModel.cs",
+      "expectedSha256": "f7986a02c4d535b3d3e59fbef486abb551131285142d8272d1d0ecad49999f11"
+    },
+    {
+      "target": "tools/NgramTrie.UI/GenerationBackend.cs",
+      "expectedSha256": "b51b6f8665456f2f2e81da6468aac57cce9384321afe34447159de87eabb126b"
+    },
+    {
+      "target": "tools/NgramTrie.UI/NgramTrie.UI.csproj",
+      "expectedSha256": "e1f027d9e403749e73dfd4cda71693d1a12a09362731d6c40d79a22805156a88"
+    },
+    {
+      "target": "tools/NgramTrie.UI/Program.cs",
+      "expectedSha256": "d1b483ad5186ae11ddaafb43fd185fe7effc1c6372e9dca11a0e3d264eaa3839"
+    },
+    {
+      "target": "tools/NgramTrie.UI/UiSettings.cs",
+      "expectedSha256": "2ab7514174682402bea22dd323d52d84ee5e14ea6d569c68eadad5f734dbce16"
+    },
+    {
+      "target": "tools/NgramTrie/CaseFold.txt",
+      "expectedSha256": "ccf8470d45ea16382821e1557a129eea016d060ba62bb21bc953d3662236c609"
+    },
+    {
+      "target": "tools/NgramTrie/Corpus.cs",
+      "expectedSha256": "2d21636a35330a9b5105604b4199df59cef419ad4986864e992367469060e349"
+    },
+    {
+      "target": "tools/NgramTrie/DiskCounts.cs",
+      "expectedSha256": "296a08ee5b232d82793632ec44f608bcc5e1c78d26e72a6f9fa1ce4a0b74dd74"
+    },
+    {
+      "target": "tools/NgramTrie/Generator.cs",
+      "expectedSha256": "00501aa42dec930f87c534c746b53b32839934c6abcdb78596fba3ff9d786433"
+    },
+    {
+      "target": "tools/NgramTrie/Model.cs",
+      "expectedSha256": "3a8a5b48304b42d22ae574280d09fd79076ec9c4b5b1cce2d94f21d1edd1929c"
+    },
+    {
+      "target": "tools/NgramTrie/NgramTrie.csproj",
+      "expectedSha256": "eed782b60e6ac4080345317c41d5e0a54a5540bfebc1bbea7839e490d9d3935d"
+    },
+    {
+      "target": "tools/NgramTrie/Program.cs",
+      "expectedSha256": "49de10e35f951cfa27c9c1111654dd3ce234145772233557e54429610b8a0c66"
+    },
+    {
+      "target": "tools/NgramTrie/README.md",
+      "expectedSha256": "fc716815ef00c46aeb5ba2aaf8d6159a056355def2407f7caff9361ad9049788"
+    },
+    {
+      "target": "tools/NgramTrie/WordList.cs",
+      "expectedSha256": "9d1dc76569fc6d4092d74ea85e3adc0115013a8df38db272b4d2bb1a1b4461ff"
+    },
+    {
+      "target": "tools/NgramTrie/WordNormalization.cs",
+      "expectedSha256": "9d533d06a6e4472736772b1779ae425ee2d5dcb93a036861be87176837c97d80"
+    },
+    {
+      "target": "tools/NgramTrie/Wordlist/LICENSE.md",
+      "expectedSha256": "dce9c3f9c10f36bf135f5ee2e7f130623efb7881b93e20655dc4e873e4855547"
+    },
+    {
+      "target": "tools/NgramTrie/Wordlist/words_alpha.txt",
+      "expectedSha256": "643c7f71d5caee9806be56f5ed83ba36e2246a06a04bcf4aaa0576790bb90d66"
+    },
+    {
+      "target": "tools/NgramTrie/Wordlist/words_de_top150000.txt",
+      "expectedSha256": "043dd5b654a9e0c8ad3979e62f684be5748f371cd13a6c73f57ad911c4a45816"
+    },
+    {
+      "target": "tools/NgramTrie/Wordlist/words_el_top150000.txt",
+      "expectedSha256": "8b7a2bd7b7a7b1c4bafb8a163a8ccecca9d1882f9178700b772409afdee0a15b"
+    },
+    {
+      "target": "tools/NgramTrie/Wordlist/words_es_top150000.txt",
+      "expectedSha256": "da4c7501b542d9bcd16cdace23aa4ef2895244f2691cc3e975c4bf43738c608f"
+    },
+    {
+      "target": "tools/NgramTrie/Wordlist/words_fr_top150000.txt",
+      "expectedSha256": "ed2d2c44184fbab577124fdbeb24469088404ae3b7f5f1000fa5f44d26fd2169"
+    },
+    {
+      "target": "tools/RadixModel/CMakeLists.txt",
+      "expectedSha256": "46649c8b6635a689446ccb62eb7d596d9b202e6efb5b2f2a0a6053b4cbfd2307"
+    },
+    {
+      "target": "tools/RadixModel/ModelConvert.cpp",
+      "expectedSha256": "4fdb60fbcb3b943561f19e02db3d8a31ec091fe76e5ee9279054e631b15090fd"
+    },
+    {
+      "target": "tools/RadixModel/README.md",
+      "expectedSha256": "21320aefe7e9fedf425c4d6f952a0403d59b5952cfe0f77bb00028aadb9058bc"
+    },
+    {
+      "target": "tools/RadixModel/rebuild_bundled_models.py",
+      "expectedSha256": "73e652010d1159dd33ebb063882ecba70fa3c26f9d321ab77980f4fda6a06199"
+    },
+    {
+      "target": "tools/RadixModel/test_rebuild_bundled_models.py",
+      "expectedSha256": "b08ecd573a06bedd9d694fd9e3b0e6b8c3e4016d43a4d40526758516a578672e"
+    },
+    {
+      "target": "tools/WikipediaCorpus/Program.cs",
+      "expectedSha256": "982fa7297858c0f28a59704b425464417f319b13390d111a3bce0bc558e0b1a0"
+    },
+    {
+      "target": "tools/WikipediaCorpus/README.md",
+      "expectedSha256": "867beb2b539954c4b79479d9aea028a596754a511678082bf812f638db51473a"
+    },
+    {
+      "target": "tools/WikipediaCorpus/WikiText.cs",
+      "expectedSha256": "ddefb0b37b990e1b24e781dc92512bf7b5441d121c424231fe96b02cb89b088d"
+    },
+    {
+      "target": "tools/WikipediaCorpus/WikipediaCorpus.csproj",
+      "expectedSha256": "7fd39af319729ac4a3b74c79d51e93e72693e2580436acb36c57957ac5090220"
+    },
+    {
+      "target": "tools/WikipediaCorpus/WikipediaExporter.cs",
+      "expectedSha256": "e80c35a0d4a8481493779fd69c9f32d22a4c7fad68aa14ed37f67c2ed3738925"
     }
   ]
 }

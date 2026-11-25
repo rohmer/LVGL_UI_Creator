@@ -5,8 +5,13 @@
 
 namespace Serialization
 {
-    json LVFont::ToJSON(const lv_font_t font)
+    json LVFont::ToJSON(const lv_font_t& font)
     {
+        // Restored fonts are immutable. Their original portable data includes
+        // the exact compressed bitmap length, which LVGL's descriptor alone
+        // does not expose. Reuse that data without probing beyond its buffer.
+        for (const auto& entry : Resources().fonts)
+            if (entry.second == &font) return json::parse(entry.first);
         json j;
         j["baseLine"] = font.base_line;
         j["lineHeight"] = font.line_height;
@@ -15,11 +20,11 @@ namespace Serialization
         j["capHeight"] = font.cap_height;
         j["xHeight"] = font.x_height;
 #endif
-        j["subpx"] = unsigned(font.subpx);
         j["kerning"] = unsigned(font.kerning);
+#endif
+        j["subpx"] = unsigned(font.subpx);
         j["underlinePosition"] = font.underline_position;
         j["underlineThickness"] = font.underline_thickness;
-#endif
         if (font.dsc && font.get_glyph_dsc == lv_font_get_glyph_dsc_fmt_txt)
         {
             auto dsc = *static_cast<const lv_font_fmt_txt_dsc_t*>(font.dsc);
@@ -54,11 +59,11 @@ namespace Serialization
         newFont.cap_height = j.value("capHeight", 0);
         newFont.x_height = j.value("xHeight", 0);
 #endif
-        newFont.subpx = j.value("subpx", 0);
         newFont.kerning = j.value("kerning", 0);
+#endif
+        newFont.subpx = j.value("subpx", 0);
         newFont.underline_position = j.value("underlinePosition", 0);
         newFont.underline_thickness = j.value("underlineThickness", 0);
-#endif
         if (j["dsc"].is_object() && j["dsc"].contains("bitmap"))
         {
             auto* descriptor = LVFontDsc::FromJSON(j["dsc"]);

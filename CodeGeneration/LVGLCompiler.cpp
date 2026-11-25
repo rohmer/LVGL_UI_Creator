@@ -8,6 +8,7 @@
 #include <Serialization/Xml.h>
 #include <Serialization/ProjectFonts.h>
 #include <Serialization/ProjectImages.h>
+#include <Serialization/ProjectScreens.h>
 #include <Serialization/LVVariable.h>
 #include <filesystem>
 #include <fstream>
@@ -89,6 +90,7 @@ int Run(const std::vector<std::string>& args) {
             if(!generator.LoadProject(std::move(project))||!generator.ExportProject(output))throw std::runtime_error(generator.GetLastError());
             std::cout<<"Generated C project in "<<output<<'\n';
         }else {
+            project=Serialization::ProjectScreens::Device(std::move(project));
             CGeneration::EmbedLocalImages(project,std::filesystem::absolute(input).parent_path());
             project["runtimeTarget"]=target;
             auto bytes=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",project);

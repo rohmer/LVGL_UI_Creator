@@ -37,12 +37,12 @@ keyboard, button matrix, dropdown and flex modules are unnecessary. Its default
 `builtin-en-us` selection uses the portable ESPOS prefix/autocorrect engine and
 a small English NGTR model with its prebuilt NGIX index. Imported custom models
 are shared project assets referenced by `advancedKeyboard.trieId`; an empty ID
-disables prediction. A no-model profile omits the three engine translation units
+disables prediction. A no-model profile omits the four engine translation units
 and model tables, while a custom-only profile omits the built-in English tables.
 Projects without Advanced Keyboard omit all its native implementation and font.
 
-The generator validates imported NGTR v3 structure and indices, generates missing
-NGIX data on the build machine, removes unused catalog entries and stores model
+The generator validates imported NGTR v2/v3 and compressed radix v4 structures
+and indices, generates missing NGIX data on the build machine, removes unused catalog entries and stores model
 bytes as binary Protobuf payloads. On ESP32, loading a model automatically
 prefers initialized PSRAM for its compact trie and index. One copy is shared
 by keyboards using the same model. Enable PSRAM in your board configuration
@@ -53,6 +53,10 @@ their temporary input buffer can be freed. The trie stays compact in either
 case. Each keyboard has a private, reused inference workspace; query its exact
 compiled size with
 `lv_advanced_keyboard_predictor_workspace_bytes()`. Inference does not allocate.
+Radix models remain compressed in flash or PSRAM; Unicode autocorrect advances
+its edit-distance state across their label spans without expanding a node graph.
+Scored models use validated probability bounds, including signed backoff weights.
+The desktop radix encoder is excluded from firmware source profiles.
 The public prediction callback remains available for application-specific engines.
 No ESPOS board driver, default flash partition or hardware input port is imported.
 Source, font and vocabulary notices are retained in each bundle.

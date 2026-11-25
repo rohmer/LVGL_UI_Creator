@@ -14,6 +14,8 @@ from pathlib import Path
 import re
 import struct
 import trie_assets
+import font_assets
+import keyboard_dependency
 
 MAX_INPUT = 16 * 1024 * 1024
 SECTIONS = {
@@ -33,9 +35,9 @@ CUSTOM_DEPENDENCIES = {
     "window": {"FLEX", "LABEL", "BUTTON"},
     "advancedKeyboard": {"BUTTON", "LABEL", "TEXTAREA"},
 }
-CUSTOM_SOURCES = {"LVSERIAL_USE_ADVANCED_KEYBOARD": ["LVSerial/Widgets/AdvancedKeyboard/" + name for name in (
+CUSTOM_SOURCES = {"LVSERIAL_USE_ADVANCED_KEYBOARD": [keyboard_dependency.PREFIX + "/src/" + name for name in (
     "Key.cpp", "Keyboard.cpp", "TypingView.cpp", "SuggestionText.cpp", "Utf8Fold.cpp", "AdvancedKeyboard.cpp", "KeyboardFont.c")]}
-CUSTOM_SOURCES[trie_assets.PREDICTION_GATE] = ["LVSerial/Widgets/AdvancedKeyboard/" + name for name in (
+CUSTOM_SOURCES[trie_assets.PREDICTION_GATE] = [keyboard_dependency.PREFIX + "/src/" + name for name in (
     "PredictionModel.cpp", "PredictionPrefix.cpp", "Prediction.cpp", "PredictionStorage.cpp")]
 DEPENDENCIES = {
     "BUTTON": {"LABEL"},
@@ -217,6 +219,10 @@ def decode_project(data: bytes, root: Path | None = None) -> dict:
             value = number(7, b"")
             if kind == 7:
                 value = value.decode("utf-8")
+        elif kind == 9:
+            if 9 not in values or values[9][0] != 2 or 7 in values:
+                raise ValueError("Invalid font property payload")
+            value = font_assets.decode(values[9][1], _fields, _varint)
         else:
             raise ValueError("Unknown property type")
         if not path:
@@ -264,7 +270,8 @@ def encode_project(document: dict, *, omit_defaults=True) -> bytes:
     def walk(value, path):
         if path.count("/") > 64 or len(path.encode()) >= 512:
             raise ValueError("Property path exceeds the device schema limits")
-        if isinstance(value, dict): kind = 1
+        if omit_defaults and font_assets.matches(value): kind = 9
+        elif isinstance(value, dict): kind = 1
         elif isinstance(value, list): kind = 2
         elif value is None: kind = 0
         elif isinstance(value, bool): kind = 3
@@ -300,6 +307,7 @@ def encode_project(document: dict, *, omit_defaults=True) -> bytes:
             if not math.isfinite(value): raise ValueError("Nonfinite project value")
             record += _wire(6, 1, struct.pack("<d", value))
         elif kind in (7, 8): record += _wire(7, 2, value.encode() if kind == 7 else value)
+        elif kind == 9: record += _wire(9, 2, font_assets.encode(value, _wire, _encode_varint))
         records.append(_wire(4, 2, record))
         if kind in (1, 2):
             entries = sorted(value.items()) if kind == 1 else enumerate(value)
@@ -319,9 +327,18 @@ def _runtime_document(document: dict) -> dict:
     the device. Work on a copy so inspecting a saved editor project is read-only.
     """
     result = copy.deepcopy(document)
+    if isinstance(result.get("screens"), list):
+        screens = result["screens"]
+        current = result.get("editorScreen", result.get("activeScreen", 0))
+        if "obj" in result or "canvas" in result:
+            if type(current) is not int or not 0 <= current < len(screens):
+                raise ValueError("The selected screen is missing")
+            for key in ("obj", "canvas"):
+                if key in result: screens[current][key] = result.pop(key)
+        result.pop("editorScreen", None)
     def page(value):
         if not isinstance(value, dict): return
-        for field in ("components", "sharedStyles"): value.pop(field, None)
+        for field in ("components", "componentLibrary", "sharedStyles"): value.pop(field, None)
         records = value.get("obj", [])
         if isinstance(records, list):
             for record in records:
@@ -335,6 +352,7 @@ def _runtime_document(document: dict) -> dict:
         if isinstance(screens, list):
             for screen in screens: page(screen)
     page(result)
+    font_assets.prune_unused(result)
     return result
 
 
@@ -343,6 +361,8 @@ def optimize_document(document: dict, retain_editor_assets=False) -> dict:
     trie_assets.prepare(result, repository_root(), prune=True)
     def visit(value):
         if isinstance(value, dict):
+            if not retain_editor_assets and "font" in value and isinstance(value["font"], dict) and "dsc" in value["font"]:
+                value.pop("conversion", None)
             if not retain_editor_assets and value.get("deviceFrames"):
                 for field in ("sourceData", "previewFrames", "conversionOptions", "options", "sourcePath", "originalPath"):
                     value.pop(field, None)
@@ -454,8 +474,9 @@ def analyze_projects(documents: list[dict], *, color_depth=16, default_font=14) 
             if "dsc" in value and isinstance(value["dsc"], dict) and "bitmap" in value["dsc"]:
                 font_count += 1; descriptor = value["dsc"]
                 compressed_fonts |= bool(descriptor.get("bitmapFmt", 0))
-                large_fonts |= len(descriptor.get("GlyphDsc", [])) > 511 or any(
+                large_fonts |= any(
                     glyph.get("box_w", 0) > 255 or glyph.get("box_h", 0) > 255 or glyph.get("adv_w", 0) > 4095 or
+                    not -128 <= glyph.get("ofs_x", 0) <= 127 or not -128 <= glyph.get("ofs_y", 0) <= 127 or
                     glyph.get("bitmapIdx", 0) > 1048575 for glyph in descriptor.get("GlyphDsc", []))
             if "nativeStyles" in value:
                 for style in value["nativeStyles"]:
@@ -597,7 +618,7 @@ def source_plan(plan: dict, root: Path) -> list[str]:
     if "ar-SA" in languages: add("src/font/lv_font_dejavu_16_persian_hebrew.c")
     for language, name in (("hi-IN", "Hindi"), ("bn-BD", "Bengali"), ("ur-PK", "Urdu"), ("ru-RU", "Cyrillic"), ("el-GR", "Greek")):
         if language in languages:
-            selected.add("LVSerial/Widgets/AdvancedKeyboard/Keyboard" + name + "Font.c")
+            selected.add(keyboard_dependency.PREFIX + "/src/Keyboard" + name + "Font.c")
     enabled = set(plan["enabledFeatures"])
     for feature, directory in WIDGET_DIRS.items():
         if feature in enabled:
@@ -622,9 +643,13 @@ def source_plan(plan: dict, root: Path) -> list[str]:
     for gate, sources in CUSTOM_SOURCES.items():
         if gate in plan["customFeatures"]:
             for source in sources:
-                if not (root / source).is_file():
+                if not keyboard_dependency.source_file(root, source).is_file():
                     raise ValueError("Missing required custom widget source: " + source)
                 selected.add(source)
+    # Native textarea and composite Text box deserializers share this small C
+    # constraint helper. It does not pull in the keyboard or prediction engine.
+    if "TEXTAREA" in enabled:
+        selected.add(keyboard_dependency.PREFIX + "/src/TextareaInputMode.c")
     for name in ("LVSerial/Device/lvserial_pb.c", "LVSerial/Device/lvserial_defaults.c", "LVSerial/Proto/lvserial.pb.c",
                  "3rdParty/nanopb/pb_common.c", "3rdParty/nanopb/pb_decode.c", "3rdParty/nanopb/pb_encode.c",
                  "Runtime/common/Runtime.cpp", "Runtime/common/Validation.cpp"):

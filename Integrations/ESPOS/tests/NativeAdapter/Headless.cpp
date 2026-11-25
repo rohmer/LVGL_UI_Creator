@@ -1,6 +1,8 @@
 #include "ngram_trie/esp_runtime.h"
 #include "lv_advanced_keyboard_prediction.h"
 #include <esp_heap_caps.h>
+#include "AssetFixtures.h"
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cstdlib>
@@ -16,6 +18,7 @@ struct Allocation { std::size_t size; std::uint32_t caps; };
 std::map<void*, Allocation> allocations;
 bool psram_available = false;
 std::size_t psram_allocations = 0, mappings = 0;
+std::size_t expected_model_bytes = 0, expected_index_bytes = 0;
 std::vector<std::uint8_t> partition_bytes;
 esp_partition_t partition{};
 std::size_t LivePsram()
@@ -28,28 +31,33 @@ void Write32(std::size_t offset, std::uint32_t value)
 {
     for (unsigned i = 0; i < 4; ++i) partition_bytes[offset + i] = static_cast<std::uint8_t>(value >> (i * 8));
 }
+bool PrepareBytes(const std::vector<std::uint8_t>& trie)
+{
+    void* index = nullptr; std::size_t index_size = 0;
+    CHECK(lv_advanced_keyboard_build_trie_index(trie.data(), trie.size(), &index, &index_size));
+    expected_model_bytes = trie.size(); expected_index_bytes = index_size;
+    partition_bytes.assign(48 + trie.size() + index_size, 0);
+    std::memcpy(partition_bytes.data(), "NGPK", 4);
+    Write32(4, 1); Write32(8, static_cast<std::uint32_t>(trie.size())); Write32(12, static_cast<std::uint32_t>(index_size));
+    std::memcpy(partition_bytes.data() + 48, trie.data(), trie.size());
+    if (index_size) std::memcpy(partition_bytes.data() + 48 + trie.size(), index, index_size);
+    lv_advanced_keyboard_free_trie_index(index);
+    partition.size = partition_bytes.size();
+    CHECK(allocations.empty()); return true;
+}
 bool Prepare(const char* path)
 {
     std::ifstream stream(path, std::ios::binary);
     std::vector<std::uint8_t> trie((std::istreambuf_iterator<char>(stream)), {});
-    CHECK(trie.size() > 64 * 1024); // Exercises the larger model formerly rejected by ESPOS.
-    void* index = nullptr; std::size_t index_size = 0;
-    CHECK(lv_advanced_keyboard_build_trie_index(trie.data(), trie.size(), &index, &index_size));
-    partition_bytes.resize(48 + trie.size() + index_size);
-    std::memcpy(partition_bytes.data(), "NGPK", 4);
-    Write32(4, 1); Write32(8, static_cast<std::uint32_t>(trie.size())); Write32(12, static_cast<std::uint32_t>(index_size));
-    std::memcpy(partition_bytes.data() + 48, trie.data(), trie.size());
-    std::memcpy(partition_bytes.data() + 48 + trie.size(), index, index_size);
-    lv_advanced_keyboard_free_trie_index(index);
-    partition.size = partition_bytes.size();
-    CHECK(allocations.empty()); return true;
+    CHECK(trie.size() > 64 * 1024); // Retain the large-model regression.
+    return PrepareBytes(trie);
 }
 bool PlacementAndLease(bool use_psram)
 {
     psram_available = use_psram; psram_allocations = 0;
     ngram_trie::FlashPredictor flash;
     CHECK(flash.Open(true) == ESP_OK && flash.Trie().IsOpen());
-    CHECK(flash.ModelBytes() > 64 * 1024 && flash.IndexBytes() > 0 && mappings == 1);
+    CHECK(flash.ModelBytes() == expected_model_bytes && flash.IndexBytes() == expected_index_bytes && mappings == 1);
     CHECK(flash.ModelUsesPsram() == use_psram && flash.UsesPsram() == use_psram);
     CHECK(LivePsram() == (use_psram ? 2u : 0u));
     auto lease = flash.ModelOwner();
@@ -79,6 +87,16 @@ bool InvalidImages()
     partition_bytes[48] = saved;
     CHECK(flash.Open(false) == ESP_OK && !flash.UsesPsram());
     flash.Close(); CHECK(mappings == 0 && allocations.empty()); return true;
+}
+bool EmptyPartition()
+{
+    ngram_trie::FlashPredictor flash;
+    std::array<std::uint8_t, 48> saved{};
+    std::copy_n(partition_bytes.begin(), saved.size(), saved.begin());
+    std::fill_n(partition_bytes.begin(), saved.size(), std::uint8_t(0xff));
+    const auto status = flash.Open(true);
+    std::copy(saved.begin(), saved.end(), partition_bytes.begin());
+    CHECK(status == ESP_ERR_NOT_FOUND && mappings == 0 && allocations.empty()); return true;
 }
 }
 extern "C" void* heap_caps_malloc(std::size_t bytes, std::uint32_t caps)
@@ -116,7 +134,11 @@ esp_err_t esp_partition_mmap(const esp_partition_t*, std::size_t offset, std::si
 void esp_partition_munmap(esp_partition_mmap_handle_t) { --mappings; }
 int main(int argc, char** argv)
 {
-    const bool result = argc == 2 && Prepare(argv[1]) && PlacementAndLease(true) && PlacementAndLease(false) && InvalidImages();
-    if (result) std::puts("Headless runtime: large NGPK, shared PSRAM, unavailable PSRAM fallback, partition lease, malformed images passed");
+    bool result = argc == 2;
+    if (result && !std::strcmp(argv[1], "--formats")) {
+        for (const auto& bytes : {RadixFixtures::Fixed(), RadixFixtures::Radix(false), RadixFixtures::Radix(true)})
+            if (!(PrepareBytes(bytes) && PlacementAndLease(true) && PlacementAndLease(false) && InvalidImages() && EmptyPartition())) result = false;
+    } else result = result && Prepare(argv[1]) && PlacementAndLease(true) && PlacementAndLease(false) && InvalidImages() && EmptyPartition();
+    if (result) std::puts("Headless runtime: NGPK formats, shared PSRAM/fallback, partition lease, malformed/empty images passed");
     return result ? 0 : 1;
 }

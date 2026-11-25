@@ -1,12 +1,48 @@
 idf_build_get_property(espos_target IDF_TARGET)
-if(espos_target STREQUAL "esp32p4")
+include("${CMAKE_CURRENT_LIST_DIR}/../tools/advanced_keyboard_dependency.cmake")
+espos_require_advanced_keyboard()
+idf_build_get_property(espos_build_dir BUILD_DIR)
+include("${espos_build_dir}/generated/espos_components.cmake")
+if(ESPOS_QEMU_DISPLAY)
+    if(NOT espos_target STREQUAL "esp32s3" OR NOT ESPOS_USE_LVGL OR NOT ESPOS_PROFILE STREQUAL "full")
+        message(FATAL_ERROR "The QEMU keyboard display requires ESP32-S3, the full profile and LVGL")
+    endif()
+    set(display_sources "QemuStartupEsp.cpp" "QemuDisplayEsp.cpp")
+    set(display_requires esp_timer freertos log esp_driver_uart heap task_scheduler)
+elseif(espos_target STREQUAL "esp32p4")
     set(display_sources "StartupEsp.cpp" "CrowPanelDisplayEsp.cpp" "CrowPanelTouchEsp.cpp")
     set(display_requires esp_timer freertos log esp_lcd esp_driver_gpio esp_driver_i2c esp_hw_support task_scheduler)
 endif()
-idf_component_register(SRCS "TypingView.cpp" "TypingViewEsp.cpp" ${display_sources}
-                       INCLUDE_DIRS "include"
+# ESP-IDF discovers dependency closure in a separate CMake script which does
+# not inherit project cache options. Include the S3 virtual-port dependencies
+# there so a QEMU-enabled real configure can use the UART driver safely.
+if(CMAKE_BUILD_EARLY_EXPANSION AND espos_target STREQUAL "esp32s3")
+    set(display_requires esp_timer freertos log esp_driver_uart heap task_scheduler)
+endif()
+# ESPOS_GENERATED_UI_STARTUP v1
+idf_build_get_property(espos_ui_project_dir PROJECT_DIR)
+set(espos_generated_ui_dir "${espos_ui_project_dir}/components/GeneratedUI")
+if(ESPOS_USE_LVGL AND EXISTS "${espos_generated_ui_dir}/espos-ui.json")
+    foreach(espos_ui_file IN ITEMS ui.h _espos/GeneratedUIStartup.cpp)
+        if(NOT EXISTS "${espos_generated_ui_dir}/${espos_ui_file}")
+            message(FATAL_ERROR "The sent UI is incomplete: ${espos_ui_file}. Send the UI again from LVGL UI Creator.")
+        endif()
+    endforeach()
+    if(NOT EXISTS "${espos_generated_ui_dir}/ui.c" AND NOT EXISTS "${espos_generated_ui_dir}/ui.cpp")
+        message(FATAL_ERROR "The sent UI is incomplete: ui.c or ui.cpp. Send the UI again from LVGL UI Creator.")
+    endif()
+    list(REMOVE_ITEM display_sources "StartupEsp.cpp" "QemuStartupEsp.cpp")
+    list(APPEND display_sources "${espos_generated_ui_dir}/_espos/GeneratedUIStartup.cpp")
+    list(APPEND display_requires GeneratedUI esp_timer freertos log task_scheduler)
+endif()
+idf_component_register(SRCS "${ADVANCED_KEYBOARD_ROOT}/integrations/espos/TypingView.cpp" "TypingViewEsp.cpp" ${display_sources}
+                       INCLUDE_DIRS "${ADVANCED_KEYBOARD_ROOT}/include" "${ADVANCED_KEYBOARD_ROOT}/integrations/espos/include" "include"
                        REQUIRES lvgl ngram_trie AdvancedKeyboard
                        PRIV_REQUIRES ${display_requires})
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_17)
 target_compile_definitions(${COMPONENT_LIB} PUBLIC ESPOS_KEYBOARD_LEGACY_VIEW_ADAPTER=1)
 target_compile_options(${COMPONENT_LIB} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fexceptions>)
+# ESPOS_GENERATED_UI_DEFINITIONS v1
+if(ESPOS_QEMU_DISPLAY)
+    target_compile_definitions(${COMPONENT_LIB} PRIVATE ESPOS_QEMU_DISPLAY=1)
+endif()

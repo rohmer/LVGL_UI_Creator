@@ -54,7 +54,7 @@ void ValidateFonts(const nlohmann::json &document)
             throw std::invalid_argument("Font is missing glyph descriptors or bitmap data");
         int bpp = d.value("bpp", 4), format = d.value("bitmapFmt", 0), stride = d.value("stride", 0);
         if ((bpp != 1 && bpp != 2 && bpp != 3 && bpp != 4 && bpp != 8) || format < 0 || format > 2 ||
-            stride < 0 || stride > 255)
+            stride < 0 || stride > 255 || (format && (bpp == 1 || bpp == 8)))
             throw std::invalid_argument("Invalid font bitmap format");
         if (bpp == 3 && format == 0)
             throw std::invalid_argument("Plain 3-bpp fonts cannot be rendered by LVGL; use a normalized "
@@ -65,6 +65,9 @@ void ValidateFonts(const nlohmann::json &document)
 #endif
         auto bitmap = base64_decode(d["bitmap"]);
         auto glyphCount = d["GlyphDsc"].size();
+        if(glyphCount>65536 || !d.contains("cmaps") || !d["cmaps"].is_array() || d["cmaps"].empty() || d["cmaps"].size()>511 ||
+            d.value("kernScale",uint64_t(0))>65535 || d.value("kernClasses",uint64_t(0))>1)
+            throw std::invalid_argument("Font tables exceed the portable descriptor limits");
         for (const auto &glyph : d["GlyphDsc"])
         {
             if (!glyph.is_object())
@@ -76,8 +79,10 @@ void ValidateFonts(const nlohmann::json &document)
             probe.box_h = (uint32_t)h;
             probe.bitmap_index = (uint32_t)offset;
             probe.adv_w = (uint32_t)advance;
+            const auto x=glyph.value("ofs_x",int64_t(0)),y=glyph.value("ofs_y",int64_t(0));
+            probe.ofs_x=(int32_t)x;probe.ofs_y=(int32_t)y;
             if (probe.box_w != w || probe.box_h != h || probe.bitmap_index != offset ||
-                probe.adv_w != advance)
+                probe.adv_w != advance || probe.ofs_x!=x || probe.ofs_y!=y)
                 throw std::invalid_argument("Font glyph metrics exceed the native descriptor range");
             uint64_t length =
                 stride ? ((w * bpp + 7) / 8 + stride - 1) / stride * stride * h : (w * h * bpp + 7) / 8;
@@ -89,7 +94,7 @@ void ValidateFonts(const nlohmann::json &document)
         {
             auto start = map.at("glyphIDstart").get<uint64_t>(),
                  length = map.at("rangeLength").get<uint64_t>();
-            if (!length || length > 65535 || start >= glyphCount)
+            if (!length || length > 65535 || start >= glyphCount || start>65535 || map.at("rangeStart").get<uint64_t>()>UINT32_MAX)
                 throw std::invalid_argument("Invalid font cmap range");
             int type = map.value("type", 0);
             if (map.value("formatVersion", 6) == 6)
@@ -102,6 +107,8 @@ void ValidateFonts(const nlohmann::json &document)
             }
             auto unicode = map.value("unicodeList", json::array()),
                  offsets = map.value("glyphIDOffsetList", json::array());
+            if(!unicode.is_array() || !offsets.is_array() || unicode.size()>65535 || offsets.size()>65535)
+                throw std::invalid_argument("Invalid font cmap table size");
             if (type == LV_FONT_FMT_TXT_CMAP_FORMAT0_TINY)
             {
                 if (start + length > glyphCount)
@@ -134,6 +141,39 @@ void ValidateFonts(const nlohmann::json &document)
                 auto index = offset.get<uint64_t>();
                 if (start + index >= glyphCount || (type == LV_FONT_FMT_TXT_CMAP_FORMAT0_FULL && index > 255))
                     throw std::invalid_argument("Font cmap offset is outside its glyph table");
+            }
+        }
+        if(d.contains("Kern")&&!d["Kern"].is_null()) {
+            const auto& kern=d["Kern"];
+            if(kern.is_object()&&kern.empty()&&!d.value("kernClasses",0))return;
+            if(!kern.is_object() || !kern.contains("Values") || !kern["Values"].is_array())
+                throw std::invalid_argument("Invalid font kerning table");
+            const auto& values=kern["Values"];
+            for(const auto& value:values)if(!value.is_number_integer()||value.get<int64_t>()< -128||value.get<int64_t>()>127)
+                throw std::invalid_argument("Font kerning value exceeds int8 range");
+            if(d.value("kernClasses",0)) {
+                const auto left=kern.value("leftCount",uint64_t(0)),right=kern.value("rightCount",uint64_t(0));
+                if(left>255 || right>255 || values.size()!=left*right)
+                    throw std::invalid_argument("Invalid font kerning class dimensions");
+                for(const auto* key:{"leftClasses","rightClasses"}) {
+                    const auto& table=kern.at(key);const auto maximum=key[0]=='l'?left:right;
+                    if(!table.is_array()||table.size()<glyphCount)throw std::invalid_argument("Truncated font kerning class mapping");
+                    for(const auto& value:table)if(!value.is_number_integer()||value.get<uint64_t>()>maximum)
+                        throw std::invalid_argument("Font kerning class is outside its table");
+                }
+            } else {
+                const auto size=kern.value("glyphIDSize",uint64_t(0));const auto& ids=kern.at("GlyphIDs");
+                if(size>1 || !ids.is_array() || ids.size()!=2*values.size() || values.size()>0x3fffffff)
+                    throw std::invalid_argument("Invalid font kerning pair dimensions");
+                uint64_t previous=0;
+                for(size_t i=0;i<values.size();++i) {
+                    const auto left=ids[2*i].get<uint64_t>(),right=ids[2*i+1].get<uint64_t>();
+                    if(left>=glyphCount||right>=glyphCount||left>(size?65535u:255u)||right>(size?65535u:255u))
+                        throw std::invalid_argument("Font kerning pair references a missing glyph");
+                    const auto order=left*65536+right;
+                    if(i&&order<=previous)throw std::invalid_argument("Font kerning pairs are not sorted and unique");
+                    previous=order;
+                }
             }
         }
     };

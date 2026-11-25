@@ -13,6 +13,8 @@ extern "C" {
 
 /* All callbacks are synchronous. Borrowed metadata/payload expire on return.
  * Read TEXT/BINARY payloads with pb_read(), in chunks or directly into flash.
+ * FONT_DATA payloads contain a typed lvserial.FontData submessage; decode using
+ * lvserial_FontData_fields or forward the bounded stream to a font consumer.
  * No JSON library, C++ runtime, LVGL dependency, or heap allocation is needed. */
 typedef struct {
     uint32_t format_version;

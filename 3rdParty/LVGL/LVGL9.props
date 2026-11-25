@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\AdvancedKeyboard.props" Condition="'$(AdvancedKeyboardDependencyImported)' != 'true'" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)lvgl\include;$(MSBuildThisFileDirectory)..\spdlog-1.x\include;$(MSBuildThisFileDirectory)..\freetype-2.10.1\include;$(MSBuildThisFileDirectory)..\Breakpad\src;$(MSBuildThisFileDirectory)..\MXML;$(MSBuildThisFileDirectory)..\Catch2\single_include\catch2;$(MSBuildThisFileDirectory)lvgl;$(MSBuildThisFileDirectory)..\..\LVSerial;$(MSBuildThisFileDirectory)..\..\LVSerial\Widgets\AdvancedKeyboard\include;$(MSBuildThisFileDirectory)..\nanopb;$(MSBuildThisFileDirectory)..\SDL3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)lvgl\include;$(MSBuildThisFileDirectory)..\spdlog-1.x\include;$(MSBuildThisFileDirectory)..\freetype-2.10.1\include;$(MSBuildThisFileDirectory)..\Breakpad\src;$(MSBuildThisFileDirectory)..\MXML;$(MSBuildThisFileDirectory)..\Catch2\single_include\catch2;$(MSBuildThisFileDirectory)lvgl;$(MSBuildThisFileDirectory)..\..\LVSerial;$(AdvancedKeyboardRoot)\include;$(AdvancedKeyboardRoot)\src;$(MSBuildThisFileDirectory)..\nanopb;$(MSBuildThisFileDirectory)..\SDL3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>$(MSBuildThisFileDirectory)lv_conf_v9.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>WIN32;LV_CONF_SKIP;LV_KCONFIG_IGNORE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>

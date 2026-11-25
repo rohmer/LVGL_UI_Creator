@@ -14,6 +14,7 @@
 #include "Performance.h"
 #include "TftSettings.h"
 #include "ScreenMemory.h"
+#include "TextInputModes.h"
 #include "EditorInputMatrix.h"
 #include "ObjectIcons.h"
 #include "HierarchyIcons.h"
@@ -24,6 +25,7 @@
 #include "../../../UICreator/Utils/SdlSimulator.h"
 #include "../../../UICreator/Utils/EditorWindow.h"
 #include "../../../UICreator/Utils/EditorEdit.h"
+#include "../../../UICreator/Fonts/BuiltinFonts.h"
 #include "../../../UICreator/ProjectCreator/ProjectCreator.h"
 #include "../../../UICreator/Windows/UI.h"
 #include "../../../UICreator/Windows/PropertyWindows/BtnmEditorWindow.h"
@@ -222,10 +224,147 @@ int main(int argc, char* argv[])
         lv_obj_update_layout(lv_screen_active());
         if(argc==2&&std::string(argv[1])=="--tft-settings") {CheckTftSettings(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--screen-memory") {CheckScreenMemory(editor,simulator);return 0;}
+        if(argc==2&&std::string(argv[1])=="--text-input-modes") {CheckTextInputModes(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-matrix") {CheckEditorInputMatrix(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-assets") {CheckEditorInputAssets(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-tools") {CheckEditorInputTools(editor,simulator);return 0;}
         if(argc==2&&std::string(argv[1])=="--editor-input-properties") {CheckEditorInputProperties(editor,simulator);return 0;}
+        if(argc==2&&std::string(argv[1])=="--builtin-fonts") {
+            const auto& catalog=BuiltinFonts::Catalog();Require(!catalog.empty(),"Built-in font catalog is empty");
+            for(const char* id:{"badh-regular","caliper-regular","microgramma-d-medium-extended","ocr-a-extended"})Require(BuiltinFonts::Find(id),"An original built-in font lost its stable ID");
+            const auto* popular=BuiltinFonts::Find("lato-regular");Require(popular&&popular->name=="Lato Regular","The popular regular font source is unavailable");
+            for(const auto& entry:catalog)Require(std::filesystem::is_regular_file(entry.path),"A bundled font source is missing from the application resources");
+            ClickPaletteWidget(simulator,"Label");
+            const auto before=editor.ProjectDocument();Require(before.value("fonts",json::array()).empty(),"Built-in catalog was eagerly added to the project");
+            auto window=[&](const char* title){auto* text=FindText(lv_layer_top(),title);Require(text,"Font dialog is missing");return lv_obj_get_parent(lv_obj_get_parent(text));};
+            auto field=[&](lv_obj_t* body,const char* caption){auto* text=FindText(body,caption);Require(text,"Font field is missing");return lv_obj_get_child(lv_obj_get_parent(text),1);};
+            auto click=[&](lv_obj_t* body,const char* caption){auto* text=FindText(body,caption);Require(text,"Font action is missing");lv_obj_send_event(lv_obj_get_parent(text),LV_EVENT_CLICKED,nullptr);};
+            auto close=[&](lv_obj_t* root){lv_obj_send_event(EditorWindow::CloseButton(root),LV_EVENT_CLICKED,nullptr);};
+            auto wait=[&](lv_obj_t* body){auto* status=lv_obj_get_child(body,-1);const auto start=SDL_GetTicks();while(std::string(lv_label_get_text(status)).rfind("Preparing font",0)==0&&SDL_GetTicks()-start<30000)simulator.ProcessEvents();std::cerr<<lv_label_get_text(status)<<'\n';return std::string(lv_label_get_text(status));};
+            auto* fontChoice=field(lv_screen_active(),"Font");
+            for(const auto& entry:catalog)Require(std::string(lv_dropdown_get_options(fontChoice)).find("Built-in: "+entry.name+"...")!=std::string::npos,"A built-in font is missing from widget font choices");
+            const auto initialChoice=lv_dropdown_get_selected(fontChoice);
+            const auto selectBuiltin=[&]{const auto option=lv_dropdown_get_option_index(fontChoice,("Built-in: "+catalog.front().name+"...").c_str());Require(option>=0,"Built-in font option is missing");lv_dropdown_set_selected(fontChoice,option);lv_obj_send_event(fontChoice,LV_EVENT_VALUE_CHANGED,nullptr);};
+            selectBuiltin();auto* root=window("Add project font");auto* body=EditorWindow::Content(root);
+            Require(lv_dropdown_get_selected(fontChoice)==initialChoice,"Opening built-in font options changed the widget's actual font selection");
+            Require(lv_dropdown_get_selected(field(body,"Source font"))==1,"Inspector did not preselect the chosen built-in source");
+            Require(lv_obj_is_hidden(lv_obj_get_parent(field(body,"Font file"))),"A built-in font requires the user to manage its source path");
+            lv_textarea_set_text(field(body,"Size (pixels)"),"28");lv_textarea_set_text(field(body,"Unicode ranges"),"0x41-0x5A");
+            click(body,"Preview");Require(wait(body).find("Preview ready")!=std::string::npos,"Built-in preview failed");
+            Require(editor.ProjectDocument()==before,"Previewing a built-in font added unused font data to the project");close(root);
+            Require(editor.ProjectDocument()==before,"Cancelling built-in font selection changed the project");
+            selectBuiltin();root=window("Add project font");body=EditorWindow::Content(root);
+            lv_textarea_set_text(field(body,"Size (pixels)"),"28");lv_textarea_set_text(field(body,"Unicode ranges"),"0x41-0x5A");
+            click(body,"Add and apply");Require(wait(body).find("saved and applied")!=std::string::npos,"Built-in font was not prepared and applied");
+            auto document=editor.ProjectDocument();Require(document["fonts"].size()==1,"Selecting one built-in font stored the unused catalog fonts");
+            const auto& font=document["fonts"][0];Require(font["name"]==catalog.front().name+" 28 px","Automatic font name did not use the catalog's friendly name");
+            Require(font["conversion"]["sources"][0]["builtinId"]==catalog.front().id,"Built-in source identity was not remembered");
+            Require(!font["conversion"]["sources"][0].contains("path"),"Built-in settings depend on a machine-specific source path");
+            const auto id=font["id"];Require(document["obj"][0]["base"]["fontId"]==id,"Prepared built-in font was not bound to its widget");close(root);
+            // Simulate a project copied from another installation/platform.
+            document["fonts"][0]["conversion"]["sources"][0]["path"]="/missing/old-install/font.ttf";editor.ApplyDocument(document);
+            editor.MenuAction("font-manager");auto* manager=window("Project fonts");click(EditorWindow::Content(manager),"Edit font...");
+            root=window("Edit project font");body=EditorWindow::Content(root);
+            Require(std::string(lv_textarea_get_text(field(body,"Font file")))==catalog.front().path.u8string(),"Editing did not resolve the built-in source in this installation");
+            Require(lv_dropdown_get_selected(field(body,"Source font"))==1,"Editing lost the built-in source choice");
+            lv_textarea_set_text(field(body,"Size (pixels)"),"30");click(body,"Save font");Require(wait(body).find("Font saved")!=std::string::npos,"Editing a moved built-in font failed");close(root);close(manager);
+            Require(editor.ProjectDocument()["fonts"][0]["id"]==id,"Editing a built-in source replaced its stable font asset");
+            editor.MenuAction("font-converter");root=window("Add project font");body=EditorWindow::Content(root);auto* sourceChoice=field(body,"Source font");
+            for(const auto& entry:catalog)Require(std::string(lv_dropdown_get_options(sourceChoice)).find(entry.name)!=std::string::npos,"Add font dialog is missing a built-in source");
+            lv_dropdown_set_selected(sourceChoice,static_cast<uint32_t>(catalog.size()));lv_obj_send_event(sourceChoice,LV_EVENT_VALUE_CHANGED,nullptr);
+            Require(std::string(lv_textarea_get_text(field(body,"Font file")))==catalog.back().path.u8string(),"Choosing a bundled source did not resolve its font file");
+            lv_dropdown_set_selected(sourceChoice,0);lv_obj_send_event(sourceChoice,LV_EVENT_VALUE_CHANGED,nullptr);
+            Require(!lv_obj_is_hidden(lv_obj_get_parent(field(body,"Font file"))),"Choosing a custom source did not restore the file picker");close(root);
+            Require(editor.ProjectDocument()["fonts"].size()==1,"Browsing unused built-in sources stored extra font assets");
+            auto* simulatorTitle=FindText(lv_screen_active(),"Simulator [Size:320x240]");Require(simulatorTitle,"Simulator is missing");
+            auto* surface=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(simulatorTitle))),0);
+            {EditorEdit::Scope edit;lv_label_set_text(lv_obj_get_child(surface,0),"ABC");}
+            editor.MenuAction("font-converter");root=window("Add project font");body=EditorWindow::Content(root);sourceChoice=field(body,"Source font");
+            const auto popularOption=lv_dropdown_get_option_index(sourceChoice,popular->name.c_str());Require(popularOption>0,"A popular font is missing from the source picker");
+            lv_dropdown_set_selected(sourceChoice,static_cast<uint32_t>(popularOption));lv_obj_send_event(sourceChoice,LV_EVENT_VALUE_CHANGED,nullptr);
+            lv_textarea_set_text(field(body,"Size (pixels)"),"22");lv_textarea_set_text(field(body,"Unicode ranges"),"0x41-0x43");lv_textarea_set_text(field(body,"Preview text"),"ABC");
+            click(body,"Add and apply");Require(wait(body).find("saved and applied")!=std::string::npos,"A popular font could not be prepared and applied");close(root);
+            document=editor.ProjectDocument();Require(document["fonts"].size()==2,"Choosing a popular font prepared unused catalog entries");
+            const auto selectedFont=document["obj"][0]["base"]["fontId"].get<std::string>();
+            const auto used=std::find_if(document["fonts"].begin(),document["fonts"].end(),[&](const json& item){return item.at("id")==selectedFont;});
+            Require(used!=document["fonts"].end()&&(*used)["conversion"]["sources"][0]["builtinId"]==popular->id,"Popular font selection did not use the bundled source");
+            Require((*used)["font"]["dsc"]["GlyphDsc"].size()==4,"Popular font preparation ignored the selected character subset");
+            const auto device=Serialization::ProjectScreens::Device(document);Require(device["fonts"].size()==1&&device["fonts"][0]["id"]==selectedFont,"Device export retained an unused font source");
+            const auto protobuf=Serialization::Protobuf::Encode(Serialization::EntityKind::Project,"project",device);
+            Require(Serialization::Protobuf::Decode(protobuf).data["fonts"].size()==1,"Device Protobuf retained unused catalog fonts");
+            std::cout<<"Built-in font choices cover lazy preview, cancellation, preparation, friendly names, stable source IDs, moved projects, popular font subsets and used-only device export\n";return 0;
+        }
+        if(argc==2&&std::string(argv[1])=="--font-assets") {
+            ClickPaletteWidget(simulator,"Label");
+            auto* simulatorTitle=FindText(lv_screen_active(),"Simulator [Size:320x240]");Require(simulatorTitle,"Simulator is missing");
+            auto* surface=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(simulatorTitle))),0);
+            auto label=[&]{return lv_obj_get_child(surface,0);};
+            {EditorEdit::Scope edit;lv_obj_set_size(label(),180,48);}
+            const auto before=Serialization::ProjectScreens::Canonical(editor.ProjectDocument());
+            const auto originalFontHeight=lv_obj_get_style_text_font(label(),LV_PART_MAIN)->line_height;
+            const auto sourceRoot=std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
+            const auto work=std::filesystem::temp_directory_path()/("uicreator-font-assets-"+std::to_string(SDL_GetTicksNS()));std::filesystem::create_directories(work);
+            const auto source=work/"Body source.ttf";std::filesystem::copy_file(sourceRoot/"3rdParty/LVGL/lvgl/src/libs/freetype/LiberationSans-Regular.ttf",source);
+            auto window=[&](const char* title){auto* text=FindText(lv_layer_top(),title);Require(text,"Font dialog is missing");return lv_obj_get_parent(lv_obj_get_parent(text));};
+            auto field=[&](lv_obj_t* body,const char* caption){auto* text=FindText(body,caption);Require(text,"Font field is missing");return lv_obj_get_child(lv_obj_get_parent(text),1);};
+            auto click=[&](lv_obj_t* body,const char* caption){auto* text=FindText(body,caption);Require(text,"Font action is missing");lv_obj_send_event(lv_obj_get_parent(text),LV_EVENT_CLICKED,nullptr);};
+            auto wait=[&](lv_obj_t* body){auto* status=lv_obj_get_child(body,-1);const auto start=SDL_GetTicks();while(std::string(lv_label_get_text(status)).rfind("Preparing font",0)==0&&SDL_GetTicks()-start<30000)simulator.ProcessEvents();std::cerr<<lv_label_get_text(status)<<'\n';return std::string(lv_label_get_text(status));};
+            auto close=[&](lv_obj_t* root){lv_obj_send_event(EditorWindow::CloseButton(root),LV_EVENT_CLICKED,nullptr);};
+            editor.MenuAction("font-converter");auto* root=window("Add project font");auto* body=EditorWindow::Content(root);
+            for(const char* caption:{"Output path","Output format","Font symbol","LVGL include path","Fallback font symbol"})Require(!FindText(body,caption),"Font asset creation still requires an output detail");
+            lv_textarea_set_text(field(body,"Font file"),source.u8string().c_str());lv_textarea_set_text(field(body,"Font name"),"Body font");
+            lv_textarea_set_text(field(body,"Unicode ranges"),"0x20-0x7E,0xE9");
+            click(body,"Preview");Require(wait(body).find("Preview ready")!=std::string::npos,"Font preview failed");
+            Require(Serialization::ProjectScreens::Canonical(editor.ProjectDocument())==before,"Preview changed the authored document");
+            click(body,"Add and apply");Require(wait(body).find("saved and applied")!=std::string::npos,"Font was not added and applied in one action");
+            auto document=editor.ProjectDocument();Require(document["fonts"].size()==1,"Font was not stored once in the project");const auto id=document["fonts"][0]["id"].get<std::string>();
+            Require(document["fonts"][0]["font"]["dsc"].value("bitmapFmt",0)>0,"The stored font lost the selected compression");
+            Require(document["fonts"][0]["conversion"]["sources"][0]["ranges"]=="0x20-0x7E,0xE9","Character selection was not remembered");
+            Require(document["obj"][0]["base"]["fontId"]==id,"Added font was not bound to its widget");
+            const auto initialHeight=lv_obj_get_style_text_font(label(),LV_PART_MAIN)->line_height;close(root);
+            Require(editor.Undo(),"Adding a font cannot be undone");auto afterUndo=Serialization::ProjectScreens::Canonical(editor.ProjectDocument());auto expectedUndo=before;
+            const auto stripHistoryIndex=[](const auto& self,json& value)->void {if(value.is_array())for(auto& item:value)self(self,item);else if(value.is_object()){value.erase("hostIndex");for(auto& item:value.items())self(self,item.value());}};
+            stripHistoryIndex(stripHistoryIndex,afterUndo);stripHistoryIndex(stripHistoryIndex,expectedUndo);
+            if(afterUndo!=expectedUndo){std::ofstream(work/"before-font-add.json")<<expectedUndo.dump(2);std::ofstream(work/"after-font-undo.json")<<afterUndo.dump(2);std::cerr<<"Font undo diagnostics: "<<work.u8string()<<'\n'<<json::diff(expectedUndo,afterUndo).dump(2)<<'\n';}
+            Require(afterUndo.value("fonts",json::array()).empty(),"Undo left the added font in the library");
+            Require(!afterUndo["obj"][0]["base"].contains("fontId"),"Undo left the added font bound to its widget");
+            Require(lv_obj_get_style_text_font(label(),LV_PART_MAIN)->line_height==originalFontHeight,"Undo did not restore the original widget font");
+            Require(afterUndo==expectedUndo,"Undo did not restore the authored document");
+            Require(editor.Redo(),"Adding a font cannot be redone");Require(editor.ProjectDocument()["fonts"].size()==1,"Redo lost the project font");
+            editor.DuplicateScreen(0);Require(editor.ScreenCount()==2,"Font screen duplication failed");Require(editor.SelectScreen(0),"Could not return to the first font screen");
+            editor.MenuAction("font-manager");auto* manager=window("Project fonts");auto* managerBody=EditorWindow::Content(manager);click(managerBody,"Edit font...");
+            root=window("Edit project font");body=EditorWindow::Content(root);
+            Require(std::string(lv_textarea_get_text(field(body,"Font file")))==source.u8string(),"Editing a font lost its source setting");
+            Require(std::string(lv_textarea_get_text(field(body,"Unicode ranges")))=="0x20-0x7E,0xE9","Editing a font lost its character ranges");
+            lv_textarea_set_text(field(body,"Size (pixels)"),"32");click(body,"Save font");Require(wait(body).find("Font saved")!=std::string::npos,"Editing the font failed");close(root);close(manager);
+            const auto updatedHeight=lv_obj_get_style_text_font(label(),LV_PART_MAIN)->line_height;Require(updatedHeight>initialHeight,"Editing a font did not update its existing widget");
+            Require(editor.ProjectDocument()["fonts"][0]["id"]==id,"Editing a font changed its stable identifier");
+            Require(editor.SelectScreen(1),"Could not switch to the second font screen");Require(lv_obj_get_style_text_font(label(),LV_PART_MAIN)->line_height==updatedHeight,"Another screen retained the old font bitmap");
+            Require(editor.SelectScreen(0),"Could not return to the first screen");lv_obj_send_event(label(),LV_EVENT_CLICKED,nullptr);
+            auto* fontChoice=field(lv_screen_active(),"Font");lv_dropdown_set_selected(fontChoice,0);lv_obj_send_event(fontChoice,LV_EVENT_VALUE_CHANGED,nullptr);
+            editor.MenuAction("font-manager");manager=window("Project fonts");managerBody=EditorWindow::Content(manager);click(managerBody,"Remove unused font");
+            Require(std::string(lv_label_get_text(lv_obj_get_child(managerBody,-1))).find("in use")!=std::string::npos,"A font used on another screen was removed");close(manager);
+            const auto saved=work/"fonts.json";editor.MenuAction("save-as");auto* saveWindow=window("Save project");
+            lv_textarea_set_text(lv_obj_get_child(EditorWindow::Content(saveWindow),0),saved.u8string().c_str());editor.MenuAction("confirm-file");Require(std::filesystem::is_regular_file(saved),"Saving a project font failed");
+            std::filesystem::remove(source);editor.MenuAction("new");editor.MenuAction("open");auto* openWindow=window("Open project");
+            lv_textarea_set_text(lv_obj_get_child(EditorWindow::Content(openWindow),0),saved.u8string().c_str());editor.MenuAction("confirm-file");Require(!FindText(lv_layer_top(),"Open project"),"Opening a saved font project failed");
+            Require(editor.SelectScreen(1),"Saved font screen was not restored");Require(lv_obj_get_style_text_font(label(),LV_PART_MAIN)->line_height==updatedHeight,"A saved font required the original source file");
+            Require(editor.ProjectDocument()["fonts"][0]["font"]["dsc"].value("bitmapFmt",0)>0,"Save/load lost compressed font data");
+            // References outside the visible canvas must also protect assets.
+            FontLibrary fonts;auto fontId=fonts.Add("Reference fixture",editor.ProjectDocument()["fonts"][0]["font"]);
+            auto referenceStyle=json::array({{{"selector",0},{"values",{{"text_font",{{"projectFont",fontId}}}}}}});
+            auto referenceWidget=json{{"base",{{"fontId",fontId},{"nativeStyles",referenceStyle}}}};
+            auto references=json{{"fonts",fonts.ToJSON()}};
+            references["screens"]=json::array({{{"obj",json::array({referenceWidget})}}});
+            references["sharedStyles"]=referenceStyle;
+            referenceWidget["base"].erase("fontId");referenceWidget["base"]["nativeStyles"][0]["values"]["text_font"]=fonts.Record(fontId)["font"];
+            references["components"]=json::array({{{"objects",json::array({referenceWidget})}}});
+            Require(fonts.References(references,fontId)==3,"Font reference counting lost a shared style/component or counted a widget twice");
+            auto* styled=lv_label_create(lv_layer_top());lv_obj_set_style_text_font(styled,fonts.Get(fontId),LV_PART_MAIN|LV_STATE_CHECKED);lv_obj_set_checked(styled,true);
+            fonts.Update(fontId,"Updated fixture",Serialization::LVFont::ToJSON(*LV_FONT_DEFAULT),json::object(),styled);
+            Require(lv_obj_get_style_text_font(styled,LV_PART_MAIN)==fonts.Get(fontId),"Updating a project font left a part/state style using its old bitmap");lv_obj_delete(styled);
+            std::cout<<"Project fonts cover output-free preview/add/apply, one-step undo/redo, editing, cross-screen rebinding/removal protection and source-independent reload\n";return 0;
+        }
         if((argc==2||argc==3)&&std::string(argv[1])=="--object-icons") {CheckObjectIcons(editor,simulator,argc==3?std::filesystem::u8path(argv[2]):std::filesystem::path{});return 0;}
         if((argc==2||argc==3)&&std::string(argv[1])=="--hierarchy-icons") {CheckHierarchyIcons(editor,simulator,argc==3?std::filesystem::u8path(argv[2]):std::filesystem::path{});return 0;}
         if(argc==3&&std::string(argv[1])=="--menu-toolbar-icons") {CheckMenuToolbarIcons(editor,simulator,std::filesystem::u8path(argv[2]));return 0;}
@@ -421,7 +560,7 @@ int main(int argc, char* argv[])
             for(const auto& item:panels)Require(!lv_obj_is_hidden(item.first),"Restore-all left a panel hidden");
             auto* tray=windowFor(lv_screen_active(),"Tool Tray");auto* minimize=FindText(EditorWindow::Header(tray),LV_SYMBOL_DOWN);Require(minimize,"Minimize control is missing");lv_obj_send_event(lv_obj_get_parent(minimize),LV_EVENT_CLICKED,nullptr);Require(lv_obj_is_hidden(tray),"Minimize did not hide the tray");editor.MenuAction("view:widgets");
             unsigned visibleTitles=0;std::function<void(lv_obj_t*)> countTitles=[&](lv_obj_t* object){if(lv_obj_get_class(object)==&lv_label_class && std::string(lv_label_get_text(object))=="Tool Tray" && lv_obj_is_visible(object))++visibleTitles;for(uint32_t i=0;i<lv_obj_get_child_count(object);++i)countTitles(lv_obj_get_child(object,i));};lv_obj_update_layout(lv_screen_active());countTitles(lv_screen_active());Require(visibleTitles==1,"View restoration left a minimized icon behind");
-            for(const auto& item:{std::make_pair("open","Open project"),std::make_pair("save","Save project"),std::make_pair("export-c","Export C project"),std::make_pair("export-protobuf","Export device project"),std::make_pair("export-micropython","Export MicroPython project"),std::make_pair("export-xml","Export UI Creator XML"),std::make_pair("about","About LVGL UI Creator"),std::make_pair("font-manager","Project fonts"),std::make_pair("image-manager","Project images"),std::make_pair("font-converter","Font converter"),std::make_pair("image-converter","Image converter"),std::make_pair("project-creator","Create LVGL firmware project")}) {
+            for(const auto& item:{std::make_pair("open","Open project"),std::make_pair("save","Save project"),std::make_pair("export-c","Export C project"),std::make_pair("export-protobuf","Export device project"),std::make_pair("export-micropython","Export MicroPython project"),std::make_pair("export-xml","Export UI Creator XML"),std::make_pair("about","About LVGL UI Creator"),std::make_pair("font-manager","Project fonts"),std::make_pair("image-manager","Project images"),std::make_pair("font-converter","Add project font"),std::make_pair("image-converter","Image converter"),std::make_pair("project-creator","Create LVGL firmware project")}) {
                 for(int i=0;i<2;++i){editor.MenuAction(item.first);auto* window=windowFor(lv_layer_top(),item.second);close(window);Require(!FindText(lv_layer_top(),item.second),"Dialog X did not close its window");}
             }
             Require(editor.ProjectDocument()==original,"Closing dialogs changed project data");
@@ -1108,7 +1247,7 @@ int main(int argc, char* argv[])
         Require(fontTarget != nullptr, "No label available for font application");
         lv_obj_send_event(fontTarget, LV_EVENT_CLICKED, nullptr);
         editor.MenuAction("font-converter");
-        auto* fontTitle = FindText(lv_layer_top(), "Font converter");
+        auto* fontTitle = FindText(lv_layer_top(), "Add project font");
         Require(fontTitle != nullptr, "Font converter menu did not open");
         auto* fontWindow = lv_obj_get_parent(lv_obj_get_parent(fontTitle));
         auto* fontBody = EditorWindow::Content(fontWindow);
@@ -1116,19 +1255,15 @@ int main(int argc, char* argv[])
         const auto sourceRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path().parent_path();
         const auto fontPath = sourceRoot / "3rdParty/LVGL/lvgl/src/libs/freetype/LiberationSans-Regular.ttf";
         lv_textarea_set_text(fontField("Font file"), fontPath.u8string().c_str());
-        const auto convertedPath = std::filesystem::temp_directory_path() / "uicreator-editor-converted-font.c";
-        lv_textarea_set_text(fontField("Output path"), convertedPath.u8string().c_str());
-        auto* convertLabel = FindText(fontBody, "Convert and export");
+        auto* convertLabel = FindText(fontBody, "Add and apply");
         Require(convertLabel != nullptr, "Convert action missing");
         lv_obj_send_event(lv_obj_get_parent(convertLabel), LV_EVENT_CLICKED, nullptr);
         auto* fontStatus = lv_obj_get_child(fontBody, -1);
         const auto conversionStart = SDL_GetTicks();
-        while (std::string(lv_label_get_text(fontStatus)).find("Converting font") == 0 && SDL_GetTicks() - conversionStart < 30000)
+        while (std::string(lv_label_get_text(fontStatus)).find("Preparing font") == 0 && SDL_GetTicks() - conversionStart < 30000)
             simulator.ProcessEvents();
         std::cerr << lv_label_get_text(fontStatus) << '\n';
-        Require(std::string(lv_label_get_text(fontStatus)).find("Preview ready") != std::string::npos, "Font conversion did not produce a preview");
-        auto* applyLabel = FindText(fontBody, "Apply to selected widget");
-        lv_obj_send_event(lv_obj_get_parent(applyLabel), LV_EVENT_CLICKED, nullptr);
+        Require(std::string(lv_label_get_text(fontStatus)).find("saved and applied") != std::string::npos, "Font was not saved and applied");
         const int convertedHeight = lv_obj_get_style_text_font(fontTarget, LV_PART_MAIN)->line_height;
         Require(convertedHeight > (LV_FONT_DEFAULT)->line_height, "Converted font was not applied");
         auto* closeFont = EditorWindow::CloseButton(fontWindow);

@@ -13,6 +13,15 @@ the current word and close it, or tap **X** to dismiss it. Enter sends the field
 a ready event without inserting a newline. Clicking a text field again reopens
 the keyboard. Password fields suppress suggestions and autocorrect.
 
+Select a text area or Custom Text box and set **Input mode** in its properties:
+**Alpha Numeric** is the unrestricted default, **Upper case** and **Lower case**
+convert letters and lock the keyboard's letter case, and **Numeric** accepts
+`0`–`9` with one decimal point. Numeric targets show a keypad with digits,
+decimal and delete; Enter and X remain available to close it. Pasted text and
+physical keyboard input follow the same restrictions. The keyboard switches
+mode automatically when you select a different text field. Existing character
+and length limits still apply.
+
 Select Advanced Keyboard in the Hierarchy to configure it:
 
 - **Target text box:** use the focused field automatically, or restrict the
@@ -34,7 +43,7 @@ Select Advanced Keyboard in the Hierarchy to configure it:
   Unicode order. The field's authored direction is restored on dismissal or a
   target switch; temporary editing styles do not enter saved projects.
 - **Prediction trie:** choose built-in English, an embedded project trie, or
-  None. Click **Load trie…** to select a compact NGTR v3 file for the desired
+  None. Click **Load trie…** to select an NGTR v2, compact v3 or compressed radix v4 file for the desired
   prediction and autocorrect vocabulary. Loaded models and
   their indices are embedded and shared in the project, so designs travel
   between Windows, ESP32, Raspberry Pi/Linux and Arduino without file paths.

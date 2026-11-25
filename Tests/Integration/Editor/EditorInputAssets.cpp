@@ -54,16 +54,12 @@ lv_obj_t* LastFontSource(lv_obj_t* window) {
 
 void CheckAssetEditorInput(UI& editor,SdlSimulator& simulator) {
     const auto original=editor.ProjectDocument();
-    auto* window=OpenAssetDialog(editor,simulator,"font-converter","Font converter");
+    auto* window=OpenAssetDialog(editor,simulator,"font-converter","Add project font");
     TypeAssetField(window,"Font file",u8"C:\\Fonts\\typed sample \u00e9.ttf",simulator);
     TypeAssetField(window,"Unicode ranges","0x20-0x7E,0xE000",simulator);
     TypeAssetField(window,"Additional symbols",u8"AZ\u00e9",simulator);
-    TypeAssetField(window,"Font symbol","typed_font_32",simulator);
-    TypeAssetField(window,"Output path","C:\\output fonts\\typed_font.c",simulator);
+    TypeAssetField(window,"Font name","Typed body font",simulator);
     TypeAssetField(window,"Size (pixels)","32",simulator);
-    TypeAssetField(window,"LVGL include path","my_lvgl/lvgl.h",simulator);
-    TypeAssetField(window,"Fallback font symbol","lv_font_montserrat_14",simulator);
-    TypeAssetField(window,"Project root (optional)","C:\\typed project",simulator);
     TypeAssetField(window,"Preview text",u8"Typed preview \u00e9 123",simulator);
     const auto initialFields=Input::Fields(window).size();
     std::cout<<"Adding and typing dynamic font source"<<std::endl;
@@ -76,7 +72,7 @@ void CheckAssetEditorInput(UI& editor,SdlSimulator& simulator) {
     std::cout<<"Removing dynamic font source"<<std::endl;
     Input::Click(Input::ParentButton(Input::FindLabel(addedPanel,"Remove")),simulator);
     Input::Require(Input::Fields(window).size()==initialFields,"Removing a focused font source left its editable fields alive");
-    TypeAssetField(window,"Font symbol","typed_after_source_removal",simulator);
+    TypeAssetField(window,"Font name","Typed after source removal",simulator);
     CloseAssetDialog(window,simulator);
 
     window=OpenAssetDialog(editor,simulator,"font-manager","Project fonts");

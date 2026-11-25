@@ -38,12 +38,28 @@ or a widget name. The root contains exactly one typed value.
 | Boolean | `<boolean>true</boolean>` or `<boolean>false</boolean>` |
 | Null | `<null/>` |
 | Binary | `<binary encoding="base64">AQID</binary>`, optionally with an unsigned 64-bit `subtype` attribute |
+| Raster font | `<font format_version="1">` containing one typed object with font metrics and `dsc` glyph, cmap and kerning tables; `dsc.bitmap` is a binary value |
 
 Objects, arrays, strings and binary values may be empty. Empty objects and arrays
 retain their distinct types. Base64 applies only to actual binary fields; it
 does not wrap a Protobuf record or hide the project hierarchy. Assets already
 stored as base64 strings in project records remain ordinary string properties.
 Binary data is owned after decoding; XML has no borrowed-asset mode.
+
+Project fonts are reusable records in the `fonts` array with stable `id`, a
+display `name`, and a `font` value. The font value stores portable raster data,
+including bit depth, compression, row stride, glyph metrics, Unicode maps and
+kerning. Widgets refer to it using `{"projectFont":"font_1"}` in their text
+styles; a widget's `base.fontId` also selects its main default style. Font names
+and conversion settings remain project metadata. No original TTF/OTF file or
+font conversion tool is needed by the on-device library. The decoder also
+accepts older generic object/string font representations.
+
+The `<font>` element is an explicit resource type, rather than an encoded
+Protobuf document. Its child object uses the same field names as the existing
+project font JSON; only the bitmap changes from a base64 string to a binary
+typed value. Unknown future font metadata is retained as a generic object
+instead of silently being dropped.
 
 The encoder orders object properties deterministically, indents by two spaces,
 and uses XML entities for metacharacters and numeric references for tab, newline
