@@ -2,6 +2,10 @@
 
 This started 7 or so years ago when I was using LVGL, there was nothing of the sort.  I started talking about doing something like this, and they created one.  Well it got spun off and another one got created.  These all cost money and annoyed me as cash grabs, so I decided to finish this.
 
+# RFC 
+If there is a bug or a feature you would like to see, please feel free to use Github Issues.  I would really like this to be the defacto editor for LVGL, and that can only happen with feedback.
+Also, feel free to submit well documented pull requests so this just is not MY tool, but the community's.
+
 # What is LVGL UI Creator?
 Glad you asked.  It is a gui for creating LVGL GUIs.  It is written using LVGL so it is truly WYSIWYG.  There are quite a few features that I am proud of:
 1. All LVGL Widgets and their functionality included
