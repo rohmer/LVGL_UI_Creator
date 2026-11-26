@@ -108,8 +108,7 @@ def mirror(source,base):
             dirs[:]=[]
             names=[name for name in names if name in {'CMakeLists.txt','README.md'}]
         dirs[:]=[name for name in dirs if name not in {'.git','.agents','.codex','.vs','.idea','.venv','.cache','__pycache__','.pytest_cache'}
-                 and (name!='build' or relative.as_posix()=='3rdParty/lv_font_conv/lib/freetype')
-                 and name!='node_modules' and (dependency is None or relative/name!=dependency)]
+                 and name not in {'build','node_modules'} and (dependency is None or relative/name!=dependency)]
         for name in names:
             if name=='.git':continue
             path=Path(folder)/name;part=relative/name

@@ -1,5 +1,0 @@
-pillow==12.1.1
-pypng==0.20220715.0
-lz4==4.4.5
-resvg-py==0.2.6
-pyinstaller==6.19.0

@@ -1,7 +1,7 @@
 // Native implementation of the LVGL font binary/bitmap format.
 // The format and modified I3BN codec follow lv_font_conv, Copyright (c) 2018
 // authors, MIT licensed. Its complete notice is retained at
-// 3rdParty/lv_font_conv/LICENSE and distributed with the converter notices.
+// upstream/lv_font_conv/LICENSE and distributed with the converter notices.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal

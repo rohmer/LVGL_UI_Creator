@@ -113,7 +113,7 @@ Built-in fonts are bundled with the desktop application and resolved by a stable
 
 The open source families are supplied as regular TrueType fonts. Pick the size and characters needed by the screen to keep its prepared font small. Source versions, copyright and license files are included in the [font catalog](Fonts/builtin/README.md).
 
-CMake and Visual Studio compile the C++ converter directly into the editor. FreeType/Brotli rasterize the source; native code writes LVGL C, binary fonts and PNG glyph dumps. Conversion needs no Node runtime or network connection. See [converter provenance and licenses](../3rdParty/lv_font_conv/UICREATOR.md).
+CMake and Visual Studio compile the C++ converter directly into the editor. FreeType/Brotli rasterize the source; native code writes LVGL C, binary fonts and PNG glyph dumps. Conversion needs no Node runtime or network connection. See [converter provenance and licenses](Fonts/upstream/lv_font_conv/README.md).
 
 ## Project fonts
 
@@ -129,7 +129,7 @@ All formats exposed by LVGLImage.py are available: ARGB8888, XRGB8888, RGB888, R
 
 Conversion is asynchronous; closing the converter cancels the job. **Apply first image** previews the converted colors in the selected Image widget. Saved projects embed the original, all conversion options, quantized preview frames, delays, and exact device frame bytes. Reconvert an image after reopening even if its disk source is gone. GIF animations retain all frames. Generated project C honors the selected pixel format, compression, stride and flags and emits required LVGL configuration checks. Compressed device images require `LV_BIN_DECODER_RAM_LOAD` as well as their RLE/LZ4 codec. Device firmware needs the chosen decoders/codecs and NEMA hardware support when selecting an accelerator-specific palette layout.
 
-Both [LVGL's web converter](https://lvgl.io/tools/imageconverter) and [the reference converter](../3rdParty/lvgl_image_converter/UICREATOR.md) informed this workflow. Image conversion now runs directly in C++ with linked native codecs; SVG uses the native resvg library. No Python conversion process or helper folder is required.
+Both [LVGL's web converter](https://lvgl.io/tools/imageconverter) and [the upstream converter](Images/upstream/lvgl_image_converter/README.md) informed this workflow. Image conversion now runs directly in C++ with linked native codecs; SVG uses the native resvg library. No Python conversion process or helper folder is required.
 
 ### Project images
 

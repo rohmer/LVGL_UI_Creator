@@ -149,8 +149,8 @@ class MacOSPackageTests(unittest.TestCase):
     def helper_source(self):
         source = self.base / 'source'
         files = {
-            '3rdParty/lvgl_image_converter/LVGLImage.py': b'print("upstream v1")\n',
-            '3rdParty/lvgl_image_converter/deleted.py': b'deleted later\n',
+            'UICreator/Images/ImageConverter.cpp': b'// Native image conversion fixture\n',
+            'UICreator/Fonts/NativeFont.cpp': b'// Native font conversion fixture\n',
             'UICreator/ProjectCreator/project_creator.py': b'print("project v1")\n',
             'UICreator/ProjectCreator/raspberry_pi_linux.py': b'linux\n',
             'UICreator/ProjectCreator/raspberry_pi_pico.py': b'pico\n',

@@ -159,15 +159,12 @@
     <ProjectReference Include="..\3rdParty\Breakpad\src\client\windows\sender\crash_report_sender.vcxproj">
       <Project>{da8cda6d-3173-ff47-3e4a-307b18e6c585}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\3rdParty\freetype-2.10.1\builds\windows\vc2010\freetype.vcxproj">
+    <ProjectReference Include="..\3rdParty\freetype-2.15.0\builds\windows\vc2010\freetype.vcxproj">
       <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <ProjectReference Include="..\3rdParty\LVGL\LVGL.vcxproj">
       <Project>{af5e3abf-b119-42c2-ab75-3b0e380cd6ba}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\3rdParty\MXML\vcnet\mxml1.vcxproj">
-      <Project>{e5aa9476-9751-4654-8109-b1a2112d5e73}</Project>
     </ProjectReference>
     <ProjectReference Include="..\3rdParty\SDL3\VisualC\SDL\SDL.vcxproj">
       <Project>{6c47ef33-90a4-4f8c-8cc7-c32e46d4d218}</Project>
@@ -261,7 +258,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/SDL3/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x\include;$(ProjectDir)..\3rdParty\Breakpad\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/SDL3/include;$(ProjectDir)../3rdParty/freetype-2.15.0\include;$(ProjectDir)../3rdParty/spdlog-1.x\include;$(ProjectDir)..\3rdParty\Breakpad\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -281,7 +278,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>USE_KEYBOARD;USE_MOUSE;USE_MOUSEWHEEL;LV_CONF_INCLUDE_SIMPLE;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/SDL3/include;$(ProjectDir)../3rdParty/MXML;$(ProjectDir)../3rdParty/freetype-2.10.1\include;$(ProjectDir)../3rdParty/spdlog-1.x/include;$(ProjectDir)../LVSerial;$(ProjectDir)../3rdParty/Breakpad;$(ProjectDir)../3rdParty/Breakpad/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../3rdParty/SDL3/include;$(ProjectDir)../3rdParty/freetype-2.15.0\include;$(ProjectDir)../3rdParty/spdlog-1.x/include;$(ProjectDir)../LVSerial;$(ProjectDir)../3rdParty/Breakpad;$(ProjectDir)../3rdParty/Breakpad/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

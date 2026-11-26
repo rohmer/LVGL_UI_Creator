@@ -1,6 +1,6 @@
 // Native FreeType rasterization and LVGL font export.
 // LVGL descriptor/dump layout adapted from lv_font_conv, Copyright (c) 2018
-// authors, MIT license: ../../../3rdParty/lv_font_conv/LICENSE.
+// authors, MIT license: upstream/lv_font_conv/LICENSE.
 #include "NativeFont.h"
 #include "NativeFontKerning.h"
 #include "../../3rdParty/JSON/json.hpp"

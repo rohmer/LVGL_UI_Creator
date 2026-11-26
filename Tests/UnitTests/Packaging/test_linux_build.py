@@ -26,14 +26,14 @@ class MirrorTests(unittest.TestCase):
         self.write('UICreator/Debug/generated/generated.cpp')
         self.write('LVSerial/x64/Release/LVSerial.vcxproj.FileListAbsolute.txt')
         self.write('LVSerial/x64/Release/Runtime.obj')
-        self.write('3rdParty/DirectFB/Win32/direct.cpp')
+        self.write('3rdParty/Fixture/Win32/platform.cpp')
         self.write('UICreator/Release/actual-source.cpp')
-        self.write('3rdParty/lv_font_conv/lib/freetype/build/CMakeLists.txt')
+        self.write('3rdParty/freetype-2.15.0/builds/cmake/CMakeLists.txt')
         destination=build.mirror(self.source,self.base)
         self.assertFalse((destination/'UICreator/Debug/generated/generated.cpp').exists())
         self.assertFalse((destination/'LVSerial/x64/Release/Runtime.obj').exists())
-        for name in ('3rdParty/DirectFB/Win32/direct.cpp','UICreator/Release/actual-source.cpp',
-                     '3rdParty/lv_font_conv/lib/freetype/build/CMakeLists.txt'):
+        for name in ('3rdParty/Fixture/Win32/platform.cpp','UICreator/Release/actual-source.cpp',
+                     '3rdParty/freetype-2.15.0/builds/cmake/CMakeLists.txt'):
             self.assertTrue((destination/name).is_file(),name)
         inventory=json.loads((self.base/'source-files.json').read_text())
         self.assertEqual(len(inventory),3)

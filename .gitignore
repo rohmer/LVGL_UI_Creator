@@ -349,8 +349,6 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 /build/*
-!3rdParty/lv_font_conv/lib/freetype/build/
-!3rdParty/lv_font_conv/lib/freetype/build/ft_render.js
 
 # Local generated workspaces and native build intermediates
 *.obj.d

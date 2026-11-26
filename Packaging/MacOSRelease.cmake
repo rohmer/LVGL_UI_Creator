@@ -63,7 +63,9 @@ install(FILES "${PROJECT_SOURCE_DIR}/LICENSE" "${PROJECT_SOURCE_DIR}/Packaging/T
     DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses")
 install(FILES "${PROJECT_SOURCE_DIR}/UICreator/Fonts/NativeFont.LICENSE" DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses/native-converters")
 install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/src/libs/lodepng/lodepng.h" DESTINATION "${UICREATOR_MACOS_CONTENTS}/Resources/licenses/lodepng")
-foreach(dependency SDL3 freetype-2.10.1 spdlog-1.x Breakpad Catch2 libimagequant nanopb MXML brotli resvg lv_font_conv lvgl_image_converter)
+include("${CMAKE_CURRENT_LIST_DIR}/ConverterNotices.cmake")
+uicreator_install_converter_notices("${UICREATOR_MACOS_CONTENTS}/Resources/licenses" "${UICREATOR_MACOS_CONTENTS}/Resources/docs")
+foreach(dependency SDL3 freetype-2.15.0 spdlog-1.x Breakpad Catch2 libimagequant nanopb brotli resvg)
     foreach(notice LICENSE LICENSE.txt LICENSE.TXT COPYING COPYING.txt COPYRIGHT LICENSE-MIT LICENSE-APACHE NativeFont.LICENSE UPSTREAM.md README.md docs/FTL.TXT docs/GPLv2.TXT)
         if(EXISTS "${PROJECT_SOURCE_DIR}/3rdParty/${dependency}/${notice}")
             install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/${dependency}/${notice}"

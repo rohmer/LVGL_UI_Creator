@@ -1,3 +1,0 @@
-usr/include/directfb-internal/x11vdpau/*.h
-usr/lib/directfb-*/systems/libdirectfb_x11vdpau.a
-usr/lib/directfb-*/gfxdrivers/libdirectfb_vdpau.a

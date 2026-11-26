@@ -6,12 +6,11 @@ LVGL UI Creator is MIT licensed. Bundled libraries and tools retain their own li
 | --- | --- |
 | LVGL | MIT, licenses/LVGL |
 | SDL3 | zlib, licenses/SDL3 |
-| FreeType | FreeType License or GPLv2, licenses/freetype-2.10.1 |
+| FreeType | FreeType License or GPLv2, licenses/freetype-2.15.0 |
 | spdlog | MIT, licenses/spdlog-1.x |
 | Breakpad | BSD-style, licenses/Breakpad |
 | libimagequant | GPLv3 or commercial license, licenses/libimagequant |
 | nanopb | zlib, licenses/nanopb |
-| Mini-XML | Apache 2.0 with LLVM exception, licenses/MXML |
 | nlohmann JSON | MIT, license text in licenses/JSON/json.hpp |
 | stb image utilities | Public domain / MIT dual license, license text in licenses/stb headers |
 | Native font/image converter ports | MIT upstream notices in licenses/lv_font_conv and licenses/lvgl_image_converter |

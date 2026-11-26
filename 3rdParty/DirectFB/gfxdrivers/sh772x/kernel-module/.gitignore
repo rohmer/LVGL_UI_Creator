@@ -1,8 +1,0 @@
-.sh772x_gfx.ko.cmd
-.sh772x_gfx.mod.o.cmd
-*.o.cmd
-.tmp_versions
-Module.symvers
-sh772x_gfx.ko
-sh772x_gfx.mod.c
-modules.order

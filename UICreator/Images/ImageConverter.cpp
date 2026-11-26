@@ -1,6 +1,6 @@
 // LVGL pixel formats and compression envelope follow LVGLImage.py,
 // Copyright (c) 2025 LVGL Kft, MIT license:
-// ../../3rdParty/lvgl_image_converter/LICENSE.
+// upstream/lvgl_image_converter/LICENSE.
 // Raster decoding, quantization and SVG rendering use linked native libraries.
 #include "ImageConverter.h"
 #include "NativeApng.h"
