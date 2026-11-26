@@ -22,6 +22,15 @@ if(MSVC)
     target_compile_options(UICreatorConverter PRIVATE /utf-8)
 endif()
 if(BUILD_TESTING)
+    set(keyboard_parent_emulator_settings "")
+    if(CMAKE_CROSSCOMPILING_EMULATOR)
+        set(keyboard_parent_emulator_settings "${PROJECT_BINARY_DIR}/keyboard-fixtures/parent-emulator.cmake")
+        string(REPLACE "\\" "\\\\" keyboard_parent_emulator "${CMAKE_CROSSCOMPILING_EMULATOR}")
+        string(REPLACE "\"" "\\\"" keyboard_parent_emulator "${keyboard_parent_emulator}")
+        string(REPLACE "$" "\\$" keyboard_parent_emulator "${keyboard_parent_emulator}")
+        file(WRITE "${keyboard_parent_emulator_settings}"
+            "set(CMAKE_CROSSCOMPILING_EMULATOR \"${keyboard_parent_emulator}\" CACHE STRING \"Parent keyboard fixture emulator\" FORCE)\n")
+    endif()
     find_package(Python3 3.10 COMPONENTS Interpreter REQUIRED)
     add_test(NAME UICreatorNativeConverters COMMAND "${Python3_EXECUTABLE}"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Converters/Verify.py"
@@ -163,6 +172,7 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/radix-generated-tests"
         "-DEXPORTED_DIR=${PROJECT_BINARY_DIR}/radix-asset-tests"
         "-DLVGL_BUILD_DIR=${PROJECT_BINARY_DIR}/version-matrix/9.6" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
+        "-DPARENT_TOOLCHAIN=${CMAKE_TOOLCHAIN_FILE}" "-DPARENT_EMULATOR_SETTINGS=${keyboard_parent_emulator_settings}"
         -P "${PROJECT_SOURCE_DIR}/Tests/Integration/RadixPrediction/VerifyGenerated.cmake")
     set_tests_properties(UICreatorRadixGenerated PROPERTIES TIMEOUT 240 LABELS "functional;language-models;prediction;export;radix" FIXTURES_REQUIRED RadixAssets)
     if(MSVC)
@@ -397,7 +407,9 @@ if(BUILD_TESTING AND TARGET LVGLRuntime::Runtime)
     add_test(NAME UICreatorAdvancedKeyboardGenerated COMMAND "${CMAKE_COMMAND}"
         "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/advanced-keyboard-generated"
         "-DEXPORTED_DIR=${advanced_keyboard_fixture}" "-DLVGL_BUILD_DIR=${PROJECT_BINARY_DIR}/version-matrix/9.6"
-        "-DPARENT_GENERATOR=${CMAKE_GENERATOR}" -P "${PROJECT_SOURCE_DIR}/Tests/Integration/AdvancedKeyboardGenerated/Verify.cmake")
+        "-DPARENT_GENERATOR=${CMAKE_GENERATOR}" "-DPARENT_TOOLCHAIN=${CMAKE_TOOLCHAIN_FILE}"
+        "-DPARENT_EMULATOR_SETTINGS=${keyboard_parent_emulator_settings}"
+        -P "${PROJECT_SOURCE_DIR}/Tests/Integration/AdvancedKeyboardGenerated/Verify.cmake")
     set_tests_properties(UICreatorAdvancedKeyboardGenerated PROPERTIES DEPENDS "UICreatorAdvancedKeyboard;LVGLGenerator96" TIMEOUT 180 LABELS "functional;firmware;advanced-keyboard")
 endif()
 

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "repository": "https://github.com/rohmer/AdvancedKeyboard.git",
-  "revision": "ccdb55a476ea5215ebea9e4272b9969591a46751",
+  "revision": "5bac31d83c220a3bb0feb94ec89aa7328dc5522d",
   "paths": {
     "creator": "3rdParty/AdvancedKeyboard",
     "espos": "third_party/AdvancedKeyboard"

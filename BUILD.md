@@ -31,6 +31,17 @@ See [the tool guide](Tools/README.md) for workspace output paths, OpenNLP setup
 for the original language profiles and Unicode fallback sentence extraction for
 the additional languages. New-language fallback mode does not require Java.
 
+To create self-contained Windows x64/x86 Corpus Workbench and Keyboard Simulator
+companion ZIPs after building the matching native Windows payloads, run
+`./Packaging/BuildCorpusTools.ps1 -Architecture both`. These CPack archives include
+the .NET runtime, matching native model generator and keyboard layouts. Users can
+extract the archive and run `CorpusWorkbench.exe` or `KeyboardSimulator.exe`;
+enable **Numeric** in the simulator toolbar to test numeric entry. Output defaults
+to `build/corpus-tools-packages`. Use `-NativePayloadRoot`, `-PublishRoot` and
+`-OutputDirectory` for isolated release directories; the publish directory must
+be unused. These Windows Forms tools run on Windows; the Linux/macOS packages
+contain the native editor and language-model tools.
+
 Corpus Workbench prefers the native `UICreatorModelGen` helper when found.
 Normal desktop builds include it. To build just the standalone helper, use
 `cmake -S 3rdParty/AdvancedKeyboard/tools/NativeTrieGenerator -B build/native-trie -DCMAKE_BUILD_TYPE=Release`
