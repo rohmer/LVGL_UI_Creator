@@ -40,7 +40,7 @@
     {
       "source": "Integrations/ESPOS/templates/Keyboard/README.md",
       "target": "Keyboard/README.md",
-      "sha256": "a5182e7dbe6e629b4e457428435d1df5bf0490a73ad77b570906287b86362377"
+      "sha256": "63dcb409f48e7353f44b8cfc4e785e80330dad4186c98ee96f254bb1ffe42f4b"
     },
     {
       "source": "Integrations/ESPOS/templates/Keyboard/TypingViewEsp.cpp",

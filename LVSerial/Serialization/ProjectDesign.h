@@ -3,6 +3,7 @@
 // Authoring data is materialized into ordinary LVGL records. This header has no
 // LVGL or desktop dependencies, so the same document works in trimmed runtimes.
 #include "../../3rdParty/JSON/json.hpp"
+#include "ProjectKeyboard.h"
 #include <algorithm>
 #include <map>
 #include <set>
@@ -441,6 +442,7 @@ inline void ImportLibrary(json& doc,const json& library)
 inline void Materialize(json& doc,bool stripAuthoring=false)
 {
     if(!doc.is_object())return;
+    if(stripAuthoring)ProjectKeyboard::Materialize(doc);
     if(doc.contains("canvas"))ResolveTheme(doc["canvas"],doc);
     if(doc.contains("obj")&&doc["obj"].is_array()) {
         for(auto& record:doc["obj"])ResolveTheme(record,doc);

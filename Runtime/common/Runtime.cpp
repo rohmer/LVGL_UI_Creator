@@ -693,9 +693,20 @@ void InstallInteractions(lvgl_runtime& runtime,size_t screen)
         if(found!=state.objects.end())state.interactions->Bind(found->second,screen,oid,widget.value("base",json::object()).value("events",json::array()));
     }
 }
+void CloseScreenKeyboard(lvgl_runtime& runtime,size_t screen)
+{
+#if LVSERIAL_USE_ADVANCED_KEYBOARD
+    if(screen<runtime.screens.size())for(const auto& item:runtime.screens[screen]->objects)
+        if(item.second && Serialization::AdvancedKeyboard::Type(item.second) &&
+            Serialization::ReadSection(item.second,"advancedKeyboard").value("screenManaged",false))
+            lv_advanced_keyboard_close(item.second);
+#else
+    (void)runtime;(void)screen;
+#endif
+}
 void ActivateFocus(lvgl_runtime& runtime,size_t screen)
 {
-    if(!runtime.input_group)return;
+    if(!runtime.input_group){CloseScreenKeyboard(runtime,screen);return;}
     auto* focused=lv_group_get_focused(runtime.input_group);
     for(const auto& state:runtime.screens)for(const auto& slot:state->focus)if(slot->object)lv_group_remove_obj(slot->object);
     if(screen>=runtime.screens.size())return;
@@ -705,6 +716,9 @@ void ActivateFocus(lvgl_runtime& runtime,size_t screen)
     Serialization::Accessibility::ApplyFocusOrder(runtime.input_group,authored);
     if(focused&&std::any_of(state.focus.begin(),state.focus.end(),[&](const std::unique_ptr<FocusSlot>& slot){return slot->object==focused;}))
         lv_group_focus_obj(focused);
+    // Default-group insertion emits focus while a screen is being constructed.
+    // Screen keyboards open only on a later user click/focus, not that setup.
+    CloseScreenKeyboard(runtime,screen);
 }
 void EnsureScreen(lvgl_runtime& runtime,size_t screen)
 {
@@ -739,6 +753,7 @@ void EnsureScreen(lvgl_runtime& runtime,size_t screen)
             if(lv_obj_get_screen(*node)==state.object){auto slot=std::make_unique<FocusSlot>();Track(*node,&slot->object);state.focus.push_back(std::move(slot));}
         }
         AnimateTree(runtime,state.object);lv_obj_update_layout(state.object);
+        CloseScreenKeyboard(runtime,screen);
         if(runtime.initialized) {
             const bool updating=runtime.updating;runtime.updating=true;
             try {for(auto& variable:runtime.variables)for(auto& binding:variable->bindings)if(binding->definition.screen==screen){Bind(*binding);Apply(*binding,variable->current);}}
@@ -1084,7 +1099,34 @@ extern "C"
             if (record.kind != Serialization::EntityKind::Project || record.type != "project")
                 throw std::invalid_argument("Expected a project record");
             auto document = std::move(record.data);
+            std::map<std::string,size_t> trieSourceIndices;
+            if(document.contains("advancedKeyboard") && !record.borrowedAssets.empty() && document.contains("tries")) {
+                size_t index=0;
+                for(const auto& asset:document["tries"])trieSourceIndices.emplace(asset.at("id").get<std::string>(),index++);
+            }
             Serialization::ProjectDesign::Materialize(document,true);
+            if(!trieSourceIndices.empty()) {
+                // Pruning the project model library changes its array indices.
+                // Preserve zero-copy spans, rebasing only trusted decoder paths.
+                Serialization::BorrowedAssets retained;
+                size_t index=0;
+                if(document.contains("tries"))for(auto& asset:document["tries"]) {
+                    const auto source=trieSourceIndices.find(asset.at("id").get<std::string>());
+                    if(source==trieSourceIndices.end())throw std::invalid_argument("Unknown materialized trie source");
+                    for(const auto* key:{"data","indexData"})if(asset.contains(key)) {
+                        auto& value=asset[key];
+                        if(!value.is_object() || !value.contains("borrowedBytes"))continue;
+                        const auto oldPath="/tries/"+std::to_string(source->second)+"/"+key;
+                        const auto newPath="/tries/"+std::to_string(index)+"/"+key;
+                        const auto span=record.borrowedAssets.find(oldPath);
+                        if(value.at("borrowedBytes")!=oldPath || span==record.borrowedAssets.end())
+                            throw std::invalid_argument("Invalid borrowed trie source");
+                        value["borrowedBytes"]=newPath;retained.emplace(newPath,span->second);
+                    }
+                    ++index;
+                }
+                record.borrowedAssets=std::move(retained);
+            }
             Serialization::MigrateAdvancedKeyboardEditors(document);
             auto tries = (!xml && (flags & LVGL_RUNTIME_BORROW_ASSETS))
                 ? Serialization::ProjectTries::Load(document, record.borrowedAssets)

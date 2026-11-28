@@ -6,12 +6,28 @@
 #include <algorithm>
 #include <charconv>
 #include <cstring>
+#include <new>
 #if LVGL_VERSION_MAJOR >= 9
 #include <src/core/lv_obj_class_private.h>
 #include <src/core/lv_obj_private.h>
 #include <src/core/lv_obj_style_private.h>
 #include <Serialization/NativeStyles.h>
+#include <Serialization/ProjectKeyboard.h>
+#include <Serialization/RuntimeFeatures.h>
 #include "../Fonts/FontMemory.h"
+#if LVSERIAL_USE_ADVANCED_KEYBOARD
+#include <lv_advanced_keyboard.h>
+#endif
+
+struct RuntimeKeyboardMemory {
+    std::string language;
+    int width = 0, height = 0;
+    const lv_font_t* inheritedFont = nullptr;
+    nlohmann::json rawSettings, settings;
+    size_t widgets = 0;
+    std::vector<const lv_font_t*> fonts;
+    bool inputKnown = false, attempted = false, available = false;
+};
 #endif
 
 namespace {
@@ -42,7 +58,8 @@ const lv_font_t* StyleFont(lv_obj_t* object,uint32_t part,uint32_t state)
     }
     return found;
 }
-void AuthoredFonts(lv_obj_t* object,ScreenFontMemory& fonts)
+template<class Fonts>
+void AuthoredFonts(lv_obj_t* object,Fonts& fonts)
 {
     for(unsigned i=0;i<object->style_cnt;++i) {
         const auto& style=object->styles[i];
@@ -53,7 +70,8 @@ void AuthoredFonts(lv_obj_t* object,ScreenFontMemory& fonts)
             fonts.Include(static_cast<const lv_font_t*>(font.ptr));
     }
 }
-void TextFonts(lv_obj_t* object,lv_obj_t* root,ScreenFontMemory& fonts,uint32_t part)
+template<class Fonts>
+void TextFonts(lv_obj_t* object,lv_obj_t* root,Fonts& fonts,uint32_t part)
 {
     std::set<uint32_t> states{0u,static_cast<uint32_t>(lv_obj_get_state(object))};
     for(unsigned i=0;i<object->style_cnt;++i) {
@@ -69,8 +87,12 @@ void TextFonts(lv_obj_t* object,lv_obj_t* root,ScreenFontMemory& fonts,uint32_t 
         else fonts.Include(LV_FONT_DEFAULT);
     }
 }
-size_t WidgetInstanceBytes(lv_obj_t* object,lv_obj_t* root,ScreenFontMemory& fonts)
+template<class Fonts>
+size_t WidgetInstanceBytes(lv_obj_t* object,lv_obj_t* root,Fonts& fonts,bool skipLegacyKeyboard=false)
 {
+#if LVSERIAL_USE_ADVANCED_KEYBOARD
+    if(skipLegacyKeyboard && lv_advanced_keyboard_is_instance(object))return 0;
+#endif
     // LVGL allocates the first nonzero instance_size in the class chain.
     // That size includes the base object; inherited classes are not additive.
     const auto* widgetClass = lv_obj_get_class(object);
@@ -89,8 +111,80 @@ size_t WidgetInstanceBytes(lv_obj_t* object,lv_obj_t* root,ScreenFontMemory& fon
     }
     const auto count = lv_obj_get_child_count(object);
     for (uint32_t index = 0; index < count; ++index)
-        bytes += WidgetInstanceBytes(lv_obj_get_child(object, index),root,fonts);
+        bytes += WidgetInstanceBytes(lv_obj_get_child(object, index),root,fonts,skipLegacyKeyboard);
     return bytes;
+}
+
+struct ProfileFonts {
+    std::set<const lv_font_t*> fonts;
+    void Include(const lv_font_t* font) { if(font)fonts.insert(font); }
+};
+
+// A probe never becomes the active screen or joins an editor input group.
+// The canonical widget constructs its exact private LVGL tree for measurement;
+// its temporary engine/workspace is destroyed before returning to the editor.
+struct KeyboardMemoryProbe {
+    lv_display_t* display = lv_display_get_default();
+    lv_group_t* defaultGroup = lv_group_get_default();
+    lv_group_t* editorGroup;
+    lv_obj_t* defaultFocus = defaultGroup ? lv_group_get_focused(defaultGroup) : nullptr;
+    lv_obj_t* editorFocus;
+    bool defaultEditing = defaultGroup && lv_group_get_editing(defaultGroup);
+    bool editorEditing;
+    lv_obj_t* screen = nullptr;
+
+    KeyboardMemoryProbe(lv_display_t* targetDisplay,lv_group_t* group) :
+        editorGroup(group), editorFocus(group ? lv_group_get_focused(group) : nullptr),
+        editorEditing(group && lv_group_get_editing(group))
+    {
+        lv_group_set_default(nullptr);
+        lv_display_set_default(targetDisplay);
+    }
+    ~KeyboardMemoryProbe()
+    {
+        if(screen)lv_obj_delete(screen);
+        lv_display_set_default(display);
+        lv_group_set_default(defaultGroup);
+        auto restore=[](lv_group_t* group,lv_obj_t* focus,bool editing) {
+            if(!group)return;
+            if(focus && lv_obj_is_valid(focus) && lv_group_get_focused(group) != focus)lv_group_focus_obj(focus);
+            if(lv_group_get_editing(group) != editing)lv_group_set_editing(group,editing);
+        };
+        restore(defaultGroup,defaultFocus,defaultEditing);
+        if(editorGroup != defaultGroup)restore(editorGroup,editorFocus,editorEditing);
+    }
+};
+
+void MeasureRuntimeKeyboard(RuntimeKeyboardMemory& profile,lv_obj_t* canvas,lv_group_t* group,const nlohmann::json& settings)
+{
+#if LVSERIAL_USE_ADVANCED_KEYBOARD
+    const auto* font=lv_obj_get_style_text_font(canvas,LV_PART_MAIN);
+    const int width=lv_obj_get_width(canvas),screenHeight=lv_obj_get_height(canvas);
+    const int height=(std::min)(settings.value("height",Serialization::ProjectKeyboard::DefaultHeight(screenHeight)),screenHeight);
+    const auto& language=settings.at("language").get_ref<const std::string&>();
+    if(profile.attempted && profile.language==language && profile.width==width && profile.height==height && profile.inheritedFont==font)return;
+    profile.language=language;profile.width=width;profile.height=height;profile.inheritedFont=font;
+    profile.attempted=true;profile.available=false;
+    profile.widgets=0;profile.fonts.clear();
+    KeyboardMemoryProbe probe(lv_obj_get_display(canvas),group);
+    probe.screen=lv_obj_create(nullptr);
+    if(!probe.screen)throw std::bad_alloc();
+    lv_obj_set_hidden(probe.screen,true);
+    lv_obj_set_style_text_font(probe.screen,font,LV_PART_MAIN);
+    auto* keyboard=lv_advanced_keyboard_create(probe.screen);
+    if(!keyboard)throw std::bad_alloc();
+    lv_obj_set_size(keyboard,width,height);
+    if(!lv_advanced_keyboard_set_language(keyboard,language.c_str()))
+        throw std::invalid_argument("Could not measure the keyboard language");
+    lv_advanced_keyboard_set_right_to_left(keyboard,settings.at("rightToLeft").get<bool>());
+    ProfileFonts fonts;
+    profile.widgets=WidgetInstanceBytes(keyboard,keyboard,fonts);
+    profile.fonts.assign(fonts.fonts.begin(),fonts.fonts.end());
+    profile.available=true;
+#else
+    (void)profile;(void)canvas;(void)group;(void)settings;
+    throw std::invalid_argument("Advanced Keyboard is unavailable in this LVGL build");
+#endif
 }
 struct MemoryHint {lv_obj_t *label=nullptr,*popup=nullptr;};
 void HideMemoryHint(MemoryHint* hint)
@@ -117,7 +211,7 @@ void MemoryHintEvent(lv_event_t* event)
         lv_obj_set_style_text_color(hint->popup,lv_color_hex(EditorStyle::Text),0);
         lv_obj_set_clickable(hint->popup,false);lv_obj_set_scrollable(hint->popup,false);
         auto* text=lv_label_create(hint->popup);lv_obj_set_width(text,LV_PCT(100));lv_label_set_long_mode(text,LV_LABEL_LONG_MODE_WRAP);
-        lv_label_set_text(text,"LVGL widget instances plus unique used bitmap-font structures, glyphs, bitmap, Unicode and kerning tables. Shared fonts count once per screen. Includes fallback fonts; excludes source TTFs, allocator overhead, text/style/image buffers, opaque external font data and temporary rendering memory. Sizes use the current native LVGL build.");
+        lv_label_set_text(text,"LVGL widget instances plus unique used bitmap-font structures, glyphs, bitmap, Unicode and kerning tables. Includes the configured runtime keyboard and fallback fonts; shared fonts count once per screen. Excludes prediction tries/engine workspace, source TTFs, allocator overhead, text/style/image buffers, opaque external font data and temporary rendering memory. Sizes use the current native LVGL build.");
         lv_obj_update_layout(hint->popup);lv_area_t anchor{};lv_obj_get_coords(hint->label,&anchor);
         const int width=lv_obj_get_width(hint->popup),height=lv_obj_get_height(hint->popup);
         const int x=std::clamp(anchor.x1,4,(std::max)(4,lv_display_get_horizontal_resolution(display)-width-4));
@@ -143,6 +237,7 @@ SimWindow::SimWindow(int iWidth, int iHeight) :
 {
 #if LVGL_VERSION_MAJOR >= 9
     fontMemory=std::make_unique<ScreenFontMemory>();
+    runtimeKeyboardMemory=std::make_unique<RuntimeKeyboardMemory>();
 #endif
     createObjects();
 }
@@ -171,12 +266,41 @@ void SimWindow::RefreshMemoryUsage()
 {
 #if LVGL_VERSION_MAJOR >= 9
     if (!memoryLabel) return;
+    const nlohmann::json* settings=nullptr;
+    bool configured=false,enabled=false,unavailable=false;
+    try {
+        const auto raw=runtimeKeyboardSettings ? runtimeKeyboardSettings() : nlohmann::json{};
+        configured=!raw.is_null();
+        if(configured) {
+            if(!runtimeKeyboardMemory->inputKnown || runtimeKeyboardMemory->rawSettings!=raw) {
+                auto normalized=Serialization::ProjectKeyboard::Normalize(raw);
+                runtimeKeyboardMemory->rawSettings=raw;
+                runtimeKeyboardMemory->settings=std::move(normalized);
+                runtimeKeyboardMemory->inputKnown=true;
+            }
+            settings=&runtimeKeyboardMemory->settings;
+            enabled=settings->at("enabled").get<bool>();
+        }
+    }catch(const std::exception&) {unavailable=true;}
     fontMemory->Begin();
-    const auto widgets=WidgetInstanceBytes(drawSurface,drawSurface,*fontMemory);
+    auto widgets=WidgetInstanceBytes(drawSurface,drawSurface,*fontMemory,configured);
+    if(enabled) {
+        try {
+            MeasureRuntimeKeyboard(*runtimeKeyboardMemory,drawSurface,keyboardGroup,*settings);
+            if(runtimeKeyboardMemory->available) {
+                widgets+=runtimeKeyboardMemory->widgets;
+                for(const auto* font:runtimeKeyboardMemory->fonts)fontMemory->Include(font);
+            } else unavailable=true;
+        }catch(const std::exception&) {unavailable=true;}
+    } else if(!unavailable) {
+        runtimeKeyboardMemory->attempted=false;
+        runtimeKeyboardMemory->fonts.clear();
+    }
     const auto bytes=widgets+fontMemory->End();
-    if (bytes == memoryBytes) return;
+    if (bytes == memoryBytes && unavailable == memoryEstimateUnavailable) return;
     memoryBytes = bytes;
-    lv_label_set_text_fmt(memoryLabel, "Screen Memory: %zu bytes", bytes);
+    memoryEstimateUnavailable=unavailable;
+    lv_label_set_text_fmt(memoryLabel, unavailable ? "Screen Memory: %zu bytes (keyboard estimate unavailable)" : "Screen Memory: %zu bytes", bytes);
 #endif
 }
 

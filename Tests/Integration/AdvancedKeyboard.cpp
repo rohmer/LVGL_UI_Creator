@@ -1,7 +1,12 @@
 #include <Serialization/AdvancedKeyboard.h>
 #include <Serialization/ObjectSerializer.h>
 #include <Serialization/Project.h>
+#include <Serialization/ProjectKeyboard.h>
+#include <Serialization/ProjectScreens.h>
+#include <Serialization/Xml.h>
 #include "../../CodeGeneration/CCodeGenerator.h"
+#include "../../CodeGeneration/XmlCodeGenerator.h"
+#include "../../CodeGeneration/MicroPythonCodeGenerator.h"
 #include "../../Runtime/include/lvgl_runtime.h"
 #include <lv_advanced_keyboard_prediction.h>
 #include <algorithm>
@@ -888,6 +893,93 @@ void TestLongPressVariants()
 
 }
 
+static void TestProjectKeyboard(const std::filesystem::path& directory)
+{
+    const auto defaults=ProjectKeyboard::Normalize(json::object());
+    Check(!defaults.at("enabled").get<bool>(),"Project keyboard was enabled by default");
+    for(const auto& invalid:std::vector<json>{{{"enabled",1}},{{"height",0}},{{"height",-1}},{{"height",32768}},{{"language","unknown"}}}) {
+        bool rejected=false;try {ProjectKeyboard::Normalize(invalid);}catch(const std::exception&){rejected=true;}
+        Check(rejected,"Invalid project keyboard settings were accepted");
+    }
+    Check(!ProjectKeyboard::Normalize({{"height",nullptr}}).contains("height"),"Automatic keyboard height did not normalize");
+    json source={{"advancedKeyboard",{{"enabled",true},{"trieId",""}}},{"canvas",{{"width",320},{"height",240}}},
+        {"variables",json::array()},{"obj",json::array({
+            {{"oid",0},{"par",-1},{"base",{{"coords",{{"x",10},{"y",10},{"width",140},{"height",40}}}}},{"textarea",{{"text",""},{"oneLine",true},{"inputMode","uppercase"}}}},
+            {{"oid",4},{"par",-1},{"base",{{"coords",{{"x",170},{"y",10},{"width",140},{"height",40}}}}},{"textarea",{{"text",""},{"oneLine",true},{"inputMode","numeric"}}}}
+        })}};
+    const auto original=source;
+    for(const auto& restored:{Protobuf::Decode(Protobuf::Encode(EntityKind::Project,"project",original)).data,
+        Xml::Decode(Xml::Encode(EntityKind::Project,"project",original)).data})
+        Check(restored.at("advancedKeyboard")==original.at("advancedKeyboard") && restored.at("obj").size()==2,"Project keyboard authoring options did not round trip without widgets");
+    auto device=ProjectScreens::Device(source);
+    Check(source==original && device["obj"].size()==3,"Screen materialization mutated authoring or missed its keyboard");
+    const auto keyboardId=device["obj"].back().at("oid").get<int>();
+    Check(keyboardId!=0 && keyboardId!=4 && ProjectKeyboard::Managed(device["obj"].back()),"Managed keyboard marker or unique ID missing");
+    Check(device["obj"].back()["base"]["coords"]["height"]==144,"Default screen keyboard obscures the entire small screen");
+    auto repeated=device;ProjectKeyboard::Materialize(repeated);Check(repeated==device,"Screen keyboard materialization is not idempotent");
+    auto legacy=original;legacy["obj"].push_back({{"oid",7},{"par",-1},{"base",{{"nativeStyles",json::array()}}},{"advancedKeyboard",{{"language","de-DE"},{"trieId",""}}}});
+    auto upgraded=legacy;ProjectKeyboard::Materialize(upgraded);
+    Check(upgraded["obj"].size()==3 && upgraded["obj"].back()["oid"]==7 && upgraded["obj"].back()["advancedKeyboard"]["language"]=="en-US","Screen settings did not replace the legacy keyboard once");
+    legacy["advancedKeyboard"]["enabled"]=false;ProjectKeyboard::Materialize(legacy);
+    Check(legacy["obj"].size()==2,"Disabled screen retained a legacy runtime keyboard");
+    auto* oldGroup=lv_group_get_default();auto* group=lv_group_create();lv_group_set_default(group);
+    auto page=original;page.erase("advancedKeyboard");
+    auto other=page;other["canvas"]["height"]=320;
+    json multi={{"advancedKeyboard",original.at("advancedKeyboard")},{"activeScreen",0},{"variables",json::array()},
+        {"screens",json::array({page,other})}};
+    const auto bytes=Protobuf::Encode(EntityKind::Project,"project",multi);
+    lvgl_runtime_t* runtime=nullptr;char error[512]{};
+    Check(lvgl_runtime_load_memory_ex(bytes.data(),bytes.size(),nullptr,LVGL_RUNTIME_LAZY_SCREENS|LVGL_RUNTIME_UNLOAD_INACTIVE,&runtime,error,sizeof error),error);
+    auto* keyboard=lvgl_runtime_object(runtime,0,keyboardId);auto* upper=lvgl_runtime_object(runtime,0,0);auto* numeric=lvgl_runtime_object(runtime,0,4);
+    Check(keyboard && lv_obj_is_hidden(keyboard) && !lv_advanced_keyboard_get_textarea(keyboard),"Default runtime focus opened the screen keyboard before editing");
+    lv_obj_send_event(upper,LV_EVENT_CLICKED,nullptr);Advance(40);
+    Check(!lv_obj_is_hidden(keyboard) && lv_advanced_keyboard_get_textarea(keyboard)==upper,"Editing did not open the screen keyboard");
+    auto* keys=lv_advanced_keyboard_get_keyboard(keyboard);
+    Check(Button(keys,"A") && !Button(keys,"a"),"Screen keyboard did not respect uppercase target");
+    Tap(keys,"A");Check(std::string(lv_textarea_get_text(upper))=="A","Screen keyboard did not type into uppercase target");
+    lv_obj_send_event(numeric,LV_EVENT_CLICKED,nullptr);Advance(40);
+    Check(lv_advanced_keyboard_get_textarea(keyboard)==numeric && Button(keys,"1") && !Button(keys,"A"),"Screen keyboard did not switch numeric target/layout");
+    Tap(keys,"1");Tap(keys,".");Tap(keys,"2");Check(std::string(lv_textarea_get_text(numeric))=="1.2","Numeric screen keyboard typed into the wrong field");
+    Tap(lv_obj_get_child(keyboard,0),"Enter");Check(lv_obj_is_hidden(keyboard),"Enter did not dismiss the screen keyboard");
+    lv_obj_send_event(upper,LV_EVENT_CLICKED,nullptr);Check(!lv_obj_is_hidden(keyboard),"Dismissed screen keyboard did not reopen");
+    lv_advanced_keyboard_close(keyboard);
+    Check(lvgl_runtime_show_screen(runtime,1),lvgl_runtime_error(runtime));
+    auto* nextKeyboard=lvgl_runtime_object(runtime,1,keyboardId);
+    Check(nextKeyboard && lv_obj_is_hidden(nextKeyboard),"Project keyboard was not created hidden on the next screen");
+    auto* nextField=lvgl_runtime_object(runtime,1,0);lv_obj_send_event(nextField,LV_EVENT_CLICKED,nullptr);
+    Check(lv_advanced_keyboard_get_textarea(nextKeyboard)==nextField && !lv_obj_is_hidden(nextKeyboard),"Project keyboard did not bind the next screen's own field");
+    Check(lvgl_runtime_show_screen(runtime,0),lvgl_runtime_error(runtime));
+    keyboard=lvgl_runtime_object(runtime,0,keyboardId);
+    Check(keyboard && lv_obj_is_hidden(keyboard),"Lazy screen recreation opened its keyboard");
+    lvgl_runtime_destroy(runtime);lv_group_set_default(oldGroup);lv_group_delete(group);
+    CCodeGenerator generator;Check(generator.LoadProject(original),generator.GetLastError());
+    const auto output=directory/"screen-keyboard";Check(generator.ExportProject(output.u8string()),generator.GetLastError());
+    std::ifstream generated(output/"ui.c");const std::string code((std::istreambuf_iterator<char>(generated)),{});
+    Check(code.find("lv_advanced_keyboard_bind_textarea")!=std::string::npos && code.find("lv_advanced_keyboard_close")!=std::string::npos,"C screen export omitted binding or initial hiding");
+    XmlCodeGenerator xml;Check(xml.LoadProject(original) && xml.ExportProject((output/"screen.xml").u8string()),xml.GetLastError());
+    std::ifstream xmlFile(output/"screen.xml");const std::string xmlText((std::istreambuf_iterator<char>(xmlFile)),{});
+    Check(ProjectKeyboard::Managed(Xml::Decode(xmlText).data["obj"].back()),"XML export omitted its managed keyboard");
+    MicroPythonCodeGenerator python;json summary;
+    Check(python.LoadProject(original) && !python.Preflight(summary) && python.GetLastError().find("Advanced Keyboard")!=std::string::npos,"MicroPython silently omitted an unsupported enabled keyboard");
+    auto disabled=original;disabled["advancedKeyboard"]={{"enabled",false},{"trieId","missing-unused-model"}};
+    Check(generator.LoadProject(disabled) && generator.Preflight(summary),generator.GetLastError());
+    Check(summary.at("requirements").get<std::string>().find("ADVANCED_KEYBOARD")==std::string::npos,"Disabled screen retained keyboard requirements");
+    Check(python.LoadProject(disabled) && python.Preflight(summary),python.GetLastError());
+    const auto model=ScriptPredictionFixture();std::string modelId;
+    auto catalog=ProjectTries::Import(json::array(),"selected-project-model",model.data(),model.size(),&modelId);
+    auto unused=catalog[0];unused["id"]="unused-project-model";unused["name"]="Unused model";
+    catalog.insert(catalog.begin(),unused);
+    auto modeled=original;modeled["tries"]=catalog;modeled["advancedKeyboard"]["trieId"]=modelId;
+    const auto modeledBytes=Protobuf::Encode(EntityKind::Project,"project",modeled);
+    for(const uint32_t flags:{uint32_t(0),uint32_t(LVGL_RUNTIME_BORROW_ASSETS)}) {
+        runtime=nullptr;
+        Check(lvgl_runtime_load_memory_ex(modeledBytes.data(),modeledBytes.size(),nullptr,flags,&runtime,error,sizeof error),error);
+        auto* modeledKeyboard=lvgl_runtime_object(runtime,0,keyboardId);
+        Check(modeledKeyboard && lv_advanced_keyboard_get_predictor(modeledKeyboard),"Pruning an unused leading model broke the selected borrowed protobuf asset");
+        lvgl_runtime_destroy(runtime);
+    }
+}
+
 int main(int argc, char** argv)
 {
     try {
@@ -1224,6 +1316,7 @@ int main(int argc, char** argv)
         TestLongPressVariants();
         TestScriptKeyboards(directory);
         TestScriptPredictions(directory);
+        TestProjectKeyboard(directory);
         lv_obj_delete(object); lv_obj_delete(editor); lv_indev_delete(pointer); pointer = nullptr;
         lv_display_delete(display); lv_deinit();
         std::cout << "Advanced Keyboard clicks, shift/lock, symbols, UTF-8, prediction callback, serialization, runtime bindings and C export passed\n";

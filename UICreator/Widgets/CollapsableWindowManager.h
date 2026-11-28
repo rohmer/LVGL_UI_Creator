@@ -16,6 +16,7 @@ public:
     void SetWidth(int width);
     std::string GroupFor(lv_obj_t* object) const;
     bool Reveal(lv_obj_t* object);
+    const std::vector<CollapsableWindow*>& Windows() const { return windows; }
 
 private:
     lv_obj_t* parent;

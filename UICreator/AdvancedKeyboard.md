@@ -1,9 +1,14 @@
 # Advanced Keyboard
 
-Add **Advanced Widgets → Advanced Keyboard**, then select a text area or a
-custom Text box. The keyboard appears and types into that field. Select a
-different field to switch targets without losing either field's text. The
-keyboard contains suggestions and keys; it does not contain its own text box.
+Select **Project** above the screen list, then check **Enable Advanced Keyboard**
+in **Properties → Object**. Configure its language, trie and appearance in the
+same section. These settings apply to every screen in the project. Disabling
+the keyboard keeps those choices for the next time it is enabled.
+
+The keyboard stays out of the design canvas and Hierarchy. Choose **Run (F6)**
+and select a text area or custom Text box to open it. It types into the focused
+field and switches targets without losing either field's text. Suggestions and
+keys belong to the keyboard; it does not contain its own text box.
 Opening the keyboard or switching targets automatically scrolls the selected
 field into view above it. These temporary viewport changes preserve the saved
 screen layout and are restored when the keyboard closes.
@@ -22,17 +27,18 @@ physical keyboard input follow the same restrictions. The keyboard switches
 mode automatically when you select a different text field. Existing character
 and length limits still apply.
 
-Select Advanced Keyboard in the Hierarchy to configure it:
+Select **Project** above the screens to configure Advanced Keyboard:
 
-- **Target text box:** use the focused field automatically, or restrict the
-  keyboard to a particular text area/Text box.
+- The keyboard automatically follows the focused text area/Text box on each
+  screen. No widget needs to be added or individually linked.
 - **Language:** choose English (US), Spanish, French, German, Italian,
   Portuguese, Mandarin Chinese (Pinyin), Arabic, Hindi, Bengali, Indonesian,
   Urdu, Russian or Greek. The keys use that language's layout and letters.
   This setting is saved per keyboard and preserved in C exports.
 - **Trie size:** select a 16 KiB or 256 KiB corpus model for the chosen language.
   The bundled library contains both sizes for English, Spanish, French, German,
-  Greek, Arabic, Hindi and Mandarin Chinese. New keyboards start with the English 16 KiB model.
+  Greek, Arabic, Hindi and Mandarin Chinese. A newly enabled project starts with
+  the built-in English dictionary; choose a size to embed a corpus model.
   Changing language keeps the selected size where available. The inspector
   reports actual model and index sizes; size labels describe the corpus tier,
   and a few supplied 256 KiB models exceed that nominal size by their headers.
@@ -50,7 +56,9 @@ Select Advanced Keyboard in the Hierarchy to configure it:
 - **Autocorrect:** enable correction at word boundaries. Its threshold ranges
   from 0 to 1; the default is 0.3. Raise it to require more confidence.
 - **Key colors/radius:** customize the key appearance. Geometry and font
-  controls remain in the usual inspector.
+  controls for the target field remain in its usual inspector.
+- **Keyboard height:** leave this blank for an automatic height based on the
+  screen, or enter a height in pixels. The runtime keeps it within the screen.
 
 The sixteen corpus files supplied from `D:\Corpus` are included as editor
 resources. Selecting a language and size imports that model and generates its
@@ -96,11 +104,15 @@ Tap Shift again to unlock. **#@!** opens symbols, **=\<** opens the second page,
 **123** returns to the first, and **ABC** returns to letters. UTF-8 text and
 backspace are supported. The original ESPOS EN-US layout remains the default.
 
-The keyboard is one authored object; its private controls are recreated on
-load. Settings, target references and project tries survive JSON, Protobuf,
-undo/redo and C export. Earlier projects with a combined editor/keyboard migrate
-their text into an independent text area. Bind application string variables to
-the target field's `/textarea/text` or `/textBox/text` property.
+Project settings and referenced tries survive saving, JSON, Protobuf,
+XML, undo/redo and generated projects. Bind application string variables to the
+target field's `/textarea/text` or `/textBox/text` property.
+
+Existing projects with an authored Advanced Keyboard widget remain supported.
+Select that widget in the Hierarchy to edit its older per-widget settings and
+target selector. Project-level configuration does not require such a widget.
+Earlier combined editor/keyboard projects migrate their text into an independent
+text area.
 
 The bundled LVGL 9.6 backend is required. C exports include the C++17 engine,
 shared constant trie/index arrays and a C API. On ESP32, including Arduino,

@@ -184,7 +184,15 @@ void RunPreview::Start(nlohmann::json document, const std::string& sourceDirecto
             data.state = code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST ? LV_INDEV_STATE_RELEASED : LV_INDEV_STATE_PRESSED;
             if (self->touches.size() < 128) self->touches.push_back(data);
         }, LV_EVENT_ALL, &s);
-        s.SyncFocus(); lv_refr_now(s.display);
+        s.SyncFocus();
+        // Building the focus group can focus its first field. Screen keyboards
+        // wait for the user's next click/focus rather than opening at startup.
+        for(size_t screen=0;screen<s.authoredIds.size();++screen)
+            for(int id:s.authoredIds[screen])if(auto* object=lvgl_runtime_object(s.runtime,screen,id))
+                if(Serialization::AdvancedKeyboard::Type(object) &&
+                    Serialization::AdvancedKeyboard::ToJSON(object).at("advancedKeyboard").value("screenManaged",false))
+                    lv_advanced_keyboard_close(object);
+        lv_refr_now(s.display);
         s.timer = lv_timer_create([](lv_timer_t* timer){ static_cast<Impl*>(lv_timer_get_user_data(timer))->Pump(); }, 5, &s);
     } catch (...) { lv_group_set_default(editorGroup); lv_display_set_default(editorDisplay); Stop(); throw; }
 }

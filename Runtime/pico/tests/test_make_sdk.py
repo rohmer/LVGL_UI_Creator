@@ -11,6 +11,7 @@ import zipfile
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 from make_sdk import BOARDS, MARKER, generate, update_profile_manifest
+from feature_plan import decode_project
 
 
 def project():
@@ -19,6 +20,27 @@ def project():
 
 
 class PicoGenerationTests(unittest.TestCase):
+    def test_global_keyboard_option_is_materialized_for_both_boards(self):
+        for board in ("pico", "pico2"):
+            with self.subTest(board=board), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                source = root / "display.json"
+                document = project()
+                document["advancedKeyboard"] = {"enabled": True, "language": "fr-FR"}
+                source.write_text(json.dumps(document))
+                output = root / "output"
+                generate([source], output, board=board, archive=False)
+                saved = decode_project((output / "embedded/projects/display.pb").read_bytes())
+                keyboard = saved["obj"][-1]
+                self.assertNotIn("advancedKeyboard", saved)
+                self.assertTrue(keyboard["advancedKeyboard"]["screenManaged"])
+                self.assertEqual(keyboard["base"]["coords"], {"x": 0, "y": 128, "width": 240, "height": 192})
+                plan = json.loads((output / "embedded/features.json").read_text())
+                self.assertEqual(plan["keyboardLanguages"], ["fr-FR"])
+                self.assertEqual(plan["customFeatures"], ["LVSERIAL_USE_ADVANCED_KEYBOARD"])
+                self.assertIn("3rdParty/AdvancedKeyboard/src/Keyboard.cpp", plan["sourceFiles"])
+                self.assertNotIn("3rdParty/AdvancedKeyboard/src/Prediction.cpp", plan["sourceFiles"])
+
     def test_xml_opt_in_keeps_the_same_minimal_widget_profile(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

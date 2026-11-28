@@ -413,6 +413,10 @@ std::string Import(PropertyWindow* properties, const std::filesystem::path& path
     if (selected && lv_obj_is_in_widget_tree(selected) && Serialization::AdvancedKeyboard::Type(selected)) {
         properties->Tries().Apply(selected, id); properties->SetSelectedObject(selected);
     }
+    else if(properties->applyProjectKeyboardSettings) {
+        properties->applyProjectKeyboardSettings({{"trieId",id},{"trieSizeKiB",0}});
+        if(properties->ShowingProjectProperties())properties->RefreshProjectPropertiesAsync();
+    }
     return id;
 }
 void LoadTrie(PropertyWindow* properties) {
@@ -421,7 +425,7 @@ void LoadTrie(PropertyWindow* properties) {
     try {
         Import(properties, path);
         if (active && active->properties == properties) Status(active, "Loaded " + path.filename().u8string() + " into the project.");
-        else ProductWindows::Message("Language model loaded", "The model is embedded in this project. Select it in Advanced Keyboard's Prediction trie dropdown.");
+        else ProductWindows::Message("Language model loaded", "The model is embedded in this project. Configure it under Project > Advanced Keyboard above the Screens list.");
     } catch (const std::exception& error) {
         if (active && active->properties == properties) Status(active, error.what(), true);
         else ProductWindows::Message("Could not load language model", error.what());

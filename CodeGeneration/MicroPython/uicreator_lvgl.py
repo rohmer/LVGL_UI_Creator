@@ -125,6 +125,14 @@ class UI:
         else:
             with open(self.project_path, "r") as source:
                 document = json.load(source)
+        keyboard = document.get("advancedKeyboard")
+        if "advancedKeyboard" in document:
+            if not isinstance(keyboard, dict):
+                raise ValueError("Project keyboard settings must be an object")
+            if type(keyboard.get("enabled", False)) is not bool:
+                raise ValueError("Project keyboard enabled must be a boolean")
+            if keyboard.get("enabled", False):
+                raise ValueError("Widget is not supported by the upstream MicroPython binding: advancedKeyboard (project setting)")
         definitions = document.get("screens")
         if definitions is None:
             definitions = [{"canvas": document.get("canvas", {}), "obj": document.get("obj", [])}]
@@ -133,10 +141,10 @@ class UI:
         self._previous_screen = lv.screen_active()
         try:
             for index, definition in enumerate(definitions):
+                canvas = definition.get("canvas", {})
                 screen = lv.obj(None)
                 self.screens.append(screen)
                 self._transitions.append(definition.get("transition", {}))
-                canvas = definition.get("canvas", {})
                 self._base(screen, canvas.get("base", {}))
                 if "width" in canvas:
                     screen.set_width(_coord(canvas["width"]))
@@ -144,6 +152,10 @@ class UI:
                     screen.set_height(_coord(canvas["height"]))
                 self.names[definition.get("name", str(index))] = index
                 pending = list(definition.get("obj", []))
+                if "advancedKeyboard" in document:
+                    # Explicitly disabling the project service also supersedes
+                    # legacy authored keyboards, matching native exports.
+                    pending = [record for record in pending if "advancedKeyboard" not in record]
                 while pending:
                     deferred = []
                     for record in pending:

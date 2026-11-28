@@ -6,10 +6,13 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
+#include "../../3rdParty/JSON/json.hpp"
 
 #include "../Utils/ObjectTools.h"
 #if LVGL_VERSION_MAJOR >= 9
 class ScreenFontMemory;
+struct RuntimeKeyboardMemory;
 #endif
 
 class SimWindow
@@ -23,6 +26,9 @@ public:
     void SetSize(int newWidth, int newHeight) { resize(newWidth, newHeight, false, false); }
     void SetKeyboardGroup(lv_group_t* group) { keyboardGroup = group; }
     void RefreshMemoryUsage();
+    // Null means no global configuration; an object (even empty) overrides
+    // legacy authored keyboards, matching the runtime materializer.
+    std::function<nlohmann::json()> runtimeKeyboardSettings;
 
     lv_obj_t* GetDrawSurface()
     {
@@ -35,8 +41,10 @@ private:
     lv_group_t* keyboardGroup = nullptr;
     lv_obj_t* memoryLabel = nullptr;
     size_t memoryBytes = static_cast<size_t>(-1);
+    bool memoryEstimateUnavailable = false;
 #if LVGL_VERSION_MAJOR >= 9
     std::unique_ptr<ScreenFontMemory> fontMemory;
+    std::unique_ptr<RuntimeKeyboardMemory> runtimeKeyboardMemory;
 #endif
 
     int updateFrame();

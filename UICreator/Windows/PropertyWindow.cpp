@@ -9,6 +9,7 @@
 #include "Themes.h"
 #include "PropertyWindows/BasicProperties.h"
 #include "PropertyWindows/AdvancedProperties.h"
+#include "PropertyWindows/ProjectKeyboardProperties.h"
 #include "PropertyWindows/CustomProperties.h"
 #include "PropertyWindows/ImageProperties.h"
 #include "../Fonts/BuiltinFonts.h"
@@ -36,12 +37,73 @@ PropertyWindow::PropertyWindow(lv_indev_t* kb_indev,
     screenX(screenWidth),
     screenY(screenHeight)
 {
+    refreshState = std::make_shared<RefreshState>(RefreshState{this});
     kbGroup = lv_group_create();
     lv_indev_set_group(GetKBInDev(), kbGroup);
     simWindow->SetKeyboardGroup(kbGroup);
     initializeThemes(120);
     initStyles();
     createPropertyWin();
+    lv_obj_add_event_cb(propertyWin, [](lv_event_t* event) {
+        auto* lifetime = static_cast<std::weak_ptr<RefreshState>*>(lv_event_get_user_data(event));
+        if (auto state = lifetime->lock()) state->window = nullptr;
+        delete lifetime;
+    }, LV_EVENT_DELETE, new std::weak_ptr<RefreshState>(refreshState));
+}
+
+PropertyWindow::~PropertyWindow()
+{
+    if(refreshState)refreshState->window = nullptr;
+}
+
+void PropertyWindow::RefreshSelectedObjectAsync(lv_obj_t* object)
+{
+    struct Request { std::weak_ptr<RefreshState> state; lv_obj_t* object; size_t generation; bool project; };
+    auto* request = new Request{refreshState, object, refreshState->generation, object == nullptr && ShowingProjectProperties()};
+    if(lv_async_call([](void* data) {
+        std::unique_ptr<Request> pending(static_cast<Request*>(data));
+        const auto state = pending->state.lock();
+        if(!state || !state->window || state->generation != pending->generation)return;
+        auto* window = state->window;
+        if(pending->project) {
+            if(window->ShowingProjectProperties() && window->projectKeyboardSettings && window->applyProjectKeyboardSettings)window->ShowProjectProperties();
+            return;
+        }
+        if(window->GetSelectedObject() == pending->object && lv_obj_is_valid(pending->object))
+            window->SetSelectedObject(pending->object);
+    }, request) != LV_RESULT_OK)delete request;
+}
+
+void PropertyWindow::RefreshProjectPropertiesAsync()
+{
+    if(ShowingProjectProperties())RefreshSelectedObjectAsync(nullptr);
+}
+
+void PropertyWindow::ShowProjectProperties()
+{
+#if LVGL_VERSION_MAJOR >= 9
+    ++refreshState->generation;
+    for(auto* previous : selectedObjects)if(previous && lv_obj_is_valid(previous))HighlightEditorObject(previous, false);
+    selectedObjects.clear();
+    selectedObject = nullptr;
+    if(!projectPropertiesVisible) {
+        projectHiddenPanels.clear();
+        for(auto* panel : cwm->Windows())if(panel != objProps) {
+            projectHiddenPanels.emplace_back(panel, panel->IsVisible());
+            panel->SetVisible(false);
+        }
+    }
+    projectPropertiesVisible = true;
+    treeView->ShowSelection({}, nullptr);
+    lv_group_remove_all_objs(kbGroup);
+    ProjectKeyboardProperties::Update(this);
+    FitEditorPropertyRows(objProps->GetWindow());
+    StylePropertyControls(objProps->GetWindow());
+    objProps->UpdateHeight(LV_SIZE_CONTENT);
+    GetCWM()->Update();
+    lv_obj_scroll_to_y(propertyWin, 0, LV_ANIM_OFF);
+    if(onSelectionChanged)onSelectionChanged();
+#endif
 }
 
 TreeView* PropertyWindow::GetObjectTree()
@@ -101,6 +163,12 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object, bool synchronizeTree, b
 {
     if (!object)
         return;
+    ++refreshState->generation;
+    if(projectPropertiesVisible) {
+        projectPropertiesVisible = false;
+        for(const auto& panel : projectHiddenPanels)panel.first->SetVisible(panel.second);
+        projectHiddenPanels.clear();
+    }
     if(!preserveSelection) {
         for(auto* previous : selectedObjects)if(previous && lv_obj_is_valid(previous))HighlightEditorObject(previous, false);
         selectedObjects.clear();
@@ -176,6 +244,7 @@ void PropertyWindow::SetSelectedObject(lv_obj_t* object, bool synchronizeTree, b
 
 void PropertyWindow::AddFontSelector()
 {
+    if(!GetSelectedObject())return;
     if(fontSelectorRow)lv_obj_delete(fontSelectorRow);
     auto* content=lv_obj_get_child(objProps->GetWindow(),0);
     auto* row=lv_obj_create(content);lv_obj_set_size(row,LV_PCT(100),LV_SIZE_CONTENT);lv_obj_set_style_pad_all(row,4,0);lv_obj_set_style_border_width(row,0,0);lv_obj_set_flex_flow(row,LV_FLEX_FLOW_ROW);lv_obj_set_scrollable(row,false);

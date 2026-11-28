@@ -13,7 +13,7 @@
 #endif
 
 namespace {
-const char* metadataKeys[]={"projectTheme","components","sharedStyles","previewProfiles","deviceTargets","accessibility","translations"};
+const char* metadataKeys[]={"projectTheme","components","sharedStyles","previewProfiles","deviceTargets","accessibility","translations","advancedKeyboard"};
 }
 void UI::InvalidateDocument(){++documentRevision;cachedRevision=0;serializedRevision=0;}
 json UI::BuildProjectDocument()const{
@@ -41,7 +41,7 @@ void UI::ApplyMetadata(json patch){
     EditorEdit::Scope edit(this);for(auto& item:patch.items())projectMetadata[item.key()]=std::move(item.value());InvalidateDocument();
 }
 bool UI::SelectScreen(size_t index){
-    if(index>=ScreenCount())return false;if(index==editingScreen)return true;
+    if(index>=ScreenCount())return false;if(index==editingScreen){propertyWindow->SetSelectedObject(simWindow->GetDrawSurface());RefreshScreensDock();return true;}
     auto doc=ProjectDocument();Serialization::ProjectScreens::Select(doc,index);
     auto loaded=Serialization::Project::FromJSON(doc);
     switchingScreen=true;const bool previous=restoringHistory;restoringHistory=true;
@@ -63,9 +63,19 @@ void UI::RefreshScreensDock(){
     ScreenFlowWindow::Refresh();
     if(!screensDock)return;auto* content=EditorWindow::Content(screensDock);lv_obj_clean(content);
     lv_obj_set_flex_flow(content,LV_FLEX_FLOW_COLUMN);lv_obj_set_style_pad_row(content,5,0);
+    auto* project=lv_button_create(content);lv_obj_set_size(project,LV_PCT(100),36);
+    lv_obj_set_click_focusable(project,false);lv_obj_set_style_shadow_width(project,0,0);
+    lv_obj_set_state(project,LV_STATE_CHECKED,propertyWindow->ShowingProjectProperties());
+    lv_obj_set_style_bg_color(project,lv_color_hex(propertyWindow->ShowingProjectProperties()?0x32683e:0x343e49),0);
+    auto* projectName=lv_label_create(project);lv_label_set_text(projectName,"Project");EditorIcons::Set(project,"settings",false,18);
+    lv_obj_add_event_cb(project,[](lv_event_t* event){
+        if(lv_event_get_code(event)==LV_EVENT_CLICKED)static_cast<UI*>(lv_event_get_user_data(event))->MenuAction("project-settings");
+    },LV_EVENT_CLICKED,this);
+    auto* screens=lv_label_create(content);lv_label_set_text(screens,"Screens");
     for(size_t i=0;i<ScreenCount();++i){
         auto* button=lv_button_create(content);lv_obj_set_size(button,LV_PCT(100),32);lv_obj_set_click_focusable(button,false);lv_obj_set_style_shadow_width(button,0,0);
-        lv_obj_set_state(button,LV_STATE_CHECKED,i==editingScreen);lv_obj_set_style_bg_color(button,lv_color_hex(i==editingScreen?0x32683e:0x343e49),0);
+        const bool selected=i==editingScreen&&!propertyWindow->ShowingProjectProperties();
+        lv_obj_set_state(button,LV_STATE_CHECKED,selected);lv_obj_set_style_bg_color(button,lv_color_hex(selected?0x32683e:0x343e49),0);
         const auto name=screenRecords.empty()?std::string("Screen"):screenRecords[i].value("name",std::string("Screen"));auto* text=lv_label_create(button);lv_label_set_text(text,name.c_str());EditorIcons::Set(button,i==startScreen?"screen-home":"select-screen",false,18);
         struct Selection{UI* ui;size_t screen;};
         lv_obj_add_event_cb(button,[](lv_event_t* event){auto* data=static_cast<Selection*>(lv_event_get_user_data(event));if(lv_event_get_code(event)==LV_EVENT_DELETE)delete data;else if(lv_event_get_code(event)==LV_EVENT_CLICKED)data->ui->SelectScreen(data->screen);},LV_EVENT_ALL,new Selection{this,i});
@@ -83,6 +93,7 @@ void UI::OpenCommandPalette(bool properties){
             const auto action=item.action;entries.push_back({item.label,std::string(menu),item.shortcut,[this,action]{MenuAction(action);},item.enabled,action=="run-toggle"&&Running()?"run-stop":action});
         }
         entries.push_back({"Add screen","Screens","",[this]{AddScreen();},true,"screen-add"});
+        entries.push_back({"Project settings","Project","",[this]{MenuAction("project-settings");},true,"settings"});
     }else{
         struct Target{
             lv_obj_t* object;explicit Target(lv_obj_t* o):object(o){lv_obj_add_event_cb(o,Deleted,LV_EVENT_DELETE,this);}

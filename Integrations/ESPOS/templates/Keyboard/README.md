@@ -71,6 +71,26 @@ The keyboard requires LVGL logical bidi (`CONFIG_LV_USE_BIDI=y`) and disabled
 Existing sdkconfig values override appended defaults. See
 `third_party/AdvancedKeyboard/src/KeyboardScriptFonts.md` for font licensing and script limits.
 
+## Project-wide keyboard from UI Creator
+
+In LVGL UI Creator, select **Project** above **Screens**, then enable
+**Advanced Keyboard** in the Properties panel. Language, prediction trie,
+autocorrect, right-to-left display and appearance are configured once for the
+whole project. Individual text fields retain their input-mode restrictions.
+
+The editor does not add a visible keyboard to the design or widget palette.
+Run (F6), generated C and the protobuf/XML display runtimes create a hidden
+keyboard for each screen, bind that screen's text fields, and open it when a
+field is selected. Enter or X dismisses it; selecting a field reopens it.
+Selected custom models are embedded and shared. Disabled project keyboards
+are omitted from runtime exports along with their unused model assets.
+
+Export or regenerate the application's UI to use these options on ESPOS. The
+generated code uses the existing pinned portable keyboard API; no Creator
+inspector code or separate keyboard implementation belongs in this project.
+These authoring options do not replace the language/model controls of an
+independently created legacy ESPOS typing view described below.
+
 ## Bind externally owned fields
 
 New integrations can use the portable C facade directly. The same object can

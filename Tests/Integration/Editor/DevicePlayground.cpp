@@ -32,9 +32,14 @@ void CheckDevicePlayground(UI& editor,SdlSimulator& simulator){
 #else
     Require(setenv("UICREATOR_SESSION_DIR",session.c_str(),1)==0,"Cannot isolate device session settings");
 #endif
-    auto* trayTitle=Label(lv_screen_active(),"Tool Tray");Require(trayTitle,"Tool Tray missing");auto* palette=EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(trayTitle)));
-    Click(palette,"Text area");editor.MenuAction("select-screen");Click(palette,"Advanced\nWidgets");Click(palette,"Advanced Keyboard");
+    // Preserve coverage of model assignment to an imported legacy keyboard;
+    // authored keyboards are intentionally unavailable in the add-object palette.
+    editor.ApplyDocument({{"canvas",{{"width",320},{"height",240}}},{"obj",json::array({
+        {{"oid",0},{"par",-1},{"base",{{"coords",{{"x",10},{"y",10},{"width",220},{"height",40}}}}},{"textarea",{{"text",""},{"oneLine",true}}}},
+        {{"oid",1},{"par",-1},{"base",{{"coords",{{"x",0},{"y",100},{"width",320},{"height",140}}}}},{"advancedKeyboard",json::object()}}
+    })}});
     auto* simTitle=Label(lv_screen_active(),"Simulator [Size:320x240]");Require(simTitle,"Simulator missing");auto* surface=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(simTitle))),0);auto* keyboard=lv_obj_get_child(surface,1);Require(lv_advanced_keyboard_is_instance(keyboard),"Cannot create test keyboard");auto* properties=static_cast<ObjectUserData*>(lv_obj_get_user_data(keyboard))->toolTray->GetPropertyWindow();
+    properties->Tries().ApplyDefault(keyboard);
     {std::ofstream corpus(work/"input.txt",std::ios::binary);corpus<<"hello world. hello world. hello there. help the hero. hello there.\n";}
     LanguageModels::Options options;options.inputs={work/"input.txt"};options.trieOutput=work/"project-model.ngtr";options.maximumBytes.reset();options.useWordList=false;options.useCache=false;LanguageModels::Generate(options);
     std::string projectModelId;

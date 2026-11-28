@@ -128,9 +128,9 @@ void CheckPalette(UI& editor,SdlSimulator& simulator,const std::filesystem::path
     try{
         for(int width:{180,300,460}){lv_obj_set_width(window,width);lv_obj_update_layout(lv_screen_active());
             for(unsigned category=0;category<6;++category){lv_tabview_set_active(tabs,category,LV_ANIM_OFF);lv_obj_update_layout(lv_screen_active());auto* page=lv_obj_get_child(content,category);
-                unsigned count=0;for(int id=0;id<35;++id)if(Category(id)==int(category)){PaletteCard(page,ObjectIcons::Widget(id));++count;}
+                unsigned count=0;for(int id=0;id<34;++id)if(Category(id)==int(category)){PaletteCard(page,ObjectIcons::Widget(id));++count;}
                 if(category>=4)for(int id=category==4?0:LV_BOOTSTRAP_COMPONENT_COUNT;id<(category==4?LV_BOOTSTRAP_COMPONENT_COUNT:LV_BOOTSTRAP_PRESET_COUNT);++id){PaletteCard(page,ObjectIcons::Preset(id));++count;}
-                const unsigned expected[]={16,15,2,2,36,13};Input::Require(count==expected[category],"Palette category coverage changed without an icon inventory update");
+                const unsigned expected[]={16,14,2,2,36,13};Input::Require(count==expected[category],"Palette category coverage changed without an icon inventory update");
             }
         }
     }catch(...){lv_obj_set_width(window,originalWidth);lv_tabview_set_active(tabs,originalTab,LV_ANIM_OFF);throw;}
@@ -142,7 +142,8 @@ void CheckPalette(UI& editor,SdlSimulator& simulator,const std::filesystem::path
         Input::Require(editor.ProjectDocument()!=clean,std::string(descriptor->name)+": clicking its icon did not add an object");
         Input::Require(editor.Undo()&&editor.ProjectDocument()==clean,std::string(descriptor->name)+": icon insertion did not remain one undo step");
     };
-    for(int id:{0,30,31,32,33,34})insert(unsigned(Category(id)),ObjectIcons::Widget(id));
+    Input::Require(!Input::FindLabel(content,"Advanced Keyboard"),"Screen keyboard is still offered as a manually added widget");
+    for(int id:{0,30,31,32,33})insert(unsigned(Category(id)),ObjectIcons::Widget(id));
     insert(4,ObjectIcons::Preset(LV_BOOTSTRAP_CARD));insert(5,ObjectIcons::Preset(LV_BOOTSTRAP_DASHBOARD));
     for(const auto& alias:std::vector<std::pair<const char*,int>>{{"Admin dashboard",LV_BOOTSTRAP_DASHBOARD},{"Sign-in form",LV_BOOTSTRAP_SIGN_IN},{"Component gallery",LV_BOOTSTRAP_COMPONENT_GALLERY}}){
         editor.MenuAction("welcome");auto* dialog=Input::WindowFromTitle("Welcome to LVGL UI Creator");Input::Require(dialog,"Welcome dialog is missing");

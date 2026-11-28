@@ -196,6 +196,7 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/Editor.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/CodeWidgets.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/AdvancedKeyboard.cpp"
+        "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/ProjectKeyboard.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/LanguageModels.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/RunMode.cpp"
         "${PROJECT_SOURCE_DIR}/Tests/Integration/Editor/Performance.cpp"
@@ -303,6 +304,8 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     set_tests_properties(UICreatorCodeWidgetsEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 45 LABELS "functional;editor;code-widgets")
     add_test(NAME UICreatorAdvancedKeyboardEditor COMMAND UICreatorEditorTests --advanced-keyboard)
     set_tests_properties(UICreatorAdvancedKeyboardEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT "$<IF:$<CONFIG:Debug>,120,45>" LABELS "functional;editor;advanced-keyboard")
+    add_test(NAME UICreatorProjectKeyboardEditor COMMAND UICreatorEditorTests --project-keyboard "${CMAKE_CURRENT_BINARY_DIR}/project-keyboard-properties.bmp")
+    set_tests_properties(UICreatorProjectKeyboardEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 120 LABELS "functional;editor;advanced-keyboard;runtime")
     add_test(NAME UICreatorLanguageModelEditor COMMAND UICreatorEditorTests --language-models)
     set_tests_properties(UICreatorLanguageModelEditor PROPERTIES ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_RENDER_DRIVER=software" TIMEOUT 60 LABELS "functional;editor;language-models")
     add_test(NAME UICreatorMenus COMMAND UICreatorEditorTests --menus)

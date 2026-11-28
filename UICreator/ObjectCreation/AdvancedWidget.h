@@ -19,15 +19,6 @@ namespace AdvancedWidget
         int height = 160;
         switch (id)
         {
-        case 34:
-            name = "Advanced Keyboard";
-            object = AdvancedKeyboard::Create(parent);
-            if (!object) return nullptr;
-            try { AdvancedKeyboard::Apply(object, json::object()); }
-            catch (...) { lv_obj_delete(object); throw; }
-            lv_obj_set_size(object, 300, 144);
-            lv_obj_align(object,LV_ALIGN_BOTTOM_MID,0,0);
-            return object;
         case 32:
         case 33:
             name = id == 32 ? "Barcode" : "QR code";

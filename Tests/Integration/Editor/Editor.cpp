@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include "CodeWidgets.h"
 #include "AdvancedKeyboard.h"
+#include "ProjectKeyboard.h"
 #include "LanguageModels.h"
 #include "Menus.h"
 #include "RunMode.h"
@@ -136,7 +137,10 @@ int main(int argc, char* argv[])
 #if LVSERIAL_USE_XML
         if(argc==3 && std::string(argv[1])=="--xml-export") {
             const auto path=std::filesystem::absolute(std::filesystem::u8path(argv[2]));
-            Click("Label");Click("Bar");Click("Advanced Keyboard");
+            Click("Label");Click("Bar");
+            auto legacy=editor.ProjectDocument();
+            legacy["obj"].push_back({{"oid",2},{"par",-1},{"base",json::object()},{"advancedKeyboard",json::object()}});
+            editor.ApplyDocument(std::move(legacy));
             const auto original=editor.ProjectDocument();const bool dirty=editor.Dirty();
             editor.MenuAction("menu:Export");Require(FindText(lv_layer_top(),"UI Creator XML (.xml)..."),"XML export menu entry is missing");
             editor.MenuAction("export-xml");auto* title=FindText(lv_layer_top(),"Export UI Creator XML");Require(title,"XML export dialog is missing");
@@ -194,7 +198,10 @@ int main(int argc, char* argv[])
             json manifest;std::ifstream(output/"export-manifest.json")>>manifest;
             Require(manifest.at("format")=="micropython"&&manifest.at("lvglVersion")=="9.3.0","MicroPython manifest uses the wrong binding target");
             Require(editor.ProjectDocument()==document&&editor.Dirty()==dirty,"Export changed the authored project or its saved state");
-            editor.MenuAction("cancel-file");Click("Advanced Keyboard");
+            editor.MenuAction("cancel-file");
+            auto legacy=editor.ProjectDocument();
+            legacy["obj"].push_back({{"oid",2},{"par",-1},{"base",json::object()},{"advancedKeyboard",json::object()}});
+            editor.ApplyDocument(std::move(legacy));
             editor.MenuAction("export-micropython");title=FindText(lv_layer_top(),"Export MicroPython project");
             field=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);
             const auto unsupported=output/"unsupported-keyboard";lv_textarea_set_text(field,unsupported.u8string().c_str());
@@ -420,6 +427,16 @@ int main(int argc, char* argv[])
                 auto* renderer=static_cast<SDL_Renderer*>(lv_sdl_window_get_renderer(lv_display_get_default()));
                 auto* capture=SDL_RenderReadPixels(renderer,nullptr);Require(capture,"Could not capture language model generator");
                 const bool saved=SDL_SaveBMP(capture,argv[2]);SDL_DestroySurface(capture);Require(saved,"Could not save language model generator preview");
+            }
+            return 0;
+        }
+        if((argc==2 || argc==3) && std::string(argv[1])=="--project-keyboard") {
+            CheckProjectKeyboardEditor(editor,simulator);
+            if(argc==3) {
+                for(int frame=0;frame<20;++frame){SDL_Delay(16);simulator.ProcessEvents();}
+                auto* renderer=static_cast<SDL_Renderer*>(lv_sdl_window_get_renderer(lv_display_get_default()));
+                auto* capture=SDL_RenderReadPixels(renderer,nullptr);Require(capture,"Could not capture project keyboard properties");
+                const bool saved=SDL_SaveBMP(capture,argv[2]);SDL_DestroySurface(capture);Require(saved,"Could not save project keyboard properties");
             }
             return 0;
         }

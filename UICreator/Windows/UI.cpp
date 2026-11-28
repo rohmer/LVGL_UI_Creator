@@ -29,6 +29,7 @@
 #include <Serialization/Project.h>
 #include <Serialization/ProjectScreens.h>
 #include <Serialization/ProjectDesign.h>
+#include <Serialization/ProjectKeyboard.h>
 #include <Serialization/NativeStyles.h>
 #include <Serialization/InteractionActions.h>
 #include "../Utils/EditorWindow.h"
@@ -85,6 +86,19 @@ UI::UI(lv_indev_t* kb_indev)
 #if LVGL_VERSION_MAJOR >= 9
     CreateMenuBar();
     CreateWorkspace();
+    propertyWindow->projectKeyboardSettings = [this] {
+        return Serialization::ProjectKeyboard::Normalize(projectMetadata.value("advancedKeyboard",json::object()));
+    };
+    simWindow->runtimeKeyboardSettings = [this] {
+        return projectMetadata.contains("advancedKeyboard")?projectMetadata.at("advancedKeyboard"):json{};
+    };
+    propertyWindow->applyProjectKeyboardSettings = [this](const json& patch) {
+        EditorEdit::Scope edit(this);
+        auto settings=propertyWindow->projectKeyboardSettings();
+        for(const auto& item:patch.items())settings[item.key()]=item.value();
+        projectMetadata["advancedKeyboard"]=Serialization::ProjectKeyboard::Normalize(settings);
+        InvalidateDocument();
+    };
     toolBar->variableDocument = [this] { return ProjectDocument(); };
     propertyWindow->projectFontUsage = [this](const std::string& id) { return propertyWindow->Fonts().References(Serialization::ProjectScreens::Canonical(ProjectDocument()),id); };
     propertyWindow->prepareProjectFontChange = [this] {
@@ -166,6 +180,9 @@ UI::~UI()
     if(groupMoved)EndEdit();
     try { FlushSession(); } catch (const std::exception& error) { std::cerr << error.what() << '\n'; }
     propertyWindow->onSelectionChanged = {};
+    propertyWindow->projectKeyboardSettings = {};
+    propertyWindow->applyProjectKeyboardSettings = {};
+    simWindow->runtimeKeyboardSettings = {};
     propertyWindow->GetObjectTree()->selectionHandler = {};
     propertyWindow->GetObjectTree()->deleteSelectionHandler = {};
     if(canvasViewport)lv_obj_remove_event_cb_with_user_data(canvasViewport,nullptr,this);
@@ -460,7 +477,7 @@ void UI::InstallProject(Serialization::LoadedProject restored,int selection) {
                 CloseDocument();
                 screenRecords=restored.metadata.value("screens",json::array());
                 editingScreen=Serialization::ProjectScreens::Editing(restored.metadata);startScreen=restored.metadata.value("activeScreen",size_t(0));
-                for (const auto* key : {"projectTheme", "components", "sharedStyles","previewProfiles","deviceTargets","accessibility","translations"})
+                for (const auto* key : {"projectTheme", "components", "sharedStyles","previewProfiles","deviceTargets","accessibility","translations","advancedKeyboard"})
                     if(restored.metadata.contains(key))projectMetadata[key]=restored.metadata[key];
                 auto* tree=propertyWindow->GetObjectTree();
                 simWindow->SetSize(restored.screen.at("width").get<int>(), restored.screen.at("height").get<int>());
@@ -551,6 +568,7 @@ void UI::RenameVariableReferences(const std::string& oldName, const std::string&
     InvalidateDocument();
 }
 void UI::RestoreHistory(const UndoHistory::State& state) {
+    const bool projectProperties=propertyWindow->ShowingProjectProperties();
     auto document=json::parse(state.document);if(Serialization::ProjectScreens::Multiple(document))Serialization::ProjectScreens::Select(document,state.screen);
     auto restored=Serialization::Project::FromJSON(document);
     restoringHistory=true;restoringScreenFlow=true;
@@ -560,6 +578,8 @@ void UI::RestoreHistory(const UndoHistory::State& state) {
             for(int index:state.selections)if(index>=0 && (size_t)index<objects.size())selected.push_back(objects[index]);
             propertyWindow->SetSelection(selected);
         }
+        if(projectProperties)propertyWindow->ShowProjectProperties();
+        RefreshScreensDock();
         restoringHistory=false;restoringScreenFlow=false;}
     catch (...) {restoringHistory=false;restoringScreenFlow=false;throw;}
 }
@@ -627,6 +647,7 @@ bool UI::HandleShortcut(int key,bool control,bool shift,bool alt) {
 
 void UI::CloseDocument()
 {
+    if(propertyWindow->ShowingProjectProperties())propertyWindow->SetSelectedObject(simWindow->GetDrawSurface());
     CommandPalette::Close();
     if(!applyingDocument&&!switchingScreen){PreviewProfiles::Close();PreviewProfiles::CloseLayout();}
     if(!applyingDocument&&!switchingScreen&&!restoringScreenFlow)ScreenFlowWindow::Close();
@@ -805,7 +826,12 @@ void UI::MenuAction(const std::string& action)
     else if (action == "language-model-generator") LanguageModelWindow::Open(propertyWindow);
     else if (action == "language-model-load") LanguageModelWindow::LoadTrie(propertyWindow);
     else if (action == "font-converter") FontConverterWindow::Open(propertyWindow);
-    else if (action == "select-screen") propertyWindow->SetSelectedObject(simWindow->GetDrawSurface());
+    else if (action == "project-settings") {
+        propertyWindow->ShowProjectProperties();
+        EditorWindow::Show(lv_obj_get_parent(propertyWindow->GetWindow()));
+        RefreshScreensDock();
+    }
+    else if (action == "select-screen") {propertyWindow->SetSelectedObject(simWindow->GetDrawSurface());RefreshScreensDock();}
     else if (action == "center-canvas" || action == "fit-canvas") FitCanvas();
     else if (action == "zoom-in") ZoomCanvas(1.2, canvasWidth / 2.0, canvasHeight / 2.0);
     else if (action == "zoom-out") ZoomCanvas(1 / 1.2, canvasWidth / 2.0, canvasHeight / 2.0);
@@ -1016,7 +1042,11 @@ void UI::CreateWorkspace()
     lv_obj_add_event_cb(canvasGrid.root, EditorGrid::Draw, LV_EVENT_DRAW_POST, &canvasGrid);
     lv_obj_add_event_cb(canvasGrid.root,[](lv_event_t* event){auto* ui=static_cast<UI*>(lv_event_get_user_data(event));if(!ui->restoringHistory&&!ui->applyingDocument&&!ui->serializingDocument&&(lv_event_get_code(event)==LV_EVENT_STYLE_CHANGED||lv_event_get_code(event)==LV_EVENT_SIZE_CHANGED)){ui->screenContentDirty=true;ui->InvalidateDocument();}},LV_EVENT_ALL,this);
     canvasViewport = lv_obj_create(lv_screen_active());
-    propertyWindow->onSelectionChanged = [this]{lv_obj_invalidate(canvasViewport);};
+    propertyWindow->onSelectionChanged = [this,projectSelected=false]() mutable {
+        lv_obj_invalidate(canvasViewport);
+        const bool selected=propertyWindow->ShowingProjectProperties();
+        if(selected!=projectSelected){projectSelected=selected;RefreshScreensDock();}
+    };
     lv_obj_set_style_pad_all(canvasViewport, 0, 0);
     lv_obj_set_style_border_width(canvasViewport, 0, 0);
     lv_obj_set_style_radius(canvasViewport, 0, 0);

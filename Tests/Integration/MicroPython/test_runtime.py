@@ -505,6 +505,24 @@ class RuntimeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "not supported"): invalid.load()
             self.assertFalse(invalid.screens)
 
+    def test_global_advanced_keyboard_is_explicitly_gated_and_disabled_legacy_is_omitted(self):
+        document = {"advancedKeyboard": {"enabled": True}, "screens": [{"canvas": {}, "obj": []}]}
+        original = copy.deepcopy(document)
+        invalid = self.UI(document)
+        with self.assertRaisesRegex(ValueError, "not supported.*advancedKeyboard"):
+            invalid.load()
+        self.assertFalse(invalid.screens)
+        self.assertEqual(document, original)
+        document["advancedKeyboard"]["enabled"] = False
+        document["screens"][0]["obj"] = [{"oid": 4, "par": -1, "base": {}, "advancedKeyboard": {}}]
+        ui = self.UI(document).load()
+        self.assertFalse(ui.objects)
+        self.assertEqual(len(ui.screens), 1)
+        ui.deinit()
+        for option in (None, {"enabled": 1}):
+            with self.subTest(option=option), self.assertRaises(ValueError):
+                self.UI({"advancedKeyboard": option, "obj": []}).load()
+
     def test_shared_pixel_file_keeps_distinct_image_headers(self):
         with tempfile.TemporaryDirectory() as directory:
             Path(directory, "pixels.bin").write_bytes(bytes(range(8)))

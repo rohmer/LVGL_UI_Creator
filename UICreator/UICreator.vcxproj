@@ -103,6 +103,7 @@
     <ClInclude Include="Windows\PropertyWindows\CustomProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\ImageProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\AdvancedProperties.h" />
+    <ClInclude Include="Windows\PropertyWindows\ProjectKeyboardProperties.h" />
     <ClInclude Include="Windows\PropertyWindows\BasicProperties.h" />
     <ClInclude Include="ObjectCreation\Bar.h" />
     <ClInclude Include="ObjectCreation\Button.h" />

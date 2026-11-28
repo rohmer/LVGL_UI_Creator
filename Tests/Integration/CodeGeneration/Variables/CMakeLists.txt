@@ -23,7 +23,9 @@ set_target_properties(generated_variables PROPERTIES C_STANDARD 11 C_STANDARD_RE
 if(MSVC)
     target_compile_options(generated_variables PRIVATE /W3 /we4013 /utf-8)
 else()
-    target_compile_options(generated_variables PRIVATE -Wall -Wextra $<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>)
+    target_compile_options(generated_variables PRIVATE -Wall -Wextra
+        $<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration>
+        $<$<COMPILE_LANGUAGE:C>:-Werror=misleading-indentation>)
 endif()
 enable_testing()
 add_test(NAME GeneratedVariables COMMAND generated_variables)

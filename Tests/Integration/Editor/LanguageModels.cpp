@@ -66,14 +66,18 @@ void CheckLanguageModelsEditor(UI& editor, SdlSimulator& simulator) {
 #endif
     Write(work / "corpus/input.txt", "the world. the world. hello world. hello there. help the hero.\nin the world.\n");
     Require(Label(lv_screen_active(), "Language Models"), "Top-level Language Models menu missing");
-    auto* trayTitle = Label(lv_screen_active(), "Tool Tray"); Require(trayTitle, "Tool Tray missing");
-    auto* palette = EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(trayTitle)));
-    Click(palette, "Text area"); editor.MenuAction("select-screen"); Click(palette, "Advanced\nWidgets"); Click(palette, "Advanced Keyboard");
+    // Older projects retain their authored keyboard and selected-model import.
+    // New projects configure the keyboard at Project level, outside the palette.
+    editor.ApplyDocument({{"canvas", {{"width", 320}, {"height", 240}}}, {"obj", json::array({
+        {{"oid", 0}, {"par", -1}, {"base", {{"coords", {{"x", 10}, {"y", 10}, {"width", 220}, {"height", 40}}}}}, {"textarea", {{"text", ""}, {"oneLine", true}}}},
+        {{"oid", 1}, {"par", -1}, {"base", {{"coords", {{"x", 0}, {"y", 100}, {"width", 320}, {"height", 140}}}}}, {"advancedKeyboard", json::object()}}
+    })}});
     auto* title = Label(lv_screen_active(), "Simulator [Size:320x240]"); Require(title, "Simulator missing");
     auto* surface = lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))), 0);
     auto* keyboard = lv_obj_get_child(surface, 1); Require(lv_advanced_keyboard_is_instance(keyboard), "Cannot create language model target keyboard");
     auto* properties = static_cast<ObjectUserData*>(lv_obj_get_user_data(keyboard))->toolTray->GetPropertyWindow();
     properties->SetSelectedObject(keyboard);
+    properties->Tries().ApplyDefault(keyboard);
     const auto before = editor.ProjectDocument();
     editor.MenuAction("language-model-generator");
     auto* window = LanguageModelWindow::ActiveWindow(); Require(window, "Generator menu action did not open the LVGL window");

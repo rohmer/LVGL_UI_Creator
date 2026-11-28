@@ -137,7 +137,11 @@ void Load(Column& column) {
         if(selected && lv_obj_is_in_widget_tree(selected) && Serialization::AdvancedKeyboard::Type(selected)) {
             w->properties->Tries().Apply(selected,id);w->properties->SetSelectedObject(selected);
         }
-        Status(w,"Model loaded into the project. Choose it in Advanced Keyboard's Prediction trie selector.");
+        else if(w->properties->applyProjectKeyboardSettings) {
+            w->properties->applyProjectKeyboardSettings({{"trieId",id},{"trieSizeKiB",0}});
+            if(w->properties->ShowingProjectProperties())w->properties->RefreshProjectPropertiesAsync();
+        }
+        Status(w,"Model selected for the project keyboard. Configure it under Project > Advanced Keyboard above Screens.");
     }catch(const std::exception& e){Status(w,e.what());}
 }
 void Poll(lv_timer_t* timer) {

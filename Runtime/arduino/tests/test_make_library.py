@@ -12,6 +12,25 @@ spec.loader.exec_module(generator)
 
 
 class ArduinoLibraryTests(unittest.TestCase):
+    def test_global_keyboard_option_generates_the_service_and_selected_sources(self):
+        with tempfile.TemporaryDirectory(prefix="arduino-project-keyboard-") as temporary:
+            root = Path(temporary)
+            source = root / "screen.json"
+            source.write_text(json.dumps({"runtimeTarget": "9.6", "canvas": {"width": 240, "height": 320},
+                "obj": [{"oid": 1, "par": -1, "base": {}, "textarea": {"text": "Input"}}],
+                "advancedKeyboard": {"enabled": True, "language": "fr-FR", "height": 120}}))
+            output = root / "library"
+            plan = generator.make_library([source], output)
+            document = generator.decode_project((output / "projects/screen.pb").read_bytes())
+            self.assertNotIn("advancedKeyboard", document)
+            keyboard = document["obj"][-1]
+            self.assertTrue(keyboard["advancedKeyboard"]["screenManaged"])
+            self.assertEqual(keyboard["base"]["coords"], {"x": 0, "y": 200, "width": 240, "height": 120})
+            self.assertEqual(plan["keyboardLanguages"], ["fr-FR"])
+            self.assertEqual(plan["customFeatures"], ["LVSERIAL_USE_ADVANCED_KEYBOARD"])
+            self.assertTrue((output / "src/vendor/3rdParty/AdvancedKeyboard/src/Keyboard.cpp").is_file())
+            self.assertFalse((output / "src/vendor/3rdParty/AdvancedKeyboard/src/Prediction.cpp").exists())
+
     def test_xml_parser_is_only_copied_for_explicit_opt_in(self):
         with tempfile.TemporaryDirectory(prefix="arduino-xml-") as temporary:
             root = Path(temporary)

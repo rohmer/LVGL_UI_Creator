@@ -223,20 +223,20 @@ void ToolTray::initializeWidgetButtons(lv_obj_t* parent, int category)
     int width = lv_obj_get_width_fit(parent) / 3 - 5;
     int height = 61;
 
-    std::string bNames[35] = {
+    std::string bNames[34] = {
         "Arc", "Bar", "Button", "Button matrix", "Calendar", "Canvas", "Check box",
         "Chart", "Container", "Drop down list", "Gauge", "Image", "Image button", "Keyboard", "Label", "LED",
         "Line", "Line meter", "Message box", "Page", "Preloader", "Roller", "Slider", "Spinbox", "Switch",
-        "Table", "Tabview", "Text area", "Tile view", "Window", "Text box", "Layer view", "Barcode", "QR code", "Advanced Keyboard"
+        "Table", "Tabview", "Text area", "Tile view", "Window", "Text box", "Layer view", "Barcode", "QR code"
     };
     int xCtr = 0;
     int yCtr = 0;
 
-    for (int i = 0; i < 35; i++)
+    for (int i = 0; i < 34; i++)
     {
         const bool isAdvanced = i == 3 || i == 4 || i == 5 || i == 7 || i == 10 ||
             i == 12 || i == 13 || i == 17 || i == 18 || i == 19 || i == 25 ||
-            i == 26 || i == 28 || i == 29 || i == 32 || i == 33 || i == 34;
+            i == 26 || i == 28 || i == 29 || i == 32 || i == 33;
         const int itemCategory = i == 30 || i == 31 ? 3 : i == 18 || i == 29 ? 2 : isAdvanced ? 1 : 0;
         if (itemCategory != category)
             continue;

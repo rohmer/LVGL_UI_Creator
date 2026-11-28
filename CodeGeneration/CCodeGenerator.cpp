@@ -931,7 +931,7 @@ void Generator::variables(const json& records) {
         }
         manifest["variables"].push_back(std::move(metadata));
         auto& out=variableCode;
-        out<<"static void ui_apply_"<<n<<'('<<type<<" value) {\n    (void)value; if (ui_syncing_vars) return; ui_syncing_vars=true;\n";
+        out<<"static void ui_apply_"<<n<<'('<<type<<" value) {\n    (void)value;\n    if (ui_syncing_vars) { return; }\n    ui_syncing_vars=true;\n";
         if(needsText) {
             if(v.type==Serialization::VariableType::Boolean)out<<"    const char *text=value ? \"true\" : \"false\";\n";
             else out<<"    char text[64]; snprintf(text, sizeof text, "<<(v.type==Serialization::VariableType::Float?"\"%.17g\", value":"\"%\" PRId64, value")<<");\n";
@@ -939,10 +939,10 @@ void Generator::variables(const json& records) {
         for(const auto& binding:outputs)out<<"    if ("<<binding.first<<") { "<<binding.second<<" }\n";
         out<<"    ui_syncing_vars=false;\n}\n";
         out<<"bool ui_set_"<<n<<'('<<type<<" value) {\n    if (!ui_ready || ui_syncing_vars) return false;\n";
-        if(string)out<<"    char *copy; size_t length; if (!value) return false; length=strlen(value); if ("<<external<<" && length >= "<<external<<"_capacity) return false; copy=lv_strdup(value); if (!copy) return false;\n";
+        if(string)out<<"    char *copy;\n    size_t length;\n    if (!value) { return false; }\n    length=strlen(value);\n    if ("<<external<<" && length >= "<<external<<"_capacity) { return false; }\n    copy=lv_strdup(value);\n    if (!copy) { return false; }\n";
         else if(v.type==Serialization::VariableType::Float) {
             out<<"    if (!isfinite(value)) return false;\n";
-            if(storageType=="float")out<<"    if (value < -FLT_MAX || value > FLT_MAX) return false; value=(double)(float)value;\n";
+            if(storageType=="float")out<<"    if (value < -FLT_MAX || value > FLT_MAX) { return false; }\n    value=(double)(float)value;\n";
         } else if(storageType!="int64_t"&&storageType!="bool") {
             const std::map<std::string,std::pair<std::string,std::string>> limits={
                 {"int8_t",{"INT8_MIN","INT8_MAX"}},{"int16_t",{"INT16_MIN","INT16_MAX"}},{"int32_t",{"INT32_MIN","INT32_MAX"}},
@@ -975,13 +975,13 @@ void Generator::variables(const json& records) {
             out<<']';
         }
         out<<"; return true; }\n";
-        out<<"bool ui_sync_"<<n<<"(void) {\n    if (!ui_ready) return false; if (!"<<external<<") return true;\n";
-        if(string)out<<"    if (!memchr("<<external<<", '\\0', "<<external<<"_capacity)) return false; if ("<<current<<" && strcmp("<<current<<", "<<external<<")==0) return true; return ui_set_"<<n<<'('<<external<<");\n";
-        else out<<"    if ("<<current<<" == ("<<type<<")*"<<external<<") return true; return ui_set_"<<n<<"(("<<type<<")*"<<external<<");\n";
+        out<<"bool ui_sync_"<<n<<"(void) {\n    if (!ui_ready) { return false; }\n    if (!"<<external<<") { return true; }\n";
+        if(string)out<<"    if (!memchr("<<external<<", '\\0', "<<external<<"_capacity)) { return false; }\n    if ("<<current<<" && strcmp("<<current<<", "<<external<<")==0) { return true; }\n    return ui_set_"<<n<<'('<<external<<");\n";
+        else out<<"    if ("<<current<<" == ("<<type<<")*"<<external<<") { return true; }\n    return ui_set_"<<n<<"(("<<type<<")*"<<external<<");\n";
         out<<"}\nbool ui_bind_"<<n<<'('<<storageType<<" *storage"<<(string?", size_t capacity":"")<<") {\n    "<<storageType<<" *previous="<<external<<";\n";
-        if(string)out<<"    size_t previous_capacity="<<external<<"_capacity; if (!ui_ready || ui_syncing_vars || !storage || !capacity || !memchr(storage, '\\0', capacity)) return false; "<<external<<"_capacity=capacity;\n";
-        else out<<"    if (!ui_ready || ui_syncing_vars || !storage) return false;\n";
-        out<<"    "<<external<<"=storage; if (ui_sync_"<<n<<"()) return true; "<<external<<"=previous;"<<(string?" "+external+"_capacity=previous_capacity;":"")<<" return false;\n}\nvoid ui_unbind_"<<n<<"(void) { "<<external<<"=NULL;"<<(string?" "+external+"_capacity=0;":"")<<" }\n";
+        if(string)out<<"    size_t previous_capacity="<<external<<"_capacity;\n    if (!ui_ready || ui_syncing_vars || !storage || !capacity || !memchr(storage, '\\0', capacity)) { return false; }\n    "<<external<<"_capacity=capacity;\n";
+        else out<<"    if (!ui_ready || ui_syncing_vars || !storage) { return false; }\n";
+        out<<"    "<<external<<"=storage;\n    if (ui_sync_"<<n<<"()) { return true; }\n    "<<external<<"=previous;\n"<<(string?"    "+external+"_capacity=previous_capacity;\n":"")<<"    return false;\n}\nvoid ui_unbind_"<<n<<"(void) { "<<external<<"=NULL;"<<(string?" "+external+"_capacity=0;":"")<<" }\n";
         for(size_t i=0;i<inputs.size();++i) {
             const auto& input=inputs[i];const auto callback="ui_changed_"+n+"_"+std::to_string(i);
             out<<"static void "<<callback<<"(lv_event_t *event) { (void)event; if (ui_ready && "<<input.first<<" && !ui_syncing_vars) { if (!ui_set_"<<n<<"("<<input.second<<")) ui_apply_"<<n<<'('<<current<<"); } }\n";
@@ -995,7 +995,7 @@ void Generator::variables(const json& records) {
         variableInit<<"    ui_apply_"<<n<<'('<<current<<");\n";
         for(auto& value:v.values)variableInit<<"    if (!ui_set_"<<n<<'('<<literal(value)<<")) { ui_deinit(); return false; }\n";
         if(singleHistory) {
-            if(string)variableFree<<"    if ("<<history<<"_count) lv_free((void*)"<<history<<"); "<<current<<"=NULL; "<<history<<"=NULL;\n";
+            if(string)variableFree<<"    if ("<<history<<"_count) { lv_free((void*)"<<history<<"); }\n    "<<current<<"=NULL;\n    "<<history<<"=NULL;\n";
             variableFree<<"    "<<history<<"_count=false;\n";
         } else {
             if(string)variableFree<<"    { size_t i; for (i=0;i<"<<history<<"_count;++i) lv_free((void*)"<<history<<"[i]); } "<<current<<"=NULL;\n";
@@ -1193,6 +1193,8 @@ static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
             c<<"    case "<<i<<": lv_screen_load_anim(screen,UI_SCREEN_ANIM_"<<screenTransitions[i].first<<","<<screenTransitions[i].second<<",0,false); break;\n";
         c<<"    default: lv_screen_load(screen); break;\n    }\n";
     }else c<<"    lv_screen_load(screen);\n";
+    for(const auto& keyboard:keyboards)if(keyboard.settings.value("screenManaged",false))
+        c<<"    if (index == "<<keyboard.screen<<" && "<<keyboard.object<<") lv_advanced_keyboard_close("<<keyboard.object<<");\n";
     c<<"    return true;\n}\nlv_obj_t *ui_get_object(size_t screen, int32_t object_id) {\n";
     if(handles.size()>32) {
         // Parallel immutable arrays avoid per-entry structure padding. Only the
@@ -1232,7 +1234,7 @@ static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
     if(usesTransitions)c<<"    /* Cancel a pending first-screen transition even before it becomes active. */\n    if (active && active==ui_previous_screen) {\n        lv_obj_t *guard=lv_obj_create(NULL);\n        if (guard) {lv_screen_load(guard);lv_screen_load(ui_previous_screen);lv_obj_delete(guard);}\n    }\n";
     c<<"    for (i=0;i<"<<screenCount<<";++i) if (ui_screens[i] && active == ui_screens[i]) { if (!ui_previous_screen) ui_previous_screen=lv_obj_create(NULL); lv_screen_load(ui_previous_screen); break; }\n    for (i=0;i<"<<screenCount<<";++i) if (ui_screens[i]) lv_obj_delete(ui_screens[i]);\n";
     if(!focusOwners.empty())c<<"    ui_focus_free();\n";
-    c<<keyboardFree.str()<<variableFree.str()<<"    if (ui_previous_screen) lv_obj_remove_event_cb_with_user_data(ui_previous_screen, ui_forget_object, &ui_previous_screen); ui_previous_screen=NULL; ui_ready=false; ui_syncing_vars=false;\n}\n";
+    c<<keyboardFree.str()<<variableFree.str()<<"    if (ui_previous_screen) {\n        lv_obj_remove_event_cb_with_user_data(ui_previous_screen, ui_forget_object, &ui_previous_screen);\n    }\n    ui_previous_screen=NULL;\n    ui_ready=false;\n    ui_syncing_vars=false;\n}\n";
     c<<"bool ui_init(void) {\n    if (ui_ready) return true;\n    if (!lv_display_get_default()) return false;\n    ui_previous_screen=lv_screen_active(); if (ui_previous_screen) ui_track_object(ui_previous_screen, &ui_previous_screen);\n    ui_ready=true;\n";
     if(!focusOwners.empty())c<<"    ui_focus_group=lv_group_get_default();\n";
     c<<body.str()<<variableInit.str()<<actionInit.str();

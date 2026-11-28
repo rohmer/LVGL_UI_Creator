@@ -319,6 +319,93 @@ def encode_project(document: dict, *, omit_defaults=True) -> bytes:
     return _wire(1, 0, 2 if omit_defaults else 1) + _wire(2, 0, 3) + _wire(3, 2, b"project") + b"".join(records)
 
 
+def _project_keyboard_settings(value: dict) -> dict:
+    """Match Creator's JSON project adapter, without instantiating a widget."""
+    if not isinstance(value, dict):
+        raise ValueError("Project keyboard settings must be an object")
+    result = copy.deepcopy(value)
+    for key in ("enabled", "autoFocus", "hideOnDefocus", "autocorrect", "rightToLeft"):
+        if key in value and type(value[key]) is not bool:
+            raise ValueError("Project keyboard " + key + " must be a boolean")
+    target = value.get("targetOid", -1)
+    if type(target) is not int or not -1 <= target <= 0x7fffffff:
+        raise ValueError("targetOid must be -1 or a nonnegative object ID")
+    language = value.get("language", "en-US")
+    # Also validate the trie ID using the same per-language default policy as
+    # existing authored keyboards. Model existence is checked after selection.
+    identity = trie_assets.selected_trie(value)
+    result.update(enabled=value.get("enabled", False), targetOid=-1, autoFocus=True,
+                  hideOnDefocus=False, autocorrect=value.get("autocorrect", True),
+                  language=language, trieId=identity,
+                  rightToLeft=value.get("rightToLeft", language in ("ar-SA", "ur-PK")))
+    for key, default, maximum in (("trieSizeKiB", 0, 256), ("keyRadius", 6, 32767),
+                                  ("keyBackground", 0xffffffff, 0xffffffff),
+                                  ("keyForeground", 0xff000000, 0xffffffff)):
+        number = value.get(key, default)
+        if type(number) is not int or not 0 <= number <= maximum:
+            raise ValueError(key + " must be an integer in its supported range")
+        result[key] = (0xff000000 | (number & 0xffffff)) if key in ("keyBackground", "keyForeground") else number
+    if result["trieSizeKiB"] not in (0, 16, 256):
+        raise ValueError("trieSizeKiB must be 0, 16 or 256")
+    threshold = value.get("autocorrectThreshold", 0.3)
+    if type(threshold) not in (int, float) or not math.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ValueError("autocorrectThreshold must be between zero and one")
+    result["autocorrectThreshold"] = threshold
+    for key in ("text", "placeholder", "password", "maxLength", "screenManaged"):
+        result.pop(key, None)
+    if result.get("height") is None:
+        result.pop("height", None)
+    elif type(result["height"]) is not int or not 1 <= result["height"] <= 32767:
+        raise ValueError("Project keyboard height must be between 1 and 32767")
+    return result
+
+
+def _materialize_keyboard(screen: dict, project_settings: dict):
+    settings = copy.deepcopy(project_settings)
+    records = screen.setdefault("obj", [])
+    if not isinstance(records, list):
+        raise ValueError("Screen widget records must be an array")
+    previous = next((record for record in records if isinstance(record, dict) and "advancedKeyboard" in record), None)
+    records[:] = [record for record in records if not isinstance(record, dict) or "advancedKeyboard" not in record]
+    if not settings.pop("enabled"):
+        return
+    canvas = screen.get("canvas", {})
+    if not isinstance(canvas, dict):
+        raise ValueError("Screen canvas must be an object")
+    width, screen_height = canvas.get("width", 320), canvas.get("height", 240)
+    if any(type(number) is not int or not 1 <= number <= 32767 for number in (width, screen_height)):
+        raise ValueError("Invalid screen dimensions for keyboard")
+    height = min(settings.pop("height", min(240, max(1, screen_height * 3 // 5))), screen_height)
+    ids = {record["oid"] for record in records if isinstance(record, dict) and type(record.get("oid")) is int}
+    identity = previous.get("oid", 0) if previous is not None else 0
+    if type(identity) is not int or not 0 <= identity <= 0x7fffffff:
+        raise ValueError("Invalid keyboard object ID")
+    while identity in ids:
+        identity += 1
+    if identity > 0x7fffffff:
+        raise ValueError("No free keyboard object ID")
+    base = copy.deepcopy(previous.get("base", {})) if previous is not None else {}
+    base.update(name="Screen Advanced Keyboard", hidden=False,
+                coords={"x": 0, "y": screen_height-height, "width": width, "height": height})
+    if not isinstance(base.get("flags"), dict):
+        base["flags"] = {}
+    base["flags"].update(hidden=False, scrollable=False)
+    settings["screenManaged"] = True
+    records.append({"oid": identity, "par": -1, "base": base, "advancedKeyboard": settings})
+
+
+def _materialize_project_keyboard(document: dict):
+    """Create runtime records from the global option, never on the saved input."""
+    if "advancedKeyboard" not in document:
+        return
+    settings = _project_keyboard_settings(document.pop("advancedKeyboard"))
+    pages = document.get("screens", [document] if "obj" in document else [])
+    for screen in pages:
+        if not isinstance(screen, dict):
+            raise ValueError("Project screens must be objects")
+        _materialize_keyboard(screen, settings)
+
+
 def _runtime_document(document: dict) -> dict:
     """Discard authoring definitions, keeping concrete widgets and theme tokens.
 
@@ -336,6 +423,7 @@ def _runtime_document(document: dict) -> dict:
             for key in ("obj", "canvas"):
                 if key in result: screens[current][key] = result.pop(key)
         result.pop("editorScreen", None)
+    _materialize_project_keyboard(result)
     def page(value):
         if not isinstance(value, dict): return
         for field in ("components", "componentLibrary", "sharedStyles"): value.pop(field, None)
@@ -509,7 +597,7 @@ def analyze_projects(documents: list[dict], *, color_depth=16, default_font=14) 
         screens = document.get("screens", [document])
         if not isinstance(screens, list) or not screens or any(not isinstance(screen.get("obj"), list) for screen in screens):
             raise ValueError("Project requires one or more screen obj arrays")
-        trie_summary = trie_assets.prepare(copy.deepcopy(document), repository_root())
+        trie_summary = trie_assets.prepare(copy.deepcopy(document), repository_root(), prune=True)
         trie_summaries.append(trie_summary)
         if trie_summary["referencedTries"]:
             custom.add(trie_assets.PREDICTION_GATE)

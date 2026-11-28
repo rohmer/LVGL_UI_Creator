@@ -138,6 +138,8 @@
     <ClInclude Include="Serialization\LVVariable.h" />
     <ClInclude Include="Serialization\Variable.h" />
     <ClInclude Include="Serialization\Screen.h" />
+    <ClInclude Include="Serialization\ProjectKeyboard.h" />
+    <ClInclude Include="Serialization\AdvancedKeyboardSettings.h" />
     <ClInclude Include="Serialization\Project.h" />
     <ClInclude Include="Device\lvserial_pb.h" />
     <ClInclude Include="Proto\lvserial.pb.h" />

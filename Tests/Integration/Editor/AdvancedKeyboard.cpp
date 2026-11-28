@@ -36,14 +36,21 @@ void CheckAdvancedKeyboardEditor(UI& editor,SdlSimulator& simulator) {
     auto* trayTitle=Label(lv_screen_active(),"Tool Tray");Require(trayTitle,"Tool Tray missing");
     auto* palette=EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(trayTitle)));
     auto click=[&](const char* name) {auto* label=Label(palette,name);Require(label,"Palette entry missing");lv_obj_send_event(lv_obj_get_parent(label),LV_EVENT_CLICKED,nullptr);lv_obj_update_layout(lv_screen_active());};
-    click("Text area");editor.MenuAction("select-screen");click("Advanced\nWidgets");
-    click("Advanced Keyboard");
+    click("Text area");
+    // Old project files can still contain a manually authored keyboard even
+    // though new screens configure their keyboard in Screen properties.
+    auto legacy=editor.ProjectDocument();
+    legacy["obj"].push_back({{"oid",1},{"par",-1},{"base",{{"name","Legacy keyboard"},
+        {"coords",{{"x",0},{"y",96},{"width",300},{"height",144}}}}},{"advancedKeyboard",json::object()}});
+    editor.ApplyDocument(std::move(legacy));
     auto* title=Label(lv_screen_active(),"Simulator [Size:320x240]");Require(title,"Simulator missing");
     auto* surface=lv_obj_get_child(EditorWindow::Content(lv_obj_get_parent(lv_obj_get_parent(title))),0);
     auto* entry=lv_obj_get_child(surface,0);auto* keyboard=lv_obj_get_child(surface,1);
     Require(lv_obj_has_class(entry,&lv_textarea_class) && lv_advanced_keyboard_is_instance(keyboard),"External text field/keyboard creation failed");
     Require(lv_obj_get_child_count(keyboard)==2,"Keyboard still owns a text field");
     auto properties=[&]{return static_cast<ObjectUserData*>(lv_obj_get_user_data(keyboard))->toolTray->GetPropertyWindow();};
+    properties()->Tries().ApplyDefault(keyboard);
+    properties()->SetSelectedObject(keyboard);
     Require(Label(properties()->ObjectPropWin()->GetWindow(),"Language") && Label(properties()->ObjectPropWin()->GetWindow(),"Load trie...") &&
         Label(properties()->ObjectPropWin()->GetWindow(),"Trie size") && Label(properties()->ObjectPropWin()->GetWindow(),"Prediction trie") && Label(properties()->ObjectPropWin()->GetWindow(),"Target text box"),"Language/size/trie/target controls missing");
     const auto englishDefault=editor.ProjectDocument();

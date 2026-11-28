@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 #include "lvgl/lvgl.h"
 #include "ToolTray.h"
 #include "SimWindow.h"
@@ -34,8 +35,15 @@ class PropertyWindow
 {
 public:
     PropertyWindow(lv_indev_t* kb_indev, SimWindow* simWindow, int screenWidth, int screenHeight);
+    ~PropertyWindow();
     TreeView* GetObjectTree();
     void SetSelectedObject(lv_obj_t* object, bool synchronizeTree = true, bool preserveSelection = false);
+    void RefreshSelectedObjectAsync(lv_obj_t* object);
+    void ShowProjectProperties();
+    bool ShowingProjectProperties() const { return projectPropertiesVisible; }
+    void RefreshProjectPropertiesAsync();
+    std::function<json()> projectKeyboardSettings;
+    std::function<void(const json&)> applyProjectKeyboardSettings;
     void SetSelection(const std::vector<lv_obj_t*>& objects);
     std::function<void()> onSelectionChanged;
     const std::vector<lv_obj_t*>& SelectedObjects() const { return selectedObjects; }
@@ -145,6 +153,10 @@ public:
     std::map<std::string, lv_style_t*> StylePtrs;
 
 private:
+    struct RefreshState { PropertyWindow* window; size_t generation = 0; };
+    std::shared_ptr<RefreshState> refreshState;
+    bool projectPropertiesVisible = false;
+    std::vector<std::pair<CollapsableWindow*, bool>> projectHiddenPanels;
     FontLibrary fonts;
     ImageLibrary images;
     TrieLibrary tries;

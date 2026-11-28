@@ -34,6 +34,35 @@ public:
         auto next=Serialization::ProjectTries::Import(records,name,bytes.data(),bytes.size(),&selected);
         auto known=bundledIds;Load(next);bundledIds=std::move(known);return selected;
     }
+    // Project settings select assets without constructing a keyboard in Design.
+    json BundledSettings(const std::string& language,uint32_t sizeKiB) {
+        const auto* model=BundledTries::Find(language,sizeKiB);
+        if(!model)throw std::invalid_argument("No bundled trie for this language and size");
+        auto cached=bundledIds.find(model->id);
+        std::string id;
+        if(cached!=bundledIds.end())id=cached->second;
+        else {
+            id=ImportBytes(model->name,BundledTries::Read(*model));
+            bundledIds[model->id]=id;
+        }
+        return {{"language",language},{"trieId",id},{"trieSizeKiB",sizeKiB}};
+    }
+    json LanguageSettings(const json& previous,const std::string& language) {
+        if(previous.at("language")==language)return json::object();
+        const auto id=previous.value("trieId",std::string{});
+        const auto tier=previous.value("trieSizeKiB",0u);
+        const bool rtl=language=="ar-SA"||language=="ur-PK";
+        if(!id.empty()&&id!="builtin-en-us"&&!tier)
+            return {{"language",language},{"rightToLeft",rtl}};
+        const auto* matching=BundledTries::Find(language,tier?tier:16u);
+        if(!matching)matching=BundledTries::Find(language,16);
+        if(matching) {
+            auto patch=BundledSettings(language,matching->sizeKiB);
+            patch["rightToLeft"]=rtl;
+            return patch;
+        }
+        return {{"language",language},{"rightToLeft",rtl},{"trieId",""},{"trieSizeKiB",0}};
+    }
     void Apply(lv_obj_t* keyboard,const std::string& id) {
         EditorEdit::Scope edit;
         Serialization::ProjectTries::Scope scope(catalog);

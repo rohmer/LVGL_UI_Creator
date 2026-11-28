@@ -258,9 +258,11 @@ void ProjectTries::PruneUnused(json& document)
         if (value.contains("advancedKeyboard")) {
             const auto& settings = value.at("advancedKeyboard");
             if (!settings.is_object()) throw std::invalid_argument("Advanced Keyboard properties must be an object");
-            const auto language = settings.value("language", std::string("en-US"));
-            const auto id = settings.value("trieId", language == "en-US" ? std::string(kBuiltin) : std::string{});
-            if (!id.empty() && id != kBuiltin) referenced.insert(id);
+            if (!settings.contains("enabled") || settings.value("enabled", false)) {
+                const auto language = settings.value("language", std::string("en-US"));
+                const auto id = settings.value("trieId", language == "en-US" ? std::string(kBuiltin) : std::string{});
+                if (!id.empty() && id != kBuiltin) referenced.insert(id);
+            }
         }
         for (const auto& child : value.items()) if (child.key() != "tries") self(self, child.value());
     };
