@@ -92,7 +92,7 @@ struct Framebuffer {
     ~Framebuffer(){lv_display_delete(display);lv_display_set_default(previous);}
 };
 void Catalog() {
-    Input::Require(ObjectIcons::Count()==84,"Adding command icons changed the add-object catalog");
+    Input::Require(ObjectIcons::Count()==89,"Command icons changed the add-object catalog");
     Input::Require(!ObjectIcons::Action(nullptr)&&!ObjectIcons::Action("")&&!ObjectIcons::Action("unknown-action"),"Unknown command silently uses an unrelated icon");
     Input::Require(ObjectIcons::Action("recent:project.json")&&!ObjectIcons::Action("recent:"),"Recent-project icon resolution is incomplete");
     for(const auto& entry:entries)Input::Require(ObjectIcons::Action(entry.action),std::string("Missing action binding: ")+entry.action);

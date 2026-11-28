@@ -321,6 +321,54 @@ static const Primitive geometry34[] = {
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {10.0f, 25.0f, 22.0f, 25.0f, 0.0f, 0.0f}},
 };
 static const Primitive geometry35[] = {
+    {Shape::Rect, Tone::Muted, Tone::None, 1.4f, {2.5f, 3.0f, 27.0f, 26.0f, 3.0f, 0.0f}},
+    {Shape::Circle, Tone::Accent, Tone::None, 1.7f, {8.0f, 9.0f, 2.8f, 0.0f, 0.0f, 0.0f}},
+    {Shape::Circle, Tone::None, Tone::Accent, 0.0f, {8.0f, 9.0f, 1.1f, 0.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.8f, {15.0f, 9.0f, 25.0f, 9.0f, 0.0f, 0.0f}},
+    {Shape::Circle, Tone::Blue, Tone::None, 1.7f, {8.0f, 17.0f, 2.8f, 0.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.8f, {15.0f, 17.0f, 23.0f, 17.0f, 0.0f, 0.0f}},
+    {Shape::Circle, Tone::Blue, Tone::None, 1.7f, {8.0f, 25.0f, 2.8f, 0.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.8f, {15.0f, 25.0f, 25.0f, 25.0f, 0.0f, 0.0f}},
+};
+static const Primitive geometry36[] = {
+    {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {2.5f, 7.0f, 27.0f, 18.0f, 4.0f, 0.0f}},
+    {Shape::Rect, Tone::None, Tone::Accent, 0.0f, {6.0f, 11.0f, 10.0f, 10.0f, 2.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.8f, {8.5f, 16.0f, 10.5f, 18.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.8f, {10.5f, 18.0f, 14.0f, 13.5f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Blue, Tone::None, 1.8f, {20.0f, 13.0f, 25.5f, 13.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.8f, {20.0f, 19.0f, 24.0f, 19.0f, 0.0f, 0.0f}},
+};
+static const Primitive geometry37[] = {
+    {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {2.5f, 3.5f, 27.0f, 25.0f, 3.0f, 0.0f}},
+    {Shape::Rect, Tone::Accent, Tone::None, 1.7f, {6.0f, 9.0f, 8.0f, 8.0f, 1.5f, 0.0f}},
+    {Shape::Line, Tone::Accent, Tone::None, 1.6f, {8.0f, 13.0f, 10.0f, 15.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Accent, Tone::None, 1.6f, {10.0f, 15.0f, 13.0f, 10.5f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Blue, Tone::None, 1.8f, {18.0f, 10.0f, 25.0f, 10.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.8f, {18.0f, 16.0f, 24.0f, 16.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 23.0f, 25.0f, 23.0f, 0.0f, 0.0f}},
+};
+static const Primitive geometry38[] = {
+    {Shape::Rect, Tone::Primary, Tone::None, 1.7f, {2.0f, 3.0f, 28.0f, 8.0f, 2.0f, 0.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.6f, {6.0f, 7.0f, 15.0f, 7.0f, 0.0f, 0.0f}},
+    {Shape::Triangle, Tone::None, Tone::Accent, 0.0f, {22.0f, 6.0f, 26.0f, 6.0f, 24.0f, 9.0f}},
+    {Shape::Rect, Tone::Blue, Tone::None, 1.7f, {7.0f, 14.0f, 22.0f, 16.0f, 2.0f, 0.0f}},
+    {Shape::Line, Tone::Blue, Tone::None, 1.5f, {7.0f, 19.0f, 29.0f, 19.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.6f, {12.0f, 13.0f, 12.0f, 16.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.6f, {24.0f, 13.0f, 24.0f, 16.0f, 0.0f, 0.0f}},
+    {Shape::Rect, Tone::None, Tone::Accent, 0.0f, {12.0f, 23.0f, 4.0f, 4.0f, 1.0f, 0.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.6f, {20.0f, 24.5f, 24.0f, 24.5f, 0.0f, 0.0f}},
+};
+static const Primitive geometry39[] = {
+    {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {2.0f, 4.0f, 18.0f, 23.0f, 2.0f, 0.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.7f, {6.0f, 10.0f, 14.0f, 10.0f, 0.0f, 0.0f}},
+    {Shape::Rect, Tone::None, Tone::Blue, 0.0f, {4.0f, 14.0f, 14.0f, 5.0f, 1.0f, 0.0f}},
+    {Shape::Triangle, Tone::None, Tone::Primary, 0.0f, {14.0f, 15.0f, 17.0f, 16.5f, 14.0f, 18.0f}},
+    {Shape::Line, Tone::Muted, Tone::None, 1.7f, {6.0f, 23.0f, 14.0f, 23.0f, 0.0f, 0.0f}},
+    {Shape::Rect, Tone::Accent, Tone::None, 1.6f, {20.0f, 13.0f, 10.0f, 15.0f, 2.0f, 0.0f}},
+    {Shape::Line, Tone::Primary, Tone::None, 1.6f, {23.0f, 18.0f, 27.0f, 18.0f, 0.0f, 0.0f}},
+    {Shape::Line, Tone::Blue, Tone::None, 1.6f, {23.0f, 23.0f, 27.0f, 23.0f, 0.0f, 0.0f}},
+};
+static const Primitive geometry40[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 3.0f, 26.0f, 26.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 4.0f, 24.0f, 6.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {7.0f, 7.0f, 17.0f, 7.0f, 0.0f, 0.0f}},
@@ -336,7 +384,7 @@ static const Primitive geometry35[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {22.0f, 24.5f, 24.0f, 26.5f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {24.0f, 26.5f, 26.0f, 24.5f, 0.0f, 0.0f}},
 };
-static const Primitive geometry36[] = {
+static const Primitive geometry41[] = {
     {Shape::Triangle, Tone::None, Tone::Blue, 0.0f, {16.0f, 3.0f, 29.0f, 28.0f, 3.0f, 28.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {16.0f, 3.0f, 29.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {29.0f, 28.0f, 3.0f, 28.0f, 0.0f, 0.0f}},
@@ -344,13 +392,13 @@ static const Primitive geometry36[] = {
     {Shape::Line, Tone::Primary, Tone::None, 2.0f, {16.0f, 11.0f, 16.0f, 18.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Primary, 1.6f, {16.0f, 23.0f, 1.2f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry37[] = {
+static const Primitive geometry42[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 11.0f, 25.0f, 13.0f, 6.5f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 2.0f, {8.0f, 17.5f, 18.0f, 17.5f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::Accent, Tone::Blue, 1.8f, {24.0f, 9.0f, 5.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Primary, 1.6f, {24.0f, 9.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry38[] = {
+static const Primitive geometry43[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {3.0f, 16.0f, 6.0f, 13.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {6.0f, 13.0f, 9.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.6f, {4.0f, 16.0f, 4.0f, 21.0f, 0.0f, 0.0f}},
@@ -364,13 +412,13 @@ static const Primitive geometry38[] = {
     {Shape::Circle, Tone::None, Tone::Accent, 1.6f, {28.0f, 17.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {26.0f, 23.0f, 29.0f, 23.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry39[] = {
+static const Primitive geometry44[] = {
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {3.0f, 8.0f, 23.0f, 15.0f, 4.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 2.0f, {8.0f, 15.5f, 19.0f, 15.5f, 0.0f, 0.0f}},
     {Shape::Triangle, Tone::None, Tone::Primary, 0.0f, {20.0f, 18.0f, 29.0f, 24.0f, 24.0f, 26.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {24.0f, 25.0f, 26.0f, 29.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry40[] = {
+static const Primitive geometry45[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 9.0f, 26.0f, 14.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 10.0f, 7.0f, 12.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {12.0f, 10.0f, 12.0f, 22.0f, 0.0f, 0.0f}},
@@ -379,7 +427,7 @@ static const Primitive geometry40[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {15.0f, 16.0f, 17.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {23.0f, 16.0f, 26.0f, 16.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry41[] = {
+static const Primitive geometry46[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {5.0f, 3.0f, 22.0f, 26.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {6.0f, 4.0f, 20.0f, 10.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {8.0f, 12.0f, 12.0f, 7.0f, 0.0f, 0.0f}},
@@ -391,7 +439,7 @@ static const Primitive geometry41[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {8.0f, 22.0f, 18.0f, 22.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {19.0f, 25.5f, 23.0f, 25.5f, 0.0f, 0.0f}},
 };
-static const Primitive geometry42[] = {
+static const Primitive geometry47[] = {
     {Shape::Rect, Tone::Muted, Tone::None, 1.6f, {3.0f, 8.0f, 3.0f, 14.0f, 1.0f, 0.0f}},
     {Shape::Rect, Tone::Muted, Tone::None, 1.6f, {26.0f, 8.0f, 3.0f, 14.0f, 1.0f, 0.0f}},
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {6.0f, 4.0f, 20.0f, 21.0f, 3.0f, 0.0f}},
@@ -406,12 +454,12 @@ static const Primitive geometry42[] = {
     {Shape::Circle, Tone::None, Tone::Muted, 1.6f, {16.0f, 29.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Muted, 1.6f, {20.0f, 29.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry43[] = {
+static const Primitive geometry48[] = {
     {Shape::Circle, Tone::Primary, Tone::None, 1.8f, {16.0f, 16.0f, 12.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {11.0f, 11.0f, 21.0f, 21.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {21.0f, 11.0f, 11.0f, 21.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry44[] = {
+static const Primitive geometry49[] = {
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {3.0f, 3.0f, 26.0f, 7.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {7.0f, 6.5f, 17.0f, 6.5f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.6f, {23.0f, 5.0f, 25.0f, 7.0f, 0.0f, 0.0f}},
@@ -422,7 +470,7 @@ static const Primitive geometry44[] = {
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {16.0f, 11.0f, 16.0f, 13.0f, 0.0f, 0.0f}},
     {Shape::Triangle, Tone::None, Tone::Accent, 0.0f, {13.0f, 12.0f, 19.0f, 12.0f, 16.0f, 15.0f}},
 };
-static const Primitive geometry45[] = {
+static const Primitive geometry50[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 3.0f, 26.0f, 8.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {7.0f, 7.0f, 18.0f, 7.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {23.0f, 6.0f, 25.0f, 8.0f, 0.0f, 0.0f}},
@@ -433,7 +481,7 @@ static const Primitive geometry45[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {13.0f, 22.0f, 24.0f, 22.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {13.0f, 26.0f, 20.0f, 26.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry46[] = {
+static const Primitive geometry51[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {5.0f, 3.0f, 22.0f, 26.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {6.0f, 4.0f, 20.0f, 6.0f, 1.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {5.0f, 11.0f, 27.0f, 11.0f, 0.0f, 0.0f}},
@@ -445,7 +493,7 @@ static const Primitive geometry46[] = {
     {Shape::Circle, Tone::None, Tone::Muted, 1.6f, {9.0f, 24.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {13.0f, 24.0f, 20.0f, 24.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry47[] = {
+static const Primitive geometry52[] = {
     {Shape::Rect, Tone::Muted, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {6.0f, 7.0f, 20.0f, 19.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {7.0f, 8.0f, 18.0f, 5.0f, 1.0f, 0.0f}},
@@ -455,7 +503,7 @@ static const Primitive geometry47[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {9.0f, 20.0f, 18.0f, 20.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {18.0f, 23.0f, 23.0f, 23.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry48[] = {
+static const Primitive geometry53[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 5.0f, 26.0f, 22.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 6.0f, 24.0f, 7.0f, 2.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Accent, 1.6f, {7.5f, 9.5f, 1.5f, 0.0f, 0.0f, 0.0f}},
@@ -464,7 +512,7 @@ static const Primitive geometry48[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 18.0f, 24.0f, 18.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 23.0f, 18.0f, 23.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry49[] = {
+static const Primitive geometry54[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 10.0f, 26.0f, 18.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {3.0f, 4.0f, 9.0f, 7.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::Muted, Tone::None, 1.6f, {14.0f, 5.0f, 6.0f, 5.0f, 1.0f, 0.0f}},
@@ -472,7 +520,7 @@ static const Primitive geometry49[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {8.0f, 17.0f, 23.0f, 17.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {8.0f, 22.0f, 18.0f, 22.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry50[] = {
+static const Primitive geometry55[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 3.0f, 26.0f, 26.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {17.0f, 4.0f, 11.0f, 24.0f, 1.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {20.0f, 9.0f, 25.0f, 9.0f, 0.0f, 0.0f}},
@@ -482,7 +530,7 @@ static const Primitive geometry50[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {9.0f, 16.0f, 13.0f, 20.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {9.0f, 16.0f, 17.0f, 16.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry51[] = {
+static const Primitive geometry56[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 10.0f, 26.0f, 12.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {17.0f, 11.0f, 5.0f, 10.0f, 1.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {10.0f, 11.0f, 10.0f, 21.0f, 0.0f, 0.0f}},
@@ -496,13 +544,13 @@ static const Primitive geometry51[] = {
     {Shape::Circle, Tone::None, Tone::Accent, 1.6f, {19.5f, 16.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {17.0f, 26.0f, 22.0f, 26.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry52[] = {
+static const Primitive geometry57[] = {
     {Shape::Rect, Tone::None, Tone::Muted, 1.6f, {3.0f, 5.0f, 26.0f, 7.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {3.0f, 17.0f, 17.0f, 4.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Muted, 1.6f, {23.0f, 17.0f, 6.0f, 4.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Muted, 1.6f, {3.0f, 25.0f, 22.0f, 4.0f, 2.0f, 0.0f}},
 };
-static const Primitive geometry53[] = {
+static const Primitive geometry58[] = {
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 4.0f, 24.0f, 5.0f, 1.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {6.0f, 3.0f, 26.0f, 3.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {26.0f, 3.0f, 29.0f, 6.0f, 0.0f, 0.0f}},
@@ -519,7 +567,7 @@ static const Primitive geometry53[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 16.0f, 19.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::Accent, Tone::None, 1.8f, {16.0f, 27.5f, 1.5f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry54[] = {
+static const Primitive geometry59[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 11.0f, 26.0f, 10.0f, 5.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 12.0f, 17.0f, 8.0f, 4.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {21.0f, 13.0f, 21.0f, 19.0f, 0.0f, 0.0f}},
@@ -527,7 +575,7 @@ static const Primitive geometry54[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {16.0f, 25.0f, 16.0f, 27.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {28.0f, 25.0f, 28.0f, 27.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry55[] = {
+static const Primitive geometry60[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 3.0f, 26.0f, 26.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 4.0f, 7.0f, 24.0f, 1.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {6.0f, 8.0f, 9.0f, 8.0f, 0.0f, 0.0f}},
@@ -540,11 +588,11 @@ static const Primitive geometry55[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {26.0f, 7.0f, 26.0f, 24.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Accent, 1.6f, {26.0f, 14.0f, 1.5f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry56[] = {
+static const Primitive geometry61[] = {
     {Shape::Arc, Tone::Accent, Tone::None, 2.0f, {16.0f, 16.0f, 11.0f, 30.0f, 300.0f, 0.0f}},
     {Shape::Arc, Tone::Blue, Tone::None, 1.8f, {16.0f, 16.0f, 7.0f, 105.0f, 210.0f, 0.0f}},
 };
-static const Primitive geometry57[] = {
+static const Primitive geometry62[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 7.0f, 26.0f, 19.0f, 3.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Blue, 1.6f, {8.0f, 12.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {13.0f, 12.0f, 20.0f, 12.0f, 0.0f, 0.0f}},
@@ -554,7 +602,7 @@ static const Primitive geometry57[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {7.0f, 21.0f, 24.0f, 21.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {23.0f, 3.0f, 28.0f, 3.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry58[] = {
+static const Primitive geometry63[] = {
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {4.0f, 4.0f, 24.0f, 10.0f, 3.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 2.0f, {8.0f, 9.0f, 24.0f, 9.0f, 0.0f, 0.0f}},
     {Shape::Triangle, Tone::None, Tone::Accent, 0.0f, {13.0f, 14.0f, 19.0f, 14.0f, 16.0f, 18.0f}},
@@ -562,7 +610,7 @@ static const Primitive geometry58[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {12.0f, 29.0f, 16.0f, 26.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {16.0f, 26.0f, 20.0f, 29.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry59[] = {
+static const Primitive geometry64[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 4.0f, 12.0f, 4.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 7.0f, 26.0f, 8.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 11.0f, 17.0f, 11.0f, 0.0f, 0.0f}},
@@ -570,7 +618,7 @@ static const Primitive geometry59[] = {
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {3.0f, 23.0f, 26.0f, 6.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {8.0f, 25.0f, 8.0f, 27.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry60[] = {
+static const Primitive geometry65[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 9.0f, 26.0f, 14.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 10.0f, 8.0f, 12.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {12.0f, 10.0f, 12.0f, 22.0f, 0.0f, 0.0f}},
@@ -579,7 +627,7 @@ static const Primitive geometry60[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {16.0f, 16.0f, 23.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {25.0f, 13.0f, 25.0f, 19.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry61[] = {
+static const Primitive geometry66[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {7.0f, 9.0f, 3.0f, 9.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {3.0f, 9.0f, 3.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {3.0f, 28.0f, 29.0f, 28.0f, 0.0f, 0.0f}},
@@ -589,7 +637,7 @@ static const Primitive geometry61[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {7.0f, 19.0f, 21.0f, 19.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {24.0f, 16.0f, 24.0f, 22.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry62[] = {
+static const Primitive geometry67[] = {
     {Shape::Rect, Tone::Accent, Tone::Blue, 1.8f, {5.0f, 4.0f, 9.0f, 9.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {7.0f, 8.0f, 9.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {9.0f, 10.0f, 12.0f, 6.0f, 0.0f, 0.0f}},
@@ -598,7 +646,7 @@ static const Primitive geometry62[] = {
     {Shape::Circle, Tone::None, Tone::Accent, 1.6f, {9.5f, 23.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {19.0f, 23.0f, 28.0f, 23.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry63[] = {
+static const Primitive geometry68[] = {
     {Shape::Line, Tone::Muted, Tone::None, 2.0f, {4.0f, 16.0f, 28.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 2.0f, {4.0f, 16.0f, 18.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::Primary, Tone::Blue, 1.8f, {18.0f, 16.0f, 4.0f, 0.0f, 0.0f, 0.0f}},
@@ -608,7 +656,7 @@ static const Primitive geometry63[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {16.0f, 24.0f, 16.0f, 26.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {28.0f, 24.0f, 28.0f, 26.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry64[] = {
+static const Primitive geometry69[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 7.0f, 20.0f, 17.0f, 3.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {7.0f, 15.5f, 15.0f, 15.5f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {18.0f, 12.0f, 18.0f, 19.0f, 0.0f, 0.0f}},
@@ -616,7 +664,7 @@ static const Primitive geometry64[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {21.0f, 24.0f, 23.0f, 26.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {23.0f, 26.0f, 27.0f, 22.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry65[] = {
+static const Primitive geometry70[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 5.0f, 24.0f, 6.0f, 1.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {3.0f, 11.0f, 29.0f, 11.0f, 0.0f, 0.0f}},
@@ -627,7 +675,7 @@ static const Primitive geometry65[] = {
     {Shape::Circle, Tone::None, Tone::Primary, 1.6f, {16.5f, 8.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Primary, 1.6f, {25.0f, 8.0f, 1.0f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry66[] = {
+static const Primitive geometry71[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 3.0f, 26.0f, 26.0f, 3.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {4.0f, 4.0f, 8.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {12.0f, 4.0f, 12.0f, 28.0f, 0.0f, 0.0f}},
@@ -639,7 +687,7 @@ static const Primitive geometry66[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {16.0f, 20.0f, 25.0f, 20.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {16.0f, 24.0f, 22.0f, 24.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry67[] = {
+static const Primitive geometry72[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.8f, {3.0f, 5.0f, 26.0f, 23.0f, 3.0f, 0.0f}},
     {Shape::Circle, Tone::Accent, Tone::None, 1.8f, {8.0f, 11.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {13.0f, 11.0f, 23.0f, 11.0f, 0.0f, 0.0f}},
@@ -651,7 +699,7 @@ static const Primitive geometry67[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {24.0f, 15.0f, 28.0f, 15.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {28.0f, 15.0f, 28.0f, 19.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry68[] = {
+static const Primitive geometry73[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {4.0f, 4.0f, 4.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {4.0f, 28.0f, 29.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {5.0f, 20.0f, 28.0f, 20.0f, 0.0f, 0.0f}},
@@ -664,14 +712,14 @@ static const Primitive geometry68[] = {
     {Shape::Circle, Tone::None, Tone::Blue, 1.6f, {18.0f, 20.0f, 1.5f, 0.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::None, Tone::Accent, 1.6f, {26.0f, 7.0f, 1.5f, 0.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry69[] = {
+static const Primitive geometry74[] = {
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {4.0f, 4.0f, 4.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.8f, {4.0f, 28.0f, 29.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {8.0f, 17.0f, 4.0f, 10.0f, 1.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Accent, 1.6f, {16.0f, 10.0f, 4.0f, 17.0f, 1.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {24.0f, 5.0f, 4.0f, 22.0f, 1.0f, 0.0f}},
 };
-static const Primitive geometry70[] = {
+static const Primitive geometry75[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {7.0f, 5.0f, 7.0f, 28.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::Primary, Tone::Blue, 1.8f, {7.0f, 7.0f, 3.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::Accent, Tone::None, 1.8f, {7.0f, 16.0f, 2.5f, 0.0f, 0.0f, 0.0f}},
@@ -682,7 +730,7 @@ static const Primitive geometry70[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {13.0f, 19.0f, 21.0f, 19.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {13.0f, 25.0f, 26.0f, 25.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry71[] = {
+static const Primitive geometry76[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {10.0f, 10.0f, 10.0f, 28.0f, 0.0f, 0.0f}},
@@ -695,7 +743,7 @@ static const Primitive geometry71[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {6.0f, 18.0f, 7.0f, 18.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.8f, {6.0f, 22.0f, 7.0f, 22.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry72[] = {
+static const Primitive geometry77[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 14.0f, 7.0f, 24.0f, 0.0f, 0.0f}},
@@ -708,7 +756,7 @@ static const Primitive geometry72[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {24.0f, 19.0f, 28.0f, 19.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Blue, Tone::None, 1.6f, {7.0f, 7.0f, 12.0f, 7.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry73[] = {
+static const Primitive geometry78[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::Accent, Tone::None, 1.8f, {7.0f, 16.0f, 10.0f, 9.0f, 1.0f, 0.0f}},
@@ -717,7 +765,7 @@ static const Primitive geometry73[] = {
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {25.0f, 16.0f, 2.0f, 9.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {7.0f, 7.0f, 14.0f, 7.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry74[] = {
+static const Primitive geometry79[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Circle, Tone::Accent, Tone::None, 1.8f, {16.0f, 16.0f, 3.0f, 0.0f, 0.0f, 0.0f}},
@@ -727,7 +775,7 @@ static const Primitive geometry74[] = {
     {Shape::Circle, Tone::Blue, Tone::None, 1.6f, {25.0f, 17.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Arc, Tone::Blue, Tone::None, 1.6f, {25.0f, 25.0f, 3.0f, 255.0f, 360.0f, 0.0f}},
 };
-static const Primitive geometry75[] = {
+static const Primitive geometry80[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {7.0f, 15.0f, 25.0f, 15.0f, 0.0f, 0.0f}},
@@ -738,7 +786,7 @@ static const Primitive geometry75[] = {
     {Shape::Circle, Tone::Accent, Tone::Accent, 1.6f, {16.0f, 25.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {7.0f, 7.0f, 11.0f, 7.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry76[] = {
+static const Primitive geometry81[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Circle, Tone::Accent, Tone::None, 1.8f, {14.0f, 11.0f, 2.0f, 0.0f, 0.0f, 0.0f}},
     {Shape::Arc, Tone::Accent, Tone::None, 1.8f, {14.0f, 18.0f, 4.0f, 180.0f, 360.0f, 0.0f}},
@@ -747,7 +795,7 @@ static const Primitive geometry76[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {25.0f, 13.0f, 28.0f, 16.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {28.0f, 16.0f, 25.0f, 19.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry77[] = {
+static const Primitive geometry82[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {6.0f, 10.0f, 9.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {9.0f, 10.0f, 11.0f, 19.0f, 0.0f, 0.0f}},
@@ -759,7 +807,7 @@ static const Primitive geometry77[] = {
     {Shape::Line, Tone::Blue, Tone::None, 1.8f, {21.0f, 8.0f, 23.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Blue, Tone::None, 1.8f, {23.0f, 10.0f, 27.0f, 6.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry78[] = {
+static const Primitive geometry83[] = {
     {Shape::Rect, Tone::Muted, Tone::None, 1.6f, {3.0f, 9.0f, 7.0f, 17.0f, 1.0f, 0.0f}},
     {Shape::Rect, Tone::Accent, Tone::None, 1.8f, {12.0f, 5.0f, 8.0f, 22.0f, 1.0f, 0.0f}},
     {Shape::Rect, Tone::Muted, Tone::None, 1.6f, {22.0f, 9.0f, 7.0f, 17.0f, 1.0f, 0.0f}},
@@ -771,7 +819,7 @@ static const Primitive geometry78[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {24.0f, 14.0f, 27.0f, 14.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {24.0f, 18.0f, 27.0f, 18.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry79[] = {
+static const Primitive geometry84[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::Accent, Tone::None, 1.6f, {6.0f, 13.0f, 9.0f, 11.0f, 1.0f, 0.0f}},
@@ -781,7 +829,7 @@ static const Primitive geometry79[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {7.0f, 22.0f, 10.0f, 19.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {10.0f, 19.0f, 13.0f, 22.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry80[] = {
+static const Primitive geometry85[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {7.0f, 8.0f, 25.0f, 8.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::Blue, Tone::None, 1.6f, {7.0f, 12.0f, 11.0f, 7.0f, 1.0f, 0.0f}},
@@ -791,7 +839,7 @@ static const Primitive geometry80[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {22.0f, 21.0f, 25.0f, 21.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {22.0f, 25.0f, 25.0f, 25.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry81[] = {
+static const Primitive geometry86[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {6.0f, 13.0f, 12.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Accent, Tone::None, 1.6f, {12.0f, 10.0f, 18.0f, 13.0f, 0.0f, 0.0f}},
@@ -806,7 +854,7 @@ static const Primitive geometry81[] = {
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {22.0f, 17.0f, 26.0f, 17.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Blue, 1.6f, {21.0f, 21.0f, 6.0f, 3.0f, 1.0f, 0.0f}},
 };
-static const Primitive geometry82[] = {
+static const Primitive geometry87[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Blue, Tone::None, 1.6f, {4.0f, 19.0f, 10.0f, 13.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Blue, Tone::None, 1.6f, {10.0f, 13.0f, 16.0f, 19.0f, 0.0f, 0.0f}},
@@ -816,7 +864,7 @@ static const Primitive geometry82[] = {
     {Shape::Line, Tone::Accent, Tone::None, 1.8f, {10.0f, 22.0f, 22.0f, 22.0f, 0.0f, 0.0f}},
     {Shape::Line, Tone::Primary, Tone::None, 1.6f, {13.0f, 25.0f, 19.0f, 25.0f, 0.0f, 0.0f}},
 };
-static const Primitive geometry83[] = {
+static const Primitive geometry88[] = {
     {Shape::Rect, Tone::Primary, Tone::None, 1.6f, {3.0f, 4.0f, 26.0f, 24.0f, 2.0f, 0.0f}},
     {Shape::Line, Tone::Muted, Tone::None, 1.6f, {3.0f, 10.0f, 29.0f, 10.0f, 0.0f, 0.0f}},
     {Shape::Rect, Tone::None, Tone::Accent, 1.6f, {6.0f, 13.0f, 8.0f, 4.0f, 1.0f, 0.0f}},
@@ -863,53 +911,58 @@ static const Icon catalog[] = {
     {"widget.barcode", "Barcode", geometry32, 7},
     {"widget.qrcode", "QR code", geometry33, 11},
     {"widget.advanced_keyboard", "Advanced Keyboard", geometry34, 12},
-    {"bootstrap.accordion", "Accordion", geometry35, 14},
-    {"bootstrap.alert", "Alert", geometry36, 6},
-    {"bootstrap.badge", "Badge", geometry37, 4},
-    {"bootstrap.breadcrumb", "Breadcrumb", geometry38, 12},
-    {"bootstrap.primary_button", "Primary button", geometry39, 4},
-    {"bootstrap.button_group", "Button group", geometry40, 7},
-    {"bootstrap.card", "Card", geometry41, 10},
-    {"bootstrap.carousel", "Carousel", geometry42, 13},
-    {"bootstrap.close_button", "Close button", geometry43, 3},
-    {"bootstrap.collapse", "Collapse", geometry44, 9},
-    {"bootstrap.dropdown", "Dropdown", geometry45, 9},
-    {"bootstrap.list_group", "List group", geometry46, 10},
-    {"bootstrap.modal", "Modal", geometry47, 8},
-    {"bootstrap.navbar", "Navbar", geometry48, 7},
-    {"bootstrap.navs_tabs", "Navs and tabs", geometry49, 6},
-    {"bootstrap.offcanvas", "Offcanvas", geometry50, 8},
-    {"bootstrap.pagination", "Pagination", geometry51, 12},
-    {"bootstrap.placeholder", "Placeholder", geometry52, 4},
-    {"bootstrap.popover", "Popover", geometry53, 15},
-    {"bootstrap.progress", "Progress", geometry54, 6},
-    {"bootstrap.scrollspy", "Scrollspy", geometry55, 11},
-    {"bootstrap.spinner", "Spinner", geometry56, 2},
-    {"bootstrap.toast", "Toast", geometry57, 8},
-    {"bootstrap.tooltip", "Tooltip", geometry58, 6},
-    {"bootstrap.form_controls", "Form controls", geometry59, 6},
-    {"bootstrap.input_group", "Input group", geometry60, 7},
-    {"bootstrap.floating_label", "Floating label", geometry61, 8},
-    {"bootstrap.checks_radios", "Checks and radios", geometry62, 7},
-    {"bootstrap.range", "Range", geometry63, 8},
-    {"bootstrap.validation", "Validation", geometry64, 6},
-    {"bootstrap.data_table", "Data table", geometry65, 9},
-    {"bootstrap.sidebar", "Sidebar", geometry66, 10},
-    {"bootstrap.statistic_card", "Statistic card", geometry67, 10},
-    {"bootstrap.line_chart", "Line chart", geometry68, 11},
-    {"bootstrap.bar_chart", "Bar chart", geometry69, 5},
-    {"bootstrap.activity_feed", "Activity feed", geometry70, 9},
-    {"template.admin-dashboard", "Admin dashboard", geometry71, 11},
-    {"template.analytics-dashboard", "Analytics dashboard", geometry72, 11},
-    {"template.commerce-dashboard", "Commerce dashboard", geometry73, 7},
-    {"template.user-management", "User management", geometry74, 8},
-    {"template.settings-page", "Settings page", geometry75, 9},
-    {"template.sign-in", "Sign in", geometry76, 7},
-    {"template.checkout", "Checkout", geometry77, 10},
-    {"template.pricing", "Pricing", geometry78, 10},
-    {"template.album", "Album", geometry79, 8},
-    {"template.blog", "Blog", geometry80, 8},
-    {"template.product", "Product", geometry81, 13},
-    {"template.cover", "Cover", geometry82, 8},
-    {"template.component-gallery", "Component gallery", geometry83, 9},
+    {"widget.radio_group", "Radio Group", geometry35, 8},
+    {"widget.checkbox_button", "Checkbox", geometry36, 6},
+    {"widget.labeled_checkbox", "Checkbox nested in Label", geometry37, 7},
+    {"widget.date_picker", "Date Picker", geometry38, 9},
+    {"widget.menu", "Menu", geometry39, 8},
+    {"bootstrap.accordion", "Accordion", geometry40, 14},
+    {"bootstrap.alert", "Alert", geometry41, 6},
+    {"bootstrap.badge", "Badge", geometry42, 4},
+    {"bootstrap.breadcrumb", "Breadcrumb", geometry43, 12},
+    {"bootstrap.primary_button", "Primary button", geometry44, 4},
+    {"bootstrap.button_group", "Button group", geometry45, 7},
+    {"bootstrap.card", "Card", geometry46, 10},
+    {"bootstrap.carousel", "Carousel", geometry47, 13},
+    {"bootstrap.close_button", "Close button", geometry48, 3},
+    {"bootstrap.collapse", "Collapse", geometry49, 9},
+    {"bootstrap.dropdown", "Dropdown", geometry50, 9},
+    {"bootstrap.list_group", "List group", geometry51, 10},
+    {"bootstrap.modal", "Modal", geometry52, 8},
+    {"bootstrap.navbar", "Navbar", geometry53, 7},
+    {"bootstrap.navs_tabs", "Navs and tabs", geometry54, 6},
+    {"bootstrap.offcanvas", "Offcanvas", geometry55, 8},
+    {"bootstrap.pagination", "Pagination", geometry56, 12},
+    {"bootstrap.placeholder", "Placeholder", geometry57, 4},
+    {"bootstrap.popover", "Popover", geometry58, 15},
+    {"bootstrap.progress", "Progress", geometry59, 6},
+    {"bootstrap.scrollspy", "Scrollspy", geometry60, 11},
+    {"bootstrap.spinner", "Spinner", geometry61, 2},
+    {"bootstrap.toast", "Toast", geometry62, 8},
+    {"bootstrap.tooltip", "Tooltip", geometry63, 6},
+    {"bootstrap.form_controls", "Form controls", geometry64, 6},
+    {"bootstrap.input_group", "Input group", geometry65, 7},
+    {"bootstrap.floating_label", "Floating label", geometry66, 8},
+    {"bootstrap.checks_radios", "Checks and radios", geometry67, 7},
+    {"bootstrap.range", "Range", geometry68, 8},
+    {"bootstrap.validation", "Validation", geometry69, 6},
+    {"bootstrap.data_table", "Data table", geometry70, 9},
+    {"bootstrap.sidebar", "Sidebar", geometry71, 10},
+    {"bootstrap.statistic_card", "Statistic card", geometry72, 10},
+    {"bootstrap.line_chart", "Line chart", geometry73, 11},
+    {"bootstrap.bar_chart", "Bar chart", geometry74, 5},
+    {"bootstrap.activity_feed", "Activity feed", geometry75, 9},
+    {"template.admin-dashboard", "Admin dashboard", geometry76, 11},
+    {"template.analytics-dashboard", "Analytics dashboard", geometry77, 11},
+    {"template.commerce-dashboard", "Commerce dashboard", geometry78, 7},
+    {"template.user-management", "User management", geometry79, 8},
+    {"template.settings-page", "Settings page", geometry80, 9},
+    {"template.sign-in", "Sign in", geometry81, 7},
+    {"template.checkout", "Checkout", geometry82, 10},
+    {"template.pricing", "Pricing", geometry83, 10},
+    {"template.album", "Album", geometry84, 8},
+    {"template.blog", "Blog", geometry85, 8},
+    {"template.product", "Product", geometry86, 13},
+    {"template.cover", "Cover", geometry87, 8},
+    {"template.component-gallery", "Component gallery", geometry88, 9},
 };

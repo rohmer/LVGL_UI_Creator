@@ -28,12 +28,20 @@ SECTIONS = {
     "messagebox": "MSGBOX", "imagebutton": "IMAGEBUTTON", "qrcode": "QRCODE", "barcode": "BARCODE",
 }
 CUSTOM = {"textBox": "LVSERIAL_USE_TEXTBOX", "layerView": "LVSERIAL_USE_LAYERVIEW", "window": "LVSERIAL_USE_WINDOW",
-          "advancedKeyboard": "LVSERIAL_USE_ADVANCED_KEYBOARD"}
+          "advancedKeyboard": "LVSERIAL_USE_ADVANCED_KEYBOARD",
+          "radioGroup": "LVSERIAL_USE_RADIO_GROUP", "checkboxButton": "LVSERIAL_USE_CHECKBOX_BUTTON",
+          "labeledCheckbox": "LVSERIAL_USE_LABELED_CHECKBOX", "datePicker": "LVSERIAL_USE_DATE_PICKER",
+          "menu": "LVSERIAL_USE_MENU"}
 CUSTOM_DEPENDENCIES = {
     "textBox": {"FLEX", "LABEL", "BUTTON", "TEXTAREA"},
     "layerView": {"FLEX", "LABEL", "BUTTON"},
     "window": {"FLEX", "LABEL", "BUTTON"},
     "advancedKeyboard": {"BUTTON", "LABEL", "TEXTAREA"},
+    "radioGroup": {"BUTTON", "LABEL", "FLEX"},
+    "checkboxButton": {"BUTTON", "LABEL", "CHECKBOX", "FLEX"},
+    "labeledCheckbox": {"BUTTON", "LABEL", "CHECKBOX", "FLEX"},
+    "datePicker": {"BUTTON", "LABEL", "FLEX", "CALENDAR"},
+    "menu": {"BUTTON", "LABEL", "FLEX"},
 }
 CUSTOM_SOURCES = {"LVSERIAL_USE_ADVANCED_KEYBOARD": [keyboard_dependency.PREFIX + "/src/" + name for name in (
     "Key.cpp", "Keyboard.cpp", "TypingView.cpp", "SuggestionText.cpp", "Utf8Fold.cpp", "AdvancedKeyboard.cpp", "KeyboardFont.c")]}

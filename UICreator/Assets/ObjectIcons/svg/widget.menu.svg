@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Menu</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2" y="4" width="18" height="23" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.6"/>
+  <path d="M6 10L14 10" fill="none" stroke="#8FA8C4" stroke-width="1.7"/>
+  <rect x="4" y="14" width="14" height="5" rx="1" fill="#65AFFF" stroke="none" stroke-width="0"/>
+  <polygon points="14,15 17,16.5 14,18" fill="#D6E5F5"/>
+  <path d="M6 23L14 23" fill="none" stroke="#8FA8C4" stroke-width="1.7"/>
+  <rect x="20" y="13" width="10" height="15" rx="2" fill="none" stroke="#45D6B3" stroke-width="1.6"/>
+  <path d="M23 18L27 18" fill="none" stroke="#D6E5F5" stroke-width="1.6"/>
+  <path d="M23 23L27 23" fill="none" stroke="#65AFFF" stroke-width="1.6"/>
+</g>
+</svg>

@@ -84,7 +84,7 @@ def make_library(inputs, output: Path, *, color_depth=16, default_font=14,
                   f"#define LVGL_PB_DEFAULT_WIDTH {width}\n#define LVGL_PB_DEFAULT_HEIGHT {height}\n" +
                   f"#define LVGL_PB_COLOR_DEPTH {color_depth}\n")
         text_file(library / "library.properties", '''name=LVGLProtobuf
-version=0.9.2
+version=0.9.4
 author=LVGL UI Creator contributors
 maintainer=LVGL UI Creator contributors
 sentence=Project-specific LVGL 9.6 Protobuf UI runtime for Arduino Nano ESP32.

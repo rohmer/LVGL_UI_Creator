@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Date Picker</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2" y="3" width="28" height="8" rx="2" fill="none" stroke="#D6E5F5" stroke-width="1.7"/>
+  <path d="M6 7L15 7" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+  <polygon points="22,6 26,6 24,9" fill="#45D6B3"/>
+  <rect x="7" y="14" width="22" height="16" rx="2" fill="none" stroke="#65AFFF" stroke-width="1.7"/>
+  <path d="M7 19L29 19" fill="none" stroke="#65AFFF" stroke-width="1.5"/>
+  <path d="M12 13L12 16" fill="none" stroke="#D6E5F5" stroke-width="1.6"/>
+  <path d="M24 13L24 16" fill="none" stroke="#D6E5F5" stroke-width="1.6"/>
+  <rect x="12" y="23" width="4" height="4" rx="1" fill="#45D6B3" stroke="none" stroke-width="0"/>
+  <path d="M20 24.5L24 24.5" fill="none" stroke="#8FA8C4" stroke-width="1.6"/>
+</g>
+</svg>

@@ -238,6 +238,8 @@
     <ClCompile Include="Serialization\InteractionActions.cpp" />
     <ClInclude Include="Serialization\InteractionActions.h" />
     <ClInclude Include="Serialization\ProjectDesign.h" />
+    <ClInclude Include="Serialization\AdvancedControls.h" />
+    <ClInclude Include="Serialization\AdvancedControlsRuntime.h" />
   </ItemGroup>
   <Import Project="..\3rdParty\LVGL\LVGL9.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

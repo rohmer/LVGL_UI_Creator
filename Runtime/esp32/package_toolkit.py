@@ -127,7 +127,7 @@ def package(output: Path, example_projects=(), replace=False):
                 copy_file(path, stage / "licenses/LVGL_dependencies" / path.relative_to(lvgl))
         for source in examples: copy_file(source, stage / "examples" / source.name)
         text_file(stage / "README.md", readme([source.name for source in examples]))
-        manifest = {"formatVersion": 1, "toolkitVersion": "0.9.2", "lvglVersion": "9.6.0",
+        manifest = {"formatVersion": 1, "toolkitVersion": "0.9.4", "lvglVersion": "9.6.0",
                     "examples": [source.name for source in examples],
                     "files": {path.relative_to(stage).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
                               for path in sorted(stage.rglob("*")) if path.is_file()}}

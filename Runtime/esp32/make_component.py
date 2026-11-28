@@ -281,7 +281,7 @@ def make_component(inputs, output: Path, *, color_depth=16, default_font=14, emb
         text_file(stage / "cmake/project_sources.cmake", "set(LVGL_PB_PROJECT_SOURCES\n" + "".join('    "vendor/' + source + '"\n' for source in sources) + ")\n")
         text_file(stage / "features.json", json.dumps(plan, indent=2, ensure_ascii=False) + "\n")
         text_file(stage / "lvgl-pb-component.json", json.dumps({"generator": "LVGL UI Creator ESP32 component", "formatVersion": 1, "lvgl": "9.6.0"}, indent=2) + "\n")
-        text_file(stage / "idf_component.yml", 'description: "Project-specific LVGL Protobuf runtime with bundled LVGL"\nversion: "0.9.2"\ndependencies:\n  idf: ">=5.3"\n')
+        text_file(stage / "idf_component.yml", 'description: "Project-specific LVGL Protobuf runtime with bundled LVGL"\nversion: "0.9.4"\ndependencies:\n  idf: ">=5.3"\n')
         backup = None
         if output.exists():
             backup = output.parent / ("." + output.name + "-previous-" + uuid.uuid4().hex)

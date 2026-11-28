@@ -3,6 +3,7 @@
 #include "ExtendedWidgets.h"
 #include "CustomWidgets.h"
 #include "CodeWidgets.h"
+#include "AdvancedControls.h"
 #include "AdvancedKeyboard.h"
 #include <algorithm>
 using namespace Serialization;
@@ -15,6 +16,7 @@ json ObjectSerializer::SerializeObject(lv_obj_t* obj)
     const auto* type = lv_obj_get_class(obj);
     if (AdvancedKeyboard::Type(obj)) return AdvancedKeyboard::ToJSON(obj);
     if (CodeWidgets::Type(obj)) return CodeWidgets::ToJSON(obj);
+    if (AdvancedControls::Type(obj)) return AdvancedControls::ToJSON(obj);
     if (CustomWidgets::Type(obj)) return CustomWidgets::ToJSON(obj);
     if (BasicWidgets::Type(obj)) return BasicWidgets::ToJSON(obj);
     if (ExtendedWidgets::Type(obj)) return ExtendedWidgets::ToJSON(obj);
@@ -106,7 +108,8 @@ lv_obj_t* ObjectSerializer::DeserializeObject(json record)
         {"chart","chart"},{"table","table"},{"scale","scale"},{"keyboard","keyboard"},
         {"tabview","tabview"},{"tileview","tileview"},{"window","window"},{"messagebox","messagebox"},
         {"imagebutton","imagebutton"},{"textBox","textBox"},{"layerView","layerView"},
-        {"barcode","barcode"},{"qrcode","qrcode"},{"advancedKeyboard","advancedKeyboard"}})
+        {"barcode","barcode"},{"qrcode","qrcode"},{"advancedKeyboard","advancedKeyboard"},
+        {"radioGroup","radioGroup"},{"checkboxButton","checkboxButton"},{"labeledCheckbox","labeledCheckbox"},{"datePicker","datePicker"},{"menu","menu"}})
         if(record.contains(item.first) && std::find(enabled.begin(),enabled.end(),item.second)==enabled.end())
             throw std::invalid_argument(std::string("Widget disabled in this runtime: ")+item.second);
 #endif
@@ -114,6 +117,7 @@ lv_obj_t* ObjectSerializer::DeserializeObject(json record)
     if (record.contains("advancedKeyboard")) return AdvancedKeyboard::FromJSON(record);
 #if LVGL_VERSION_MAJOR >= 9 || defined(LV_RUNTIME_PORTABLE)
     if (auto* object = CodeWidgets::FromJSON(record)) return object;
+    if (auto* object = AdvancedControls::FromJSON(record)) return object;
     if (auto* object = CustomWidgets::FromJSON(record)) return object;
     if (auto* object = BasicWidgets::FromJSON(record)) return object;
     if (auto* object = ExtendedWidgets::FromJSON(record)) return object;
@@ -154,6 +158,7 @@ const char* ObjectSerializer::TypeName(lv_obj_t* object)
 #if LVGL_VERSION_MAJOR >= 9 || defined(LV_RUNTIME_PORTABLE)
     if (const auto* type = AdvancedKeyboard::Type(object)) return type;
     if (const auto* type = CodeWidgets::Type(object)) return type;
+    if (const auto* type = AdvancedControls::Type(object)) return type;
     if (const auto* type = CustomWidgets::Type(object)) return type;
     if (const auto* type = BasicWidgets::Type(object)) return type;
     if (const auto* type = ExtendedWidgets::Type(object)) return type;
@@ -302,6 +307,21 @@ std::vector<std::string> ObjectSerializer::SupportedTypes()
 #if LVSERIAL_USE_ADVANCED_KEYBOARD
     result.push_back("advancedKeyboard");
 #endif
+#if LVSERIAL_USE_RADIO_GROUP
+    result.push_back("radioGroup");
+#endif
+#if LVSERIAL_USE_CHECKBOX_BUTTON
+    result.push_back("checkboxButton");
+#endif
+#if LVSERIAL_USE_LABELED_CHECKBOX
+    result.push_back("labeledCheckbox");
+#endif
+#if LVSERIAL_USE_DATE_PICKER
+    result.push_back("datePicker");
+#endif
+#if LVSERIAL_USE_MENU
+    result.push_back("menu");
+#endif
     return result;
 }
 lv_obj_t* ObjectSerializer::Create(const std::string& type, lv_obj_t* parent)
@@ -313,6 +333,7 @@ lv_obj_t* ObjectSerializer::Create(const std::string& type, lv_obj_t* parent)
         object = CodeWidgets::Create(type, parent);
         if (object) CodeWidgets::Apply(object, json::object());
     }
+    if (!object) object = AdvancedControls::Create(type, parent);
     if (!object) object = CustomWidgets::Create(type, parent);
     if (!object) object = BasicWidgets::Create(type, parent);
     if (!object) { object = ExtendedWidgets::Create(type); if (object) lv_obj_set_parent(object, parent); }

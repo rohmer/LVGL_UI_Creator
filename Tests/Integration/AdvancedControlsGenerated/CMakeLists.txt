@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.24)
+project(AdvancedControlsExportTests LANGUAGES C CXX)
+add_library(lvgl STATIC IMPORTED GLOBAL)
+set_target_properties(lvgl PROPERTIES IMPORTED_LOCATION "${LVGL_ARCHIVE}"
+    INTERFACE_INCLUDE_DIRECTORIES "${LVGL_SOURCE_DIR}"
+    INTERFACE_COMPILE_DEFINITIONS "LV_CONF_SKIP=1;LV_COLOR_DEPTH=32;LV_USE_STDLIB_MALLOC=1;LV_MEM_CUSTOM=1;LV_GRADIENT_MAX_STOPS=8;LV_USE_CALENDAR_HEADER_ARROW=1;LV_USE_RLE=1;LV_USE_LZ4=1;LV_USE_LZ4_INTERNAL=1;LV_BIN_DECODER_RAM_LOAD=1;LV_USE_LODEPNG=1;LV_USE_TJPGD=1;LV_COLOR_FORMAT_DEFAULT=LV_COLOR_FORMAT_ARGB8888")
+if(UNIX)
+    target_link_libraries(lvgl INTERFACE m)
+endif()
+add_subdirectory("${EXPORTED_DIR}" exported)
+add_executable(advanced_controls_consumer main.c CppPublic.cpp)
+target_link_libraries(advanced_controls_consumer PRIVATE generated_ui)
+set_target_properties(advanced_controls_consumer PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED YES C_EXTENSIONS NO
+    CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
+if(MSVC)
+    target_compile_options(generated_ui PRIVATE /utf-8 /we4013)
+    target_compile_options(advanced_controls_consumer PRIVATE /utf-8 /we4013)
+else()
+    target_compile_options(generated_ui PRIVATE -Wall -Wextra -Werror=implicit-function-declaration -Werror=misleading-indentation)
+    target_compile_options(advanced_controls_consumer PRIVATE -Wall -Wextra
+        $<$<COMPILE_LANGUAGE:C>:-Werror=implicit-function-declaration> -Werror=misleading-indentation)
+endif()
+enable_testing()
+add_test(NAME AdvancedControlsCAndCppConsumer COMMAND advanced_controls_consumer)
+set_tests_properties(AdvancedControlsCAndCppConsumer PROPERTIES TIMEOUT 30)

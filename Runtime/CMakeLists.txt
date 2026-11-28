@@ -99,6 +99,23 @@ if(BUILD_TESTING AND TARGET UICreatorCodeGenFixture)
         "-DPYTHON=${Python3_EXECUTABLE}" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
         -P "${PROJECT_SOURCE_DIR}/Tests/Integration/Runtime/Minimal/VerifyCodes.cmake")
     set_tests_properties(LVGLRuntimeCodesMinimal PROPERTIES TIMEOUT 180 DEPENDS UICreatorCodeWidgets LABELS "functional;firmware;protobuf;minimal;code-widgets")
+    set(controls_minimal_emulator_settings "")
+    if(CMAKE_CROSSCOMPILING_EMULATOR)
+        set(controls_minimal_emulator_settings "${PROJECT_BINARY_DIR}/minimal-advanced-controls-parent-emulator.cmake")
+        string(REPLACE "\\" "\\\\" controls_minimal_emulator "${CMAKE_CROSSCOMPILING_EMULATOR}")
+        string(REPLACE "\"" "\\\"" controls_minimal_emulator "${controls_minimal_emulator}")
+        string(REPLACE "$" "\\$" controls_minimal_emulator "${controls_minimal_emulator}")
+        file(WRITE "${controls_minimal_emulator_settings}"
+            "set(CMAKE_CROSSCOMPILING_EMULATOR \"${controls_minimal_emulator}\" CACHE STRING \"Parent profile emulator\" FORCE)\n")
+    endif()
+    add_test(NAME LVGLRuntimeAdvancedControlsMinimal COMMAND "${CMAKE_COMMAND}"
+        "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/minimal-advanced-controls"
+        "-DPROJECT_FILE=${PROJECT_BINARY_DIR}/UICreator/advanced-controls/fixture.pb"
+        "-DPYTHON=${Python3_EXECUTABLE}" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"
+        "-DPARENT_TOOLCHAIN=${CMAKE_TOOLCHAIN_FILE}" "-DPARENT_EMULATOR_SETTINGS=${controls_minimal_emulator_settings}"
+        -P "${PROJECT_SOURCE_DIR}/Tests/Integration/Runtime/Minimal/VerifyAdvancedControls.cmake")
+    set_tests_properties(LVGLRuntimeAdvancedControlsMinimal PROPERTIES TIMEOUT 240 DEPENDS UICreatorAdvancedControls
+        LABELS "functional;firmware;protobuf;minimal;advanced-controls")
     add_test(NAME LVGLRuntimeAdvancedKeyboardMinimal COMMAND "${CMAKE_COMMAND}"
         "-DSOURCE_ROOT=${PROJECT_SOURCE_DIR}" "-DBINARY_DIR=${PROJECT_BINARY_DIR}/minimal-keyboard-runtime"
         "-DPYTHON=${Python3_EXECUTABLE}" "-DPARENT_GENERATOR=${CMAKE_GENERATOR}"

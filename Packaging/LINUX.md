@@ -28,8 +28,8 @@ libraries use the same GCC 11, target sysroot, startup objects and binutils as
 the C/C++ build, including ARM64 cross-links. Package rebuilds restore that
 recorded environment instead of using the build host's default `cc`.
 
-The outputs are named `LVGL-UI-Creator-0.9.2-Linux-x86_64.deb` and `.tar.gz`,
-or `LVGL-UI-Creator-0.9.2-Linux-arm64.deb` and `.tar.gz`. A DEB installs the
+The outputs are named `LVGL-UI-Creator-0.9.4-Linux-x86_64.deb` and `.tar.gz`,
+or `LVGL-UI-Creator-0.9.4-Linux-arm64.deb` and `.tar.gz`. A DEB installs the
 application below `/usr/lib/lvgl-ui-creator`, launchers in `/usr/bin`, and a
 desktop entry and scalable icon in the standard shared directories. Native
 converter code is linked into the editor and `UICreatorConverter` CLI. The
@@ -72,7 +72,7 @@ Verify an artifact without installing it globally:
 
 ```sh
 python3 Packaging/Linux/linux_package.py verify \
-  --package build/linux-x86_64/packages/LVGL-UI-Creator-0.9.2-Linux-x86_64.deb \
+  --package build/linux-x86_64/packages/LVGL-UI-Creator-0.9.4-Linux-x86_64.deb \
   --architecture x86_64 --output build/linux-package-tests --smoke
 ```
 

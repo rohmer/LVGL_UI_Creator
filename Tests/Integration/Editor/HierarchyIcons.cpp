@@ -59,12 +59,13 @@ void Capture(SdlSimulator& simulator,const std::filesystem::path& path){
 }
 void NativeTypes(UI& editor,SdlSimulator& simulator,Model model,const std::filesystem::path& directory){
     auto* palette=EditorWindow::Content(Input::WindowFromTitle("Tool Tray"));Input::Require(palette,"Widget palette is missing");std::map<std::string,int> kinds;
-    for(int id=0;id<34;++id){
+    for(int id=0;id<40;++id){
+        if(id==34)continue;
         editor.MenuAction("select-screen");const auto* descriptor=ObjectIcons::Widget(id);auto* caption=Input::FindLabel(palette,descriptor->name);Input::Require(caption,"Native palette entry is missing");
         lv_obj_send_event(lv_obj_get_parent(caption),LV_EVENT_CLICKED,nullptr);auto* object=model.properties->GetSelectedObject();CheckRow(model,object,descriptor);
         kinds.emplace(static_cast<ObjectUserData*>(lv_obj_get_user_data(object))->objectName,id);
     }
-    auto document=editor.ProjectDocument();Input::Require(document["obj"].size()==34,"Native hierarchy fixture lost or added authored widgets");
+    auto document=editor.ProjectDocument();Input::Require(document["obj"].size()==39,"Native hierarchy fixture lost or added authored widgets");
     // Imported projects have no palette marker. Misleading names must never replace
     // actual widget identity, including scale variants and composite controls.
     for(auto& record:document["obj"]){const auto id=kinds.at(record["base"]["name"].get<std::string>());record["base"]["name"]="Imported native "+std::to_string(id);
@@ -73,9 +74,9 @@ void NativeTypes(UI& editor,SdlSimulator& simulator,Model model,const std::files
         if(id==1)record["base"]["design"]["paletteIcon"]=17;
     }
     editor.ApplyDocument(std::move(document));
-    for(int id=0;id<34;++id)CheckRow(model,Named(model.tree,"Imported native "+std::to_string(id)),ObjectIcons::Widget(id));
+    for(int id=0;id<40;++id)if(id!=34)CheckRow(model,Named(model.tree,"Imported native "+std::to_string(id)),ObjectIcons::Widget(id));
     SaveOpen(editor,directory/"native-icons.json");
-    for(int id=0;id<34;++id)CheckRow(model,Named(model.tree,"Imported native "+std::to_string(id)),ObjectIcons::Widget(id));
+    for(int id=0;id<40;++id)if(id!=34)CheckRow(model,Named(model.tree,"Imported native "+std::to_string(id)),ObjectIcons::Widget(id));
     auto* arc=Named(model.tree,"Imported native 0");Input::Require(model.tree->RenameObject(arc,"QR code"),"Hierarchy rename failed");CheckRow(model,arc,ObjectIcons::Widget(0));
     Input::Require(editor.Undo(),"Native hierarchy rename was not undoable");CheckRow(model,Named(model.tree,"Imported native 0"),ObjectIcons::Widget(0));
     Capture(simulator,directory/"native-hierarchy.bmp");
@@ -151,5 +152,5 @@ void NestedInteraction(UI& editor,SdlSimulator& simulator,Model model,const std:
 void CheckHierarchyIcons(UI& editor,SdlSimulator& simulator,const std::filesystem::path& outputDirectory){
     const auto empty=editor.ProjectDocument();const auto directory=outputDirectory.empty()?std::filesystem::temp_directory_path()/("uicreator-hierarchy-icons-"+std::to_string(SDL_GetTicksNS())):std::filesystem::absolute(outputDirectory);
     std::filesystem::create_directories(directory);auto model=CurrentModel();NativeTypes(editor,simulator,model,directory);PresetTypes(editor,model,empty,directory);NestedInteraction(editor,simulator,model,directory);editor.ApplyDocument(empty);
-    std::cout<<"Hierarchy icons:35 native types,49 recipe roots, JSON/Protobuf persistence, rename/duplicate/undo, device stripping and24px nested/narrow/filter/physical selection passed\n";
+    std::cout<<"Hierarchy icons:39 addable native types,49 recipe roots, JSON/Protobuf persistence, rename/duplicate/undo, device stripping and24px nested/narrow/filter/physical selection passed\n";
 }

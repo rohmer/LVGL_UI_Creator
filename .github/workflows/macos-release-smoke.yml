@@ -6,7 +6,7 @@ on:
       release_tag:
         description: Published release containing the Mac ZIP packages
         required: true
-        default: '0.9.2'
+        default: '0.9.4'
       expected_source_commit:
         description: Full source commit recorded in both package manifests
         required: true

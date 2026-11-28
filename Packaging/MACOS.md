@@ -110,7 +110,7 @@ the Applications folder. Alternatively, extract and copy it from Terminal
 (replace the example archive name with the downloaded version):
 
 ```sh
-ditto -x -k LVGL-UI-Creator-0.9.2-macOS-arm64.zip .
+ditto -x -k LVGL-UI-Creator-0.9.4-macOS-arm64.zip .
 ditto "LVGL UI Creator.app" "/Applications/LVGL UI Creator.app"
 ```
 

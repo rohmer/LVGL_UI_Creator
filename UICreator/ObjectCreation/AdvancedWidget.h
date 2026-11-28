@@ -5,6 +5,7 @@
 #include <Serialization/LVCanvas.h>
 #include <Serialization/CodeWidgets.h>
 #include <Serialization/AdvancedKeyboard.h>
+#include <Serialization/AdvancedControls.h>
 
 namespace AdvancedWidget
 {
@@ -19,6 +20,19 @@ namespace AdvancedWidget
         int height = 160;
         switch (id)
         {
+        case 35:
+        case 36:
+        case 37:
+        case 38:
+        case 39:
+        {
+            static const char* names[] = {"Radio Group", "Checkbox", "Checkbox nested in Label", "Date Picker", "Menu"};
+            static const char* types[] = {"radioGroup", "checkboxButton", "labeledCheckbox", "datePicker", "menu"};
+            name = names[id - 35];
+            object = AdvancedControls::Create(types[id - 35], parent);
+            if (object) lv_obj_set_pos(object, x, y);
+            return object;
+        }
         case 32:
         case 33:
             name = id == 32 ? "Barcode" : "QR code";

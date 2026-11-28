@@ -3,6 +3,12 @@ file(READ "${CMAKE_CURRENT_SOURCE_DIR}/Targets/Compat8.h" COMPAT8_SOURCE)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS Targets/Compat9.h Targets/Compat8.h)
 configure_file(Targets/CompatSource.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/Targets/CompatSource.h" @ONLY)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+set(advanced_controls_source "${PROJECT_SOURCE_DIR}/LVSerial/Serialization/AdvancedControlsRuntime.h")
+set(advanced_controls_header "${CMAKE_CURRENT_BINARY_DIR}/include/AdvancedControlsSource.h")
+add_custom_command(OUTPUT "${advanced_controls_header}"
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/EmbedAdvancedControls.py"
+        "${advanced_controls_source}" "${advanced_controls_header}"
+    DEPENDS EmbedAdvancedControls.py "${advanced_controls_source}" VERBATIM)
 set(UICREATOR_MICROPYTHON_EXECUTABLE "" CACHE FILEPATH "MicroPython executable built with the official LVGL binding, for native export smoke tests")
 set(UICREATOR_MICROPYTHON_WSL_DISTRIBUTION "" CACHE STRING "Optional WSL distribution used to run the LVGL-enabled MicroPython interpreter from Windows")
 file(GLOB_RECURSE keyboard_resources CONFIGURE_DEPENDS "${ADVKBD_SOURCE_ROOT}/src/*" "${ADVKBD_SOURCE_ROOT}/include/*")
@@ -19,7 +25,7 @@ add_custom_command(OUTPUT "${micropython_source_header}"
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/EmbedMicroPython.py"
         "${CMAKE_CURRENT_SOURCE_DIR}/MicroPython" "${micropython_source_header}"
     DEPENDS EmbedMicroPython.py ${micropython_resources} VERBATIM)
-add_library(UICreatorCodeGeneration STATIC CodeGeneratorBase.cpp CCodeGenerator.cpp MicroPythonCodeGenerator.cpp XmlCodeGenerator.cpp FigmaImporter.cpp ProjectAssets.cpp Targets/Target.cpp Targets/Pixels.cpp "${keyboard_source_header}" "${micropython_source_header}")
+add_library(UICreatorCodeGeneration STATIC CodeGeneratorBase.cpp CCodeGenerator.cpp MicroPythonCodeGenerator.cpp XmlCodeGenerator.cpp FigmaImporter.cpp ProjectAssets.cpp Targets/Target.cpp Targets/Pixels.cpp "${keyboard_source_header}" "${micropython_source_header}" "${advanced_controls_header}")
 target_link_libraries(UICreatorCodeGeneration PUBLIC LVSerial)
 target_include_directories(UICreatorCodeGeneration BEFORE PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/include")
 target_include_directories(UICreatorCodeGeneration PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -39,6 +45,9 @@ if(BUILD_TESTING AND UICREATOR_USE_LVGL9)
     add_test(NAME UICreatorMicroPythonRuntime
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Tests/Integration/MicroPython/test_runtime.py")
     set_tests_properties(UICreatorMicroPythonRuntime PROPERTIES LABELS "functional;micropython" TIMEOUT 60)
+    add_test(NAME UICreatorMicroPythonAdvanced
+        COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Tests/Integration/MicroPython/test_advanced.py")
+    set_tests_properties(UICreatorMicroPythonAdvanced PROPERTIES LABELS "functional;micropython;advanced" TIMEOUT 60)
     add_test(NAME UICreatorMicroPythonExport
         COMMAND "${Python3_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/Tests/Integration/CodeGeneration/MicroPythonExport/test_export.py"
             --compiler "$<TARGET_FILE:LVGLCompiler>" --codegen "$<TARGET_FILE:UICreatorCodeGen>"

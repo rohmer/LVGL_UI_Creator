@@ -103,7 +103,7 @@ def svg(command):
 def outputs():
     records = []
     keys = set()
-    for family, first, count in (("widgets", 0, 35), ("bootstrap", 0, 36), ("templates", 36, 13)):
+    for family, first, count in (("widgets", 0, 40), ("bootstrap", 0, 36), ("templates", 36, 13)):
         entries = json.loads((ROOT / f"{family}.json").read_text(encoding="utf-8"))
         if [entry["id"] for entry in entries] != list(range(first, first + count)):
             raise ValueError(f"{family} must contain exactly {count} canonical ordered IDs")

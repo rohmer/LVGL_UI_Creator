@@ -37,16 +37,23 @@ void LayoutPalette(lv_obj_t* page, int minimumWidth) {
     for (uint32_t index=0; index<lv_obj_get_child_count(page); ++index) {
         auto* button = lv_obj_get_child(page,index);
         if (!lv_obj_has_class(button,&lv_button_class)) continue;
-        lv_obj_set_size(button,width,row?64:100);
+        int cardHeight = row ? 64 : 100;
+        lv_obj_set_size(button,width,cardHeight);
         for (uint32_t part=0; part<lv_obj_get_child_count(button); ++part) {
             auto* object = lv_obj_get_child(button,part);
             if (ObjectIcons::Get(object)) lv_obj_align(object,row?LV_ALIGN_LEFT_MID:LV_ALIGN_TOP_MID,row?4:0,row?0:2);
             else if (lv_obj_has_class(object,&lv_label_class)) {
-                lv_obj_set_width(object,row?(std::max)(1,width-56):width-12);
+                const int textWidth = (std::max)(1, row ? width - 56 : width - 12);
+                lv_obj_set_width(object,textWidth);
+                lv_point_t textSize{};
+                lv_text_get_size(&textSize, lv_label_get_text(object), lv_obj_get_style_text_font(object, LV_PART_MAIN),
+                    lv_obj_get_style_text_letter_space(object, LV_PART_MAIN), lv_obj_get_style_text_line_space(object, LV_PART_MAIN), textWidth, LV_TEXT_FLAG_NONE);
+                cardHeight = (std::max)(cardHeight, textSize.y + (row ? 16 : 56));
                 lv_obj_set_style_text_align(object,row?LV_TEXT_ALIGN_LEFT:LV_TEXT_ALIGN_CENTER,LV_PART_MAIN);
                 lv_obj_align(object,row?LV_ALIGN_LEFT_MID:LV_ALIGN_BOTTOM_MID,row?44:0,0);
             }
         }
+        lv_obj_set_height(button, cardHeight);
     }
 }
 void MakeResponsivePalette(lv_obj_t* page, int minimumWidth) {
@@ -182,6 +189,7 @@ lv_obj_t* ToolTray::CreateBootstrapPreset(int preset, bool dark)
     parent = Serialization::CustomWidgets::ContentParent(parent);
     parent = Serialization::ExtendedWidgets::ContentParent(parent);
     if(Serialization::AdvancedKeyboard::Type(parent))parent=lv_obj_get_parent(parent);
+    if(Serialization::AdvancedControls::Type(parent))parent=lv_obj_get_parent(parent);
     using Created = std::vector<std::pair<lv_obj_t*, std::string>>;
     Created created;
     auto* root = lv_bootstrap_create(parent, static_cast<lv_bootstrap_preset_t>(preset), dark,
@@ -223,20 +231,22 @@ void ToolTray::initializeWidgetButtons(lv_obj_t* parent, int category)
     int width = lv_obj_get_width_fit(parent) / 3 - 5;
     int height = 61;
 
-    std::string bNames[34] = {
+    std::string bNames[40] = {
         "Arc", "Bar", "Button", "Button matrix", "Calendar", "Canvas", "Check box",
         "Chart", "Container", "Drop down list", "Gauge", "Image", "Image button", "Keyboard", "Label", "LED",
         "Line", "Line meter", "Message box", "Page", "Preloader", "Roller", "Slider", "Spinbox", "Switch",
-        "Table", "Tabview", "Text area", "Tile view", "Window", "Text box", "Layer view", "Barcode", "QR code"
+        "Table", "Tabview", "Text area", "Tile view", "Window", "Text box", "Layer view", "Barcode", "QR code",
+        "", "Radio Group", "Checkbox", "Checkbox nested in Label", "Date Picker", "Menu"
     };
     int xCtr = 0;
     int yCtr = 0;
 
-    for (int i = 0; i < 34; i++)
+    for (int i = 0; i < 40; i++)
     {
+        if (i == 34) continue; // Reserved for imported legacy Advanced Keyboard records.
         const bool isAdvanced = i == 3 || i == 4 || i == 5 || i == 7 || i == 10 ||
             i == 12 || i == 13 || i == 17 || i == 18 || i == 19 || i == 25 ||
-            i == 26 || i == 28 || i == 29 || i == 32 || i == 33;
+            i == 26 || i == 28 || i == 29 || i == 32 || i == 33 || i >= 35;
         const int itemCategory = i == 30 || i == 31 ? 3 : i == 18 || i == 29 ? 2 : isAdvanced ? 1 : 0;
         if (itemCategory != category)
             continue;
@@ -297,6 +307,7 @@ void ToolTray::create_obj_cb(lv_obj_t* obj, EditorEventCode ev)
         TreeView* tv = tt->objTree;
         TreeNode* node = tv->GetSelectedNode();
         lv_obj_t *parent, *newObj;
+        bool compositeSibling = false;
         if (node != nullptr)
         {
             parent = tv->GetSelectedNode()->GetLVObject();
@@ -311,6 +322,7 @@ void ToolTray::create_obj_cb(lv_obj_t* obj, EditorEventCode ev)
         parent = Serialization::CustomWidgets::ContentParent(parent);
         parent = Serialization::ExtendedWidgets::ContentParent(parent);
         if(Serialization::AdvancedKeyboard::Type(parent))parent=lv_obj_get_parent(parent);
+        if(Serialization::AdvancedControls::Type(parent)) { parent=lv_obj_get_parent(parent); compositeSibling=true; }
 #endif
         int x = 0, y = 0;
         if (tt->lastWidget != nullptr)
@@ -324,6 +336,14 @@ void ToolTray::create_obj_cb(lv_obj_t* obj, EditorEventCode ev)
             parID = tt->objTree->GetSelectedNode()->GetID();
         else
             parID = 0;
+#if LVGL_VERSION_MAJOR >= 9
+        if (compositeSibling)
+        {
+            parID = 0;
+            for (auto* ancestor = parent; ancestor && ancestor != tt->drawSurface; ancestor = lv_obj_get_parent(ancestor))
+                if (auto* parentNode = tv->GetNodeByObject(ancestor)) { parID = static_cast<int>(parentNode->GetID()); break; }
+        }
+#endif
         ObjectUserData* userData = new ObjectUserData();
         userData->parentID = parID;
         switch (objID)
@@ -469,6 +489,7 @@ void ToolTray::BindContent(lv_obj_t* object)
 void ToolTray::BindWidget(lv_obj_t* object, bool ownsUserData)
 {
 #if LVGL_VERSION_MAJOR >= 9
+    if (Serialization::AdvancedControls::Type(object)) ui_adv_set_interactive(object, false);
     BindContent(object);
     struct Binding { ToolTray* tray; bool owns; };
     lv_obj_add_event_cb(object, [](lv_event_t* event) {

@@ -99,7 +99,7 @@ Profile binary packages retain their exact feature report and project inputs.
 Use matching architecture and runtime libraries, or rebuild the source SDK on
 the target distribution. The binary packager runs on Linux.
 
-The 0.9.2 release SDKs use GCC 11 and an Ubuntu 22.04 target sysroot. The full
+The 0.9.4 release SDKs use GCC 11 and an Ubuntu 22.04 target sysroot. The full
 x86-64 SDK includes SDL3 and the callback backend; its measured minimum symbol
 versions are GLIBC 2.34, GLIBCXX 3.4.29 and CXXABI 1.3.9. The ARM64 keyboard
 profile SDK uses the callback backend without SDL3; its measured minimums are

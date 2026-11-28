@@ -9,7 +9,6 @@
 namespace Serialization {
 inline nlohmann::json NormalizeAdvancedKeyboardSettings(const nlohmann::json& input)
 {
-    using json = nlohmann::json;
     if (!input.is_object()) throw std::invalid_argument("Advanced Keyboard properties must be an object");
     auto result = input;
     auto text = [&](const char* key, const char* fallback) {

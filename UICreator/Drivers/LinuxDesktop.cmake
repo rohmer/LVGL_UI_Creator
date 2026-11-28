@@ -7,7 +7,7 @@ target_include_directories(LVGLProtobufLinux PUBLIC
     "${PROJECT_SOURCE_DIR}/Runtime/linux/include" "${PROJECT_SOURCE_DIR}/Runtime/windows/include")
 target_link_libraries(LVGLProtobufLinux PRIVATE LVGLRuntime::Runtime SDL3::SDL3)
 set_target_properties(LVGLProtobufLinux PROPERTIES OUTPUT_NAME LVGLProtobufDisplay
-    VERSION 0.9.2 SOVERSION 0 LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+    VERSION 0.9.4 SOVERSION 0 LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 add_executable(UICreatorViewer "${PROJECT_SOURCE_DIR}/Runtime/linux/Viewer.cpp")
 target_link_libraries(UICreatorViewer PRIVATE LVGLProtobufLinux)
 if(BUILD_TESTING)

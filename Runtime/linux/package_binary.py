@@ -71,7 +71,7 @@ target_link_libraries(LVGLProtobufWindowExample PRIVATE LVGLProtobuf::Display)
             for kind in ("GLIBC", "GLIBCXX", "CXXABI")}
         minimums = ", ".join(values[-1] for values in requirements.values() if values)
         (stage / "README.md").write_text("# Linux Protobuf display C SDK\n\nBuilt architecture: " + architecture + ". Required symbol versions: **" + minimums + "**. These are measured across every bundled ELF, including SDL3. The ELF loader and C/C++ runtime must satisfy sdk.json's complete requirements. This binary is not a universal Raspberry Pi OS build; build the source toolkit on the target distribution when runtime versions differ.\n\nUse `cmake -S . -B build && cmake --build build`; the board example renders through an application callback. " + ("`bin/lvgl-pb-viewer project.pb --watch` opens the SDL3 viewer. SDL3 is bundled; its OS graphics/input libraries remain platform dependencies. " if viewer else "This build uses the board callback backend without SDL. ") + "\nAll calls run on one LVGL owner thread. No physical panel is configured by this SDK.\n", encoding="utf-8")
-        manifest = {"formatVersion": 1, "sdkVersion": "0.9.2", "architecture": architecture, "symbolVersions": requirements,
+        manifest = {"formatVersion": 1, "sdkVersion": "0.9.4", "architecture": architecture, "symbolVersions": requirements,
                     "backend": "sdl3-and-callback" if viewer else "callback", "files": {}}
         for path in sorted(stage.rglob("*")):
             if path.is_file(): manifest["files"][path.relative_to(stage).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()

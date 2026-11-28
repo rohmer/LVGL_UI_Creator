@@ -130,5 +130,29 @@
     ["rect",3,3,8,4,1,"accent","none",1.4], ["rect",14,3,6,4,1,"none","blue",0], ["rect",23,3,6,4,1,"muted","none",1.4], ["rect",3,11,26,18,3,"primary","none",1.8],
     ["line",7,16,9,16,"blue",1.8], ["line",12,16,14,16,"blue",1.8], ["line",17,16,19,16,"blue",1.8], ["line",22,16,24,16,"blue",1.8],
     ["line",8,21,10,21,"primary",1.8], ["line",14,21,16,21,"primary",1.8], ["line",20,21,24,21,"primary",1.8], ["line",10,25,22,25,"accent",2]
+  ]},
+  {"id":35,"key":"widget.radio_group","name":"Radio Group","commands":[
+    ["rect",2.5,3,27,26,3,"muted","none",1.4], ["circle",8,9,2.8,"accent","none",1.7], ["circle",8,9,1.1,"none","accent",0],
+    ["line",15,9,25,9,"primary",1.8], ["circle",8,17,2.8,"blue","none",1.7], ["line",15,17,23,17,"primary",1.8],
+    ["circle",8,25,2.8,"blue","none",1.7], ["line",15,25,25,25,"muted",1.8]
+  ]},
+  {"id":36,"key":"widget.checkbox_button","name":"Checkbox","commands":[
+    ["rect",2.5,7,27,18,4,"primary","none",1.8], ["rect",6,11,10,10,2,"none","accent",0],
+    ["polyline",[[8.5,16],[10.5,18],[14,13.5]],"primary",1.8], ["line",20,13,25.5,13,"blue",1.8], ["line",20,19,24,19,"muted",1.8]
+  ]},
+  {"id":37,"key":"widget.labeled_checkbox","name":"Checkbox nested in Label","commands":[
+    ["rect",2.5,3.5,27,25,3,"primary","none",1.6], ["rect",6,9,8,8,1.5,"accent","none",1.7],
+    ["polyline",[[8,13],[10,15],[13,10.5]],"accent",1.6], ["line",18,10,25,10,"blue",1.8], ["line",18,16,24,16,"primary",1.8],
+    ["line",7,23,25,23,"muted",1.6]
+  ]},
+  {"id":38,"key":"widget.date_picker","name":"Date Picker","commands":[
+    ["rect",2,3,28,8,2,"primary","none",1.7], ["line",6,7,15,7,"muted",1.6], ["triangle",[[22,6],[26,6],[24,9]],"accent"],
+    ["rect",7,14,22,16,2,"blue","none",1.7], ["line",7,19,29,19,"blue",1.5], ["line",12,13,12,16,"primary",1.6], ["line",24,13,24,16,"primary",1.6],
+    ["rect",12,23,4,4,1,"none","accent",0], ["line",20,24.5,24,24.5,"muted",1.6]
+  ]},
+  {"id":39,"key":"widget.menu","name":"Menu","commands":[
+    ["rect",2,4,18,23,2,"primary","none",1.6], ["line",6,10,14,10,"muted",1.7], ["rect",4,14,14,5,1,"none","blue",0],
+    ["triangle",[[14,15],[17,16.5],[14,18]],"primary"], ["line",6,23,14,23,"muted",1.7], ["rect",20,13,10,15,2,"accent","none",1.6],
+    ["line",23,18,27,18,"primary",1.6], ["line",23,23,27,23,"blue",1.6]
   ]}
 ]

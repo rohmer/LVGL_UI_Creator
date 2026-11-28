@@ -83,7 +83,7 @@ install(DIRECTORY "${ADVKBD_SOURCE_ROOT}/src/" DESTINATION "${UICREATOR_LINUX_AP
 foreach(document BUILD.md EDITOR_WORKFLOWS.md Packaging/RELEASE_NOTES.md Packaging/LINUX.md Docs/CI.md
         Runtime/PERFORMANCE.md Runtime/INTERACTIONS.md Runtime/pico/README.md CodeGeneration/PERFORMANCE.md
         CodeGeneration/MicroPython/README.md CodeGeneration/XML.md LVSerial/Serialization/Xml.md
-        Integrations/Figma/README.md UICreator/README.md UICreator/SESSION.md UICreator/AdvancedKeyboard.md
+        Integrations/Figma/README.md UICreator/README.md UICreator/SESSION.md UICreator/AdvancedKeyboard.md UICreator/AdvancedWidgets.md
         UICreator/Bootstrap.md UICreator/Codes.md Docs/Themes-and-components.md Docs/Responsive-previews.md Docs/Professional-workflows.md
         Runtime/README.md Runtime/linux/README.md Runtime/arduino/README.md Runtime/esp32/README.md Runtime/windows/README.md
         UICreator/ProjectCreator/README.md UICreator/Devices/README.md UICreator/Validation/README.md Tests/README.md)

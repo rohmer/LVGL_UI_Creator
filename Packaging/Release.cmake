@@ -72,7 +72,8 @@ install(FILES "${PROJECT_SOURCE_DIR}/UICreator/Fonts/NativeFont.LICENSE" DESTINA
 install(FILES "${PROJECT_SOURCE_DIR}/3rdParty/LVGL/lvgl/src/libs/lodepng/lodepng.h" DESTINATION licenses/lodepng)
 install(FILES "${PROJECT_SOURCE_DIR}/UICreator/README.md" "${PROJECT_SOURCE_DIR}/UICreator/SESSION.md"
               "${PROJECT_SOURCE_DIR}/UICreator/Bootstrap.md" "${PROJECT_SOURCE_DIR}/UICreator/Codes.md"
-              "${PROJECT_SOURCE_DIR}/UICreator/AdvancedKeyboard.md" DESTINATION docs/UICreator)
+              "${PROJECT_SOURCE_DIR}/UICreator/AdvancedKeyboard.md"
+              "${PROJECT_SOURCE_DIR}/UICreator/AdvancedWidgets.md" DESTINATION docs/UICreator)
 install(FILES "${PROJECT_SOURCE_DIR}/Packaging/RELEASE_NOTES.md" DESTINATION docs)
 install(FILES "${PROJECT_SOURCE_DIR}/BUILD.md" DESTINATION docs)
 install(FILES "${PROJECT_SOURCE_DIR}/CodeGeneration/XML.md" "${PROJECT_SOURCE_DIR}/CodeGeneration/PERFORMANCE.md" DESTINATION docs/CodeGeneration)

@@ -289,6 +289,46 @@
       "svg": "svg/widget.advanced_keyboard.svg"
     },
     {
+      "family": "widgets",
+      "id": 35,
+      "key": "widget.radio_group",
+      "name": "Radio Group",
+      "primitives": 8,
+      "svg": "svg/widget.radio_group.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 36,
+      "key": "widget.checkbox_button",
+      "name": "Checkbox",
+      "primitives": 6,
+      "svg": "svg/widget.checkbox_button.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 37,
+      "key": "widget.labeled_checkbox",
+      "name": "Checkbox nested in Label",
+      "primitives": 7,
+      "svg": "svg/widget.labeled_checkbox.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 38,
+      "key": "widget.date_picker",
+      "name": "Date Picker",
+      "primitives": 9,
+      "svg": "svg/widget.date_picker.svg"
+    },
+    {
+      "family": "widgets",
+      "id": 39,
+      "key": "widget.menu",
+      "name": "Menu",
+      "primitives": 8,
+      "svg": "svg/widget.menu.svg"
+    },
+    {
       "family": "bootstrap",
       "id": 0,
       "key": "bootstrap.accordion",

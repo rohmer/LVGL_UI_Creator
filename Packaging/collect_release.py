@@ -24,7 +24,7 @@ def main() -> None:
                         help="Optional separate directory for a rebuilt Windows x86 installer")
     parser.add_argument("--linux-packages", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--version", default="0.9.2")
+    parser.add_argument("--version", default="0.9.4")
     args = parser.parse_args()
     if not re.fullmatch(r"\d+\.\d+\.\d+", args.version):
         parser.error("Version must contain three numeric components")

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<title>Checkbox</title>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2.5" y="7" width="27" height="18" rx="4" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <rect x="6" y="11" width="10" height="10" rx="2" fill="#45D6B3" stroke="none" stroke-width="0"/>
+  <polyline points="8.5,16 10.5,18 14,13.5" fill="none" stroke="#D6E5F5" stroke-width="1.8"/>
+  <path d="M20 13L25.5 13" fill="none" stroke="#65AFFF" stroke-width="1.8"/>
+  <path d="M20 19L24 19" fill="none" stroke="#8FA8C4" stroke-width="1.8"/>
+</g>
+</svg>

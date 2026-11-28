@@ -1,5 +1,6 @@
 #define SDL_MAIN_HANDLED
 #include "CodeWidgets.h"
+#include "AdvancedControls.h"
 #include "AdvancedKeyboard.h"
 #include "ProjectKeyboard.h"
 #include "LanguageModels.h"
@@ -409,6 +410,9 @@ int main(int argc, char* argv[])
         }
         if(argc==2 && std::string(argv[1])=="--code-widgets") {
             CheckCodeWidgetEditor(editor,simulator);return 0;
+        }
+        if((argc==2 || argc==3) && std::string(argv[1])=="--advanced-controls") {
+            CheckAdvancedControlsEditor(editor,simulator,argc==3?std::filesystem::u8path(argv[2]):std::filesystem::path{});return 0;
         }
         if((argc==2 || argc==3) && std::string(argv[1])=="--menus") {
             CheckMenusEditor(editor,simulator);

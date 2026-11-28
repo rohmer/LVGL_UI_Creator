@@ -10,6 +10,7 @@ extern "C" { ui_compat_base* lvgl_runtime_compat_states = nullptr; }
 #include <Serialization/AdvancedKeyboardMigration.h>
 #include <Serialization/Base64.h>
 #include <Serialization/CustomWidgets.h>
+#include <Serialization/AdvancedControls.h>
 #include <Serialization/RuntimeFeatures.h>
 #if LVSERIAL_USE_XML
 #include <Serialization/Xml.h>
@@ -262,6 +263,30 @@ void ValidateValue(const Variable &variable, const json &value)
         throw std::invalid_argument("Variable strings cannot contain embedded NUL characters");
     Serialization::LVVariable::ValidateValue(variable.definition, value);
 }
+bool AdvancedBinding(const VariableBindingState& binding)
+{
+    return ((binding.type=="radioGroup" || binding.type=="menu") && binding.property=="selected") ||
+        ((binding.type=="checkboxButton" || binding.type=="labeledCheckbox") && binding.property=="checked") ||
+        (binding.type=="datePicker" && binding.property=="date");
+}
+json AdvancedBindingRecord(const VariableBindingState& binding, const json& value)
+{
+    json record;
+    if(binding.object) record=Serialization::AdvancedControls::ToJSON(binding.object).at(binding.type);
+    else {
+        const auto& objects=binding.variable->owner->screens.at(binding.definition.screen)->definition.at("obj");
+        const auto found=std::find_if(objects.begin(),objects.end(),[&](const json& object){
+            return object.value("oid",-1)==binding.definition.objectId;
+        });
+        if(found==objects.end()) throw std::invalid_argument("Advanced binding references a missing widget");
+        record=found->at(binding.type);
+    }
+    record[binding.property]=value;
+    auto normalized=Serialization::AdvancedControls::Normalize(binding.type,record);
+    if(normalized.at(binding.property)!=value)
+        throw std::invalid_argument("Advanced control binding references an unavailable selection");
+    return normalized;
+}
 void Apply(VariableBindingState &v, const json& x)
 {
     if (!v.object || v.definition.direction == Serialization::VariableBindingDirection::FromWidget)
@@ -284,6 +309,10 @@ void Apply(VariableBindingState &v, const json& x)
             throw std::invalid_argument("Binding value outside LVGL integer range");
         return int32_t(n);
     };
+    if(AdvancedBinding(v)) {
+        Serialization::AdvancedControls::Apply(v.object,AdvancedBindingRecord(v,x));
+        return;
+    }
     if ((v.type == "textBox" && (v.property=="text"||v.property=="value")) ||
         (v.type == "layerView" && v.property=="selected")) {
         auto record=Serialization::ObjectSerializer::SerializeObject(v.object);
@@ -349,8 +378,9 @@ void Assign(Variable &v, json value, bool history)
 {
     ValidateValue(v, value);
     // Check every output before touching any widget, including unloaded screens.
-    for(const auto& binding:v.bindings)if(binding->definition.direction!=Serialization::VariableBindingDirection::FromWidget&&
-        binding->property!="text"&&binding->property!="checked"&&binding->property!="hidden"&&binding->property!="disabled") {
+    for(const auto& binding:v.bindings)if(binding->definition.direction!=Serialization::VariableBindingDirection::FromWidget) {
+        if(AdvancedBinding(*binding)) { (void)AdvancedBindingRecord(*binding,value); continue; }
+        if(binding->property=="text"||binding->property=="checked"||binding->property=="hidden"||binding->property=="disabled") continue;
         const double number=value.is_boolean()?double(value.get<bool>()):value.get<double>();
         if(!std::isfinite(number)||number<double(INT32_MIN)||number>double(INT32_MAX))
             throw std::invalid_argument("Binding value outside LVGL integer range");
@@ -384,6 +414,7 @@ void Assign(Variable &v, json value, bool history)
     }
 }
 json ReadVariable(const VariableBindingState& v) {
+    if(AdvancedBinding(v)) return Serialization::AdvancedControls::ToJSON(v.object).at(v.type).at(v.property);
     if((v.type=="textBox"&&(v.property=="text"||v.property=="value")) || (v.type=="layerView"&&v.property=="selected"))
         return Serialization::ObjectSerializer::SerializeObject(v.object)[v.type][v.property];
     if(v.property=="checked")return lv_obj_has_state(v.object,LV_STATE_CHECKED);
@@ -463,6 +494,8 @@ void Bind(VariableBindingState &v)
         for(const auto& kind:std::vector<std::pair<const char*,const char*>>{
             {"text","label"},{"textarea","textarea"},{"textBox","textBox"},{"layerView","layerView"},
             {"advancedKeyboard","advancedKeyboard"},{"cb","checkbox"},{"arc","arc"},{"bar","bar"},
+            {"radioGroup","radioGroup"},{"checkboxButton","checkboxButton"},{"labeledCheckbox","labeledCheckbox"},
+            {"datePicker","datePicker"},{"menu","menu"},
             {"slider","slider"},{"spinbox","spinbox"},{"dropdown","dropdown"},{"roller","roller"},{"led","led"}})
             if(record->contains(kind.first)){v.type=kind.second;break;}
     } else v.type = Serialization::ObjectSerializer::TypeName(v.object);

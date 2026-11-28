@@ -14,6 +14,7 @@
 #include <Serialization/LVCalendar.h>
 #include <Serialization/CodeWidgets.h>
 #include <Serialization/AdvancedKeyboard.h>
+#include <Serialization/AdvancedControls.h>
 #include <set>
 #include <sstream>
 #include <iomanip>
@@ -55,7 +56,8 @@ class AdvancedProperties
     static void Apply(PropertyWindow* window,lv_obj_t* object, const json& record)
     {
         using namespace Serialization;
-        if (const auto* type = AdvancedKeyboard::Type(object)) window->Tries().ApplySettings(object,record.at(type));
+        if (const auto* type = AdvancedControls::Type(object)) AdvancedControls::Apply(object, record.at(type));
+        else if (const auto* type = AdvancedKeyboard::Type(object)) window->Tries().ApplySettings(object,record.at(type));
         else if (const auto* type = CodeWidgets::Type(object)) CodeWidgets::Apply(object, record.at(type));
         else if (const auto* type = CustomWidgets::Type(object)) CustomWidgets::Apply(object, record.at(type));
         else if (const auto* type = ExtendedWidgets::Type(object))
@@ -84,6 +86,12 @@ class AdvancedProperties
         if (key == "children" || key == "contentChildren") return "Content";
         if (key == "headerButtons") return "Header buttons";
         if (key == "footer") return "Footer buttons";
+        if (key == "date") return "Date (YYYY-MM-DD)";
+        if (key == "minDate") return "Earliest date (YYYY-MM-DD)";
+        if (key == "maxDate") return "Latest date (YYYY-MM-DD)";
+        if (key == "firstDay") return "First day of week";
+        if (key == "horizontal") return "Arrange options horizontally";
+        if (key == "description") return "Supporting label";
         std::string result;
         for (char ch : key)
         {
@@ -124,7 +132,7 @@ class AdvancedProperties
                 const auto separator = binding->path.rfind('/');
                 auto& array = record[json::json_pointer(binding->path.substr(0, separator))];
                 const auto index = std::stoi(binding->path.substr(separator + 1));
-                if (binding->path.rfind("/layerView/nodes/", 0) == 0)
+                if (binding->path.rfind("/layerView/nodes/", 0) == 0 || binding->path.rfind("/menu/items/", 0) == 0)
                 {
                     std::set<uint32_t> removed{array.at(index).at("id").get<uint32_t>()};
                     bool changed;
@@ -137,13 +145,26 @@ class AdvancedProperties
                     for (const auto& node : array) if (!removed.count(node.at("id").get<uint32_t>())) retained.push_back(node);
                     array = std::move(retained);
                 }
-                else array.erase(array.begin() + index);
+                else
+                {
+                    array.erase(array.begin() + index);
+                    if (binding->path.rfind("/radioGroup/options/", 0) == 0)
+                    {
+                        const auto selected = record["radioGroup"].value("selected", 0);
+                        if (selected > index) record["radioGroup"]["selected"] = selected - 1;
+                    }
+                }
             }
             else
             {
                 json value;
                 if (binding->path == "/textBox/inputMode")
                     value = Serialization::TextInputMode::Name(static_cast<lv_advanced_keyboard_input_mode_t>(lv_dropdown_get_selected(field)));
+                else if (binding->path == "/datePicker/format")
+                {
+                    static const char* formats[] = {"yyyy-mm-dd", "dd/mm/yyyy", "mm/dd/yyyy"};
+                    value = formats[lv_dropdown_get_selected(field)];
+                }
                 else if (!binding->choices.empty()) value = binding->choices.at(lv_dropdown_get_selected(field));
                 else if (lv_obj_get_class(field) == &lv_checkbox_class) value = lv_obj_has_state(field, LV_STATE_CHECKED);
                 else
@@ -185,7 +206,12 @@ class AdvancedProperties
             auto* data = static_cast<ObjectUserData*>(lv_obj_get_user_data(binding->object));
             data->objectJson = Serialization::ObjectSerializer::SerializeObject(binding->object);
             lv_obj_set_style_border_color(field, lv_color_hex(EditorStyle::Border), LV_PART_MAIN);
-            if (action || binding->path == "/textBox/inputMode") Refresh(binding->window, binding->object);
+            const bool radioAvailability = binding->path.rfind("/radioGroup/options/", 0) == 0 &&
+                binding->path.size() >= 9 && binding->path.substr(binding->path.size() - 9) == "/disabled";
+            const bool menuStructure = binding->path.rfind("/menu/items/", 0) == 0 &&
+                ((binding->path.size() >= 9 && binding->path.substr(binding->path.size() - 9) == "/disabled") ||
+                 (binding->path.size() >= 7 && binding->path.substr(binding->path.size() - 7) == "/parent"));
+            if (action || radioAvailability || menuStructure || binding->path == "/textBox/inputMode") Refresh(binding->window, binding->object);
         }
         catch (const std::exception& error)
         {
@@ -257,6 +283,65 @@ class AdvancedProperties
         std::vector<int> choices;
         std::string options;
         if (path == "/textBox/inputMode") options = TextInputModeControl::Options;
+        else if (path == "/datePicker/format") options = "YYYY-MM-DD\nDD/MM/YYYY\nMM/DD/YYYY";
+        else if (path == "/datePicker/firstDay")
+        { options = "Sunday\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday"; choices = {0, 1, 2, 3, 4, 5, 6}; }
+        else if (path == "/radioGroup/selected")
+        {
+            const auto settings = Serialization::AdvancedControls::ToJSON(window->GetSelectedObject()).at("radioGroup");
+            options = "None"; choices.push_back(-1);
+            for (size_t index = 0; index < settings.at("options").size(); ++index)
+            {
+                const auto& item = settings.at("options")[index];
+                if (item.value("disabled", false)) continue;
+                auto text = item.value("text", std::string("Option"));
+                std::replace(text.begin(), text.end(), '\n', ' ');
+                options += '\n'; options += std::to_string(index + 1) + ". " + text;
+                choices.push_back(static_cast<int>(index));
+            }
+        }
+        else if (path == "/menu/selected" || (path.rfind("/menu/items/", 0) == 0 && path.size() >= 7 && path.substr(path.size() - 7) == "/parent"))
+        {
+            const auto settings = Serialization::AdvancedControls::ToJSON(window->GetSelectedObject()).at("menu");
+            const bool parentChoice = path != "/menu/selected";
+            options = parentChoice ? "Top level" : "None"; choices.push_back(0);
+            std::set<int> excluded;
+            if (parentChoice)
+            {
+                const auto index = static_cast<size_t>(std::stoul(path.substr(12)));
+                excluded.insert(settings.at("items").at(index).at("id").get<int>());
+                bool changed;
+                do {
+                    changed = false;
+                    for (const auto& item : settings.at("items"))
+                        if (excluded.count(item.value("parent", 0)) && excluded.insert(item.at("id").get<int>()).second) changed = true;
+                } while (changed);
+            }
+            for (const auto& item : settings.at("items"))
+            {
+                const auto id = item.at("id").get<int>();
+                if (excluded.count(id)) continue;
+                if (!parentChoice)
+                {
+                    const bool branch = std::any_of(settings.at("items").begin(), settings.at("items").end(),
+                        [&](const json& child) { return child.value("parent", 0) == id; });
+                    if (branch || item.value("disabled", false)) continue;
+                    bool disabledAncestor = false;
+                    for (int ancestorId = item.value("parent", 0); ancestorId;)
+                    {
+                        const auto ancestor = std::find_if(settings.at("items").begin(), settings.at("items").end(),
+                            [&](const json& candidate) { return candidate.at("id").get<int>() == ancestorId; });
+                        if (ancestor == settings.at("items").end()) break;
+                        if (ancestor->value("disabled", false)) { disabledAncestor = true; break; }
+                        ancestorId = ancestor->value("parent", 0);
+                    }
+                    if (disabledAncestor) continue;
+                }
+                auto text = item.value("text", std::string("Item"));
+                std::replace(text.begin(), text.end(), '\n', ' ');
+                options += '\n'; options += text + " (#" + std::to_string(id) + ")"; choices.push_back(id);
+            }
+        }
         else if (path == "/chart/type") { options = "None\nLine\nBar\nScatter"; choices = {0, 1, 2, 3}; }
         else if (path == "/chart/updateMode") { options = "Shift\nCircular"; choices = {0, 1}; }
         else if (path == "/scale/mode") { options = "Horizontal top\nHorizontal bottom\nVertical left\nVertical right\nRound inner\nRound outer"; choices = {LV_SCALE_MODE_HORIZONTAL_TOP, LV_SCALE_MODE_HORIZONTAL_BOTTOM, LV_SCALE_MODE_VERTICAL_LEFT, LV_SCALE_MODE_VERTICAL_RIGHT, LV_SCALE_MODE_ROUND_INNER, LV_SCALE_MODE_ROUND_OUTER}; }
@@ -285,6 +370,11 @@ class AdvancedProperties
                 control = lv_dropdown_create(field);
                 lv_dropdown_set_options(control, options.c_str());
                 if (path == "/textBox/inputMode") lv_dropdown_set_selected(control, Serialization::TextInputMode::Parse(value.get<std::string>()));
+                else if (path == "/datePicker/format")
+                {
+                    const auto format = value.get<std::string>();
+                    lv_dropdown_set_selected(control, format == "dd/mm/yyyy" ? 1 : format == "mm/dd/yyyy" ? 2 : 0);
+                }
                 else
                 {
                     const auto selected = std::find(choices.begin(), choices.end(), value.get<int>());
@@ -322,6 +412,13 @@ class AdvancedProperties
 
     static json NewItem(const json& record, const std::string& key)
     {
+        if (key == "options" && record.contains("radioGroup")) return {{"text", "New option"}, {"disabled", false}};
+        if (key == "items" && record.contains("menu"))
+        {
+            uint32_t id = 1;
+            for (const auto& item : record.at("menu").at("items")) id = std::max(id, item.value("id", 0u) + 1);
+            return {{"id", id}, {"parent", 0}, {"text", "New item"}, {"disabled", false}};
+        }
         if (key == "cursors") return {{"color", 0xffeeeeeeu}, {"directions", LV_DIR_ALL}, {"positionSet", true}, {"x", 0}, {"y", 0}, {"series", -1}, {"point", 0}};
         if (key == "hlDates") return record.at("cal").at("today");
         if (key == "series") return {{"color", 0xff4488ccu}, {"axis", 0}, {"hidden", false}, {"start", 0},
@@ -435,7 +532,7 @@ class AdvancedProperties
             for (size_t index = 0; index < value.size(); ++index)
             {
                 const auto itemPath = path + "/" + std::to_string(index);
-                auto* item = Group(window, group, itemPath, key == "nodes" && value[index].is_object() ?
+                auto* item = Group(window, group, itemPath, (key == "nodes" || key == "items") && value[index].is_object() ?
                     value[index].value("text", std::string("Layer")) + " (#" + std::to_string(value[index].value("id", 0u)) + ")" :
                     "Item " + std::to_string(index + 1));
                 if (value[index].is_object())
@@ -660,7 +757,7 @@ public:
     static bool Supports(lv_obj_t* object)
     {
         const auto* type = lv_obj_get_class(object);
-        return Serialization::AdvancedKeyboard::Type(object) || Serialization::CodeWidgets::Type(object) || Serialization::ExtendedWidgets::Type(object) || type == &lv_calendar_class || type == &lv_canvas_class || type == &lv_buttonmatrix_class;
+        return Serialization::AdvancedControls::Type(object) || Serialization::AdvancedKeyboard::Type(object) || Serialization::CodeWidgets::Type(object) || Serialization::ExtendedWidgets::Type(object) || type == &lv_calendar_class || type == &lv_canvas_class || type == &lv_buttonmatrix_class;
     }
 
     static void Update(PropertyWindow* window, const json& record)
@@ -673,12 +770,23 @@ public:
         auto* content = Column(panel->GetWindow());
         panel->AddObjectToWindow(content);
         if(record.contains("advancedKeyboard"))KeyboardControls(window,content,record.at("advancedKeyboard"));
+        if (record.contains("datePicker"))
+        {
+            auto* hint = lv_label_create(content);
+            lv_obj_set_width(hint, LV_PCT(100));
+            lv_label_set_long_mode(hint, LV_LABEL_LONG_MODE_WRAP);
+            lv_label_set_text(hint, "Store dates as YYYY-MM-DD. Leave range limits empty for no limit. Click the date field in F6 to open its calendar.");
+        }
         for (const auto& section : record.items())
         {
             if (section.key() == "base" || !section.value().is_object()) continue;
             for (const auto& field : section.value().items()) {
                 if(section.key()=="advancedKeyboard" && (field.key()=="language" || field.key()=="rightToLeft" || field.key()=="trieId" || field.key()=="trieSizeKiB" || field.key()=="targetOid" || field.key()=="hideOnDefocus"))continue;
-                Build(window, content, "/" + section.key() + "/" + field.key(), field.key(), field.value(), record);
+                const auto path = "/" + section.key() + "/" + field.key();
+                if (section.key() == "datePicker" && field.key() == "format") Field(window, content, path, "Date format", field.value());
+                else if (section.key() == "radioGroup" && field.key() == "selected") Field(window, content, path, "Selected option", field.value());
+                else if (section.key() == "menu" && field.key() == "selected") Field(window, content, path, "Selected item", field.value());
+                else Build(window, content, path, field.key(), field.value(), record);
             }
         }
         auto* status = lv_label_create(panel->GetWindow());

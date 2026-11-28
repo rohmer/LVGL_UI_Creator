@@ -21,7 +21,8 @@ constexpr const char* widgetNames[]={
     "Arc","Bar","Button","Button matrix","Calendar","Canvas","Check box","Chart","Container",
     "Drop down list","Gauge","Image","Image button","Keyboard","Label","LED","Line","Line meter",
     "Message box","Page","Preloader","Roller","Slider","Spinbox","Switch","Table","Tabview","Text area",
-    "Tile view","Window","Text box","Layer view","Barcode","QR code","Advanced Keyboard"};
+    "Tile view","Window","Text box","Layer view","Barcode","QR code","Advanced Keyboard",
+    "Radio Group","Checkbox","Checkbox nested in Label","Date Picker","Menu"};
 constexpr const char* templateNames[]={"Admin dashboard","Analytics dashboard","Commerce dashboard","User management",
     "Settings page","Sign in","Checkout","Pricing","Album","Blog","Product","Cover","Component gallery"};
 constexpr const char* templateKeys[]={"template.admin-dashboard","template.analytics-dashboard","template.commerce-dashboard",
@@ -61,9 +62,9 @@ void CheckDecoration(lv_obj_t* object,const ObjectIcons::Icon* expected){
         std::string(expected->key)+": decorative icon intercepts pointer or keyboard focus");
 }
 std::vector<const ObjectIcons::Icon*> CheckCatalog(){
-    Input::Require(ObjectIcons::Count()==84,"Every addable object must have one explicit icon: expected 84 catalog entries");
+    Input::Require(ObjectIcons::Count()==89,"Every addable object and the legacy keyboard must have one explicit icon: expected 89 catalog entries");
     std::set<const ObjectIcons::Icon*> expected;std::set<std::string> keys;
-    for(int i=0;i<35;++i){const auto* icon=ObjectIcons::Widget(i);Input::Require(icon&&std::string(icon->name)==widgetNames[i],"Widget icon is missing or mapped to another widget");expected.insert(icon);}
+    for(int i=0;i<40;++i){const auto* icon=ObjectIcons::Widget(i);Input::Require(icon&&std::string(icon->name)==widgetNames[i],"Widget icon is missing or mapped to another widget");expected.insert(icon);}
     for(int i=0;i<LV_BOOTSTRAP_PRESET_COUNT;++i){
         const auto* icon=ObjectIcons::Preset(i);Input::Require(icon&&std::string(icon->name)==lv_bootstrap_preset_name(static_cast<lv_bootstrap_preset_t>(i)),"Bootstrap/template icon name differs from the native recipe");
         if(i>=LV_BOOTSTRAP_COMPONENT_COUNT){const int index=i-LV_BOOTSTRAP_COMPONENT_COUNT;Input::Require(std::string(icon->name)==templateNames[index]&&std::string(icon->key)==templateKeys[index],"Page template icon lacks its intentional namespaced identity");}
@@ -106,7 +107,7 @@ void ContactSheet(const std::vector<const ObjectIcons::Icon*>& icons,const std::
 }
 int Category(int id){
     if(id==30||id==31)return 3;if(id==18||id==29)return 2;
-    const std::set<int> advanced={3,4,5,7,10,12,13,17,19,25,26,28,32,33,34};return advanced.count(id)?1:0;
+    const std::set<int> advanced={3,4,5,7,10,12,13,17,19,25,26,28,32,33,35,36,37,38,39};return advanced.count(id)?1:0;
 }
 lv_obj_t* IconChild(lv_obj_t* button,const ObjectIcons::Icon* expected){
     lv_obj_t* result=nullptr;for(uint32_t i=0;i<lv_obj_get_child_count(button);++i){auto* child=lv_obj_get_child(button,i);if(ObjectIcons::Get(child)){Input::Require(!result,"Palette card contains multiple decorative icons");CheckDecoration(child,expected);result=child;}}
@@ -128,9 +129,9 @@ void CheckPalette(UI& editor,SdlSimulator& simulator,const std::filesystem::path
     try{
         for(int width:{180,300,460}){lv_obj_set_width(window,width);lv_obj_update_layout(lv_screen_active());
             for(unsigned category=0;category<6;++category){lv_tabview_set_active(tabs,category,LV_ANIM_OFF);lv_obj_update_layout(lv_screen_active());auto* page=lv_obj_get_child(content,category);
-                unsigned count=0;for(int id=0;id<34;++id)if(Category(id)==int(category)){PaletteCard(page,ObjectIcons::Widget(id));++count;}
+                unsigned count=0;for(int id=0;id<40;++id)if(id!=34&&Category(id)==int(category)){PaletteCard(page,ObjectIcons::Widget(id));++count;}
                 if(category>=4)for(int id=category==4?0:LV_BOOTSTRAP_COMPONENT_COUNT;id<(category==4?LV_BOOTSTRAP_COMPONENT_COUNT:LV_BOOTSTRAP_PRESET_COUNT);++id){PaletteCard(page,ObjectIcons::Preset(id));++count;}
-                const unsigned expected[]={16,14,2,2,36,13};Input::Require(count==expected[category],"Palette category coverage changed without an icon inventory update");
+                const unsigned expected[]={16,19,2,2,36,13};Input::Require(count==expected[category],"Palette category coverage changed without an icon inventory update");
             }
         }
     }catch(...){lv_obj_set_width(window,originalWidth);lv_tabview_set_active(tabs,originalTab,LV_ANIM_OFF);throw;}
@@ -143,7 +144,7 @@ void CheckPalette(UI& editor,SdlSimulator& simulator,const std::filesystem::path
         Input::Require(editor.Undo()&&editor.ProjectDocument()==clean,std::string(descriptor->name)+": icon insertion did not remain one undo step");
     };
     Input::Require(!Input::FindLabel(content,"Advanced Keyboard"),"Screen keyboard is still offered as a manually added widget");
-    for(int id:{0,30,31,32,33})insert(unsigned(Category(id)),ObjectIcons::Widget(id));
+    for(int id:{0,30,31,32,33,35,36,37,38,39})insert(unsigned(Category(id)),ObjectIcons::Widget(id));
     insert(4,ObjectIcons::Preset(LV_BOOTSTRAP_CARD));insert(5,ObjectIcons::Preset(LV_BOOTSTRAP_DASHBOARD));
     for(const auto& alias:std::vector<std::pair<const char*,int>>{{"Admin dashboard",LV_BOOTSTRAP_DASHBOARD},{"Sign-in form",LV_BOOTSTRAP_SIGN_IN},{"Component gallery",LV_BOOTSTRAP_COMPONENT_GALLERY}}){
         editor.MenuAction("welcome");auto* dialog=Input::WindowFromTitle("Welcome to LVGL UI Creator");Input::Require(dialog,"Welcome dialog is missing");
@@ -167,5 +168,5 @@ void CheckObjectIcons(UI& editor,SdlSimulator& simulator,const std::filesystem::
         std::ofstream output(outputDirectory/"manifest.json");output<<json{{"format","uicreator-object-icons"},{"version",1},{"count",icons.size()},{"icons",report}}.dump(2);Input::Require(bool(output),"Cannot write icon verification manifest");
     }
     CheckPalette(editor,simulator,outputDirectory);Input::Require(editor.ProjectDocument()==original,"Icon interaction tests changed the authored project");
-    std::cout<<"84 intentional object icons rendered distinctly at24/32/48px; six palette categories, narrow/default/wide layouts, real icon clicks, Welcome shortcuts and undo passed\n";
+    std::cout<<"89 intentional object icons rendered distinctly at24/32/48px; six palette categories, narrow/default/wide layouts, real icon clicks, Welcome shortcuts and undo passed\n";
 }

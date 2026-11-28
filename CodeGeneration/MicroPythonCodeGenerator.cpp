@@ -5,6 +5,7 @@
 #include <MicroPythonSource.h>
 #include <Serialization/Base64.h>
 #include <Serialization/CodeWidgets.h>
+#include <Serialization/AdvancedControls.h>
 #include <Serialization/ImageAsset.h>
 #include <Serialization/ImageRecords.h>
 #include <Serialization/InteractionActions.h>
@@ -339,6 +340,8 @@ struct Exporter {
             throw std::invalid_argument("Advanced Keyboard requires the custom C++ widget; the official MicroPython binding does not expose it. Use a standard Keyboard or C/Protobuf export");
         if (value.contains("textBox") || value.contains("layerView"))
             throw std::invalid_argument("The Text box and Layer view composite widgets require C/Protobuf export; replace them with native LVGL controls for MicroPython");
+        for(const auto* type:{"radioGroup","checkboxButton","labeledCheckbox","datePicker","menu"})
+            if(value.contains(type))value[type]=Serialization::AdvancedControls::Normalize(type,value.at(type));
         if (value.contains("spinner"))
             throw std::invalid_argument("The pinned official MicroPython binding does not expose lv.spinner; use an Arc or C/Protobuf export");
         if (value.contains("keyboard")) {
@@ -580,6 +583,15 @@ project records, not editor sessions, saved build targets or source paths.
 
 Native LVGL 9.3 widgets, layout/style data, screen navigation, variables,
 multiple widget bindings and authored interaction actions use Python APIs.
+Radio Group, Checkbox, Checkbox nested in Label, Date Picker and Menu use native
+LVGL Python composites. Date Picker uses a compact button matrix and a popup
+created only on first use, with selectable first weekday, month navigation,
+Gregorian leap dates, optional date limits and ISO-backed display formatting.
+Menu supports nested pages, disabled items and a Back button. Read or set their
+values with `get_advanced_value(widget)` and `set_advanced_value(widget, value)`;
+use `get_advanced_part(widget, name)` for named native parts. Their root emits
+VALUE_CHANGED for user edits. Values also support the normal variable bindings.
+`open_date_picker(widget)` and `close_date_picker(widget)` control the popup.
 C/C++ variable symbols are authoring hints; update the corresponding variable
 with `set_variable` from application Python. PNG/JPEG/GIF files are decoded at
 export; deduplicated raw pixel files require no device-side image codec.

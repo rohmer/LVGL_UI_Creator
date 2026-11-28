@@ -71,8 +71,8 @@ void Paint(lv_event_t* event) {
     }
 }
 }
-const Icon* Widget(int id) { return id >= 0 && id < 35 ? &catalog[id] : nullptr; }
-const Icon* Preset(int id) { return id >= 0 && id < 49 ? &catalog[35+id] : nullptr; }
+const Icon* Widget(int id) { return id >= 0 && id < 40 ? &catalog[id] : nullptr; }
+const Icon* Preset(int id) { return id >= 0 && id < 49 ? &catalog[40+id] : nullptr; }
 const Icon* At(size_t index) { return index < Count() ? &catalog[index] : nullptr; }
 size_t Count() { return sizeof(catalog) / sizeof(catalog[0]); }
 size_t ActionCount() { return sizeof(actionCatalog) / sizeof(actionCatalog[0]); }
@@ -122,7 +122,8 @@ const Icon* ForObject(lv_obj_t* object) {
         {"messagebox",18}, {"page",19}, {"spinner",20}, {"roller",21}, {"slider",22},
         {"spinbox",23}, {"switch",24}, {"table",25}, {"tabview",26},
         {"textarea",27}, {"tileview",28}, {"window",29}, {"textBox",30},
-        {"layerView",31}, {"barcode",32}, {"qrcode",33}, {"advancedKeyboard",34}
+        {"layerView",31}, {"barcode",32}, {"qrcode",33}, {"advancedKeyboard",34},
+        {"radioGroup",35}, {"checkboxButton",36}, {"labeledCheckbox",37}, {"datePicker",38}, {"menu",39}
     };
     if (type) for (const auto& kind : kinds)
         if (std::strcmp(type, kind.type) == 0) return Widget(kind.id);

@@ -113,6 +113,7 @@ class UI:
         self._updating = False
         self._dispatching = False
         self._previous_screen = None
+        self._advanced = None
         self.active_screen = -1
 
     def load(self):
@@ -243,6 +244,7 @@ class UI:
         self._keyboards = []
         self._textareas = []
         self._records.clear()
+        self._advanced = None
         self.active_screen = -1
 
     def _on(self, obj, callback, event):
@@ -432,6 +434,17 @@ class UI:
         for unsupported in ("advancedKeyboard", "textBox", "layerView"):
             if unsupported in record:
                 raise ValueError("Widget is not supported by the upstream MicroPython binding: " + unsupported)
+        for kind in ("radioGroup", "checkboxButton", "labeledCheckbox", "datePicker", "menu"):
+            if kind in record:
+                if self._advanced is None:
+                    from uicreator_advanced import Controls
+                    self._advanced = Controls(self)
+                obj = self._advanced.create(kind, parent, record[kind])
+                self._base(obj, record.get("base", {}))
+                self._children(record.get("contentChildren", []), obj, screen)
+                if "hostIndex" in record:
+                    obj.move_to_index(record["hostIndex"])
+                return obj
         kind, cls = "object", "obj"
         for key, native in _KINDS:
             if key in record:
@@ -452,6 +465,31 @@ class UI:
         if "hostIndex" in record:
             obj.move_to_index(record["hostIndex"])
         return obj
+
+    def get_advanced_part(self, obj, name):
+        if self._advanced is None:
+            raise ValueError("This UI has no advanced controls")
+        return self._advanced.part(obj, name)
+
+    def get_advanced_value(self, obj):
+        if self._advanced is None:
+            raise ValueError("This UI has no advanced controls")
+        return self._advanced.get(obj)
+
+    def set_advanced_value(self, obj, value):
+        if self._advanced is None:
+            raise ValueError("This UI has no advanced controls")
+        self._advanced.set(obj, value)
+
+    def open_date_picker(self, obj):
+        if self._advanced is None:
+            raise ValueError("This UI has no advanced controls")
+        self._advanced.open_date(obj)
+
+    def close_date_picker(self, obj):
+        if self._advanced is None:
+            raise ValueError("This UI has no advanced controls")
+        self._advanced.close_date(obj)
 
     def _keyboard_mode(self, value):
         if not isinstance(value, int) or isinstance(value, bool):
@@ -971,7 +1009,15 @@ class UI:
                                 value = bool(value)
                             elif kind == 3:
                                 value = float(value)
-                            self.set_variable(variable, value)
+                            try:
+                                self.set_variable(variable, value)
+                            except ValueError:
+                                if not self._advanced_path(property):
+                                    raise
+                                # A second bound control can reject an edit
+                                # (for example a tighter date range). Restore
+                                # this source without changing variable/history.
+                                self._write(target, property, self.variables[variable])
                     self._on(obj, read, lv.EVENT.VALUE_CHANGED)
             self._bindings[name] = targets
         for name, value in self.variables.items():
@@ -1020,6 +1066,9 @@ class UI:
     def _set_variable(self, name, value, remember):
         definition = self._definitions[name]
         self._validate_value(definition, value)
+        for obj, path, direction in self._bindings[name]:
+            if direction != "from-widget" and self._advanced_path(path):
+                self._advanced.validate(obj, value)
         if remember:
             history = self._histories[name]
             entries, head, limit = history
@@ -1041,11 +1090,16 @@ class UI:
     def _readable(self, path, record):
         leaf = path.rsplit("/", 1)[-1]
         if leaf == "checked":
-            return "cb" in record or "switch" in record or ("button" in record and
+            return "cb" in record or "switch" in record or "checkboxButton" in record or "labeledCheckbox" in record or ("button" in record and
                 (record["button"].get("toggle", False) or record.get("base", {}).get("flags", {}).get("checkable", False)))
-        return leaf in ("value", "selected", "text") and path != "/text"
+        return leaf in ("value", "selected", "text", "date") and path != "/text"
+
+    def _advanced_path(self, path):
+        return path in ("/radioGroup/selected", "/menu/selected", "/checkboxButton/checked", "/labeledCheckbox/checked", "/datePicker/date")
 
     def _read(self, obj, path):
+        if self._advanced_path(path):
+            return self.get_advanced_value(obj)
         leaf = path.rsplit("/", 1)[-1]
         if leaf == "checked":
             return bool(obj.has_state(lv.STATE.CHECKED))
@@ -1054,6 +1108,9 @@ class UI:
         raise ValueError("Widget property is not readable: " + path)
 
     def _write(self, obj, path, value):
+        if self._advanced_path(path):
+            self.set_advanced_value(obj, value)
+            return
         leaf = path.rsplit("/", 1)[-1]
         if leaf in ("checked", "hidden", "disabled"):
             _flag(obj, leaf, bool(value))

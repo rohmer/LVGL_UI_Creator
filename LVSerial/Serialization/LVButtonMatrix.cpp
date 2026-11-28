@@ -63,8 +63,10 @@ namespace Serialization
     json LVButtonMatrix::ToJSON(lv_obj_t* object)
     {
         auto record = ReadSection(object, "btnm");
+#if LV_USE_KEYBOARD
         if (record.empty() && lv_obj_get_class(object) == &lv_keyboard_class)
             record = ReadSection(object, "keyboard").value("buttons", json::object());
+#endif
         record["btnMap"] = json::array();
         record["ctrl"] = json::array();
         record["nativeCtrl"] = json::array();
@@ -108,8 +110,10 @@ namespace Serialization
     void LVButtonMatrix::Apply(lv_obj_t* object, json record, bool applyStyles)
     {
         auto previous = ReadSection(object, "btnm");
+#if LV_USE_KEYBOARD
         if (previous.empty() && lv_obj_get_class(object) == &lv_keyboard_class)
             previous = ReadSection(object, "keyboard").value("buttons", json::object());
+#endif
         PreserveSection(object, "btnm", record);
         if (record["btnMap"].is_array())
             SetValue(object, "/btnm/btnMap", record["btnMap"].get<std::vector<std::string>>());

@@ -58,7 +58,7 @@ def main():
     assert manifest['binding']['revision'] == '032dda4b7e8419702a4b9c4c8748a4d85d51be61'
     assert manifest['lvglVersion'] == '9.3.0'
     assert len(manifest['staticCodeWidgets']) == 2
-    for filename in ('ui.py', 'main.py', 'uicreator_lvgl.py', 'uicreator_input_modes.py'):
+    for filename in ('ui.py', 'main.py', 'uicreator_lvgl.py', 'uicreator_input_modes.py', 'uicreator_advanced.py'):
         compile((destination / filename).read_text(encoding='utf-8'), filename, 'exec')
     exported = json.loads((destination / 'ui.json').read_text())
     encoded = json.dumps(exported)
@@ -152,7 +152,28 @@ def main():
         result = run(args.compiler, source, '--format', 'micropython', '--target', '9.6',
                      '--output', temporary / 'wrong-version', ok=False)
         assert '9.3' in result.stderr
-    print('MicroPython native CLI, assets, static QR/barcode, PB input and no-write rejection checks passed')
+    # The advanced controls stay interactive Python/LVGL composites instead of
+    # being baked to images or silently replaced with empty LVGL objects.
+    advanced = {'canvas': {'width': 320, 'height': 240}, 'obj': [
+        {'oid': 1, 'par': -1, 'base': {}, 'radioGroup': {'selected': 1}},
+        {'oid': 2, 'par': -1, 'base': {}, 'checkboxButton': {'text': '4 Star', 'checked': True}},
+        {'oid': 3, 'par': -1, 'base': {}, 'labeledCheckbox': {'text': '2 Queen', 'description': 'Breakfast'}},
+        {'oid': 4, 'par': -1, 'base': {}, 'datePicker': {'date': '2028-02-29', 'format': 'dd/mm/yyyy', 'firstDay': 1}},
+        {'oid': 5, 'par': -1, 'base': {}, 'menu': {'selected': 1}},
+    ]}
+    advanced_source = args.output / 'advanced.json'
+    advanced_source.write_text(json.dumps(advanced), encoding='utf-8')
+    advanced_destination = args.output / 'advanced-generated'
+    run(args.compiler, advanced_source, '--format', 'micropython', '--output', advanced_destination)
+    advanced_export = json.loads((advanced_destination / 'ui.json').read_text())['screens'][0]['obj']
+    assert advanced_export[0]['radioGroup']['selected'] == 1
+    assert advanced_export[1]['checkboxButton']['checked'] is True
+    assert advanced_export[2]['labeledCheckbox']['description'] == 'Breakfast'
+    assert advanced_export[3]['datePicker']['date'] == '2028-02-29'
+    assert advanced_export[3]['datePicker']['firstDay'] == 1
+    assert advanced_export[4]['menu']['selected'] == 1
+    assert (advanced_destination / 'uicreator_advanced.py').read_bytes() == (args.source_root / 'CodeGeneration/MicroPython/uicreator_advanced.py').read_bytes()
+    print('MicroPython native CLI, assets, interactive advanced controls, static QR/barcode, PB input and no-write rejection checks passed')
 
 
 if __name__ == '__main__':

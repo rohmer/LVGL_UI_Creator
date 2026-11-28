@@ -128,6 +128,7 @@ namespace Serialization
         std::vector<VariableBindingProperty> result;if(!widget.is_object())return result;
         auto add=[&](const char* path,const char* label,bool readable=false){result.push_back({path,label,readable,true});};
         const bool numeric=type!=VariableType::String;
+        const bool advancedCheckbox=widget.contains("checkboxButton")||widget.contains("labeledCheckbox");
         if(numeric){
             bool checkable=widget.contains("cb")||widget.contains("switch");
             if(widget.contains("button")){
@@ -136,9 +137,17 @@ namespace Serialization
                 checkable=flags.is_object()&&flags.value("checkable",false);
                 if(widget["button"].is_object()&&widget["button"].contains("toggle"))checkable=widget["button"].value("toggle",false);
             }
-            add("/base/checked","Checked",checkable);add("/base/hidden","Hidden");add("/base/disabled","Disabled");
+            if(!advancedCheckbox)add("/base/checked","Checked",checkable);
+            add("/base/hidden","Hidden");add("/base/disabled","Disabled");
             add("/base/coords/x","X position");add("/base/coords/y","Y position");add("/base/coords/width","Width");add("/base/coords/height","Height");add("/base/opascale","Opacity");
         }
+        if(type==VariableType::Boolean && advancedCheckbox)
+            add(widget.contains("checkboxButton")?"/checkboxButton/checked":"/labeledCheckbox/checked","Checked",true);
+        if(type==VariableType::Integer) {
+            if(widget.contains("radioGroup"))add("/radioGroup/selected","Selected option",true);
+            if(widget.contains("menu"))add("/menu/selected","Selected item",true);
+        }
+        if(type==VariableType::String && widget.contains("datePicker"))add("/datePicker/date","Date (yyyy-mm-dd)",true);
         if(widget.contains("text"))add("/text","Text");
         if(widget.contains("textarea"))add("/textarea/text","Text",!numeric);
         if(widget.contains("cb"))add("/cb/text","Caption");

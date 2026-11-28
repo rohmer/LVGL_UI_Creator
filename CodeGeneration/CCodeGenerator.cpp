@@ -12,10 +12,12 @@
 #include "../LVSerial/Serialization/ProjectScreens.h"
 #include "../LVSerial/Serialization/ProjectImages.h"
 #include "../LVSerial/Serialization/CodeWidgets.h"
+#include "../LVSerial/Serialization/AdvancedControls.h"
 #include "../LVSerial/Serialization/AdvancedKeyboard.h"
 #include "../LVSerial/Serialization/AdvancedKeyboardMigration.h"
 #include "../LVSerial/Serialization/ProjectTries.h"
 #include <AdvancedKeyboardSource.h>
+#include <AdvancedControlsSource.h>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -74,7 +76,8 @@ const std::map<std::string,std::string> kinds={
     {"switch","switch"},{"textarea","textarea"},{"led","led"},{"line","line"},{"spinner","spinner"},
     {"chart","chart"},{"table","table"},{"scale","scale"},{"keyboard","keyboard"},{"tabview","tabview"},
     {"tileview","tileview"},{"window","window"},{"messagebox","messagebox"},{"imagebutton","imagebutton"},
-    {"page","page"},{"textBox","textBox"},{"layerView","layerView"},{"barcode","barcode"},{"qrcode","qrcode"},{"advancedKeyboard","advancedKeyboard"},{"object","object"}};
+    {"page","page"},{"textBox","textBox"},{"layerView","layerView"},{"barcode","barcode"},{"qrcode","qrcode"},{"advancedKeyboard","advancedKeyboard"},
+    {"radioGroup","radioGroup"},{"checkboxButton","checkboxButton"},{"labeledCheckbox","labeledCheckbox"},{"datePicker","datePicker"},{"menu","menu"},{"object","object"}};
 std::string kind(const json& r) {
     for(auto& k:kinds) if(r.contains(k.second) && k.first!="object") return k.first;
     if(r.contains("base")) return "object";
@@ -107,6 +110,7 @@ struct Generator {
     std::vector<KeyboardBinding> keyboards;
     std::vector<std::pair<size_t,std::string>> textTargets;
     std::set<std::string> bootstrapActions;
+    std::vector<std::pair<std::string,std::string>> advancedControls;
     std::string unique(const std::string& prefix) {return "ui_"+prefix+"_"+std::to_string(serial++);}
     std::string selector(const json& value) const {
         const auto raw=value.get<uint32_t>(),state=raw&0xffffu;
@@ -334,6 +338,8 @@ struct Generator {
     void children(const json& d,const char* key,const std::string& parent) {if(d.contains(key)) for(const auto& r:d.at(key)) object(r,parent);}
     void matrix(const std::string& o,const json& d);
     void custom(const std::string& o,const std::string& type,const json& d);
+    void advancedControl(const std::string& o,const std::string& type,const json& d,const std::string& parent);
+    std::string advancedControlAPI() const;
     void variables(const json& records);
     void interactions(const json& project);
     void screens(const json& project);
@@ -431,6 +437,7 @@ void Generator::matrix(const std::string& o,const json& d) {
 
 std::string Generator::object(const json& r,const std::string& parent,const std::string& requested,bool temporary) {
     const auto t=kind(r);const auto& d=section(r,kinds.at(t).c_str());auto o=requested.empty()?unique("object"):requested;
+    const bool advanced=t=="radioGroup"||t=="checkboxButton"||t=="labeledCheckbox"||t=="datePicker"||t=="menu";
     if(requested.empty()) {
         if(temporary)line("lv_obj_t *"+o+";");
         else globals<<"static lv_obj_t *"<<o<<";\n";
@@ -438,15 +445,22 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
     focusOwner(o,section(r,"base"));
     static const std::map<std::string,std::string> ctor={{"buttonMatrix","buttonmatrix"},{"messagebox","msgbox"},{"textBox","obj"},{"layerView","obj"},{"window","obj"},{"page","obj"},{"object","obj"},{"advancedKeyboard","advanced_keyboard"}};
     const auto native=ctor.count(t)?ctor.at(t):t;
-    if(native!="obj" && t!="advancedKeyboard")requirements.insert(upper(native));
+    if(native!="obj" && t!="advancedKeyboard" && !advanced)requirements.insert(upper(native));
     const auto cc=r.value("contentClass",std::string{});
-    if(cc=="messageboxHeaderButton"||cc=="messageboxFooterButton") {
+    if(advanced) {
+        advancedControl(o,t,d,parent);
+    } else if(cc=="messageboxHeaderButton"||cc=="messageboxFooterButton") {
         std::string owner="lv_obj_get_parent("+parent+")";
         const bool close=r.value("close",false)&&cc=="messageboxHeaderButton";
         line(o+" = "+(cc=="messageboxFooterButton"?"lv_msgbox_add_footer_button(":close?"lv_msgbox_add_close_button(":"lv_msgbox_add_header_button(")+owner+(close?")":" , NULL)")+";");
         call("lv_obj_clean",o,"");
     } else line(o+" = lv_"+native+"_create("+parent+");");
     if(!temporary)line("ui_track_object("+o+", &"+o+");");
+    if(advanced) {
+        base(o,section(r,"base"));
+        children(r,"contentChildren",o);
+        return o;
+    }
     if(t=="textarea")textTargets.emplace_back(authoringScreen,o);
     if(t=="advancedKeyboard") {
         usesAdvancedKeyboard=true;
@@ -641,6 +655,81 @@ std::string Generator::object(const json& r,const std::string& parent,const std:
     if(d.contains("styles"))for(auto p:{std::make_pair("Main","LV_PART_MAIN"),{"Items","LV_PART_ITEMS"},{"Indicator","LV_PART_INDICATOR"},{"Cursor","LV_PART_CURSOR"}})legacyStyle(o,section(d["styles"],p.first),p.second);
     base(o,section(r,"base"));children(r,"contentChildren",o);return o;
 }
+
+void Generator::advancedControl(const std::string& object,const std::string& type,const json& input,const std::string& parent) {
+    if(target!="9.6")throw std::invalid_argument("Advanced "+type+" requires the bundled LVGL 9.6 target");
+    const auto data=Serialization::AdvancedControls::Normalize(type,input);
+    advancedControls.emplace_back(object,type);
+    requirements.insert("LABEL");requirements.insert("FLEX");requirements.insert("BUTTON");
+    const auto checked=[&](const std::string& expression) {line("if (!("+expression+")) { ui_deinit(); return false; }");};
+    if(type=="radioGroup") {
+        line(object+" = ui_adv_radio_create("+parent+", "+quote(data.at("title"))+", "+number(data.at("horizontal"))+");");
+        checked(object);
+        for(const auto& option:data.at("options"))checked("ui_adv_radio_add("+object+", "+quote(option.at("text"))+", "+number(option.at("disabled"))+")");
+        checked("ui_adv_radio_set_selected("+object+", "+number(data.at("selected"))+")");
+    } else if(type=="checkboxButton"||type=="labeledCheckbox") {
+        requirements.insert("CHECKBOX");
+        line(object+" = ui_adv_checkbox_create("+parent+", "+quote(data.at("text"))+", "+quote(data.value("description",std::string{}))+", "+(type=="labeledCheckbox"?"true":"false")+");");
+        checked(object);
+        call("ui_adv_checkbox_set_checked",object,number(data.at("checked")));
+        call("lv_obj_set_disabled",object,number(data.at("disabled")));
+    } else if(type=="datePicker") {
+        requirements.insert("BUTTON");requirements.insert("CALENDAR");requirements.insert("BUTTONMATRIX");requirements.insert("CALENDAR_HEADER_ARROW");
+        std::string arguments=parent;
+        for(const auto* field:{"date","format","minDate","maxDate","placeholder"})arguments+=", "+quote(data.at(field));
+        arguments+=", "+number(data.at("firstDay"))+", "+number(data.at("disabled"));
+        line(object+" = ui_adv_date_create("+arguments+");");checked(object);
+    } else {
+        requirements.insert("BUTTON");
+        line(object+" = ui_adv_menu_create("+parent+", "+quote(data.at("title"))+");");checked(object);
+        // Normalization validates every ID and parent; append parents first so
+        // the small native helper never needs a deferred-node allocation.
+        std::set<uint32_t> added{0};size_t remaining=data.at("items").size();
+        while(remaining) {
+            const auto before=remaining;
+            for(const auto& item:data.at("items")) {
+                const auto id=item.at("id").get<uint32_t>(),owner=item.at("parent").get<uint32_t>();
+                if(added.count(id)||!added.count(owner))continue;
+                checked("ui_adv_menu_add("+object+", "+std::to_string(id)+", "+std::to_string(owner)+", "+quote(item.at("text"))+", "+number(item.at("disabled"))+")");
+                added.insert(id);--remaining;
+            }
+            if(before==remaining)throw std::invalid_argument("Menu items contain a missing or cyclic parent");
+        }
+        checked("ui_adv_menu_set_selected("+object+", "+number(data.at("selected"))+")");
+    }
+}
+
+std::string Generator::advancedControlAPI() const {
+    if(advancedControls.empty())return {};
+    std::ostringstream result;
+    result<<"lv_obj_t *ui_advanced_part(lv_obj_t *object, const char *name) { return object && name ? ui_adv_part(object, name) : NULL; }\n";
+    for(const auto& function:std::vector<std::pair<std::string,std::string>>{
+        {"int32_t ui_advanced_get_selected(lv_obj_t *object)","return -1;"},
+        {"bool ui_advanced_set_selected(lv_obj_t *object, int32_t value)","(void)value; return false;"},
+        {"bool ui_advanced_get_checked(lv_obj_t *object)","return false;"},
+        {"bool ui_advanced_set_checked(lv_obj_t *object, bool value)","(void)value; return false;"},
+        {"const char *ui_advanced_get_date(lv_obj_t *object)","return NULL;"},
+        {"bool ui_advanced_set_date(lv_obj_t *object, const char *value)","(void)value; return false;"},
+        {"bool ui_advanced_open_date(lv_obj_t *object)","return false;"},
+        {"bool ui_advanced_close_date(lv_obj_t *object)","return false;"}}) {
+        result<<function.first<<" {\n    if (!object || !ui_ready) { return "<<(function.first.rfind("int32_t",0)==0?"-1":function.first.rfind("const char",0)==0?"NULL":"false")<<"; }\n";
+        for(const auto& control:advancedControls) {
+            const auto& object=control.first;const auto& type=control.second;
+            const auto& name=function.first;std::string statement;
+            if(name.find("get_selected")!=std::string::npos&&(type=="radioGroup"||type=="menu"))statement="return (int32_t)ui_adv_"+std::string(type=="radioGroup"?"radio":"menu")+"_get_selected(object);";
+            else if(name.find("set_selected")!=std::string::npos&&(type=="radioGroup"||type=="menu"))statement="return ui_adv_"+std::string(type=="radioGroup"?"radio":"menu")+"_set_selected(object, "+(type=="menu"?"(uint32_t)value":"value")+");";
+            else if(name.find("get_checked")!=std::string::npos&&(type=="checkboxButton"||type=="labeledCheckbox"))statement="return ui_adv_checkbox_get_checked(object);";
+            else if(name.find("set_checked")!=std::string::npos&&(type=="checkboxButton"||type=="labeledCheckbox"))statement="ui_adv_checkbox_set_checked(object, value); return true;";
+            else if(name.find("get_date")!=std::string::npos&&type=="datePicker")statement="return ui_adv_date_get_date(object);";
+            else if(name.find("set_date")!=std::string::npos&&type=="datePicker")statement="return value && ui_adv_date_set_date(object, value);";
+            else if(name.find("open_date")!=std::string::npos&&type=="datePicker")statement="ui_adv_date_open(object); return true;";
+            else if(name.find("close_date")!=std::string::npos&&type=="datePicker")statement="ui_adv_date_close(object); return true;";
+            if(!statement.empty())result<<"    if (object == "<<object<<") { "<<statement<<" }\n";
+        }
+        result<<"    "<<function.second<<"\n}\n";
+    }
+    return result.str();
+}
 }
 
 namespace {
@@ -740,6 +829,11 @@ void Generator::screens(const json& project) {
             auto name="ui_screen_"+std::to_string(si)+"_object_"+std::to_string(id);handles[{si,id}]=name;types[{si,id}]=kind(r);globals<<"static lv_obj_t *"<<name<<";\n";
             const auto widgetType=types.at({si,id});
             auto metadata=json{{kinds.at(widgetType),widgetType=="label"?json(""):json::object()}};
+            // These controls validate variable values against authored options,
+            // disabled menu ancestors and date limits. Type-only metadata would
+            // replace those constraints with the normalizer's defaults.
+            if(widgetType=="radioGroup"||widgetType=="checkboxButton"||widgetType=="labeledCheckbox"||widgetType=="datePicker"||widgetType=="menu")
+                metadata[widgetType]=r.at(widgetType);
             if(widgetType=="button") {
                 const auto& flags=section(section(r,"base"),"flags");
                 if(flags.contains("checkable"))metadata["base"]["flags"]["checkable"]=flags.at("checkable");
@@ -881,6 +975,7 @@ void Generator::variables(const json& records) {
                            {"bindings",json::array()}};
         if(!codeSymbol.empty())metadata["symbol"]=codeSymbol;
         std::vector<std::pair<std::string,std::string>> outputs,inputs;
+        std::vector<std::string> bindingValidators;
         bool needsLVGLNumber=false, needsText=false;
         for(const auto& target:Serialization::LVVariable::Bindings(v)) {
             auto ref=std::make_pair(target.screen,target.objectId);if(!handles.count(ref))throw std::runtime_error("Variable references a missing widget: "+v.name);
@@ -900,6 +995,13 @@ void Generator::variables(const json& records) {
                 } else {
                     binding="lv_advanced_keyboard_set_text("+object+", text);";
                 }
+            } else if(!string&&property=="selected"&&(widget=="radioGroup"||widget=="menu")) {
+                binding="(void)ui_adv_"+std::string(widget=="radioGroup"?"radio":"menu")+"_set_selected("+object+", "+(widget=="menu"?"(uint32_t)value":"(int32_t)value")+");";
+                getter="ui_adv_"+std::string(widget=="radioGroup"?"radio":"menu")+"_get_selected("+object+")";
+            } else if(!string&&property=="checked"&&(widget=="checkboxButton"||widget=="labeledCheckbox")) {
+                binding="ui_adv_checkbox_set_checked("+object+", value != 0);";getter="ui_adv_checkbox_get_checked("+object+")";
+            } else if(string&&property=="date"&&widget=="datePicker") {
+                binding="(void)ui_adv_date_set_date("+object+", value);";getter="ui_adv_date_get_date("+object+")";
             } else if(!string&&(property=="checked"||property=="hidden"||property=="disabled")) {
                 binding="lv_obj_set_"+property+"("+object+", value != 0);";if(property=="checked")getter="lv_obj_is_checked("+object+")";
             } else if(!string&&(property=="x"||property=="y"||property=="width"||property=="height"))binding="lv_obj_set_"+property+"("+object+", (int32_t)value);";
@@ -925,12 +1027,43 @@ void Generator::variables(const json& records) {
             if(toWidget) {
                 outputs.emplace_back(object,binding);
                 if(!string&&property=="text")needsText=true;
-                if(property!="text"&&property!="checked"&&property!="hidden"&&property!="disabled")needsLVGLNumber=true;
+                if(!string&&property!="text"&&property!="checked"&&property!="hidden"&&property!="disabled")needsLVGLNumber=true;
+                if(property=="selected"&&(widget=="radioGroup"||widget=="menu")) {
+                    const auto settings=Serialization::AdvancedControls::Normalize(widget,bindingWidget.at(widget));
+                    std::string allowed=widget=="radioGroup"?"value == -1":"value == 0";
+                    if(widget=="radioGroup") {
+                        size_t id=0;for(const auto& option:settings.at("options")) {
+                            if(!option.value("disabled",false))allowed+=" || value == "+std::to_string(id);
+                            ++id;
+                        }
+                    } else {
+                        std::set<int32_t> parents;std::map<int32_t,json> items;
+                        for(const auto& item:settings.at("items")) {parents.insert(item.at("parent").get<int32_t>());items.emplace(item.at("id").get<int32_t>(),item);}
+                        for(const auto& entry:items) {
+                            bool disabled=false;auto id=entry.first;
+                            for(auto ancestor=id;ancestor;ancestor=items.at(ancestor).at("parent").get<int32_t>())disabled|=items.at(ancestor).value("disabled",false);
+                            if(!disabled&&!parents.count(id))allowed+=" || value == "+std::to_string(id);
+                        }
+                    }
+                    bindingValidators.push_back("    if (!("+allowed+")) { return false; }\n");
+                } else if(property=="date"&&widget=="datePicker") {
+                    const auto settings=Serialization::AdvancedControls::Normalize(widget,bindingWidget.at(widget));
+                    std::string invalid="!ui_adv_date_parse(value, &parsed)";
+                    if(!settings.at("minDate").get_ref<const std::string&>().empty())invalid+=" || strcmp(value, "+quote(settings.at("minDate"))+") < 0";
+                    if(!settings.at("maxDate").get_ref<const std::string&>().empty())invalid+=" || strcmp(value, "+quote(settings.at("maxDate"))+") > 0";
+                    bindingValidators.push_back("    if (*value) { lv_calendar_date_t parsed; if ("+invalid+") { return false; } }\n");
+                }
             }
             metadata["bindings"].push_back(Serialization::LVVariable::BindingToJSON(target));
         }
         manifest["variables"].push_back(std::move(metadata));
         auto& out=variableCode;
+        if(!bindingValidators.empty()) {
+            out<<"static bool ui_validate_"<<n<<'('<<type<<" value) {\n";
+            if(string)out<<"    if (!value) { return false; }\n";
+            for(const auto& validator:bindingValidators)out<<validator;
+            out<<"    return true;\n}\n";
+        }
         out<<"static void ui_apply_"<<n<<'('<<type<<" value) {\n    (void)value;\n    if (ui_syncing_vars) { return; }\n    ui_syncing_vars=true;\n";
         if(needsText) {
             if(v.type==Serialization::VariableType::Boolean)out<<"    const char *text=value ? \"true\" : \"false\";\n";
@@ -939,7 +1072,7 @@ void Generator::variables(const json& records) {
         for(const auto& binding:outputs)out<<"    if ("<<binding.first<<") { "<<binding.second<<" }\n";
         out<<"    ui_syncing_vars=false;\n}\n";
         out<<"bool ui_set_"<<n<<'('<<type<<" value) {\n    if (!ui_ready || ui_syncing_vars) return false;\n";
-        if(string)out<<"    char *copy;\n    size_t length;\n    if (!value) { return false; }\n    length=strlen(value);\n    if ("<<external<<" && length >= "<<external<<"_capacity) { return false; }\n    copy=lv_strdup(value);\n    if (!copy) { return false; }\n";
+        if(string)out<<"    char *copy;\n    size_t length;\n    if (!value) { return false; }\n    length=strlen(value);\n    if ("<<external<<" && length >= "<<external<<"_capacity) { return false; }\n";
         else if(v.type==Serialization::VariableType::Float) {
             out<<"    if (!isfinite(value)) return false;\n";
             if(storageType=="float")out<<"    if (value < -FLT_MAX || value > FLT_MAX) { return false; }\n    value=(double)(float)value;\n";
@@ -950,6 +1083,8 @@ void Generator::variables(const json& records) {
             const auto bounds=limits.at(storageType);out<<"    if (value < "<<bounds.first<<" || value > "<<bounds.second<<") return false;\n";
         }
         if(needsLVGLNumber&&v.type!=Serialization::VariableType::Boolean)out<<"    if (value < INT32_MIN || value > INT32_MAX) return false;\n";
+        if(!bindingValidators.empty())out<<"    if (!ui_validate_"<<n<<"(value)) { return false; }\n";
+        if(string)out<<"    copy=lv_strdup(value);\n    if (!copy) { return false; }\n";
         if(!singleHistory)out<<"    "<<historyType<<" *next=("<<historyType<<"*)ui_reserve("<<history<<", &"<<history<<"_capacity, "<<history<<"_count, "<<v.history<<", sizeof *"<<history<<"); if (!next) {"<<(string?"lv_free(copy);":"")<<"return false;} "<<history<<"=next;\n";
         if(singleHistory) {
             if(string)out<<"    if ("<<history<<"_count) lv_free((void*)"<<history<<");\n";
@@ -990,6 +1125,7 @@ void Generator::variables(const json& records) {
         // Defaults establish the current value without allocating or recording
         // history. Immutable string defaults stay in the generated constant pool.
         variableInit<<"    "<<current<<" = "<<(v.type==Serialization::VariableType::Float&&storageType=="float"?"(double)(float)":"")<<literal(v.defaultValue)<<";\n";
+        if(!bindingValidators.empty())variableInit<<"    if (!ui_validate_"<<n<<'('<<current<<")) { ui_deinit(); return false; }\n";
         if(needsLVGLNumber&&v.type!=Serialization::VariableType::Boolean)
             variableInit<<"    if ("<<current<<" < INT32_MIN || "<<current<<" > INT32_MAX) { ui_deinit(); return false; }\n";
         variableInit<<"    ui_apply_"<<n<<'('<<current<<");\n";
@@ -1143,11 +1279,20 @@ std::map<std::string,std::string> Generator::files(const json& input) {
         {"el-GR","LV_ADVANCED_KEYBOARD_USE_GREEK_FONT"}})
         if(keyboardLanguages.count(feature.first))requirementsFile<<"#if !"<<feature.second<<"\n#error Enable "<<feature.second<<" in lv_conf.h for this keyboard language\n#endif\n";
     if(usesAdvancedKeyboard)requirementsFile<<"#if LV_USE_ARABIC_PERSIAN_CHARS\n#error Disable LV_USE_ARABIC_PERSIAN_CHARS to preserve logical Unicode in editable textareas\n#endif\n";
+    if(!advancedControls.empty()) {
+        header<<"/* Native advanced controls. Setters are silent; listen on the root for user VALUE_CHANGED events. */\n"
+            <<"lv_obj_t *ui_advanced_part(lv_obj_t *object, const char *name);\n"
+            <<"int32_t ui_advanced_get_selected(lv_obj_t *object);\nbool ui_advanced_set_selected(lv_obj_t *object, int32_t value);\n"
+            <<"bool ui_advanced_get_checked(lv_obj_t *object);\nbool ui_advanced_set_checked(lv_obj_t *object, bool value);\n"
+            <<"const char *ui_advanced_get_date(lv_obj_t *object);\nbool ui_advanced_set_date(lv_obj_t *object, const char *value);\n"
+            <<"bool ui_advanced_open_date(lv_obj_t *object);\nbool ui_advanced_close_date(lv_obj_t *object);\n";
+    }
     std::string h="#pragma once\n#include <lvgl.h>\n#include <stdbool.h>\n#include <stdint.h>\n#include <stddef.h>\n#ifdef __cplusplus\nextern \"C\" {\n#endif\nbool ui_init(void);\nvoid ui_deinit(void);\nsize_t ui_screen_count(void);\nlv_obj_t *ui_get_screen(size_t index);\nlv_obj_t *ui_get_object(size_t screen, int32_t object_id);\nbool ui_show_screen(size_t index);\n"+header.str()+"#ifdef __cplusplus\n}\n#endif\n";
     std::ostringstream c;c<<"/* Generated by LVGL UI Creator. LVGL and your display/input drivers must be initialized first. */\n#include \"ui.h\"\n#include \"ui_assets.h\"\n#include \"ui_requirements.h\"\n#include <math.h>\n#include <float.h>\n";
     if(usesAdvancedKeyboard)c<<"#include \"advanced_keyboard/include/lv_advanced_keyboard.h\"\n#include \"advanced_keyboard/include/lv_advanced_keyboard_prediction.h\"\n";
     else if(usesInputModes)c<<"#include \"advanced_keyboard/include/lv_textarea_input_mode.h\"\n";
-    c<<CGeneration::Runtime<<globals.str()<<focusCode()<<variableCode.str()<<actionCode.str()<<fontAccess.str();
+    if(!advancedControls.empty())c<<"#include \"ui_advanced_controls.h\"\n";
+    c<<CGeneration::Runtime<<globals.str()<<advancedControlAPI()<<focusCode()<<variableCode.str()<<actionCode.str()<<fontAccess.str();
     if(usesTransitions) {
         c<<R"TRANSITION(
 static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
@@ -1243,6 +1388,17 @@ static void ui_cancel_legacy_screen_transition(lv_obj_t *screen)
     const std::string cmake="cmake_minimum_required(VERSION 3.24)\nproject(GeneratedUI LANGUAGES C)\nadd_library(generated_ui STATIC ui.c ui_assets.c)\nset_target_properties(generated_ui PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED YES)\ntarget_include_directories(generated_ui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})\nif(TARGET lvgl::lvgl)\n target_link_libraries(generated_ui PUBLIC lvgl::lvgl)\nelseif(TARGET lvgl)\n target_link_libraries(generated_ui PUBLIC lvgl)\nelse()\n message(FATAL_ERROR \"Add your LVGL target before adding this directory\")\nendif()\n";
     const std::string readme="# Generated LVGL project\n\nThese C11 sources target LVGL 9.6.x. No editor, C++, JSON, Protobuf, SDL, filesystem or image decoder is required on the device. PNG/JPEG/GIF assets are decoded during export to ARGB8888 arrays; GIF frames advance using LVGL timers. Fonts and widget maps are compiled into the assets. Canvas buffers are writable RAM. Budget flash for uncompressed images and RAM for screens, canvases and variable histories.\n\nAdd LVGL to your firmware build, configure the options listed in ui_requirements.h, then add_subdirectory(path/to/generated_ui) and link generated_ui. Your firmware supplies LVGL, the display/input drivers and periodic tick/timer handling. After initializing them:\n\n```c\n#include \"ui.h\"\nif (!ui_init()) { /* initialization failed */ }\n/* ui_init loads the initial screen. */\n```\n\nUse ui_get_screen(index), ui_show_screen(index), and ui_get_object(screen_index, saved_object_id). manifest.json maps original names and IDs to generated symbols. Variables are exposed in ui_variables; update them through ui_set_v_NAME to maintain bindings and history. String pointers are borrowed and expire on the next update or ui_deinit. History getters return oldest first; a configured history of zero grows until memory is exhausted. Setters report allocation failures. Interactive bindings update variables on VALUE_CHANGED. All calls must run on the LVGL thread.\n\nui_init is idempotent. ui_deinit releases generated screens, animation timers and variable storage, restoring the previous screen when available. Call it before deleting the display or deinitializing LVGL. Application-specific actions and hardware behavior should be attached by firmware after ui_init; editor-only drag settings are not exported. Re-export overwrites generated files, so keep application logic outside this directory.\n\nCLI: UICreatorCodeGen project.json output_directory (also accepts project.pb). The editor exports through File > Export C project. External image paths resolve relative to the saved project; embedded assets are preferred. Optional multi-screen project records use a screens array of {name,canvas,obj} plus activeScreen and shared variables (binding screen defaults to 0).\n";
     std::map<std::string,std::string> output={{"ui.h",h},{"ui.c",c.str()},{"ui_assets.h","#pragma once\n#include <lvgl.h>\n"+assetHeader.str()},{"ui_assets.c","#include \"ui_assets.h\"\n"+assets.str()},{"ui_requirements.h",requirementsFile.str()},{"CMakeLists.txt",cmake},{"README.md",readme},{"manifest.json",manifest.dump(2)+"\n"}};
+    if(!advancedControls.empty()) {
+        std::set<std::string> enabled;for(const auto& control:advancedControls)enabled.insert(control.second);
+        std::string configuration;
+        for(const auto& gate:std::vector<std::pair<std::string,std::string>>{{"radioGroup","RADIO_GROUP"},{"checkboxButton","CHECKBOX_BUTTON"},{"labeledCheckbox","LABELED_CHECKBOX"},{"datePicker","DATE_PICKER"},{"menu","MENU"}})
+            configuration+="#define UI_ADV_USE_"+gate.second+" "+(enabled.count(gate.first)?"1":"0")+"\n";
+        auto nativeSource=CGeneration::AdvancedControlsSource();
+        const auto lvglInclude=nativeSource.find("#include <lvgl/lvgl.h>");
+        if(lvglInclude!=std::string::npos)nativeSource.replace(lvglInclude,std::string("#include <lvgl/lvgl.h>").size(),"#include <lvgl.h>");
+        output["ui_advanced_controls.h"]=configuration+nativeSource;
+        output["README.md"]+="\nNative advanced Radio Group, Checkbox, Checkbox nested in Label, Date Picker and Menu controls share the same C runtime as the editor and Protobuf/XML loader. Only controls used in this project are enabled in ui_advanced_controls.h; no C++ runtime or JSON parser is introduced. The root emits LV_EVENT_VALUE_CHANGED for user changes. Use the ui_advanced_* functions declared in ui.h to read or set selections, checked state and ISO dates, open/close the date popup, or access named internal parts. A returned date pointer belongs to the control and expires on its next date update or deletion. Programmatic setters are silent. Invalid controls, selections and out-of-range dates are rejected. The native helper header is an implementation detail; application code should include ui.h.\n";
+    }
     output["CMakeLists.txt"]+="\noption(UI_USE_STATIC_TEXT \"Keep authored fixed text in read-only storage\" ON)\ntarget_compile_definitions(generated_ui PRIVATE UI_USE_STATIC_TEXT=$<BOOL:${UI_USE_STATIC_TEXT}>)\n";
     output["README.md"]+="\nProject fonts are embedded automatically and shared by every widget that uses them. Export chooses C symbols; friendly font names can contain spaces or Unicode. Use ui_get_font(project_font_id) to retrieve an immutable font for application-created widgets. IDs survive renaming, and the returned font remains valid for the lifetime of the program. The source TTF/OTF, conversion settings and conversion tools are not needed on the device.\n\n";
     output["README.md"]+=R"MEMORY(
